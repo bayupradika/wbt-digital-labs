@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Lisensi PRO - Khusus Penjual</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 400px;
+            text-align: center;
+        }
+        h2 { color: #38bdf8; margin-top: 0; }
+        input {
+            width: 80%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: #fff;
+            font-size: 1.1rem;
+            text-align: center;
+            text-transform: uppercase;
+            margin: 15px 0;
+        }
+        button {
+            background: #10b981;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 85%;
+            transition: background 0.2s;
+        }
+        button:hover { background: #059669; }
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background: #0f172a;
+            border: 2px dashed #38bdf8;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #38bdf8;
+            word-break: break-all;
+            display: none;
+        }
+        .copy-hint {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🔑 Generator Lisensi PRO</h2>
+        <p>Masukkan 4 karakter unik pembeli (misal: nama atau ID transaksi):</p>
+        <input type="text" id="custInput" maxlength="4" placeholder="BUDI / 2026 / 8492">
+        <button onclick="generateKey()">Buat Kode Lisensi</button>
+        
+        <div class="result-box" id="resultBox" onclick="copyKey()" style="cursor:pointer;">
+            <div id="keyText">ACT-PRO-XXXX-YYYY</div>
+            <div class="copy-hint">Klik kotak untuk menyalin kode</div>
+        </div>
+    </div>
+
+    <script>
+        function generateKey() {
+            let input = document.getElementById('custInput').value.trim().toUpperCase();
+            if (input.length < 1) {
+                alert("Masukkan minimal 1 karakter!");
+                return;
+            }
+            // Pad or trim to exactly 4 chars
+            while (input.length < 4) {
+                input += 'X';
+            }
+            if (input.length > 4) {
+                input = input.substring(0, 4);
+            }
+            
+            let sum = 0;
+            for (let i = 0; i < input.length; i++) {
+                sum += input.charCodeAt(i);
+            }
+            const yyyy = ((sum * 137 + 42) % 10000).toString().padStart(4, '0');
+            const finalKey = `ACT-PRO-${input}-${yyyy}`;
+            
+            document.getElementById('keyText').innerText = finalKey;
+            document.getElementById('resultBox').style.display = 'block';
+        }
+
+        function copyKey() {
+            const key = document.getElementById('keyText').innerText;
+            navigator.clipboard.writeText(key).then(() => {
+                alert("✅ Kode lisensi tersalin: " + key);
+            });
+        }
+    </script>
+</body>
+</html>

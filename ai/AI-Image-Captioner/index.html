@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Image Captioner - Smart Caption Generator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Captioner Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-image" style="color:#3b82f6;"></i> 1. Unggah Foto Anda</h2>
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+        
+        <img id="preview" class="preview-img" alt="Preview">
+        
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <h3 style="font-size: 16px; margin-bottom: 6px;">Klik atau Tarik Foto ke Sini</h3>
+          <p style="font-size: 13px; color: #94a3b8;">Mendukung PNG, JPG, WEBP (Maks 10MB)</p>
+          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Foto Contoh</button>
+        </div>
+
+        <label class="label">Gaya Platform (Tone)</label>
+        <select class="select-input" id="platform-select">
+          <option value="instagram">📸 Instagram Estetik & Trendy</option>
+          <option value="tiktok">🎵 TikTok Viral & Lucu</option>
+          <option value="ecommerce">🛒 E-Commerce & Promosi Jualan</option>
+          <option value="linkedin">💼 LinkedIn Profesional & Inspiratif</option>
+        </select>
+
+        <button class="btn-generate" onclick="generateCaptions()"><i class="fa-solid fa-bolt"></i> Buat Caption Otomatis</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-captions" style="color:#a855f7;"></i> 2. Hasil Generator Caption</h2>
+        <p style="color: #94a3b8; font-size: 14px;">Klik tombol di bawah setiap caption untuk menyalin teks beserta hashtag secara langsung.</p>
+        
+        <div class="output-list" id="output-list">
+          <div style="background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); padding: 40px 20px; border-radius: 16px; text-align: center; color: #94a3b8;">
+            <i class="fa-solid fa-sparkles" style="font-size: 32px; margin-bottom: 10px; color: #6366f1;"></i>
+            <p>Unggah gambar di sebelah kiri dan tekan tombol generate untuk melihat keajaiban AI!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

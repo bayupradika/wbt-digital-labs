@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Background Eraser AI - Instant PNG Cutout</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Eraser Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-image" style="color:#ec4899;"></i> 1. Foto Asli (Dengan Latar Belakang)</h2>
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+        
+        <div class="canvas-wrapper" id="orig-wrapper"><canvas id="orig-canvas"></canvas></div>
+        
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+          <i class="fa-solid fa-cloud-arrow-up" style="font-size:48px; color:#ec4899; margin-bottom:15px;"></i>
+          <h3>Klik atau Tarik Foto ke Sini</h3>
+          <p style="font-size: 13px; color: #94a3b8;">Hapus latar belakang foto produk atau potret secara otomatis</p>
+          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Foto Contoh</button>
+        </div>
+
+        <button class="btn" onclick="eraseBackground()"><i class="fa-solid fa-scissors"></i> Hapus Latar Belakang Otomatis</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-gem" style="color:#38bdf8;"></i> 2. Hasil Cutout PNG Transparan</h2>
+        <div class="canvas-wrapper transparent-bg" id="res-wrapper"><canvas id="res-canvas"></canvas></div>
+        
+        <div id="res-placeholder" style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <i class="fa-solid fa-object-ungroup" style="font-size: 40px; margin-bottom: 10px; color: #38bdf8;"></i>
+          <p>Hasil objek tanpa latar belakang (PNG Transparan) akan muncul di sini.</p>
+        </div>
+
+        <button class="btn btn-dl" id="dl-btn" style="display:none;" onclick="downloadPNG()"><i class="fa-solid fa-download"></i> Download PNG Transparan</button>
+      </div>
+    </div>
+  </div>
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Center Portal - 10 Arcade Offline & PC</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body {
+      background: #090d16; color: #f8fafc; min-height: 100vh; padding: 40px 20px;
+      background-image: radial-gradient(circle at 50% 0%, rgba(59,130,246,0.15) 0%, transparent 60%);
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 50px; }
+    h1 { font-family: 'Outfit', sans-serif; font-size: 48px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; background: linear-gradient(135deg, #38bdf8, #a855f7, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    p.subtitle { color: #94a3b8; font-size: 18px; max-width: 600px; margin: 0 auto; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+    .card {
+      background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 24px;
+      display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s; position: relative; overflow: hidden; text-decoration: none; color: inherit;
+    }
+    .card:hover { transform: translateY(-6px); border-color: #38bdf8; box-shadow: 0 20px 40px -15px rgba(56,189,248,0.3); }
+    .icon-box { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 20px; }
+    .genre { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .title { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 10px; color: white; }
+    .desc { color: #94a3b8; font-size: 14px; line-height: 1.6; margin-bottom: 24px; flex: 1; }
+    .play-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 14px; text-align: center; font-weight: 800; font-size: 14px; color: #38bdf8; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .card:hover .play-btn { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎮 ARCADE GAME CENTER</h1>
+      <p class="subtitle">Koleksi 10 Game HTML5 Offline Tanpa Iklan untuk PC & Android, dilengkapi Sistem Topup Midtrans & 50 Gems Gratis!</p>
+    </header>
+
+    <div class="grid">
+      <a href="Cube-Escape-Dash/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(59,130,246,0.2); color: #60a5fa;">🧊</div>
+          <div class="genre" style="color: #60a5fa;">Arcade / Runner</div>
+          <div class="title">Cube Escape Dash</div>
+          <div class="desc">Lompat hindari rintangan berduri & balok api. Beli skin kubus neon di toko!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Color-Block-Master/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(245,158,11,0.2); color: #fbbf24;">🧩</div>
+          <div class="genre" style="color: #fbbf24;">Puzzle / Tetris</div>
+          <div class="title">Color Block Master</div>
+          <div class="desc">Tarik balok warna ke papan grid 8x8. Gunakan Palu dan Sapujagat saat terjebak!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Merge-Kingdom/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(16,185,129,0.2); color: #34d399;">🏰</div>
+          <div class="genre" style="color: #34d399;">Idle Builder / Merge</div>
+          <div class="title">Merge Kingdom</div>
+          <div class="desc">Gabungkan bangunan identik untuk membangun kerajaan mega penghasil emas otomatis!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Mini-Farming-Life/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(74,222,128,0.2); color: #4ade80;">🧑‍🌾</div>
+          <div class="genre" style="color: #4ade80;">Simulation / Farm</div>
+          <div class="title">Mini Farming Life</div>
+          <div class="desc">Tanam gandum, jagung, dan stroberi. Siram pupuk ajaib untuk panen melimpah!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Neon-Drift-Racer/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(236,72,153,0.2); color: #ec4899;">🏎️</div>
+          <div class="genre" style="color: #ec4899;">Racing / Cyberpunk</div>
+          <div class="title">Neon Drift Racer</div>
+          <div class="desc">Kemudi mobil balap neon berkecepatan tinggi melintasi jalan raya retro futuristik!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Pixel-Dungeon-Quest/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(168,85,247,0.2); color: #a855f7;">🛡️</div>
+          <div class="genre" style="color: #a855f7;">RPG / Dungeon</div>
+          <div class="title">Pixel Dungeon Quest</div>
+          <div class="desc">Jelajahi ubin gelap penjara bawah tanah, kalahkan monster slime & temukan peti emas!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Shadow-Ninja-Jump/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(99,102,241,0.2); color: #818cf8;">🥷</div>
+          <div class="genre" style="color: #818cf8;">Platformer / Jump</div>
+          <div class="title">Shadow Ninja Jump</div>
+          <div class="desc">Lompat vertikal dari pijakan ke pijakan menembus puncak menara ninja bayangan!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Space-Survivor-Roguelike/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(56,189,248,0.2); color: #38bdf8;">🛸</div>
+          <div class="genre" style="color: #38bdf8;">Action / Shooter</div>
+          <div class="title">Space Survivor</div>
+          <div class="desc">Kemudikan pesawat tempur menembak laser otomatis menghancurkan gelombang meteor!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Tower-Builder-3D/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(14,165,233,0.2); color: #0ea5e9;">🏢</div>
+          <div class="genre" style="color: #0ea5e9;">Stacking / Arcade</div>
+          <div class="title">Tower Builder 3D</div>
+          <div class="desc">Jatuhkan balok bergerak dengan presisi sempurna membangun menara pencakar langit!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="Zombie-Defense-Idle/index.html" class="card">
+        <div>
+          <div class="icon-box" style="background: rgba(239,68,68,0.2); color: #ef4444;">🧟</div>
+          <div class="genre" style="color: #ef4444;">Tower Defense / Strategy</div>
+          <div class="title">Zombie Defense Idle</div>
+          <div class="desc">Pertahankan bunker manusia, upgrade meriam otomatis & jatuhkan bom serangan udara!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

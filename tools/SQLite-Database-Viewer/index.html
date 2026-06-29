@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQLite Database Viewer - Pembaca DB Offline</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+</head>
+<body>
+  <header class="navbar"><div class="container nav-content">
+    <a href="#" class="logo"><div class="logo-icon"><i class="fa-solid fa-database"></i></div>SQLite <span style="color:#3b82f6">Viewer</span></a>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <div class="quota-pill" id="quota-display">Sisa Kuota: 3 / 3</div>
+      <button class="btn btn-gold" onclick="openModal()"><i class="fa-solid fa-crown"></i> Pro Rp20.000</button>
+    </div>
+  </div></header>
+  <main class="container">
+    <section class="hero">
+      <h1>Buka File Database <span style="color:#3b82f6">SQLite & .DB</span></h1>
+      <p style="color:var(--text-muted)">Baca tabel, jalankan query SQL, dan ekspor data ke CSV secara lokal tanpa server.</p>
+    </section>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="file-input" class="file-input" accept=".sqlite,.db,.sqlite3">
+      <i class="fa-solid fa-server" style="font-size:48px; color:#3b82f6; margin-bottom:12px;"></i>
+      <h3>Pilih atau Tarik File Database</h3>
+      <p style="color:var(--text-muted); font-size:14px; margin-top:6px;">Mendukung format .sqlite, .db, .sqlite3</p>
+    </div>
+    <div class="workspace" id="workspace">
+      <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center;">
+        <input id="query-input" value="SELECT * FROM sqlite_master WHERE type='table';" style="flex:1; padding:10px; border-radius:8px; background:#151d2f; color:white; border:1px solid var(--border-color);">
+        <button class="btn btn-primary" onclick="runQuery()"><i class="fa-solid fa-play"></i> Jalankan Query</button>
+      </div>
+      <div style="overflow-x:auto;"><table id="data-table"></table></div>
+    </div>
+  </main>
+  <div class="modal" id="pro-modal"><div class="modal-content">
+    <button onclick="closeModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:white; font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+    <i class="fa-solid fa-crown" style="font-size:40px; color:#fbbf24; margin-bottom:15px;"></i>
+    <h2>Upgrade Pro Lifetime</h2>
+    <p style="color:var(--text-muted); margin:10px 0;">Harga Spesial Indonesia: <b>Rp 20.000</b> (Hemat 20% dari pasar Rp25.000). Tanpa batas query SQL!</p>
+    <button onclick="payWithMidtrans()" style="background:#002855; color:white; font-weight:700; padding:14px 20px; border-radius:12px; border:none; cursor:pointer; width:100%; margin:15px 0; font-size:15px; box-shadow:0 4px 15px rgba(0,40,85,0.4); transition:all 0.2s;"><i class="fa-solid fa-credit-card" style="color:#60a5fa; margin-right:8px;"></i> Bayar Otomatis via Midtrans</button>
+    <p style="font-size:12px; color:var(--text-muted);">Masukkan kode aktivasi (Ketik: <b>PRO20K</b>):</p>
+    <div style="display:flex; gap:8px; margin-top:10px;"><input id="act-code" placeholder="KODE" style="flex:1; padding:8px; border-radius:6px; background:#151d2f; border:1px solid var(--border-color); color:white;"><button class="btn btn-gold" onclick="activatePro()">Aktifkan</button></div>
+  </div></div>
+  <script src="app.js"></script>
+<script src="../midtrans-pay.js"></script>`r`n</body></html>
+

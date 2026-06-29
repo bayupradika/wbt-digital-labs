@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Toolkit Lite - Kelola PDF Cepat, Ringan & Offline</title>
+  <meta name="description" content="Aplikasi web & mobile ringan untuk gabung, pisah, kompres, dan proteksi file PDF tanpa perlu upload ke server eksternal. Privasi 100% terjaga.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+<body>
+  <div class="ambient-glow"></div>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="container nav-content">
+      <a href="#" class="logo">
+        <div class="logo-icon"><i class="fa-solid fa-file-pdf"></i></div>
+        <span class="logo-text">PDF<span class="text-gradient">Toolkit</span></span>
+        <span class="logo-badge">Lite v1.2</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="#tools-section" class="nav-link">Tools PDF</a></li>
+        <li><a href="#pricing-section" class="nav-link">Harga & Pro</a></li>
+        <li><a href="#download-section" class="nav-link">Download App</a></li>
+      </ul>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="quota-pill" id="quota-display">
+          <i class="fa-solid fa-bolt" style="color: var(--warning);"></i>
+          <span>Sisa Kuota: <b class="quota-count" id="quota-counter">3 / 3</b></span>
+        </div>
+        <button class="btn btn-gold" onclick="openUpgradeModal()">
+          <i class="fa-solid fa-crown"></i> Upgrade Pro Rp20rb
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Hero Section -->
+    <section class="hero container">
+      <div class="hero-badge">
+        <i class="fa-solid fa-shield-halved"></i> 100% Offline & Privasi Terjamin
+      </div>
+      <h1>Semua Kebutuhan <span class="text-gradient">Manipulasi PDF</span> dalam Satu Aplikasi Ringan</h1>
+      <p>Gabungkan, pisahkan, kompres, dan amankan dokumen PDF Anda langsung di peramban tanpa mengunggah data rahasia ke server eksternal.</p>
+    </section>
+
+    <!-- Workspace Section (Hidden by default, shown when tool selected) -->
+    <section id="workspace-section" class="workspace-section container">
+      <div class="workspace-card">
+        <div class="workspace-header">
+          <div class="workspace-title-area">
+            <div class="workspace-icon" id="ws-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <div>
+              <h3 id="ws-title" style="font-size: 22px;">Nama Tool</h3>
+              <p id="ws-desc" style="color: var(--text-muted); font-size: 14px;">Deskripsi singkat tool yang aktif</p>
+            </div>
+          </div>
+          <button class="btn btn-outline" onclick="closeWorkspace()">
+            <i class="fa-solid fa-xmark"></i> Ganti Tool
+          </button>
+        </div>
+
+        <!-- Dropzone -->
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="file-input" class="file-input" multiple accept=".pdf,.png,.jpg,.jpeg">
+          <div class="dropzone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="dropzone-text">Klik atau Tarik File ke Sini</div>
+          <div class="dropzone-subtext" id="dropzone-hint">Format didukung: PDF (Maks. 50MB)</div>
+        </div>
+
+        <!-- File List -->
+        <div class="file-list" id="file-list"></div>
+
+        <!-- Dynamic Settings Area -->
+        <div class="tool-settings" id="tool-settings" style="display: none;"></div>
+
+        <!-- Action Button -->
+        <div style="margin-top: 28px; text-align: right;">
+          <button class="btn btn-primary" id="btn-process" style="padding: 14px 32px; font-size: 16px;" disabled onclick="processCurrentTool()">
+            <i class="fa-solid fa-play"></i> Proses & Download PDF
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tools Grid Section -->
+    <section id="tools-section" class="tools-section container">
+      <div class="section-header">
+        <h2>Pilih <span class="text-gradient">Layanan PDF</span> Anda</h2>
+        <p>Gunakan hingga 3 tools secara gratis setiap hari, atau upgrade ke Pro untuk akses tak terbatas</p>
+      </div>
+
+      <div class="tools-grid">
+        <div class="tool-card" onclick="selectTool('merge')">
+          <div>
+            <div class="tool-icon"><i class="fa-solid fa-object-group"></i></div>
+            <h3 class="tool-title">Gabung PDF (Merge)</h3>
+            <p class="tool-desc">Satukan banyak file PDF menjadi satu dokumen tunggal yang rapi berurutan.</p>
+          </div>
+          <div class="tool-action">Gunakan Tool <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card" onclick="selectTool('split')">
+          <div>
+            <div class="tool-icon"><i class="fa-solid fa-scissors"></i></div>
+            <h3 class="tool-title">Pisah PDF (Split)</h3>
+            <p class="tool-desc">Ekstrak halaman tertentu atau pisahkan setiap halaman menjadi file PDF terpisah.</p>
+          </div>
+          <div class="tool-action">Gunakan Tool <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card" onclick="selectTool('compress')">
+          <div>
+            <div class="tool-icon"><i class="fa-solid fa-minimize"></i></div>
+            <h3 class="tool-title">Kompres PDF</h3>
+            <p class="tool-desc">Optimalkan ukuran file PDF agar lebih ringan untuk dikirim via email atau WhatsApp.</p>
+          </div>
+          <div class="tool-action">Gunakan Tool <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card" onclick="selectTool('img2pdf')">
+          <div>
+            <div class="tool-icon"><i class="fa-solid fa-images"></i></div>
+            <h3 class="tool-title">Gambar ke PDF</h3>
+            <p class="tool-desc">Ubah kumpulan foto atau dokumen JPG/PNG menjadi dokumen PDF resmi.</p>
+          </div>
+          <div class="tool-action">Gunakan Tool <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card" onclick="selectTool('protect')">
+          <div>
+            <div class="tool-icon"><i class="fa-solid fa-lock"></i></div>
+            <h3 class="tool-title">Kunci & Proteksi PDF</h3>
+            <p class="tool-desc">Tambahkan sandi pengaman (password) dan enkripsi agar PDF tidak bisa dibuka sembarangan.</p>
+          </div>
+          <div class="tool-action">Gunakan Tool <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card" onclick="selectTool('rotate')">
+          <div>
+            <div class="tool-icon"><i class="fa-solid fa-rotate-right"></i></div>
+            <h3 class="tool-title">Putar Halaman (Rotate)</h3>
+            <p class="tool-desc">Rotasi orientasi halaman PDF yang terbalik (90°, 180°, 270°) dalam hitungan detik.</p>
+          </div>
+          <div class="tool-action">Gunakan Tool <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing-section" class="pricing-section container">
+      <div class="section-header">
+        <h2>Pilihan Paket <span class="text-gold">Harga Lisensi</span></h2>
+        <p>Tanpa biaya langganan bulanan yang membengkak. Cukup bayar sekali seumur hidup!</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free Card -->
+        <div class="pricing-card">
+          <div>
+            <h3 class="pricing-title">Paket Starter (Gratis)</h3>
+            <p style="color: var(--text-muted); font-size: 14px;">Cocok untuk penggunaan ringan sesekali</p>
+            <div class="pricing-price">Rp 0 <span class="pricing-period">/ selamanya</span></div>
+            
+            <ul class="pricing-features">
+              <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Akses ke Semua 6 Fitur PDF</li>
+              <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Maksimal 3 Penggunaan / Hari</li>
+              <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Pemrosesan Offline 100%</li>
+              <li class="pricing-feature"><i class="fa-solid fa-xmark feature-icon disabled"></i> Tanpa Batasan Kuota Harian</li>
+              <li class="pricing-feature"><i class="fa-solid fa-xmark feature-icon disabled"></i> Download Aplikasi Android & Portable</li>
+            </ul>
+          </div>
+          <button class="btn btn-outline" style="width: 100%;" onclick="showToast('Anda sedang menggunakan paket Gratis', 'info')">Paket Saat Ini</button>
+        </div>
+
+        <!-- Pro Card -->
+        <div class="pricing-card pro">
+          <div class="popular-badge">Paling Laku & Rekomendasi</div>
+          <div>
+            <h3 class="pricing-title text-gold">Paket Pro Lifetime</h3>
+            <p style="color: #d1d5db; font-size: 14px;">Bebas kendala untuk produktivitas maksimal</p>
+            <div class="pricing-price text-gold">Rp 20.000 <span class="pricing-period" style="color: #9ca3af;">/ 1 akun</span></div>
+            
+            <ul class="pricing-features">
+              <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Akses ke Semua 6 Fitur PDF</li>
+              <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> <b>Tanpa Batas Penggunaan (Unlimited)</b></li>
+              <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Pemrosesan Super Cepat Prioritas</li>
+              <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> <b>Download APK Android & Windows .exe</b></li>
+              <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Lisensi Sekali Bayar (Seumur Hidup)</li>
+            </ul>
+          </div>
+          <button class="btn btn-gold" style="width: 100%;" onclick="openUpgradeModal()">Beli Lisensi Sekarang (Rp20.000)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download App Section -->
+    <section id="download-section" class="download-section">
+      <div class="container">
+        <div class="download-banner">
+          <div class="download-text">
+            <h3>Download Aplikasi <span class="text-gradient">PDF Toolkit Lite</span></h3>
+            <p>Dapatkan aplikasi native yang sangat ringan (hanya ~4MB) untuk perangkat Android dan Windows Anda. Bekerja tanpa internet sama sekali!</p>
+          </div>
+          <div class="download-buttons">
+            <button class="btn btn-primary" onclick="downloadApp('android')">
+              <i class="fa-brands fa-android" style="font-size: 20px;"></i> APK Android (v1.2)
+            </button>
+            <button class="btn btn-outline" onclick="downloadApp('windows')">
+              <i class="fa-brands fa-windows" style="font-size: 20px;"></i> Windows Portable (.exe)
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 PDF Toolkit Lite - Projek Produk-Sell. Dibuat dengan performa tinggi untuk kenyamanan Anda.</p>
+    </div>
+  </footer>
+
+  <!-- Modal Upgrade Pro -->
+  <div class="modal-overlay" id="upgrade-modal">
+    <div class="modal-content">
+      <button class="btn-close-modal" onclick="closeUpgradeModal()"><i class="fa-solid fa-xmark"></i></button>
+      <div style="font-size: 40px; color: #fbbf24; margin-bottom: 12px;"><i class="fa-solid fa-crown"></i></div>
+      <h3>Upgrade ke <span class="text-gold">Pro Lifetime</span></h3>
+      <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">Hanya sekali bayar <b>Rp 20.000</b> untuk pemakaian tanpa batas & akses download aplikasi offline.</p>
+      
+      <div class="qris-box">
+        <!-- QRIS Placeholder simulated using dummy barcode graphic -->
+        <button onclick="payWithMidtrans()" style="background:#002855; color:white; font-weight:700; padding:14px 20px; border-radius:12px; border:none; cursor:pointer; width:100%; margin:15px 0; font-size:15px; box-shadow:0 4px 15px rgba(0,40,85,0.4); transition:all 0.2s;"><i class="fa-solid fa-credit-card" style="color:#60a5fa; margin-right:8px;"></i> Bayar Otomatis via Midtrans</button>
+        <div style="font-size: 11px; color: #4b5563; font-weight: 700; margin-top: 6px;">SCAN QRIS DENGAN DANA/GOPAY/OVO</div>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted);">Sudah melakukan pembayaran? Masukkan kode aktivasi di bawah ini <br>(Ketik: <b>PRO20K</b> untuk demo uji coba):</p>
+      
+      <div class="activation-box">
+        <input type="text" id="activation-code" placeholder="KODE AKTIVASI">
+        <button class="btn btn-gold" onclick="verifyActivationCode()">Aktifkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <script src="app.js"></script>
+<script src="../midtrans-pay.js"></script>`r`n</body>
+</html>
+

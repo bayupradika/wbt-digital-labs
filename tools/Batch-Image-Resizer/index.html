@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch Image Resizer - Resize Ratusan Foto Sekaligus</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header class="navbar"><div class="container nav-content">
+    <a href="#" class="logo"><div class="logo-icon"><i class="fa-solid fa-down-left-and-up-right-to-center"></i></div>Batch <span style="color:#8b5cf6">Resizer</span></a>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <div class="quota-pill" id="quota-display">Sisa Kuota: 3 / 3</div>
+      <button class="btn btn-gold" onclick="openModal()"><i class="fa-solid fa-crown"></i> Pro Rp12.000</button>
+    </div>
+  </div></header>
+  <main class="container">
+    <section class="hero">
+      <h1>Ubah Ukuran Ratusan Foto <span style="color:#8b5cf6">Sekaligus</span></h1>
+      <p style="color:var(--text-muted)">Percepat alur kerja Anda dengan meresize massal gambar langsung di peramban secara offline.</p>
+    </section>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="file-input" class="file-input" accept="image/*" multiple>
+      <i class="fa-solid fa-images" style="font-size:48px; color:#8b5cf6; margin-bottom:12px;"></i>
+      <h3>Pilih Banyak Foto Sekaligus</h3>
+      <p style="color:var(--text-muted); font-size:14px; margin-top:6px;">Bisa pilih puluhan gambar JPG/PNG sekaligus</p>
+    </div>
+    <div class="workspace" id="workspace">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; border-bottom:1px solid var(--border-color); padding-bottom:15px;">
+        <h3>Foto Dipilih (<span id="file-count">0</span>)</h3>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <label>Target Lebar (Width):</label>
+          <input id="target-w" type="number" value="1080" style="width:80px; padding:6px; border-radius:6px; background:#202c46; color:white; border:none;">
+          <span>px</span>
+          <button class="btn btn-primary" onclick="processResize()"><i class="fa-solid fa-bolt"></i> Resize Semua</button>
+        </div>
+      </div>
+      <div class="file-list" id="file-list"></div>
+    </div>
+  </main>
+  <div class="modal" id="pro-modal"><div class="modal-content">
+    <button onclick="closeModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:white; font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+    <i class="fa-solid fa-crown" style="font-size:40px; color:#fbbf24; margin-bottom:15px;"></i>
+    <h2>Upgrade Pro Lifetime</h2>
+    <p style="color:var(--text-muted); margin:10px 0;">Harga Spesial Indonesia: <b>Rp 12.000</b> (Hemat 20% dari pasar Rp15.000). Tanpa batas kuota resize massal!</p>
+    <button onclick="payWithMidtrans()" style="background:#002855; color:white; font-weight:700; padding:14px 20px; border-radius:12px; border:none; cursor:pointer; width:100%; margin:15px 0; font-size:15px; box-shadow:0 4px 15px rgba(0,40,85,0.4); transition:all 0.2s;"><i class="fa-solid fa-credit-card" style="color:#60a5fa; margin-right:8px;"></i> Bayar Otomatis via Midtrans</button>
+    <p style="font-size:12px; color:var(--text-muted);">Masukkan kode aktivasi (Ketik: <b>PRO12K</b>):</p>
+    <div style="display:flex; gap:8px; margin-top:10px;"><input id="act-code" placeholder="KODE" style="flex:1; padding:8px; border-radius:6px; background:#202c46; border:1px solid var(--border-color); color:white;"><button class="btn btn-gold" onclick="activatePro()">Aktifkan</button></div>
+  </div></div>
+  <script src="app.js"></script>
+<script src="../midtrans-pay.js"></script>`r`n</body></html>
+

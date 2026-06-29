@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WBT Digital Labs - Portal Ekosistem 31 Aplikasi & Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+    body {
+      background: #070913; color: #f8fafc; min-height: 100vh; padding-bottom: 80px;
+      background-image: radial-gradient(circle at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 50%, rgba(236,72,153,0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 20% 90%, rgba(245,158,11,0.1) 0%, transparent 40%);
+    }
+    .container { max-width: 1300px; margin: 0 auto; padding: 0 24px; }
+    
+    /* Top Sticky Nav */
+    .sticky-nav {
+      position: sticky; top: 20px; z-index: 100; background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; padding: 12px 24px; max-width: 750px; margin: 20px auto 50px;
+      display: flex; justify-content: space-around; align-items: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+    }
+    .nav-link { color: #cbd5e1; text-decoration: none; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 99px; transition: all 0.2s; }
+    .nav-link:hover { background: rgba(255,255,255,0.08); color: white; transform: translateY(-2px); }
+    .nav-link.tools { color: #60a5fa; }
+    .nav-link.ai { color: #f472b6; }
+    .nav-link.games { color: #fbbf24; }
+
+    header { text-align: center; margin: 30px 0 60px; }
+    h1 { font-family: 'Outfit', sans-serif; font-size: 52px; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 16px; background: linear-gradient(135deg, #38bdf8, #a855f7, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    p.subtitle { color: #94a3b8; font-size: 18px; max-width: 700px; margin: 0 auto; line-height: 1.6; }
+
+    /* Section Banner */
+    .section-banner { display: flex; align-items: center; gap: 16px; margin: 60px 0 30px; padding-bottom: 16px; border-bottom: 2px solid rgba(255,255,255,0.08); }
+    .section-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .section-title { font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 900; color: white; }
+    .section-desc { color: #94a3b8; font-size: 15px; }
+
+    /* Grid & Cards */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+    .card {
+      background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 24px;
+      display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s; text-decoration: none; color: inherit; position: relative; overflow: hidden;
+    }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 25px 50px -15px rgba(0,0,0,0.8); }
+    .card-top { margin-bottom: 24px; }
+    .icon-box { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 16px; color: white; }
+    .badge { font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 99px; display: inline-block; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .title { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 10px; color: white; }
+    .desc { color: #94a3b8; font-size: 14px; line-height: 1.6; }
+    .play-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 14px; text-align: center; font-weight: 800; font-size: 14px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+    /* Theme Specifics */
+    .theme-tools:hover { border-color: #3b82f6; }
+    .theme-tools .play-btn { color: #60a5fa; }
+    .theme-tools:hover .play-btn { background: #3b82f6; color: white; border-color: #3b82f6; }
+    .badge-tools { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+
+    .theme-ai:hover { border-color: #ec4899; }
+    .theme-ai .play-btn { color: #f472b6; }
+    .theme-ai:hover .play-btn { background: #ec4899; color: white; border-color: #ec4899; }
+    .badge-ai { background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.3); }
+
+    .theme-games:hover { border-color: #fbbf24; }
+    .theme-games .play-btn { color: #fbbf24; }
+    .theme-games:hover .play-btn { background: #fbbf24; color: #0f172a; border-color: #fbbf24; }
+    .badge-games { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  </style>
+</head>
+<body>
+  <div class="sticky-nav">
+    <a href="#section-tools" class="nav-link tools"><i class="fa-solid fa-toolbox"></i> Tools (11)</a>
+    <a href="#section-ai" class="nav-link ai"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Suite (10)</a>
+    <a href="#section-games" class="nav-link games"><i class="fa-solid fa-gamepad"></i> Games (10)</a>
+  </div>
+
+  <div class="container">
+    <header>
+      <div style="font-size:13px; font-weight:800; color:#38bdf8; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px;"><i class="fa-solid fa-building-shield"></i> OFFICIAL PORTAL OF WBT CORP</div>
+      <h1>⚡ WBT DIGITAL LABS</h1>
+      <p class="subtitle">Pusat ekosistem inovasi produk digital terpadu karya <b>WBT Technologies</b>. Menghadirkan solusi teknologi mutakhir yang dipisahkan dalam 3 divisi utama: Utilities Tools, Smart AI Suite, dan Arcade Games.</p>
+    </header>
+
+    <!-- SECTION 1: TOOLS -->
+    <div id="section-tools" class="section-banner">
+      <div class="section-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white;"><i class="fa-solid fa-toolbox"></i></div>
+      <div>
+        <div class="section-title">BAGIAN 1: UTILITIES & TOOLS OFFLINE</div>
+        <div class="section-desc">Koleksi 11 aplikasi produktivitas ringan, super cepat, dan bekerja 100% offline tanpa batas di browser.</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <a href="tools/PDF-Toolkit-Lite/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #6366f1, #4f46e5);"><i class="fa-solid fa-file-pdf"></i></div>
+          <div class="badge badge-tools">Pro: Rp 20.000</div>
+          <div class="title">PDF Toolkit Lite</div>
+          <div class="desc">Gabung, pisah, kompres, konversi gambar ke PDF, serta proteksi password file dokumen offline.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/Image-Compressor-Pro/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);"><i class="fa-solid fa-compress"></i></div>
+          <div class="badge badge-tools">Pro: Rp 12.000</div>
+          <div class="title">Image Compressor Pro</div>
+          <div class="desc">Kecilkan ukuran foto hingga 90% tanpa mengurangi ketajaman visual sedikit pun.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/QuickScan-OCR/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #10b981, #059669);"><i class="fa-solid fa-file-lines"></i></div>
+          <div class="badge badge-tools">Pro: Rp 20.000</div>
+          <div class="title">QuickScan OCR</div>
+          <div class="desc">Ekstrak teks dari foto dokumen, buku, atau surat secara otomatis menggunakan teknologi OCR.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/Batch-Image-Resizer/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);"><i class="fa-solid fa-down-left-and-up-right-to-center"></i></div>
+          <div class="badge badge-tools">Pro: Rp 12.000</div>
+          <div class="title">Batch Image Resizer</div>
+          <div class="desc">Ubah ukuran dimensi resolusi ratusan foto sekaligus dalam hitungan detik.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/EXIF-Photo-Cleaner/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="badge badge-tools">Pro: Rp 8.000</div>
+          <div class="title">EXIF Photo Cleaner</div>
+          <div class="desc">Hapus metadata privasi lokasi GPS dan info kamera sebelum foto diunggah ke internet.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/Offline-Markdown-Editor/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #3b82f6, #6366f1);"><i class="fa-solid fa-code"></i></div>
+          <div class="badge badge-tools">Pro: Rp 16.000</div>
+          <div class="title">Offline Markdown Editor</div>
+          <div class="desc">Tulis catatan dengan format Markdown, live preview real-time, dan ekspor instan ke HTML.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/SQLite-Database-Viewer/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);"><i class="fa-solid fa-database"></i></div>
+          <div class="badge badge-tools">Pro: Rp 20.000</div>
+          <div class="title">SQLite Database Viewer</div>
+          <div class="desc">Buka file database lokal (.db/.sqlite), baca tabel data, dan jalankan query SQL kustom.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/JSON-Formatter-Viewer/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #38bdf8, #0284c7);"><i class="fa-solid fa-brackets-curly"></i></div>
+          <div class="badge badge-tools">Pro: Rp 8.000</div>
+          <div class="title">JSON Formatter & Viewer</div>
+          <div class="desc">Perapih struktur, validasi sintaks error, dan pemadat (minify) kode JSON secara offline.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/Mini-API-Tester/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #ec4899, #f43f5e);"><i class="fa-solid fa-paper-plane"></i></div>
+          <div class="badge badge-tools">Pro: Rp 20.000</div>
+          <div class="title">Mini API Tester</div>
+          <div class="desc">Alternatif Postman super ringan untuk menguji endpoint REST API (GET, POST, PUT, DELETE).</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/Bulk-Photo-Renamer/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6);"><i class="fa-solid fa-tags"></i></div>
+          <div class="badge badge-tools">Pro: Rp 8.000</div>
+          <div class="title">Bulk Photo Renamer</div>
+          <div class="desc">Penamaan ulang massal ratusan foto dengan awalan (prefix) dan nomor urut otomatis.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="tools/ActivityTracker/Web-Hosting/index.html" target="_blank" class="card theme-tools">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #10b981, #3b82f6);"><i class="fa-solid fa-chart-line"></i></div>
+          <div class="badge badge-tools">Pro: Rp 20.000</div>
+          <div class="title">Activity Tracker Web</div>
+          <div class="desc">Pantau dan catat aktivitas produktivitas harian Anda dengan grafik statistik visual yang menarik.</div>
+        </div>
+        <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <!-- SECTION 2: AI SUITE -->
+    <div id="section-ai" class="section-banner" style="margin-top: 80px;">
+      <div class="section-icon" style="background: linear-gradient(135deg, #ec4899, #a855f7); color: white;"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+      <div>
+        <div class="section-title">BAGIAN 2: SMART AI SUITE TOOLS</div>
+        <div class="section-desc">Koleksi 10 aplikasi kecerdasan buatan cerdas. Gratis 3x penggunaan per hari atau upgrade Lifetime PRO Rp 20.000!</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <a href="ai/AI-Image-Captioner/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #3b82f6, #a855f7);"><i class="fa-solid fa-comment-dots"></i></div>
+          <div class="badge badge-ai">Social Media AI</div>
+          <div class="title">AI Image Captioner</div>
+          <div class="desc">Analisis foto & rancang caption otomatis untuk Instagram, TikTok, LinkedIn & E-Commerce.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/AI-Photo-Enhancer/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #10b981, #06b6d4);"><i class="fa-solid fa-image"></i></div>
+          <div class="badge badge-ai">Image Upscaler</div>
+          <div class="title">AI Photo Enhancer</div>
+          <div class="desc">Tingkatkan ketajaman foto buram, gelap, atau resolusi rendah menjadi resolusi HD jernih seketika.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/AI-Text-Summarizer/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #a855f7, #6366f1);"><i class="fa-solid fa-file-lines"></i></div>
+          <div class="badge badge-ai">NLP Summarizer</div>
+          <div class="title">AI Text Summarizer</div>
+          <div class="desc">Rangkum artikel panjang, berita, atau laporan bisnis menjadi poin-poin eksekutif yang ringkas.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/Background-Eraser-AI/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #ec4899, #8b5cf6);"><i class="fa-solid fa-scissors"></i></div>
+          <div class="badge badge-ai">Photo Cutout</div>
+          <div class="title">Background Eraser AI</div>
+          <div class="desc">Hapus latar belakang foto produk atau potret secara otomatis menghasilkan file PNG transparan.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/Dataset-Labeling-Tool/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #fbbf24, #f97316);"><i class="fa-solid fa-vector-square"></i></div>
+          <div class="badge badge-ai">Machine Learning</div>
+          <div class="title">Dataset Labeling Tool</div>
+          <div class="desc">Anotasi bounding box untuk dataset vision. Export ke format standar YOLO (.txt) & Pascal VOC (.xml).</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/Offline-Grammar-Checker/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #6366f1, #3b82f6);"><i class="fa-solid fa-spell-check"></i></div>
+          <div class="badge badge-ai">Writing Assistant</div>
+          <div class="title">Offline Grammar Checker</div>
+          <div class="desc">Periksa kesalahan ejaan KBBI, pleonasme, tanda baca, & efektifitas kalimat bahasa Indonesia.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/Offline-Voice-Transcriber/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);"><i class="fa-solid fa-microphone-lines"></i></div>
+          <div class="badge badge-ai">Speech to Text</div>
+          <div class="title">Offline Voice Transcriber</div>
+          <div class="desc">Ubah ucapan suara langsung dari mikrofon menjadi teks tulisan secara real-time dan akurat.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/Receipt-Scanner-AI/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #10b981, #fbbf24);"><i class="fa-solid fa-receipt"></i></div>
+          <div class="badge badge-ai">OCR Scanner</div>
+          <div class="title">Receipt Scanner AI</div>
+          <div class="desc">Pindai foto struk belanja untuk mengekstraksi rincian item, pajak, dan total bayar ke format JSON.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/Smart-Prompt-Generator/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #f59e0b, #ec4899);"><i class="fa-solid fa-lightbulb"></i></div>
+          <div class="badge badge-ai">Prompt Engineering</div>
+          <div class="title">Smart Prompt Generator</div>
+          <div class="desc">Racik parameter prompt masterpiece optimal untuk Midjourney v6, ChatGPT, Claude, dan SD.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="ai/YOLO-Dataset-Viewer/index.html" target="_blank" class="card theme-ai">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #38bdf8, #10b981);"><i class="fa-solid fa-eye"></i></div>
+          <div class="badge badge-ai">Data Visualization</div>
+          <div class="title">YOLO Dataset Viewer</div>
+          <div class="desc">Visualisasikan anotasi bounding box YOLO koordinat pada gambar untuk verifikasi dataset.</div>
+        </div>
+        <div class="play-btn">Buka AI Tool <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+    </div>
+
+    <!-- SECTION 3: GAMES -->
+    <div id="section-games" class="section-banner" style="margin-top: 80px;">
+      <div class="section-icon" style="background: linear-gradient(135deg, #fbbf24, #ef4444); color: white;"><i class="fa-solid fa-gamepad"></i></div>
+      <div>
+        <div class="section-title">BAGIAN 3: ARCADE GAME CENTER</div>
+        <div class="section-desc">Koleksi 10 game HTML5 offline seru untuk PC & Android. Dilengkapi modal gratis 50 Gems & topup Midtrans!</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <a href="game/Cube-Escape-Dash/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #3b82f6, #60a5fa);">🧊</div>
+          <div class="badge badge-games">Arcade Runner</div>
+          <div class="title">Cube Escape Dash</div>
+          <div class="desc">Lompat hindari rintangan berduri & balok api. Beli skin kubus neon keren di toko!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Color-Block-Master/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">🧩</div>
+          <div class="badge badge-games">Puzzle Tetris</div>
+          <div class="title">Color Block Master</div>
+          <div class="desc">Tarik balok warna ke papan grid 8x8. Gunakan Palu dan Sapujagat saat terjebak!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Merge-Kingdom/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #10b981, #34d399);">🏰</div>
+          <div class="badge badge-games">Idle Merge</div>
+          <div class="title">Merge Kingdom</div>
+          <div class="desc">Gabungkan bangunan identik untuk membangun kerajaan mega penghasil emas otomatis!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Mini-Farming-Life/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #22c55e, #4ade80);">🧑‍🌾</div>
+          <div class="badge badge-games">Farming Sim</div>
+          <div class="title">Mini Farming Life</div>
+          <div class="desc">Tanam gandum, jagung, dan stroberi. Siram pupuk ajaib untuk panen melimpah!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Neon-Drift-Racer/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #ec4899, #f472b6);">🏎️</div>
+          <div class="badge badge-games">Racing Cyberpunk</div>
+          <div class="title">Neon Drift Racer</div>
+          <div class="desc">Kemudi mobil balap neon berkecepatan tinggi melintasi jalan raya retro futuristik!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Pixel-Dungeon-Quest/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #a855f7, #c084fc);">🛡️</div>
+          <div class="badge badge-games">RPG Dungeon</div>
+          <div class="title">Pixel Dungeon Quest</div>
+          <div class="desc">Jelajahi ubin gelap penjara bawah tanah, kalahkan monster slime & temukan peti emas!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Shadow-Ninja-Jump/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #6366f1, #818cf8);">🥷</div>
+          <div class="badge badge-games">Platformer Jump</div>
+          <div class="title">Shadow Ninja Jump</div>
+          <div class="desc">Lompat vertikal dari pijakan ke pijakan menembus puncak menara ninja bayangan!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Space-Survivor-Roguelike/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #0ea5e9, #38bdf8);">🛸</div>
+          <div class="badge badge-games">Action Shooter</div>
+          <div class="title">Space Survivor</div>
+          <div class="desc">Kemudikan pesawat tempur menembak laser otomatis menghancurkan gelombang meteor!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Tower-Builder-3D/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #0284c7, #38bdf8);">🏢</div>
+          <div class="badge badge-games">Stacking Arcade</div>
+          <div class="title">Tower Builder 3D</div>
+          <div class="desc">Jatuhkan balok bergerak dengan presisi sempurna membangun menara pencakar langit!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+
+      <a href="game/Zombie-Defense-Idle/index.html" target="_blank" class="card theme-games">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #ef4444, #f87171);">🧟</div>
+          <div class="badge badge-games">Tower Defense</div>
+          <div class="title">Zombie Defense Idle</div>
+          <div class="desc">Pertahankan bunker manusia, upgrade meriam otomatis & jatuhkan bom serangan udara!</div>
+        </div>
+        <div class="play-btn"><i class="fa-solid fa-play"></i> Mainkan Game</div>
+      </a>
+    </div>
+
+    <footer style="text-align:center; margin-top:80px; padding-top:40px; border-top:1px solid rgba(255,255,255,0.08); color:#64748b; font-size:14px;">
+      <p style="font-weight:700; color:#cbd5e1; font-family:'Outfit',sans-serif; font-size:16px; margin-bottom:6px;"><i class="fa-solid fa-bolt" style="color:#38bdf8;"></i> WBT DIGITAL LABS</p>
+      <p>© 2026 <b>WBT Technologies Corp</b>. All rights reserved.</p>
+      <p style="font-size:12px; margin-top:6px; color:#475569;">Empowering Next-Gen Productivity, Artificial Intelligence & Interactive Entertainment.</p>
+    </footer>
+  </div>
+</body>
+</html>

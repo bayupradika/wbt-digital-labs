@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Pemberitahuan Tugas</title>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      border: 3px solid #38bdf8;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+      overflow: hidden;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .badge {
+      background: #ef4444;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+      animation: pulse 1.5s infinite;
+    }
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.1em;
+      color: #cbd5e1;
+      text-align: center;
+    }
+    .task-name {
+      font-size: 1.4em;
+      font-weight: bold;
+      color: #38bdf8;
+      text-align: center;
+      margin: 10px 0 20px 0;
+      max-height: 60px;
+      overflow: hidden;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9em;
+      transition: all 0.2s;
+    }
+    .btn-success {
+      background: #10b981;
+      color: #fff;
+    }
+    .btn-success:hover {
+      background: #059669;
+      transform: scale(1.05);
+    }
+    .btn-close {
+      background: rgba(255,255,255,0.1);
+      color: #cbd5e1;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-close:hover {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+  </style>
+</head>
+<body>
+  <div class="badge" id="alertBadge">ALARM PENGINGAT</div>
+  <h2 id="alertTitle">Batas Waktu Segera Berakhir Untuk:</h2>
+  <div class="task-name" id="taskName">Memuat...</div>
+  
+  <div class="btn-group">
+    <button class="btn btn-success" id="okeBtn">✓ Selesai (Accept)</button>
+    <button class="btn btn-close" id="closeBtn">Tutup</button>
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    let currentTaskId = null;
+    let popupAudio = null;
+    let alarmInterval = null;
+
+    // Embedded Web Audio Generator for Normal Alarm Sounds
+    function playNormalAlarmTone(type) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (type === '30min') {
+          // Gentle chime (E5 -> A5)
+          const playNote = (freq, startTime, duration) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, startTime);
+            gain.gain.setValueAtTime(0.4, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+          };
+          playNote(659, ctx.currentTime, 0.25);
+          playNote(880, ctx.currentTime + 0.3, 0.5);
+        } else if (type === '5min') {
+          // Normal digital alarm pulses
+          const playPulse = () => {
+            if (!ctx || ctx.state === 'closed') return;
+            [0, 0.15, 0.3].forEach(offset => {
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.type = 'square';
+              osc.frequency.setValueAtTime(950, ctx.currentTime + offset);
+              gain.gain.setValueAtTime(0.2, ctx.currentTime + offset);
+              gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + offset + 0.1);
+              osc.start(ctx.currentTime + offset);
+              osc.stop(ctx.currentTime + offset + 0.1);
+            });
+          };
+          playPulse();
+          alarmInterval = setInterval(playPulse, 1200);
+        }
+      } catch (e) {
+        console.log("Web Audio fallback to mp3");
+      }
+    }
+
+    function stopAlarms() {
+      if (alarmInterval) clearInterval(alarmInterval);
+      if (popupAudio) {
+        popupAudio.pause();
+        popupAudio.currentTime = 0;
+      }
+    }
+
+    ipcRenderer.on('task-info', (event, task, soundType) => {
+      document.getElementById('taskName').innerText = task.name;
+      currentTaskId = task.id;
+      
+      if (soundType === '30min') {
+        document.getElementById('alertBadge').innerText = '⏳ 30 MENIT LAGI';
+        document.getElementById('alertBadge').style.background = '#f59e0b';
+        // Try file audio first, fallback/combine with embedded sound
+        popupAudio = new Audio('30menit.mp3');
+        popupAudio.play().catch(() => playNormalAlarmTone('30min'));
+      } else if (soundType === '5min') {
+        document.getElementById('alertBadge').innerText = '🚨 5 MENIT TERAKHIR';
+        document.getElementById('alertBadge').style.background = '#ef4444';
+        popupAudio = new Audio('5menit.mp3');
+        popupAudio.loop = true;
+        popupAudio.play().catch(() => playNormalAlarmTone('5min'));
+      }
+    });
+
+    document.getElementById('okeBtn').addEventListener('click', () => {
+      stopAlarms();
+      if (currentTaskId) {
+        ipcRenderer.send('mark-success-from-popup', currentTaskId);
+      }
+      window.close();
+    });
+
+    document.getElementById('closeBtn').addEventListener('click', () => {
+      stopAlarms();
+      window.close();
+    });
+  </script>
+</body>
+</html>

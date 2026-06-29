@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receipt Scanner AI - OCR Expense Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-receipt"></i> AI Receipt Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-camera" style="color:#10b981;"></i> 1. Unggah Foto Struk Belanja</h2>
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+        
+        <img id="preview" class="preview-img" alt="Preview">
+        
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+          <i class="fa-solid fa-file-invoice-dollar" style="font-size:48px; color:#10b981; margin-bottom:15px;"></i>
+          <h3>Klik atau Tarik Struk ke Sini</h3>
+          <p style="font-size: 13px; color: #94a3b8;">Ekstrak total belanja, tanggal, & item otomatis</p>
+          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Struk Contoh</button>
+        </div>
+
+        <button class="btn" onclick="scanReceipt()"><i class="fa-solid fa-magnifying-glass-dollar"></i> Scan & Ekstrak Data Struk</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-table-list" style="color:#fbbf24;"></i> 2. Hasil Ekstraksi OCR</h2>
+        <div id="output-box" style="flex: 1;">
+          <div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
+            <i class="fa-solid fa-calculator" style="font-size: 40px; margin-bottom: 10px; color: #fbbf24;"></i>
+            <p>Rincian pengeluaran, merchant, dan total bayar akan muncul di sini.</p>
+          </div>
+        </div>
+        <button class="btn" id="dl-btn" style="display:none; background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; box-shadow:none; margin-top:15px;" onclick="exportJSON()"><i class="fa-solid fa-file-code"></i> Download Data (.JSON)</button>
+      </div>
+    </div>
+  </div>
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dataset Labeling Tool - YOLO / VOC Annotator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-vector-square"></i> AI Labeler Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h2 class="card-title" style="margin:0;"><i class="fa-solid fa-crop-simple" style="color:#fbbf24;"></i> Area Anotasi Bounding Box</h2>
+          <div>
+            <input type="file" id="file-input" accept="image/*" style="display:none;">
+            <button style="padding:6px 12px; border-radius:8px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-upload"></i> Unggah Foto</button>
+            <button style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); font-size:12px; font-weight:700; cursor:pointer;" onclick="loadSample()">Contoh</button>
+          </div>
+        </div>
+        
+        <div class="canvas-area" id="canvas-area"><canvas id="canvas"></canvas></div>
+        <p style="font-size:12px; color:#94a3b8; margin-top:10px;"><i class="fa-solid fa-circle-info"></i> Klik dan tarik kursor di atas foto untuk membuat kotak pembatas (Bounding Box).</p>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-tags" style="color:#ef4444;"></i> Kelas & Daftar Objek</h2>
+        <label style="font-size:12px; font-weight:700; color:#94a3b8; margin-bottom:6px; display:block;">Nama Kelas Objek Aktif:</label>
+        <input type="text" class="label-input" id="class-name" value="mobil" placeholder="e.g. orang, mobil, kucing">
+        
+        <div style="margin-top:10px;">
+          <h4 style="font-size:14px; margin-bottom:8px; color:#e2e8f0;">Daftar Bounding Box (<span id="box-count">0</span>):</h4>
+          <div class="box-list" id="box-list">
+            <p style="color:#64748b; font-size:13px; text-align:center; padding:20px;">Belum ada objek yang ditandai.</p>
+          </div>
+        </div>
+
+        <button class="btn btn-export" onclick="exportYOLO()"><i class="fa-solid fa-file-code"></i> Download Format YOLO (.txt)</button>
+        <button class="btn btn-export" style="border-color:#a855f7; color:#d8b4fe;" onclick="exportVOC()"><i class="fa-solid fa-code"></i> Download Format Pascal VOC (.xml)</button>
+      </div>
+    </div>
+  </div>
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

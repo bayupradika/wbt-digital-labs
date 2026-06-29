@@ -1,0 +1,163 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+
+body {
+    font-family: Arial, sans-serif;
+    width: 100vw;
+    height: 100vw auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-x: hidden;
+}
+
+.header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #007bff;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    position: fixed;
+    top: 0; 
+    width: 100%;
+    z-index: 1000;
+}
+
+.container {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-grow: 1;
+    margin-top: 6rem;
+    margin-bottom: 6rem !important;
+}
+
+.task-list {
+    width: 60%;
+}
+
+.leaderboard {
+    width: 30%;
+}
+
+.task-list table,
+.leaderboard table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.task-list th,
+.task-list td,
+.leaderboard th,
+.leaderboard td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+.task-list th,
+.leaderboard th {
+    background-color: #f2f2f2;
+}
+
+.task-list td {
+    word-wrap: break-word;
+    white-space: normal;
+    background-color: #f44336;
+}
+
+.leaderboard h3, .task-list h3 {
+    text-align: center;
+    margin-top: 0;
+}
+.task-list th:nth-child(1) {
+    width: 55%; 
+}
+
+.task-list th:nth-child(2) {
+    width: 15%; 
+}
+
+.task-list th:nth-child(3) {
+    width: 10%; 
+}
+
+.task-list th:nth-child(4) {
+    width: 20%; 
+}
+
+.button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #3e8e41;
+}
+
+input[type="text"] {
+    width: 65%;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 40px;
+}
+
+.addTask {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    gap: 10px;
+}
+
+.addTask button,
+input[type="text"], input[type="date"], input[type="time"] {
+    height: 40px;
+}
+
+.addTask button {
+    margin-left: 10px;
+}
+
+.delete {
+    background-color: #f44336;
+}
+
+.delete:hover {
+    background-color: #d32f2f;
+}
+
+#description{
+    margin: 20px 0;
+}
+.failed {
+    background-color: #f44336;
+    color: white;
+}

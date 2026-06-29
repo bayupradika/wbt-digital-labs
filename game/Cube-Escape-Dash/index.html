@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cube Escape Dash - Arcade Offline</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="game-container">
+    <!-- In-Game HUD -->
+    <div class="hud">
+      <div class="hud-box" style="color: #60a5fa;"><i class="fa-solid fa-trophy"></i> Skor: <span id="score-display">0</span></div>
+      <div style="display: flex; gap: 10px;">
+        <div class="hud-box" style="color: #fbbf24;"><i class="fa-solid fa-gem"></i> <span id="gems-display">0</span></div>
+        <button class="hud-box" style="background: #3b82f6; color: white; border: none; cursor: pointer;" onclick="openTopup()"><i class="fa-solid fa-plus"></i> Topup</button>
+      </div>
+    </div>
+
+    <!-- Canvas Game Area -->
+    <canvas id="gameCanvas" width="900" height="500"></canvas>
+
+    <!-- Start Overlay -->
+    <div class="overlay" id="start-screen">
+      <div style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); width: 70px; height: 70px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(59,130,246,0.5);"><i class="fa-solid fa-cube"></i></div>
+      <h1>CUBE <span style="color: #3b82f6;">DASH</span></h1>
+      <p class="subtitle">Tekan <kbd style="background: #334155; padding: 2px 8px; border-radius: 6px; color: white;">SPASI</kbd> atau Klik/Sentuh Layar untuk melompat menghindari rintangan!</p>
+      <div class="btn-group">
+        <button class="btn btn-play" onclick="startGame()"><i class="fa-solid fa-play"></i> Mulai Main</button>
+        <button class="btn btn-shop" onclick="openShop()"><i class="fa-solid fa-shirt"></i> Toko Skin</button>
+        <button class="btn btn-topup" onclick="openTopup()"><i class="fa-solid fa-gem"></i> Topup Gems</button>
+      </div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div class="overlay hidden" id="gameover-screen">
+      <h1 style="color: #ef4444; text-shadow: 0 0 20px rgba(239,68,68,0.6);">GAME OVER</h1>
+      <p class="subtitle" style="font-size: 18px;">Skor Akhir Anda: <b id="final-score" style="color: white; font-size: 24px;">0</b></p>
+      <div class="btn-group" style="margin-top: 10px;">
+        <button class="btn btn-play" onclick="startGame()"><i class="fa-solid fa-rotate-right"></i> Main Lagi</button>
+        <button class="btn btn-shop" onclick="openShop()"><i class="fa-solid fa-shirt"></i> Toko Skin</button>
+        <button class="btn btn-topup" onclick="openTopup()"><i class="fa-solid fa-gem"></i> Topup Gems</button>
+      </div>
+    </div>
+
+    <!-- Shop Modal -->
+    <div class="modal" id="shop-modal">
+      <div class="modal-content">
+        <button class="close-btn" onclick="closeModals()">&times;</button>
+        <h2 style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-shirt" style="color: #3b82f6;"></i> Toko Skin Kubus</h2>
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 5px;">Beli skin keren menggunakan Gems yang didapat dari permainan atau topup.</p>
+        
+        <div class="shop-grid">
+          <div class="shop-item">
+            <div class="cube-preview" style="background: #3b82f6; box-shadow: 0 0 15px #3b82f6;"></div>
+            <b>Neon Blue</b>
+            <span style="font-size: 12px; color: #10b981;">Dipakai</span>
+            <button class="btn btn-shop" style="width: 100%; justify-content: center; padding: 8px;" onclick="selectSkin('#3b82f6')">Pilih</button>
+          </div>
+          <div class="shop-item">
+            <div class="cube-preview" style="background: #fbbf24; box-shadow: 0 0 15px #fbbf24;"></div>
+            <b>Cyber Gold</b>
+            <span style="font-size: 12px; color: #fbbf24;">100 Gems</span>
+            <button class="btn btn-play" style="width: 100%; justify-content: center; padding: 8px;" onclick="buySkin('#fbbf24', 100)">Beli</button>
+          </div>
+          <div class="shop-item">
+            <div class="cube-preview" style="background: #ec4899; box-shadow: 0 0 15px #ec4899;"></div>
+            <b>Pink Laser</b>
+            <span style="font-size: 12px; color: #fbbf24;">250 Gems</span>
+            <button class="btn btn-play" style="width: 100%; justify-content: center; padding: 8px;" onclick="buySkin('#ec4899', 250)">Beli</button>
+          </div>
+          <div class="shop-item">
+            <div class="cube-preview" style="background: linear-gradient(45deg, #10b981, #06b6d4); box-shadow: 0 0 15px #10b981;"></div>
+            <b>Matrix Pro</b>
+            <span style="font-size: 12px; color: #fbbf24;">500 Gems</span>
+            <button class="btn btn-play" style="width: 100%; justify-content: center; padding: 8px;" onclick="buySkin('matrix', 500)">Beli</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Topup Modal -->
+    <div class="modal" id="topup-modal">
+      <div class="modal-content">
+        <button class="close-btn" onclick="closeModals()">&times;</button>
+        <h2 style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-gem" style="color: #fbbf24;"></i> Topup Gems Resmi</h2>
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 5px;">Pembayaran otomatis via Midtrans (QRIS, GoPay, OVO, Virtual Account).</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
+          <div style="background: #1e293b; padding: 15px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08);">
+            <div><b style="color: #fbbf24; font-size: 18px;">💎 100 Gems</b><div style="font-size: 12px; color: #94a3b8;">Paket Starter</div></div>
+            <button class="btn btn-topup" onclick="buyGems('100 Gems Starter', 3000, 100)">Rp 3.000</button>
+          </div>
+          <div style="background: #1e293b; padding: 15px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08);">
+            <div><b style="color: #fbbf24; font-size: 18px;">💎 350 Gems</b><div style="font-size: 12px; color: #10b981;">🔥 Terpopuler</div></div>
+            <button class="btn btn-topup" onclick="buyGems('350 Gems Popular', 8000, 350)">Rp 8.000</button>
+          </div>
+          <div style="background: #1e293b; padding: 15px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.08);">
+            <div><b style="color: #fbbf24; font-size: 18px;">💎 1.000 Gems</b><div style="font-size: 12px; color: #38bdf8;">Paket Sultan</div></div>
+            <button class="btn btn-topup" onclick="buyGems('1000 Gems Sultan', 15000, 1000)">Rp 15.000</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../midtrans-pay.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

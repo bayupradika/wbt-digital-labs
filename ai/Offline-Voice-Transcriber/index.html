@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline Voice Transcriber - Speech to Text AI</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-microphone-lines"></i> AI Transcriber Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-headset" style="color:#06b6d4;"></i> 1. Rekam Suara Langsung</h2>
+        
+        <div class="mic-box" id="mic-btn" onclick="toggleRecord()">
+          <i class="fa-solid fa-microphone"></i>
+        </div>
+        
+        <h3 id="status-text" style="font-size:18px; margin-bottom:8px;">Klik Mikrofon untuk Mulai Merekam</h3>
+        <p style="color:#94a3b8; font-size:13px; max-width:280px;">Berbicara dengan jelas di dekat mikrofon PC atau ponsel Anda. AI akan mengubah ucapan menjadi teks secara real-time.</p>
+        
+        <div style="margin-top: 25px; width:100%; border-top: 1px solid rgba(255,255,255,0.1); padding-top:20px;">
+          <button style="padding:10px 18px; border-radius:12px; background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; font-weight:700; cursor:pointer;" onclick="simulateTranscribe()"><i class="fa-solid fa-play"></i> Simulasi Transkripsi Otomatis (Demo)</button>
+        </div>
+      </div>
+
+      <div class="card" style="align-items: stretch; text-align: left;">
+        <h2 class="card-title"><i class="fa-solid fa-file-word" style="color:#38bdf8;"></i> 2. Hasil Transkripsi Teks</h2>
+        <textarea id="output-text" placeholder="Hasil transkripsi teks dari suara Anda akan muncul di sini secara otomatis..."></textarea>
+        
+        <div style="display:flex; gap:10px;">
+          <button class="btn" style="flex:1;" onclick="copyText()"><i class="fa-regular fa-copy"></i> Salin Teks</button>
+          <button class="btn" style="flex:1; background:#1e293b; color:#ef4444; border:1px solid #ef4444; box-shadow:none;" onclick="document.getElementById('output-text').value=''"><i class="fa-solid fa-trash"></i> Hapus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@600;700;900&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; user-select:none; }
+body { background: #080811; color: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.game-container { position: relative; width: 100%; max-width: 480px; height: 650px; background: #0f0f23; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8); border: 2px solid #3b82f6; }
+canvas { width: 100%; height: 100%; display: block; }
+
+.hud { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; z-index: 5; }
+.pill { background: rgba(15,15,35,0.85); border: 1px solid rgba(255,255,255,0.15); padding: 8px 14px; border-radius: 99px; font-weight: 800; font-size: 14px; pointer-events: auto; cursor: pointer; }
+
+.overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(8,8,17,0.92); backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; padding: 30px; text-align: center; }
+.overlay.hidden { display: none; }
+h1 { font-family: 'Outfit', sans-serif; font-size: 42px; margin-bottom: 10px; text-shadow: 0 0 20px #ec4899; }
+.btn { padding: 16px 32px; border-radius: 16px; font-weight: 800; font-size: 18px; cursor: pointer; border: none; display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; margin-top: 20px; box-shadow: 0 10px 25px -5px rgba(236,72,153,0.5); }
+.modal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal.active { display: flex; }
+.modal-content { background: #0f0f23; border: 2px solid #3b82f6; padding: 30px; border-radius: 24px; width: 100%; max-width: 400px; position: relative; }

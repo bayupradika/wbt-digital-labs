@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Prompt Generator - AI Prompt Builder</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-lightbulb"></i> AI Prompt Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-sliders" style="color:#f59e0b;"></i> 1. Parameter Ide Prompt Anda</h2>
+        
+        <label class="label">Ide Dasar / Kata Kunci Ide</label>
+        <input type="text" class="text-input" id="keyword-input" placeholder="e.g. kucing astronot di mars, web desain futuristik">
+        <button style="margin-top:8px; padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); border:none; color:white; font-size:12px; font-weight:700; cursor:pointer; align-self:flex-start;" onclick="document.getElementById('keyword-input').value='kucing samurai siber di kota cyberpunk neon malam hari'">Contoh Ide</button>
+
+        <label class="label">Target Model AI</label>
+        <select class="select-input" id="model-select">
+          <option value="midjourney">🎨 Midjourney v6 / Stable Diffusion (Image)</option>
+          <option value="chatgpt">🤖 ChatGPT / Claude / Gemini (Text & Code)</option>
+        </select>
+
+        <label class="label">Gaya Output (Style)</label>
+        <select class="select-input" id="style-select">
+          <option value="photorealistic">8K Photorealistic / Cinematic Lighting</option>
+          <option value="3drender">Unreal Engine 5 3D Render / Pixar Style</option>
+          <option value="anime">Japanese Anime Studio Ghibli / Aesthetic</option>
+          <option value="expert">Expert Consultant / Step-by-step Structured</option>
+        </select>
+
+        <button class="btn" onclick="generatePrompts()"><i class="fa-solid fa-wand-magic-sparkles"></i> Racik Prompt Masterpiece</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-scroll" style="color:#ec4899;"></i> 2. Hasil Prompt Siap Pakai</h2>
+        <div id="output-list" style="flex: 1; overflow-y: auto;">
+          <div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
+            <i class="fa-solid fa-comment-dots" style="font-size: 40px; margin-bottom: 10px; color: #ec4899;"></i>
+            <p>Prompt yang telah dioptimalkan dengan parameter profesional akan muncul di sini.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

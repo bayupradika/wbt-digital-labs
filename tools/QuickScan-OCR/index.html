@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickScan OCR - Scan Foto ke Teks Otomatis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+</head>
+<body>
+  <header class="navbar"><div class="container nav-content">
+    <a href="#" class="logo"><div class="logo-icon"><i class="fa-solid fa-file-lines"></i></div>QuickScan <span style="color:#10b981">OCR</span></a>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <div class="quota-pill" id="quota-display">Sisa Kuota: 3 / 3</div>
+      <button class="btn btn-gold" onclick="openModal()"><i class="fa-solid fa-crown"></i> Pro Rp20.000</button>
+    </div>
+  </div></header>
+  <main class="container">
+    <section class="hero">
+      <h1>Ubah Foto Dokumen Menjadi <span style="color:#10b981">Teks Digital</span></h1>
+      <p style="color:var(--text-muted)">Ekstrak teks dari buku, nota, atau surat secara otomatis dengan AI OCR dalam peramban.</p>
+    </section>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="file-input" class="file-input" accept="image/*">
+      <i class="fa-solid fa-camera" style="font-size:48px; color:#10b981; margin-bottom:12px;"></i>
+      <h3>Pilih atau Tarik Foto Dokumen</h3>
+      <p style="color:var(--text-muted); font-size:14px; margin-top:6px;">Mendukung foto teks bahasa Indonesia & Inggris</p>
+    </div>
+    <div class="workspace" id="workspace">
+      <div class="box"><h3>Foto Dokumen</h3><img id="preview-img" style="max-width:100%; max-height:350px; border-radius:10px; margin-top:15px; object-fit:contain;"></div>
+      <div class="box">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3>Hasil Ekstraksi Teks</h3>
+          <span id="status-text" style="color:#10b981; font-size:14px;">Siap...</span>
+        </div>
+        <textarea id="output-text" placeholder="Teks hasil scan akan muncul di sini..."></textarea>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" style="flex:1;" onclick="copyText()"><i class="fa-solid fa-copy"></i> Salin Teks</button>
+          <button class="btn" style="background:#1f293d; color:white;" onclick="downloadTxt()"><i class="fa-solid fa-download"></i> Simpan .TXT</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div class="modal" id="pro-modal"><div class="modal-content">
+    <button onclick="closeModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:white; font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+    <i class="fa-solid fa-crown" style="font-size:40px; color:#fbbf24; margin-bottom:15px;"></i>
+    <h2>Upgrade Pro Lifetime</h2>
+    <p style="color:var(--text-muted); margin:10px 0;">Harga Spesial Indonesia: <b>Rp 20.000</b> (Hemat 20% dari pasar Rp25.000). Tanpa batas kuota scan!</p>
+    <button onclick="payWithMidtrans()" style="background:#002855; color:white; font-weight:700; padding:14px 20px; border-radius:12px; border:none; cursor:pointer; width:100%; margin:15px 0; font-size:15px; box-shadow:0 4px 15px rgba(0,40,85,0.4); transition:all 0.2s;"><i class="fa-solid fa-credit-card" style="color:#60a5fa; margin-right:8px;"></i> Bayar Otomatis via Midtrans</button>
+    <p style="font-size:12px; color:var(--text-muted);">Masukkan kode aktivasi (Ketik: <b>PRO20K</b>):</p>
+    <div style="display:flex; gap:8px; margin-top:10px;"><input id="act-code" placeholder="KODE" style="flex:1; padding:8px; border-radius:6px; background:#1f293d; border:1px solid var(--border-color); color:white;"><button class="btn btn-gold" onclick="activatePro()">Aktifkan</button></div>
+  </div></div>
+  <script src="app.js"></script>
+<script src="../midtrans-pay.js"></script>`r`n</body></html>
+

@@ -1,0 +1,39 @@
+{
+  "name": "activity-tracker-pro",
+  "productName": "Activity Tracker Pro",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Activity Tracker Team",
+  "license": "ISC",
+  "description": "Professional Task & Deadline Tracker with Real-time PC Sync",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "ip": "^2.0.1",
+    "loudness": "^0.4.2"
+  },
+  "devDependencies": {
+    "electron": "^41.7.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.activitytracker.pro",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "include": "build/installer.nsh"
+    }
+  }
+}

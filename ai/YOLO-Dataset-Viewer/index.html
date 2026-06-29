@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YOLO Dataset Viewer - AI Bounding Box Visualizer</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-eye"></i> AI Viewer Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <h2 class="card-title" style="margin:0;"><i class="fa-solid fa-image" style="color:#38bdf8;"></i> Visualisasi Dataset Gambar</h2>
+          <div>
+            <input type="file" id="file-input" accept="image/*" style="display:none;">
+            <button style="padding:6px 12px; border-radius:8px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-upload"></i> Unggah Foto</button>
+            <button style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); font-size:12px; font-weight:700; cursor:pointer;" onclick="loadSample()">Contoh</button>
+          </div>
+        </div>
+        
+        <div class="canvas-area" id="canvas-area"><canvas id="canvas"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-code" style="color:#10b981;"></i> Input Teks YOLO Anotasi</h2>
+        <label style="font-size:12px; font-weight:700; color:#94a3b8; margin-bottom:6px; display:block;">Format: [class_id] [x_center] [y_center] [width] [height]</label>
+        <textarea id="yolo-input" placeholder="0 0.523000 0.481000 0.350000 0.620000..."></textarea>
+        
+        <button class="btn" onclick="renderYOLO()"><i class="fa-solid fa-play"></i> Render Visualisasi Kotak</button>
+
+        <div style="margin-top:20px;">
+          <h4 style="font-size:14px; margin-bottom:10px; color:#e2e8f0;">Statistik Dataset:</h4>
+          <div class="stat-item"><span>Total Objek Ditemukan</span><b style="color:#38bdf8;" id="stat-count">0</b></div>
+          <div class="stat-item"><span>Status Resolusi Gambar</span><b style="color:#10b981;" id="stat-res">-</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

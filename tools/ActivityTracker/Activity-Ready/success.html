@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success Activities</title>
+    <link rel="stylesheet" href="success_style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Success Activities</h1>
+        <a style="color: white; font-weight: 400; text-decoration: none;" href="index.html">HOME</a>
+    </div>
+    
+    <div class="container">
+        <div class="task-list">
+            <h3>KEGIATAN</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>JUDUL KEGIATAN</th>
+                        <th>DATE&DAY</th>
+                        <th>TIME</th>
+                    </tr>
+                </thead>
+                <tbody id="task-list"></tbody>
+            </table>
+        </div>
+
+        <div class="leaderboard">
+            <h3>LEADERBOARD</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="background-color: #4CAF50"><a style="text-decoration: none; list-style: none; color: black;" href="success.html">SUCCESS</a></th>
+                        <th style="background-color: #f44336;"><a style="text-decoration: none; list-style: none; color: black;" href="failed.html">FAILED</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a style="font-size: 50px; font-weight: 700; text-decoration: none; list-style: none; color: black;" href="success.html" id="success-score">0</a></td>
+                        <td><a style="font-size: 50px; font-weight: 700; text-decoration: none; list-style: none; color: black;" href="failed.html" id="failed-score">0</a></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button id="reset-button" onclick="resetLeaderboard()">Reset</button>
+            <p id="description"></p>
+        </div>
+    </div>
+
+    <script src="success_script.js"></script>
+</body>
+</html>

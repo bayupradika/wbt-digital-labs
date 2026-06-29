@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline Grammar Checker - Indonesian & English</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-spell-check"></i> AI Grammar Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-pen-nib" style="color:#6366f1;"></i> 1. Teks Asli (Yang Ingin Diperiksa)</h2>
+        <textarea id="input-text" placeholder="Ketik atau tempel kalimat yang ingin diperiksa tata bahasanya di sini..."></textarea>
+        <button style="margin-top: 10px; padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer; align-self: flex-start;" onclick="loadSample()">Gunakan Teks Contoh</button>
+        <button class="btn" onclick="checkGrammar()"><i class="fa-solid fa-magnifying-glass"></i> Periksa Tata Bahasa & Ejaan</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-check-double" style="color:#10b981;"></i> 2. Koreksi & Saran AI</h2>
+        <div id="output-box" style="flex: 1; overflow-y: auto;">
+          <div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
+            <i class="fa-solid fa-clipboard-check" style="font-size: 40px; margin-bottom: 10px; color: #10b981;"></i>
+            <p>Saran perbaikan kalimat dan ejaan baku akan muncul di sini.</p>
+          </div>
+        </div>
+        <button class="btn btn-copy" id="copy-btn" style="display:none;" onclick="copyCorrected()"><i class="fa-regular fa-copy"></i> Salin Teks yang Telah Diperbaiki</button>
+      </div>
+    </div>
+  </div>
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

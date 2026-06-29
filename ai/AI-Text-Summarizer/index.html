@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Text Summarizer - Smart Article Summary</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Summarizer Pro</div>
+      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-file-lines" style="color:#a855f7;"></i> 1. Tempel Teks Artikel Panjang</h2>
+        <textarea id="input-text" placeholder="Tempel artikel, berita, atau laporan panjang di sini..."></textarea>
+        <button style="margin-top: 10px; padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer; align-self: flex-start;" onclick="loadSampleText()">Gunakan Teks Contoh</button>
+        <button class="btn" onclick="summarizeText()"><i class="fa-solid fa-bolt"></i> Rangkum Inti Sari Teks</button>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-list-check" style="color:#38bdf8;"></i> 2. Hasil Rangkuman AI</h2>
+        <div id="output-box" style="background: #1e293b; border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; flex: 1; font-size: 14px; line-height: 1.6; color: #e2e8f0; overflow-y: auto;">
+          <p style="color: #94a3b8; text-align: center; margin-top: 80px;"><i class="fa-solid fa-align-left" style="font-size:32px; margin-bottom:10px;"></i><br>Hasil rangkuman poin-poin penting akan muncul di sini.</p>
+        </div>
+        <button class="btn btn-copy" id="copy-btn" style="display:none;" onclick="copySummary()"><i class="fa-regular fa-copy"></i> Salin Rangkuman</button>
+      </div>
+    </div>
+  </div>
+  <script src="../midtrans-pay.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
