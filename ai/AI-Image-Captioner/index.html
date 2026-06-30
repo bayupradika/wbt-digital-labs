@@ -27,7 +27,20 @@
           <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Foto Contoh</button>
         </div>
 
-        <label class="label">Gaya Platform (Tone)</label>
+        <label class="label" style="margin-top: 16px;">Mesin Kecerdasan Buatan (AI Engine)</label>
+        <select class="select-input" id="engine-select" onchange="toggleEngineSettings()">
+          <option value="local">🤖 Local Computer Vision & NLP Engine (100% Gratis & Offline)</option>
+          <option value="gemini">⚡ Google Gemini Vision 1.5 Flash (Cloud Neural AI)</option>
+          <option value="openai">🧠 OpenAI GPT-4o Vision Pro (Cloud Neural AI)</option>
+        </select>
+
+        <div id="api-key-box" style="display:none; margin-top: 12px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); padding: 12px; border-radius: 12px;">
+          <label style="font-size:12px; color:#60a5fa; font-weight:700; display:block; margin-bottom:6px;"><i class="fa-solid fa-key"></i> Masukkan API Key Anda (Opsional):</label>
+          <input type="password" id="api-key-input" placeholder="Misal: AIzaSy... atau sk-..." style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:#0f172a; color:white; font-size:13px; box-sizing:border-box;">
+          <div style="font-size:11px; color:#94a3b8; margin-top:6px;">Dapatkan gratis Gemini API Key di <a href="https://aistudio.google.com" target="_blank" style="color:#60a5fa;">aistudio.google.com</a></div>
+        </div>
+
+        <label class="label" style="margin-top: 16px;">Gaya Platform (Tone)</label>
         <select class="select-input" id="platform-select">
           <option value="instagram">📸 Instagram Estetik & Trendy</option>
           <option value="tiktok">🎵 TikTok Viral & Lucu</option>
@@ -35,13 +48,21 @@
           <option value="linkedin">💼 LinkedIn Profesional & Inspiratif</option>
         </select>
 
-        <button class="btn-generate" onclick="generateCaptions()"><i class="fa-solid fa-bolt"></i> Buat Caption Otomatis</button>
+        <button class="btn-generate" onclick="generateCaptions()"><i class="fa-solid fa-wand-magic-sparkles"></i> Analisis Gambar & Buat Caption</button>
+        <canvas id="vision-canvas" style="display:none;"></canvas>
       </div>
 
       <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-captions" style="color:#a855f7;"></i> 2. Hasil Generator Caption</h2>
-        <p style="color: #94a3b8; font-size: 14px;">Klik tombol di bawah setiap caption untuk menyalin teks beserta hashtag secara langsung.</p>
+        <h2 class="card-title"><i class="fa-solid fa-captions" style="color:#a855f7;"></i> 2. Hasil Analisis Visual & Caption AI</h2>
+        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 12px;">AI mengekstraksi atribut visual gambar Anda secara mendalam sebelum menyusun caption.</p>
         
+        <div id="vision-diagnostics" style="display:none; margin-bottom: 20px; background: rgba(15,23,42,0.8); border: 1px solid rgba(168,85,247,0.3); border-radius: 14px; padding: 16px;">
+          <h4 style="color:#c084fc; font-size:14px; margin-bottom:10px;"><i class="fa-solid fa-microchip"></i> Laporan Analisis Visual Otomatis:</h4>
+          <div id="vision-stats-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; margin-bottom:12px;"></div>
+          <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Palet Warna Dominan Terdeteksi:</div>
+          <div id="vision-palette" style="display:flex; gap:6px; height:24px; border-radius:6px; overflow:hidden;"></div>
+        </div>
+
         <div class="output-list" id="output-list">
           <div style="background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); padding: 40px 20px; border-radius: 16px; text-align: center; color: #94a3b8;">
             <i class="fa-solid fa-sparkles" style="font-size: 32px; margin-bottom: 10px; color: #6366f1;"></i>

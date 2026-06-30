@@ -7,21 +7,32 @@ function generatePrompts() {
   const style = document.getElementById('style-select').value;
   const listEl = document.getElementById('output-list');
 
-  listEl.innerHTML = '<div style="text-align:center; padding: 40px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin" style="font-size:32px;"></i><p style="margin-top:10px;">AI meracik parameter & token prompt...</p></div>';
+  listEl.innerHTML = '<div style="text-align:center; padding: 40px; color:#f59e0b;"><i class="fa-solid fa-spinner fa-spin" style="font-size:32px;"></i><p style="margin-top:10px;">AI Prompt Engineer sedang menganalisis token & menyusun arsitektur prompt...</p></div>';
 
   setTimeout(() => {
+    // Dynamic Token Analysis
+    const words = kw.split(/\s+/);
+    const isDetailNeeded = words.length < 5;
+    const domainDesc = words.some(w => /logo|desain|web|app|ui|ux/i.test(w)) ? "UI/UX & Branding Design" : "General Creative Concept";
+    
     let prompts = [];
     if (model === 'midjourney') {
+      const lighting = style === 'cinematic' ? "volumetric god rays, dramatic shadows, moody chiaroscuro lighting" : "soft clean studio diffused lighting, golden hour rim reflections";
+      const camera = style === 'photorealistic' ? "shot on 35mm lens, f/1.8 aperture, Hasselblad medium format, ultra-sharp optical focus" : "intricate 3D render, Unreal Engine 5 Lumen, 8k raytracing details";
+      
       prompts = [
-        `/imagine prompt: A captivating and highly detailed masterpiece featuring ${kw}, executed in ${style} style, dramatic lighting, vivid colors, depth of field, Octane Render, 8k resolution --ar 16:9 --v 6.0 --style raw`,
-        `/imagine prompt: Cinematic portrait of ${kw}, golden hour atmosphere, ultra-sharp focus, volumetric fog, intricate surface details, award winning photography on Hasselblad, ${style} aesthetic --ar 4:5 --q 2`,
-        `/imagine prompt: Dynamic action shot of ${kw}, futuristic cyberpunk background, neon rim lighting, Unreal Engine 5 rendering, hyper-realistic texture --ar 1:1 --chaos 10`
+        `/imagine prompt: A breathtaking ${style} subject featuring ${kw}. Key elements include ${lighting}, ${camera}, award-winning composition, vibrant color harmony --ar 16:9 --v 6.0 --style raw`,
+        `/imagine prompt: Extreme close-up macro view capturing the essence of ${kw}. Atmosphere: hyper-detailed surface texture, ${lighting}, octane render masterpiece --ar 4:5 --q 2 --s 750`,
+        `/imagine prompt: Minimalist and conceptual environmental portrait of ${kw}, centered composition, clean negative space, ${style} aesthetic, high definition --ar 1:1 --no blur, distortion, watermark, bad anatomy`
       ];
     } else {
+      // ChatGPT / Claude / LLM Prompt Frameworks (RTF & CREATE)
       prompts = [
-        `Act as an expert world-class specialist. Your task is to provide a comprehensive, step-by-step analysis and actionable guide regarding: "${kw}". Ensure the tone is professional, structured with clear headings, and include practical real-world examples.`,
-        `I need you to generate a creative and highly converting strategy based on the concept of "${kw}". Please break down the answer into 3 key phases: 1. Preparation & Research, 2. Execution Tactics, 3. Optimization & Scaling.`,
-        `Please brainstorm 10 out-of-the-box ideas and innovative solutions related to "${kw}". Present the output in a clean comparative markdown table evaluating feasibility and impact.`
+        `[Framework RTF: Role, Task, Format]\nRole: You are a distinguished senior expert and strategist in ${domainDesc}.\nTask: Provide a highly detailed, step-by-step masterclass guide and actionable blueprint analyzing "${kw}". Address key challenges, industry secrets, and proven best practices.\nFormat: Present your answer in a structured markdown document with clear headings, bulleted action items, and a concluding checklist.`,
+        
+        `[Framework CREATE: Context, Role, Explicit Action]\nContext: Our organization is exploring groundbreaking innovations surrounding "${kw}".\nRole: Lead Chief Innovation Officer.\nExplicit Instructions: Brainstorm 7 high-impact, unconventional strategies to leverage "${kw}" for competitive advantage. For each strategy, evaluate the implementation timeline, resource intensity, and potential ROI.\nTarget Audience: Executive C-Suite decision makers.`,
+        
+        `[Deep Analytical Prompt with Few-Shot Chain-of-Thought]\nAnalyze the subject "${kw}" by applying rigorous critical thinking. First, outline the underlying mechanics and core philosophy. Second, identify the top 3 common pitfalls people make regarding "${kw}" and how to solve them permanently. Conclude with a comparative evaluation table.`
       ];
     }
 
@@ -30,13 +41,16 @@ function generatePrompts() {
       const box = document.createElement('div');
       box.className = 'prompt-box';
       box.innerHTML = `
-        <div style="font-size:12px; font-weight:800; color:#fbbf24; margin-bottom:8px;"><i class="fa-solid fa-star"></i> OPTIMIZED PROMPT #${i+1}</div>
-        <div class="prompt-text">${p}</div>
-        <button class="btn-copy" onclick="copyPrompt(this)"><i class="fa-regular fa-copy"></i> Salin Prompt</button>
+        <div style="font-size:12px; font-weight:800; color:#fbbf24; margin-bottom:8px; display:flex; justify-content:space-between;">
+          <span><i class="fa-solid fa-star"></i> AI PROMPT ENGINEERING ARCHITECTURE #${i+1}</span>
+          <span style="color:#60a5fa; font-size:10px;">${model === 'midjourney' ? 'VISUAL PARAMETER SYNTHESIS' : 'LLM COGNITIVE FRAMEWORK'}</span>
+        </div>
+        <div class="prompt-text" style="font-family:monospace; font-size:13px; line-height:1.6; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;">${p.replace(/\n/g, '<br>')}</div>
+        <button class="btn-copy" onclick="copyPrompt(this)" style="margin-top:10px;"><i class="fa-regular fa-copy"></i> Salin Prompt</button>
       </div>`;
       listEl.appendChild(box);
     });
-  }, 800);
+  }, 750);
 }
 
 function copyPrompt(btnEl) {

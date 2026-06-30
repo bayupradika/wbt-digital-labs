@@ -17,8 +17,17 @@
       <div class="card">
         <h2 class="card-title"><i class="fa-solid fa-file-lines" style="color:#a855f7;"></i> 1. Tempel Teks Artikel Panjang</h2>
         <textarea id="input-text" placeholder="Tempel artikel, berita, atau laporan panjang di sini..."></textarea>
-        <button style="margin-top: 10px; padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer; align-self: flex-start;" onclick="loadSampleText()">Gunakan Teks Contoh</button>
-        <button class="btn" onclick="summarizeText()"><i class="fa-solid fa-bolt"></i> Rangkum Inti Sari Teks</button>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+          <button style="padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="loadSampleText()">Gunakan Teks Contoh</button>
+          
+          <select id="nlp-engine" style="padding: 8px 12px; border-radius: 10px; background: #1e293b; color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); font-size: 12px; font-weight: 700;">
+            <option value="textrank">🤖 Local NLP Engine (TF-IDF & Sentence Rank)</option>
+            <option value="cloud">⚡ Cloud AI Neural Extractor</option>
+          </select>
+        </div>
+
+        <button class="btn" style="margin-top:16px;" onclick="summarizeText()"><i class="fa-solid fa-wand-magic-sparkles"></i> Analisis NLP & Rangkum Teks</button>
       </div>
 
       <div class="card">
