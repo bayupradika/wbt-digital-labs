@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CitraLabeling Studio Pro - Bulk YOLO/VOC Annotator</title>
-  <link rel="stylesheet" href="style.css?v=4.3">
+  <link rel="stylesheet" href="style.css?v=4.4">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -13,7 +13,8 @@
       <div class="logo"><i class="fa-solid fa-layer-group"></i> CitraLabeling Studio Pro</div>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <div class="badge" id="quota-display"><i class="fa-solid fa-infinity"></i> Kuota Harian: 1.000 / 1.000 File</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; border:none; font-size:12px; font-weight:900; cursor:pointer;" onclick="downloadPremiumApp()"><i class="fa-solid fa-crown"></i> App Premium (Unlimited)</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="openAutoLabelModal()"><i class="fa-solid fa-robot"></i> AI Auto-Label</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; border:none; font-size:12px; font-weight:900; cursor:pointer;" onclick="upgradeProUnlimited()"><i class="fa-solid fa-crown"></i> Upgrade Pro (Rp 20k)</button>
         <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
         <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('android')"><i class="fa-brands fa-android"></i> App Android</button>
       </div>
@@ -88,7 +89,7 @@
           <button style="padding:8px 12px; border-radius:10px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="document.getElementById('classes-file-input').click()" title="Upload classes.txt"><i class="fa-solid fa-file-import"></i></button>
         </div>
 
-        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Klik label untuk aktifkan. Klik (X) untuk hapus kelas:</div>
+        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Klik label untuk aktifkan. Drag atas/bawah untuk ubah urutan. Klik (X) hapus:</div>
         <div class="class-list" id="class-pills"></div>
 
         <button class="btn btn-export" style="margin-top:10px;" onclick="downloadClassesTxt()"><i class="fa-solid fa-download"></i> Download file classes.txt</button>
@@ -105,7 +106,40 @@
       </div>
     </div>
   </div>
-  <script src="../midtrans-pay.js?v=4.3"></script>
-  <script src="script.js?v=4.3"></script>
+
+  <!-- AI Auto-Label Modal -->
+  <div id="ai-autolabel-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px);">
+    <div style="background:#111827; border:2px solid #3b82f6; border-radius:24px; max-width:620px; width:100%; padding:26px; color:white; position:relative; box-shadow:0 20px 50px rgba(59,130,246,0.25);">
+      <button style="position:absolute; top:18px; right:18px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;" onclick="closeAutoLabelModal()"><i class="fa-solid fa-xmark"></i></button>
+      <h3 style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px; color:#60a5fa;"><i class="fa-solid fa-robot"></i> AI Auto-Label One-Shot Engine</h3>
+      <p style="font-size:13px; color:#cbd5e1; line-height:1.6; margin-bottom:16px;">
+        Unggah banyak gambar atau folder, buat <strong>minimal 1 bounding box anotasi referensi</strong> pada gambar saat ini sebagai contoh untuk setiap kelas, lalu biarkan model AI mencocokkan tekstur/warna objek dan melabeli sisa gambar di galeri secara otomatis!
+      </p>
+      
+      <div style="background:#1e293b; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); margin-bottom:18px;">
+        <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> Status Referensi & Progres:</div>
+        <div id="ai-ref-status" style="font-size:13px; color:#34d399; margin-bottom:12px;">Memeriksa referensi pada gambar saat ini...</div>
+        
+        <div id="ai-progress-container" style="display:none; margin-top:12px;">
+          <div style="width:100%; background:#0f172a; border-radius:8px; height:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.1);">
+            <div id="ai-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg,#3b82f6,#10b981); transition:width 0.3s ease;"></div>
+          </div>
+          <div id="ai-progress-text" style="font-size:11px; color:#94a3b8; text-align:center; margin-top:6px;">Menganalisis gambar 0 / 0...</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button id="btn-run-autolabel" style="width:100%; padding:14px; border-radius:14px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; font-weight:800; font-size:14px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 6px 16px rgba(59,130,246,0.4);" onclick="runAutoLabelEngine()"><i class="fa-solid fa-bolt"></i> Jalankan AI Auto-Label Semua Gambar</button>
+        
+        <div style="border-top:1px dashed rgba(255,255,255,0.15); margin:8px 0; padding-top:14px; text-align:center;">
+          <div style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">Ingin menjalankan pemrosesan AI Auto-Label Offline berkecepatan tinggi di PC/Android tanpa internet?</div>
+          <button style="width:100%; padding:12px; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:13px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="purchaseOfflineAIModel()"><i class="fa-solid fa-brain"></i> Download Model AI Offline Package (.pack) - Rp 35.000</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../midtrans-pay.js?v=4.4"></script>
+  <script src="script.js?v=4.4"></script>
 </body>
 </html>

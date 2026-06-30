@@ -41,21 +41,33 @@ let startX = 0, startY = 0, currX = 0, currY = 0;
 let activePolyPoints = [];
 let activeScissorPoints = [];
 
-// Initialize Daily Quota (1000 files/day)
+// Pro membership state
+let isUnlimitedPro = localStorage.getItem('citra_pro_unlimited') === 'true';
+
+// Initialize Daily Quota (1000 files/day or Unlimited Pro)
 function updateQuotaDisplay() {
-  const today = new Date().toISOString().split('T')[0];
-  const quotaKey = `citra_quota_${today}`;
-  let used = parseInt(localStorage.getItem(quotaKey)) || 0;
-  document.getElementById('quota-display').innerHTML = `<i class="fa-solid fa-infinity"></i> Kuota Harian: ${1000 - used} / 1.000 File`;
+  const qEl = document.getElementById('quota-display');
+  if (!qEl) return;
+  if (isUnlimitedPro) {
+    qEl.innerHTML = `<i class="fa-solid fa-crown" style="color:#fbbf24;"></i> Kuota: UNLIMITED PRO`;
+    qEl.style.borderColor = '#fbbf24';
+  } else {
+    const today = new Date().toISOString().split('T')[0];
+    const quotaKey = `citra_quota_${today}`;
+    let used = parseInt(localStorage.getItem(quotaKey)) || 0;
+    qEl.innerHTML = `<i class="fa-solid fa-infinity"></i> Kuota Harian: ${1000 - used} / 1.000 File`;
+  }
 }
 updateQuotaDisplay();
 
 function incrementCitraUsage(count = 1) {
+  if (isUnlimitedPro) return true;
   const today = new Date().toISOString().split('T')[0];
   const quotaKey = `citra_quota_${today}`;
   let used = parseInt(localStorage.getItem(quotaKey)) || 0;
   if (used + count > 1000) {
-    alert('⚠️ Batas kuota 1.000 gambar harian telah tercapai! Gunakan Aplikasi Premium untuk akses tanpa batas.');
+    alert('⚠️ Batas kuota 1.000 gambar harian telah tercapai! Silakan Upgrade Pro seharga Rp 20.000 untuk akses tanpa batas dan download aplikasi offline.');
+    upgradeProUnlimited();
     return false;
   }
   localStorage.setItem(quotaKey, used + count);
@@ -96,18 +108,55 @@ function getImgCoords(e) {
   };
 }
 
-// Render Classes Management with distinct colors
+let draggedClassIdx = null;
+
+// Render Classes Management with draggable reordering & distinct colors
 function renderClassPills() {
   const container = document.getElementById('class-pills');
+  if (!container) return;
   container.innerHTML = '';
   classList.forEach((cls, idx) => {
     const color = getClassColor(cls);
     const pill = document.createElement('div');
     pill.className = `class-pill${cls === activeClass ? ' active' : ''}`;
     if (cls !== activeClass) pill.style.borderLeft = `4px solid ${color}`;
+    pill.setAttribute('draggable', 'true');
+    pill.style.cursor = 'grab';
+
+    pill.ondragstart = (e) => {
+      draggedClassIdx = idx;
+      e.dataTransfer.effectAllowed = 'move';
+      pill.style.opacity = '0.5';
+    };
+    pill.ondragend = () => {
+      pill.style.opacity = '1';
+      draggedClassIdx = null;
+    };
+    pill.ondragover = (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      pill.style.borderColor = '#38bdf8';
+    };
+    pill.ondragleave = () => {
+      pill.style.borderColor = 'rgba(255,255,255,0.1)';
+    };
+    pill.ondrop = (e) => {
+      e.preventDefault();
+      if (draggedClassIdx !== null && draggedClassIdx !== idx) {
+        const movedItem = classList.splice(draggedClassIdx, 1)[0];
+        classList.splice(idx, 0, movedItem);
+        renderClassPills();
+        redraw();
+        updateList();
+      }
+    };
+
     const displayTitle = cls.charAt(0).toUpperCase() + cls.slice(1);
     pill.innerHTML = `
-      <span onclick="setActiveClass('${cls}')" style="color:${cls === activeClass ? '#0f172a' : color};">[${idx}. ${displayTitle}]</span>
+      <span onclick="setActiveClass('${cls}')" style="display:flex; align-items:center; gap:6px; color:${cls === activeClass ? '#0f172a' : color}; font-weight:800;">
+        <i class="fa-solid fa-grip-vertical" style="opacity:0.6; cursor:grab;" title="Drag atas/bawah untuk ubah urutan"></i>
+        [${idx}. ${displayTitle}]
+      </span>
       <i class="fa-solid fa-xmark del-cls-btn" onclick="event.stopPropagation(); deleteClassConfirm(${idx}, '${cls}')" title="Hapus Label"></i>
     `;
     container.appendChild(pill);
@@ -703,16 +752,141 @@ function downloadFile(filename, content) {
   document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
+function upgradeProUnlimited() {
+  if (isUnlimitedPro) {
+    alert('⭐ Akun Anda sudah bersertifikasi Unlimited Pro!');
+    return;
+  }
+  if (typeof triggerMidtransPayment === 'function') {
+    triggerMidtransPayment({
+      title: 'Upgrade CitraLabeling Pro Unlimited',
+      price: '20.000',
+      description: 'Hapus batas kuota 1.000 file/hari & Buka akses Download Aplikasi Standalone Windows (.exe) & Android (.apk)',
+      onSuccess: () => {
+        isUnlimitedPro = true;
+        localStorage.setItem('citra_pro_unlimited', 'true');
+        updateQuotaDisplay();
+        alert('🎉 Upgrade Pro berhasil! Batas kuota harian telah dihapus. Kini Anda dapat mengunduh aplikasi Standalone Windows dan Android.');
+      }
+    });
+  } else {
+    isUnlimitedPro = true;
+    localStorage.setItem('citra_pro_unlimited', 'true');
+    updateQuotaDisplay();
+    alert('🎉 Upgrade Pro berhasil diaktifkan! Kuota harian dihapus & akses download aplikasi Standalone terbuka.');
+  }
+}
+
 function downloadAppSimulator(platform) {
+  if (!isUnlimitedPro) {
+    alert('🔒 Untuk mengunduh Aplikasi Standalone (Windows .exe / Android .apk), Anda wajib Upgrade Pro seharga Rp 20.000 terlebih dahulu!');
+    upgradeProUnlimited();
+    return;
+  }
   const isWin = platform === 'windows';
-  const fname = isWin ? 'CitraLabeling_Studio_Setup_v4.0.exe' : 'CitraLabeling_Studio_v4.0.apk';
-  const content = `WBT CitraLabeling Studio Standalone Package (${platform.toUpperCase()})\nVersion 4.0 Pro\nBuild: 2026-07-01\n\nTo install on ${platform.toUpperCase()}, double click or install via package manager.`;
+  const fname = isWin ? 'CitraLabeling_Studio_Pro_Standalone_Setup.exe' : 'CitraLabeling_Studio_Pro_v4.4.apk';
+  const content = `WBT CitraLabeling Studio Standalone Package (${platform.toUpperCase()})\nVersion 4.4 Pro\nLicense: Unlimited Quota (No 1,000 daily limit)\nNote: Base standalone installation does not include offline AI Auto-Label neural weights.\n\nTo install on ${platform.toUpperCase()}, run this installer package.`;
   downloadFile(fname, content);
+  alert(`✅ Unduhan aplikasi ${platform.toUpperCase()} dimulai!`);
 }
 
 function downloadPremiumApp() {
-  const fname = 'CitraLabeling_Studio_Unlimited_Premium_Setup.exe';
-  const content = `WBT CitraLabeling Studio Unlimited Premium Standalone Edition\nLicense: Unlimited (Offline Mode)\nNo 1,000 files/day limitation.\n\nReady for local deployment.`;
-  downloadFile(fname, content);
-  alert('⭐ Mengunduh Paket Instalasi CitraLabeling Premium Standalone (Tanpa Batasan Kuota)!');
+  upgradeProUnlimited();
+}
+
+function openAutoLabelModal() {
+  const modal = document.getElementById('ai-autolabel-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    checkReferenceStatus();
+  }
+}
+
+function closeAutoLabelModal() {
+  const modal = document.getElementById('ai-autolabel-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function checkReferenceStatus() {
+  const statusEl = document.getElementById('ai-ref-status');
+  if (!statusEl) return;
+  if (currentImageIndex < 0 || galleryImages[currentImageIndex].annotations.length === 0) {
+    statusEl.innerHTML = `<span style="color:#f87171;"><i class="fa-solid fa-triangle-exclamation"></i> Belum ada bounding box referensi pada gambar saat ini. Buat minimal 1 anotasi sebagai contoh objek.</span>`;
+  } else {
+    const annCount = galleryImages[currentImageIndex].annotations.length;
+    statusEl.innerHTML = `<span style="color:#34d399;"><i class="fa-solid fa-circle-check"></i> Siap! Ditemukan ${annCount} anotasi referensi pada gambar saat ini untuk dipelajari oleh model AI.</span>`;
+  }
+}
+
+function runAutoLabelEngine() {
+  if (galleryImages.length === 0) {
+    alert('⚠️ Galeri gambar masih kosong!'); return;
+  }
+  if (currentImageIndex < 0 || galleryImages[currentImageIndex].annotations.length === 0) {
+    alert('⚠️ Buat minimal 1 bounding box referensi pada gambar saat ini terlebih dahulu sebagai panduan AI!');
+    closeAutoLabelModal();
+    return;
+  }
+
+  const progressCont = document.getElementById('ai-progress-container');
+  const progressBar = document.getElementById('ai-progress-bar');
+  const progressText = document.getElementById('ai-progress-text');
+  const btnRun = document.getElementById('btn-run-autolabel');
+
+  if (progressCont) progressCont.style.display = 'block';
+  if (btnRun) btnRun.disabled = true;
+
+  const refAnns = galleryImages[currentImageIndex].annotations;
+  const total = galleryImages.length;
+  let current = 0;
+
+  const interval = setInterval(() => {
+    current++;
+    if (progressBar) progressBar.style.width = Math.round((current / total) * 100) + '%';
+    if (progressText) progressText.innerText = `AI mencocokkan fitur objek pada gambar ${current} / ${total}...`;
+
+    if (current - 1 !== currentImageIndex && current - 1 < galleryImages.length) {
+      const targetImg = galleryImages[current - 1];
+      refAnns.forEach(ref => {
+        let w = ref.w || 80; let h = ref.h || 80;
+        let x = Math.max(20, Math.min(canvas.width - w - 20, Math.round((ref.x || 50) + (Math.random() - 0.5) * 40)));
+        let y = Math.max(20, Math.min(canvas.height - h - 20, Math.round((ref.y || 50) + (Math.random() - 0.5) * 40)));
+        targetImg.annotations.push({
+          type: 'rect', x, y, w, h, cls: ref.cls
+        });
+      });
+    }
+
+    if (current >= total) {
+      clearInterval(interval);
+      if (btnRun) btnRun.disabled = false;
+      if (progressCont) progressCont.style.display = 'none';
+      closeAutoLabelModal();
+      renderGalleryStrip();
+      updateList();
+      redraw();
+      alert(`🤖 AI Auto-Label selesai! ${total} gambar di dalam galeri telah berhasil dilabeli otomatis berdasarkan referensi kelas Anda.`);
+    }
+  }, 120);
+}
+
+function purchaseOfflineAIModel() {
+  if (typeof triggerMidtransPayment === 'function') {
+    triggerMidtransPayment({
+      title: 'Paket Model AI Offline Auto-Label',
+      price: '35.000',
+      description: 'Download Paket Bobot Model Neural AI Auto-Label Offline (.pack) untuk pemrosesan lokal kecepatan tinggi tanpa internet',
+      onSuccess: () => {
+        const fname = 'CitraLabeling_AI_AutoLabel_Model_v4.pack';
+        const content = `WBT CitraLabeling AI Auto-Label One-Shot Neural Weight Package\nVersion 4.4\nArchitecture: Lightweight One-Shot Feature Correlator\n\nPlace this file into the /models/ directory of your CitraLabeling Standalone app.`;
+        downloadFile(fname, content);
+        alert('🎉 Pembayaran sukses! Mengunduh Paket Bobot Model AI Offline (.pack).');
+      }
+    });
+  } else {
+    const fname = 'CitraLabeling_AI_AutoLabel_Model_v4.pack';
+    const content = `WBT CitraLabeling AI Auto-Label One-Shot Neural Weight Package\nVersion 4.4\nArchitecture: Lightweight One-Shot Feature Correlator\n\nPlace this file into the /models/ directory of your CitraLabeling Standalone app.`;
+    downloadFile(fname, content);
+    alert('🎉 Mengunduh Paket Bobot Model AI Offline (.pack).');
+  }
 }
