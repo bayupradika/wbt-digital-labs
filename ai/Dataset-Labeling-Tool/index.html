@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CitraLabeling Studio Pro - Bulk YOLO/VOC Annotator</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
+  <link rel="stylesheet" href="style.css?v=3.5">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -42,15 +42,29 @@
           <div class="mode-btn" id="mode-oval" onclick="setAnnotateMode('oval')" title="Shortcut Keyboard: [O]">
             <i class="fa-regular fa-circle"></i> [O] Oval Mode
           </div>
-          <div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut Keyboard: [S]">
-            <i class="fa-solid fa-scissors"></i> [S] Scissor Cut
+          <div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut Keyboard: [S] - Klik titik potong, lalu klik kanan untuk hapus area terkecil">
+            <i class="fa-solid fa-scissors"></i> [S] Scissor Cut Mode
           </div>
-          <div class="mode-btn" id="mode-point" onclick="setAnnotateMode('point')" title="Shortcut Keyboard: [P]">
-            <i class="fa-solid fa-dot-circle"></i> [P] Point Mode
+          <div class="mode-btn" id="mode-point" onclick="setAnnotateMode('point')" title="Shortcut Keyboard: [P] - Klik tiap sudut objek, klik kanan untuk menutup garis">
+            <i class="fa-solid fa-draw-polygon"></i> [P] Point Mode (Polygon)
+          </div>
+        </div>
+
+        <!-- Interactive Zoom & Navigation Toolbar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:rgba(15,23,42,0.9); padding:8px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); font-size:12px; color:#cbd5e1;">
+          <div><i class="fa-solid fa-magnifying-glass" style="color:#38bdf8;"></i> Navigasi Zoom Tampilan: <strong id="zoom-level-text" style="color:#fbbf24;">100%</strong> <small style="color:#64748b;">(Posisi gambar konsisten saat di-scroll)</small></div>
+          <div style="display:flex; gap:6px;">
+            <button style="padding:4px 10px; border-radius:6px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-weight:700; cursor:pointer;" onclick="changeZoom(0.25)" title="Zoom In (+)"><i class="fa-solid fa-plus"></i> Zoom In</button>
+            <button style="padding:4px 10px; border-radius:6px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-weight:700; cursor:pointer;" onclick="changeZoom(-0.25)" title="Zoom Out (-)"><i class="fa-solid fa-minus"></i> Zoom Out</button>
+            <button style="padding:4px 10px; border-radius:6px; background:#334155; color:#fbbf24; border:none; font-weight:700; cursor:pointer;" onclick="resetZoom()" title="Reset Ukuran Asli">Reset (100%)</button>
           </div>
         </div>
         
-        <div class="canvas-area" id="canvas-area"><canvas id="canvas"></canvas></div>
+        <div class="canvas-area" id="canvas-area">
+          <div class="canvas-wrapper-inner" id="canvas-wrapper">
+            <canvas id="canvas"></canvas>
+          </div>
+        </div>
         
         <!-- Gallery Thumbnail Strip -->
         <div style="font-size:12px; font-weight:700; color:#94a3b8; margin-top:12px;">Galeri File Citra Uploaded (<span id="gallery-count">0</span>):</div>
@@ -70,7 +84,7 @@
           <button style="padding:8px 12px; border-radius:10px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="document.getElementById('classes-file-input').click()" title="Upload classes.txt"><i class="fa-solid fa-file-import"></i></button>
         </div>
 
-        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Klik untuk aktifkan label saat menggambar:</div>
+        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Klik label untuk aktifkan. Klik (X) untuk hapus kelas:</div>
         <div class="class-list" id="class-pills"></div>
 
         <button class="btn btn-export" style="margin-top:10px;" onclick="downloadClassesTxt()"><i class="fa-solid fa-download"></i> Download file classes.txt</button>
@@ -87,7 +101,7 @@
       </div>
     </div>
   </div>
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=3.0"></script>
+  <script src="../midtrans-pay.js?v=3.5"></script>
+  <script src="script.js?v=3.5"></script>
 </body>
 </html>
