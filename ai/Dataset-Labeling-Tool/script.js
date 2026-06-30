@@ -32,6 +32,8 @@ let currentMode = 'rect'; // 'rect', 'oval', 'scissor', 'point'
 
 // Interactive Zoom & Drawing State
 let zoomLevel = 1.0;
+let baseDisplayWidth = 0;
+let baseDisplayHeight = 0;
 let isDrawing = false;
 let startX = 0, startY = 0, currX = 0, currY = 0;
 
@@ -75,9 +77,12 @@ function resetZoom() {
 }
 
 function applyZoom() {
+  if (!loaded) return;
   document.getElementById('zoom-level-text').innerText = Math.round(zoomLevel * 100) + '%';
-  canvas.style.width = Math.round(img.width * zoomLevel) + 'px';
-  canvas.style.height = Math.round(img.height * zoomLevel) + 'px';
+  const displayW = baseDisplayWidth ? Math.round(baseDisplayWidth * zoomLevel) : Math.round(img.width * zoomLevel);
+  const displayH = baseDisplayHeight ? Math.round(baseDisplayHeight * zoomLevel) : Math.round(img.height * zoomLevel);
+  canvas.style.width = displayW + 'px';
+  canvas.style.height = displayH + 'px';
   redraw();
 }
 
@@ -293,6 +298,15 @@ img.onload = () => {
   loaded = true;
   canvas.width = img.width;
   canvas.height = img.height;
+
+  const container = document.getElementById('canvas-area');
+  const maxW = (container && container.clientWidth > 50) ? (container.clientWidth - 24) : 750;
+  const maxH = 430; // Fit inside default 460px box height
+
+  const scale = Math.min(maxW / img.width, maxH / img.height, 1.0);
+  baseDisplayWidth = img.width * scale;
+  baseDisplayHeight = img.height * scale;
+
   applyZoom();
 };
 
