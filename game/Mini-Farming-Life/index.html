@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -17,20 +17,20 @@
       </div>
     </div>
 
-    <div class="hint-bar" id="hint-text">ðŸŒ± Pilih bibit di bawah, lalu klik petak tanah untuk menanam!</div>
+    <div class="hint-bar" id="hint-text">🌱 Pilih bibit di bawah, lalu klik petak tanah untuk menanam!</div>
 
     <div class="grid-container" id="grid"></div>
 
-    <div class="tools-title">ðŸšœ PILIH BENIH ATAU ALAT BANTU</div>
+    <div class="tools-title">🚜 PILIH BENIH ATAU ALAT BANTU</div>
     <div class="tools-bar">
-      <button class="tool-btn active" onclick="selectTool('wheat')">ðŸŒ¾ Gandum<span>10 ðŸª™</span></button>
-      <button class="tool-btn" onclick="selectTool('corn')">ðŸŒ½ Jagung<span>30 ðŸª™</span></button>
-      <button class="tool-btn" onclick="selectTool('strawberry')">ðŸ“ Stroberi<span>80 ðŸª™</span></button>
-      <button class="tool-btn" onclick="selectTool('water')"><i class="fa-solid fa-droplet" style="color:#38bdf8;"></i> Siram Pupuk<span>5 ðŸ’Ž</span></button>
+      <button class="tool-btn active" onclick="selectTool('wheat')">🌾 Gandum<span>10 🪙</span></button>
+      <button class="tool-btn" onclick="selectTool('corn')">🌽 Jagung<span>30 🪙</span></button>
+      <button class="tool-btn" onclick="selectTool('strawberry')">🍓 Stroberi<span>80 🪙</span></button>
+      <button class="tool-btn" onclick="selectTool('water')"><i class="fa-solid fa-droplet" style="color:#38bdf8;"></i> Siram Pupuk<span>5 💎</span></button>
     </div>
 
     <div class="overlay" id="start-screen">
-      <div style="font-size: 70px; margin-bottom: 10px;">ðŸ§‘â€ðŸŒ¾</div>
+      <div style="font-size: 70px; margin-bottom: 10px;">🧑‍🌾</div>
       <h1>MINI <span style="color: #fbbf24;">FARMING</span></h1>
       <p style="color: #86efac; font-size: 15px; line-height: 1.6;">Tanam benih, siram tanaman, dan panen hasil kebunmu untuk mengumpulkan koin emas melimpah!</p>
       <button class="btn" onclick="startGame()"><i class="fa-solid fa-play"></i> MULAI BERKEBUN</button>
@@ -44,15 +44,15 @@
         <p style="color: #86efac; font-size: 13px; margin-top: 5px;">Gunakan Gems untuk menyiram pupuk instan panen!</p>
         <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
           <div style="background: #1b3023; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1);">
-            <div><b style="color: #38bdf8; font-size: 18px;">ðŸ’Ž 300 Gems</b><div style="font-size: 12px; color: #86efac;">Paket Petani</div></div>
+            <div><b style="color: #38bdf8; font-size: 18px;">💎 300 Gems</b><div style="font-size: 12px; color: #86efac;">Paket Petani</div></div>
             <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px; background: #38bdf8; color: #0f172a;" onclick="buyGems('300 Gems Petani', 3000, 300)">Rp 3.000</button>
           </div>
           <div style="background: #1b3023; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 2px solid #4ade80;">
-            <div><b style="color: #38bdf8; font-size: 18px;">ðŸ’Ž 1.000 Gems</b><div style="font-size: 12px; color: #4ade80; font-weight: 700;">ðŸ”¥ Terpopuler</div></div>
+            <div><b style="color: #38bdf8; font-size: 18px;">💎 1.000 Gems</b><div style="font-size: 12px; color: #4ade80; font-weight: 700;">🔥 Terpopuler</div></div>
             <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px; background: #4ade80; color: #0f172a; box-shadow: none;" onclick="buyGems('1000 Gems Popular', 8000, 1000)">Rp 8.000</button>
           </div>
           <div style="background: #1b3023; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1);">
-            <div><b style="color: #38bdf8; font-size: 18px;">ðŸ’Ž 3.000 Gems</b><div style="font-size: 12px; color: #fbbf24;">Paket Juragan</div></div>
+            <div><b style="color: #38bdf8; font-size: 18px;">💎 3.000 Gems</b><div style="font-size: 12px; color: #fbbf24;">Paket Juragan</div></div>
             <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px; background: #fbbf24; color: #0f172a;" onclick="buyGems('3000 Gems Juragan', 15000, 3000)">Rp 15.000</button>
           </div>
         </div>
@@ -72,4 +72,3 @@
 </script>
 </body>
 </html>
-
