@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CitraLabeling Studio Pro - Bulk YOLO/VOC Annotator</title>
-  <link rel="stylesheet" href="style.css?v=3.5">
+  <link rel="stylesheet" href="style.css?v=4.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -11,10 +11,11 @@
   <div class="container">
     <div class="nav-bar">
       <div class="logo"><i class="fa-solid fa-layer-group"></i> CitraLabeling Studio Pro</div>
-      <div style="display:flex; gap:10px; align-items:center;">
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
         <div class="badge" id="quota-display"><i class="fa-solid fa-infinity"></i> Kuota Harian: 1.000 / 1.000 File</div>
-        <button style="padding:8px 14px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 14px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('android')"><i class="fa-brands fa-android"></i> App Android</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; border:none; font-size:12px; font-weight:900; cursor:pointer;" onclick="downloadPremiumApp()"><i class="fa-solid fa-crown"></i> App Premium (Unlimited)</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('android')"><i class="fa-brands fa-android"></i> App Android</button>
       </div>
     </div>
 
@@ -42,7 +43,7 @@
           <div class="mode-btn" id="mode-oval" onclick="setAnnotateMode('oval')" title="Shortcut Keyboard: [O]">
             <i class="fa-regular fa-circle"></i> [O] Oval Mode
           </div>
-          <div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut Keyboard: [S] - Klik titik potong, lalu klik kanan untuk hapus area terkecil">
+          <div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut Keyboard: [S] - Klik dari luar bbox melewati objek hingga keluar bbox, lalu klik kanan">
             <i class="fa-solid fa-scissors"></i> [S] Scissor Cut Mode
           </div>
           <div class="mode-btn" id="mode-point" onclick="setAnnotateMode('point')" title="Shortcut Keyboard: [P] - Klik tiap sudut objek, klik kanan untuk menutup garis">
@@ -66,8 +67,11 @@
           </div>
         </div>
         
-        <!-- Gallery Thumbnail Strip -->
-        <div style="font-size:12px; font-weight:700; color:#94a3b8; margin-top:12px;">Galeri File Citra Uploaded (<span id="gallery-count">0</span>):</div>
+        <!-- Gallery Navigation & Fixed Single-Row Thumbnail Strip -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; flex-wrap:wrap; gap:8px;">
+          <div style="font-size:13px; font-weight:800; color:#cbd5e1;"><i class="fa-solid fa-images" style="color:#38bdf8;"></i> Galeri Citra (<span id="gallery-count">0</span> File)</div>
+          <button style="padding:8px 16px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(16,185,129,0.3);" onclick="nextImageAutoScroll()"><i class="fa-solid fa-check"></i> Selesai Anotasi & Lanjut Gambar Berikutnya ➔</button>
+        </div>
         <div class="gallery-strip" id="gallery-strip">
           <p style="color:#64748b; font-size:12px; padding:10px;">Unggah file gambar atau ZIP untuk menampilkannya di sini.</p>
         </div>
@@ -101,7 +105,7 @@
       </div>
     </div>
   </div>
-  <script src="../midtrans-pay.js?v=3.5"></script>
-  <script src="script.js?v=3.5"></script>
+  <script src="../midtrans-pay.js?v=4.0"></script>
+  <script src="script.js?v=4.0"></script>
 </body>
 </html>
