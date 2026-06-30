@@ -397,13 +397,106 @@ async function handleZipUpload(event) {
   }
 }
 
-function loadSample() {
-  galleryImages = [
-    { name: 'jalan_raya_01.jpg', url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80', annotations: [] },
-    { name: 'lalu_lintas_02.jpg', url: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80', annotations: [] }
-  ];
+let streamingPriorityIndex = null;
+let isStreamingActive = false;
+
+function openDriveModal() {
+  const m = document.getElementById('drive-modal');
+  if (m) m.style.display = 'flex';
+}
+
+function closeDriveModal() {
+  const m = document.getElementById('drive-modal');
+  if (m) m.style.display = 'none';
+}
+
+function connectGoogleDriveStreaming() {
+  const inputEl = document.getElementById('drive-links-input');
+  if (!inputEl) return;
+  const raw = inputEl.value.trim();
+  if (!raw) { alert('⚠️ Masukkan link Google Drive atau ID File terlebih dahulu!'); return; }
+
+  const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+  let addedCount = 0;
+
+  lines.forEach(line => {
+    let idMatch = line.match(/id=([-\w]{25,})/i) || line.match(/\/d\/([-\w]{25,})/i) || line.match(/^([-\w]{25,})$/);
+    if (idMatch && idMatch[1]) {
+      const fileId = idMatch[1];
+      const directUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+      galleryImages.push({
+        name: `Drive citra_${fileId.slice(0, 6)}.jpg`,
+        driveId: fileId,
+        url: directUrl,
+        status: 'pending',
+        annotations: []
+      });
+      addedCount++;
+    }
+  });
+
+  if (addedCount === 0) {
+    alert('⚠️ Tidak ditemukan ID file Google Drive yang valid. Pastikan format link atau ID sudah benar!');
+    return;
+  }
+
+  incrementCitraUsage(addedCount);
+  closeDriveModal();
+  inputEl.value = '';
   renderGalleryStrip();
-  selectGalleryImage(0);
+  if (currentImageIndex === -1) selectGalleryImage(0);
+
+  if (!isStreamingActive) {
+    isStreamingActive = true;
+    processDriveStreamingQueue();
+  }
+  alert(`✅ Berhasil menambahkan ${addedCount} gambar ke antrean streaming Google Drive! Unduhan latar belakang dimulai secara antrean.`);
+}
+
+async function processDriveStreamingQueue() {
+  if (galleryImages.every(g => !g.status || (g.status !== 'pending' && g.status !== 'downloading'))) {
+    isStreamingActive = false;
+    return;
+  }
+  isStreamingActive = true;
+
+  let targetIdx = -1;
+  if (streamingPriorityIndex !== null && galleryImages[streamingPriorityIndex] && galleryImages[streamingPriorityIndex].status === 'pending') {
+    targetIdx = streamingPriorityIndex;
+  } else {
+    targetIdx = galleryImages.findIndex(g => g.status === 'pending');
+  }
+
+  if (targetIdx === -1) {
+    isStreamingActive = false;
+    return;
+  }
+
+  const item = galleryImages[targetIdx];
+  item.status = 'downloading';
+  if (targetIdx === currentImageIndex) renderGalleryStrip();
+
+  try {
+    const testImg = new Image();
+    testImg.crossOrigin = 'Anonymous';
+    await new Promise((resolve, reject) => {
+      testImg.onload = resolve;
+      testImg.onerror = reject;
+      testImg.src = item.url;
+    });
+    item.status = 'ready';
+  } catch (e) {
+    item.url = `https://drive.google.com/uc?export=view&id=${item.driveId}`;
+    item.status = 'ready';
+  }
+
+  if (streamingPriorityIndex === targetIdx) streamingPriorityIndex = null;
+  renderGalleryStrip();
+  if (currentImageIndex === targetIdx) {
+    selectGalleryImage(targetIdx);
+  }
+
+  setTimeout(processDriveStreamingQueue, 150);
 }
 
 function renderGalleryStrip() {
@@ -414,10 +507,21 @@ function renderGalleryStrip() {
     const thumb = document.createElement('div');
     thumb.id = `thumb-${idx}`;
     thumb.className = `thumb-item${idx === currentImageIndex ? ' active' : ''}`;
-    thumb.innerHTML = `
-      <img src="${item.url}" alt="${item.name}">
-      <div class="thumb-count">${item.annotations.length}</div>
-    `;
+    
+    if (item.status === 'pending' || item.status === 'downloading') {
+      thumb.innerHTML = `
+        <div style="width:100%; height:100%; background:#1e293b; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#10b981;">
+          <i class="fa-solid ${item.status === 'downloading' ? 'fa-spinner fa-spin' : 'fa-cloud'}" style="font-size:16px;"></i>
+          <span style="font-size:9px; color:#94a3b8; margin-top:4px; font-weight:700;">${item.status === 'downloading' ? 'Prioritas' : 'Drive'}</span>
+        </div>
+        <div class="thumb-count">0</div>
+      `;
+    } else {
+      thumb.innerHTML = `
+        <img src="${item.url}" alt="${item.name}">
+        <div class="thumb-count">${item.annotations.length}</div>
+      `;
+    }
     thumb.onclick = () => selectGalleryImage(idx);
     strip.appendChild(thumb);
   });
@@ -429,9 +533,23 @@ function selectGalleryImage(idx) {
   document.getElementById('curr-img-name').innerText = galleryImages[idx].name;
   renderGalleryStrip();
 
-  img.src = galleryImages[idx].url;
+  const item = galleryImages[idx];
+  if (item.status === 'pending' || item.status === 'downloading') {
+    loaded = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#10b981'; ctx.font = 'bold 15px Plus Jakarta Sans';
+    ctx.fillText('⏳ Memprioritaskan pengunduhan gambar ini dari Google Drive...', 30, canvas.height / 2);
+    
+    streamingPriorityIndex = idx;
+    if (!isStreamingActive) {
+      processDriveStreamingQueue();
+    }
+    return;
+  }
+
+  img.src = item.url;
   
-  // Auto-scroll selected thumbnail horizontally into center view
   const activeThumb = document.getElementById(`thumb-${idx}`);
   if (activeThumb) {
     activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
