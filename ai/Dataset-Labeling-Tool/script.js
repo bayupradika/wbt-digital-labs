@@ -28,7 +28,62 @@ let galleryImages = []; // Array of { name, url, annotations: [] }
 let currentImageIndex = -1;
 let classList = ['mobil', 'sepeda', 'pesawat', 'truk', 'excavator'];
 let activeClass = 'mobil';
-let currentMode = 'rect'; // 'rect', 'oval', 'scissor', 'point'
+let currentMode = 'rect'; // 'rect', 'oval', 'scissor', 'point', 'select', 'edit', 'delete'
+let selectedAnnotationIndex = null;
+let isDraggingBox = false;
+let activeHandle = null; // 'nw', 'ne', 'se', 'sw' or vertex index
+
+let shortcutsMap = JSON.parse(localStorage.getItem('citra_shortcuts')) || {
+  rect: 'r', oval: 'o', scissor: 's', point: 'p', select: 'v', edit: 'e', delete: 'd'
+};
+
+function updateShortcutBadges() {
+  Object.keys(shortcutsMap).forEach(k => {
+    const el = document.getElementById(`lbl-sc-${k}`);
+    if (el) el.innerText = shortcutsMap[k].toUpperCase();
+  });
+}
+setTimeout(updateShortcutBadges, 150);
+
+function openShortcutModal() {
+  const m = document.getElementById('shortcut-modal');
+  if (m) {
+    m.style.display = 'flex';
+    Object.keys(shortcutsMap).forEach(k => {
+      const inEl = document.getElementById(`sc-in-${k}`);
+      if (inEl) inEl.value = shortcutsMap[k].toUpperCase();
+    });
+  }
+}
+
+function closeShortcutModal() {
+  const m = document.getElementById('shortcut-modal');
+  if (m) m.style.display = 'none';
+}
+
+function saveCustomShortcuts() {
+  ['rect', 'oval', 'scissor', 'point', 'select', 'edit', 'delete'].forEach(k => {
+    const inEl = document.getElementById(`sc-in-${k}`);
+    if (inEl && inEl.value.trim()) {
+      shortcutsMap[k] = inEl.value.trim().toLowerCase();
+    }
+  });
+  localStorage.setItem('citra_shortcuts', JSON.stringify(shortcutsMap));
+  updateShortcutBadges();
+  closeShortcutModal();
+  alert('✅ Shortcut keyboard berhasil disimpan!');
+}
+
+function resetDefaultShortcuts() {
+  shortcutsMap = { rect: 'r', oval: 'o', scissor: 's', point: 'p', select: 'v', edit: 'e', delete: 'd' };
+  localStorage.removeItem('citra_shortcuts');
+  updateShortcutBadges();
+  Object.keys(shortcutsMap).forEach(k => {
+    const inEl = document.getElementById(`sc-in-${k}`);
+    if (inEl) inEl.value = shortcutsMap[k].toUpperCase();
+  });
+  alert('🔄 Shortcut dikembalikan ke default!');
+}
 
 // Interactive Zoom & Drawing State
 let zoomLevel = 1.0;
@@ -166,6 +221,11 @@ renderClassPills();
 
 function setActiveClass(cls) {
   activeClass = cls;
+  if (selectedAnnotationIndex !== null && currentImageIndex >= 0 && galleryImages[currentImageIndex].annotations[selectedAnnotationIndex]) {
+    galleryImages[currentImageIndex].annotations[selectedAnnotationIndex].cls = cls;
+    redraw();
+    updateList();
+  }
   renderClassPills();
 }
 
@@ -215,10 +275,24 @@ function downloadClassesTxt() {
 
 // Annotation Mode Toolbar & Keyboard Shortcuts
 function setAnnotateMode(mode) {
+  if (mode === 'delete') {
+    if (selectedAnnotationIndex !== null && currentImageIndex >= 0 && galleryImages[currentImageIndex].annotations[selectedAnnotationIndex]) {
+      galleryImages[currentImageIndex].annotations.splice(selectedAnnotationIndex, 1);
+      selectedAnnotationIndex = null;
+      redraw();
+      updateList();
+    } else {
+      alert('⚠️ Pilih (Select) bounding box terlebih dahulu dengan mode Select [V] sebelum menekan Delete [D]!');
+    }
+    return;
+  }
   currentMode = mode;
+  if (mode !== 'select' && mode !== 'edit') {
+    selectedAnnotationIndex = null;
+  }
   activePolyPoints = [];
   activeScissorPoints = [];
-  ['rect', 'oval', 'scissor', 'point'].forEach(m => {
+  ['rect', 'oval', 'scissor', 'point', 'select', 'edit', 'delete'].forEach(m => {
     const el = document.getElementById(`mode-${m}`);
     if (el) el.className = `mode-btn${m === mode ? ' active' : ''}`;
   });
@@ -229,20 +303,50 @@ window.addEventListener('keydown', (e) => {
   if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
   
   const key = e.key.toLowerCase();
-  if (key === 'r') setAnnotateMode('rect');
-  else if (key === 'o' || key === 'c') setAnnotateMode('oval');
-  else if (key === 's') setAnnotateMode('scissor');
-  else if (key === 'p') setAnnotateMode('point');
-  else if (key === 'enter' || e.code === 'Space') {
+
+  // Ctrl + Z Undo handling
+  if ((key === 'z' && e.ctrlKey) || (key === 'z' && e.metaKey)) {
     e.preventDefault();
-    nextImageAutoScroll();
-  }
-  else if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (currentMode === 'point' && activePolyPoints.length > 0) {
+      activePolyPoints.pop();
+      redraw();
+      return;
+    }
+    if (currentMode === 'scissor' && activeScissorPoints.length > 0) {
+      activeScissorPoints.pop();
+      redraw();
+      return;
+    }
     if (currentImageIndex >= 0 && galleryImages[currentImageIndex].annotations.length > 0) {
+      galleryImages[currentImageIndex].annotations.pop();
+      selectedAnnotationIndex = null;
+      redraw();
+      updateList();
+    }
+    return;
+  }
+
+  if (key === shortcutsMap.rect) setAnnotateMode('rect');
+  else if (key === shortcutsMap.oval) setAnnotateMode('oval');
+  else if (key === shortcutsMap.scissor) setAnnotateMode('scissor');
+  else if (key === shortcutsMap.point) setAnnotateMode('point');
+  else if (key === shortcutsMap.select) setAnnotateMode('select');
+  else if (key === shortcutsMap.edit) setAnnotateMode('edit');
+  else if (key === shortcutsMap.delete || e.key === 'Delete' || e.key === 'Backspace') {
+    if (selectedAnnotationIndex !== null && currentImageIndex >= 0 && galleryImages[currentImageIndex].annotations[selectedAnnotationIndex]) {
+      galleryImages[currentImageIndex].annotations.splice(selectedAnnotationIndex, 1);
+      selectedAnnotationIndex = null;
+      redraw();
+      updateList();
+    } else if (currentImageIndex >= 0 && galleryImages[currentImageIndex].annotations.length > 0) {
       galleryImages[currentImageIndex].annotations.pop();
       redraw();
       updateList();
     }
+  }
+  else if (key === 'enter' || e.code === 'Space') {
+    e.preventDefault();
+    nextImageAutoScroll();
   }
 });
 
@@ -359,13 +463,70 @@ img.onload = () => {
   applyZoom();
 };
 
-// Canvas Mouse & Touch Interactions (Drawing Annotations)
+// Canvas Mouse & Touch Interactions (Drawing & Editing Annotations)
 canvas.addEventListener('mousedown', (e) => {
   if (!loaded || currentImageIndex < 0) return;
   if (e.button === 2) return; // Right-click handled by contextmenu
 
   const coords = getImgCoords(e);
   startX = coords.x; startY = coords.y;
+
+  if (currentMode === 'select') {
+    let hit = -1;
+    const currAnn = galleryImages[currentImageIndex].annotations;
+    for (let i = currAnn.length - 1; i >= 0; i--) {
+      let b = currAnn[i];
+      if (b.type === 'rect' || b.type === 'oval') {
+        if (startX >= b.x && startX <= b.x + b.w && startY >= b.y && startY <= b.y + b.h) {
+          hit = i; break;
+        }
+      } else if (b.type === 'polygon' && b.points) {
+        if (isPointInPolygon({ x: startX, y: startY }, b.points)) {
+          hit = i; break;
+        }
+      }
+    }
+    selectedAnnotationIndex = hit !== -1 ? hit : null;
+    redraw();
+    return;
+  }
+
+  if (currentMode === 'edit') {
+    if (selectedAnnotationIndex !== null) {
+      const b = galleryImages[currentImageIndex].annotations[selectedAnnotationIndex];
+      if (!b) return;
+      activeHandle = null;
+      if (b.type === 'rect' || b.type === 'oval') {
+        const handles = [
+          { name: 'nw', x: b.x, y: b.y },
+          { name: 'ne', x: b.x + b.w, y: b.y },
+          { name: 'se', x: b.x + b.w, y: b.y + b.h },
+          { name: 'sw', x: b.x, y: b.y + b.h }
+        ];
+        for (let h of handles) {
+          if (Math.abs(startX - h.x) <= 12 && Math.abs(startY - h.y) <= 12) {
+            activeHandle = h.name;
+            isDrawing = true;
+            return;
+          }
+        }
+        if (startX >= b.x && startX <= b.x + b.w && startY >= b.y && startY <= b.y + b.h) {
+          activeHandle = 'move';
+          isDrawing = true;
+          return;
+        }
+      } else if (b.type === 'polygon' && b.points) {
+        for (let idx = 0; idx < b.points.length; idx++) {
+          if (Math.abs(startX - b.points[idx].x) <= 12 && Math.abs(startY - b.points[idx].y) <= 12) {
+            activeHandle = idx;
+            isDrawing = true;
+            return;
+          }
+        }
+      }
+    }
+    return;
+  }
 
   if (currentMode === 'point') {
     activePolyPoints.push({ x: startX, y: startY });
@@ -387,6 +548,33 @@ canvas.addEventListener('mousemove', (e) => {
   const coords = getImgCoords(e);
   currX = coords.x; currY = coords.y;
 
+  if (currentMode === 'edit' && isDrawing && selectedAnnotationIndex !== null) {
+    const b = galleryImages[currentImageIndex].annotations[selectedAnnotationIndex];
+    if (b) {
+      const dx = currX - startX;
+      const dy = currY - startY;
+      if (b.type === 'rect' || b.type === 'oval') {
+        if (activeHandle === 'move') {
+          b.x += dx; b.y += dy;
+        } else if (activeHandle === 'se') {
+          b.w = Math.max(10, b.w + dx); b.h = Math.max(10, b.h + dy);
+        } else if (activeHandle === 'nw') {
+          b.x += dx; b.y += dy; b.w = Math.max(10, b.w - dx); b.h = Math.max(10, b.h - dy);
+        } else if (activeHandle === 'ne') {
+          b.y += dy; b.w = Math.max(10, b.w + dx); b.h = Math.max(10, b.h - dy);
+        } else if (activeHandle === 'sw') {
+          b.x += dx; b.w = Math.max(10, b.w - dx); b.h = Math.max(10, b.h + dy);
+        }
+      } else if (b.type === 'polygon' && b.points && typeof activeHandle === 'number') {
+        b.points[activeHandle].x = currX;
+        b.points[activeHandle].y = currY;
+      }
+      startX = currX; startY = currY;
+      redraw();
+      return;
+    }
+  }
+
   if (isDrawing && (currentMode === 'rect' || currentMode === 'oval')) {
     redraw();
     const color = getClassColor(activeClass);
@@ -406,6 +594,14 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('mouseup', (e) => {
+  if (currentMode === 'edit' && isDrawing) {
+    isDrawing = false;
+    updateList();
+    renderGalleryStrip();
+    redraw();
+    return;
+  }
+
   if (!isDrawing) return;
   if (e.button === 2) return;
   isDrawing = false;
@@ -598,9 +794,11 @@ function redraw() {
   if (currentImageIndex < 0) return;
 
   const currAnn = galleryImages[currentImageIndex].annotations;
-  currAnn.forEach((b) => {
-    const color = getClassColor(b.cls);
-    ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+  currAnn.forEach((b, idx) => {
+    const isSel = idx === selectedAnnotationIndex;
+    const color = isSel ? '#38bdf8' : getClassColor(b.cls);
+    ctx.strokeStyle = color; ctx.lineWidth = isSel ? 3.5 : 2.5;
+    if (isSel) ctx.setLineDash([6, 4]); else ctx.setLineDash([]);
     
     if (b.type === 'oval') {
       ctx.beginPath();
@@ -620,12 +818,21 @@ function redraw() {
 
       // Draw vertex dots
       b.points.forEach(pt => {
-        ctx.fillStyle = color; ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 4, 0, 2*Math.PI); ctx.fill();
+        ctx.fillStyle = isSel ? '#fbbf24' : color; ctx.beginPath();
+        ctx.arc(pt.x, pt.y, isSel ? 6 : 4, 0, 2*Math.PI); ctx.fill();
       });
     } else if (b.type === 'rect') {
       ctx.strokeRect(b.x, b.y, b.w, b.h);
     }
+
+    if (isSel && (b.type === 'rect' || b.type === 'oval')) {
+      // Draw corner handles
+      [['nw', b.x, b.y], ['ne', b.x + b.w, b.y], ['se', b.x + b.w, b.y + b.h], ['sw', b.x, b.y + b.h]].forEach(([h, hx, hy]) => {
+        ctx.fillStyle = '#fbbf24'; ctx.fillRect(hx - 5, hy - 5, 10, 10);
+      });
+    }
+
+    ctx.setLineDash([]);
 
     // Label tag
     ctx.fillStyle = color;
@@ -633,7 +840,7 @@ function redraw() {
     let tagY = b.y || (b.points ? b.points[0].y : 0);
     const clsTitle = b.cls.charAt(0).toUpperCase() + b.cls.slice(1);
     const clsIdx = classList.indexOf(b.cls);
-    const displayLabel = `[${clsIdx >= 0 ? clsIdx : 0}. ${clsTitle}]`;
+    const displayLabel = `[${clsIdx >= 0 ? clsIdx : 0}. ${clsTitle}]${isSel ? ' (TERPILIH)' : ''}`;
     const tagW = ctx.measureText(displayLabel).width + 12;
     ctx.fillRect(tagX, tagY - 18, tagW, 18);
     ctx.fillStyle = '#0f172a'; ctx.font = 'bold 11px Plus Jakarta Sans';

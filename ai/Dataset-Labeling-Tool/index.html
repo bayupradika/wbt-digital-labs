@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CitraLabeling Studio Pro - Bulk YOLO/VOC Annotator</title>
-  <link rel="stylesheet" href="style.css?v=4.5">
+  <link rel="stylesheet" href="style.css?v=4.6">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -33,22 +33,32 @@
             <button style="padding:7px 12px; border-radius:8px; background:#38bdf8; color:#0f172a; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="document.getElementById('file-input-multi').click()"><i class="fa-solid fa-images"></i> Upload Banyak Foto / Folder</button>
             <button style="padding:7px 12px; border-radius:8px; background:#f59e0b; color:#0f172a; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="document.getElementById('file-input-zip').click()"><i class="fa-solid fa-file-zipper"></i> Upload ZIP / RAR</button>
             <button style="padding:7px 12px; border-radius:8px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="loadSample()">Contoh</button>
+            <button style="padding:7px 12px; border-radius:8px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="openShortcutModal()"><i class="fa-solid fa-keyboard"></i> Atur Shortcut</button>
           </div>
         </div>
 
         <!-- Annotation Mode Toolbar with Keyboard Shortcuts -->
-        <div class="mode-toolbar">
-          <div class="mode-btn active" id="mode-rect" onclick="setAnnotateMode('rect')" title="Shortcut Keyboard: [R]">
-            <i class="fa-regular fa-square"></i> [R] Rectangle Mode
+        <div class="mode-toolbar" style="display:flex; flex-wrap:wrap; gap:6px;">
+          <div class="mode-btn active" id="mode-rect" onclick="setAnnotateMode('rect')" title="Shortcut: [R]">
+            <i class="fa-regular fa-square"></i> [<span id="lbl-sc-rect">R</span>] Rectangle
           </div>
-          <div class="mode-btn" id="mode-oval" onclick="setAnnotateMode('oval')" title="Shortcut Keyboard: [O]">
-            <i class="fa-regular fa-circle"></i> [O] Oval Mode
+          <div class="mode-btn" id="mode-oval" onclick="setAnnotateMode('oval')" title="Shortcut: [O]">
+            <i class="fa-regular fa-circle"></i> [<span id="lbl-sc-oval">O</span>] Oval
           </div>
-          <div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut Keyboard: [S] - Klik dari luar bbox melewati objek hingga keluar bbox, lalu klik kanan">
-            <i class="fa-solid fa-scissors"></i> [S] Scissor Cut Mode
+          <div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut: [S]">
+            <i class="fa-solid fa-scissors"></i> [<span id="lbl-sc-scissor">S</span>] Scissor
           </div>
-          <div class="mode-btn" id="mode-point" onclick="setAnnotateMode('point')" title="Shortcut Keyboard: [P] - Klik tiap sudut objek, klik kanan untuk menutup garis">
-            <i class="fa-solid fa-draw-polygon"></i> [P] Point Mode (Polygon)
+          <div class="mode-btn" id="mode-point" onclick="setAnnotateMode('point')" title="Shortcut: [P]">
+            <i class="fa-solid fa-draw-polygon"></i> [<span id="lbl-sc-point">P</span>] Point Mode
+          </div>
+          <div class="mode-btn" id="mode-select" onclick="setAnnotateMode('select')" title="Shortcut: [V] - Pilih Bounding Box">
+            <i class="fa-solid fa-arrow-pointer"></i> [<span id="lbl-sc-select">V</span>] Select
+          </div>
+          <div class="mode-btn" id="mode-edit" onclick="setAnnotateMode('edit')" title="Shortcut: [E] - Edit Ukuran / Posisi Bounding Box">
+            <i class="fa-solid fa-pen-to-square"></i> [<span id="lbl-sc-edit">E</span>] Edit BBox
+          </div>
+          <div class="mode-btn" id="mode-delete" onclick="setAnnotateMode('delete')" title="Shortcut: [D] - Hapus Bounding Box Terpilih">
+            <i class="fa-solid fa-trash-can"></i> [<span id="lbl-sc-delete">D</span>] Delete
           </div>
         </div>
 
@@ -139,7 +149,54 @@
     </div>
   </div>
 
-  <script src="../midtrans-pay.js?v=4.5"></script>
-  <script src="script.js?v=4.5"></script>
+  <!-- Keyboard Shortcut Customization Modal -->
+  <div id="shortcut-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px);">
+    <div style="background:#111827; border:2px solid #8b5cf6; border-radius:24px; max-width:560px; width:100%; padding:26px; color:white; position:relative; box-shadow:0 20px 50px rgba(139,92,246,0.25);">
+      <button style="position:absolute; top:18px; right:18px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;" onclick="closeShortcutModal()"><i class="fa-solid fa-xmark"></i></button>
+      <h3 style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px; color:#c084fc;"><i class="fa-solid fa-keyboard"></i> Kustomisasi Shortcut Keyboard</h3>
+      <p style="font-size:13px; color:#cbd5e1; line-height:1.5; margin-bottom:18px;">
+        Sesuaikan tombol keyboard laptop/PC untuk mempercepat alur anotasi, seleksi, dan pengeditan bounding box:
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; max-height:360px; overflow-y:auto; padding-right:6px; margin-bottom:18px;">
+        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px;">Rectangle Mode:</span>
+          <input type="text" id="sc-in-rect" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
+        </div>
+        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px;">Oval Mode:</span>
+          <input type="text" id="sc-in-oval" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
+        </div>
+        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px;">Scissor Mode:</span>
+          <input type="text" id="sc-in-scissor" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
+        </div>
+        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px;">Point Mode:</span>
+          <input type="text" id="sc-in-point" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
+        </div>
+        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px;">Select BBox:</span>
+          <input type="text" id="sc-in-select" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#c084fc; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
+        </div>
+        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px;">Edit BBox:</span>
+          <input type="text" id="sc-in-edit" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#c084fc; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
+        </div>
+        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:13px;">Delete BBox:</span>
+          <input type="text" id="sc-in-delete" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#f87171; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button style="flex:1; padding:12px; border-radius:12px; background:#334155; color:white; font-weight:700; border:none; cursor:pointer;" onclick="resetDefaultShortcuts()">Reset Default</button>
+        <button style="flex:2; padding:12px; border-radius:12px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:white; font-weight:800; border:none; cursor:pointer;" onclick="saveCustomShortcuts()"><i class="fa-solid fa-floppy-disk"></i> Simpan Shortcut</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../midtrans-pay.js?v=4.6"></script>
+  <script src="script.js?v=4.6"></script>
 </body>
 </html>
