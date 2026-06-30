@@ -818,7 +818,75 @@ function checkReferenceStatus() {
   }
 }
 
-function runAutoLabelEngine() {
+// Compute 4x4x4 RGB Color Histogram for a rectangular region on canvas
+function computeRegionHistogram(ctx, x, y, w, h) {
+  const rx = Math.max(0, Math.round(x));
+  const ry = Math.max(0, Math.round(y));
+  const rw = Math.max(1, Math.min(ctx.canvas.width - rx, Math.round(w)));
+  const rh = Math.max(1, Math.min(ctx.canvas.height - ry, Math.round(h)));
+  if (rw <= 0 || rh <= 0) return null;
+
+  try {
+    const imgData = ctx.getImageData(rx, ry, rw, rh).data;
+    const bins = new Float32Array(64);
+    let totalPixels = rw * rh;
+
+    for (let i = 0; i < imgData.length; i += 4) {
+      const r = Math.min(3, Math.floor(imgData[i] / 64));
+      const g = Math.min(3, Math.floor(imgData[i + 1] / 64));
+      const b = Math.min(3, Math.floor(imgData[i + 2] / 64));
+      const binIdx = r * 16 + g * 4 + b;
+      bins[binIdx] += 1.0;
+    }
+    for (let i = 0; i < 64; i++) bins[i] /= totalPixels;
+    return bins;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Compute Bhattacharyya Similarity coefficient between two histograms (0.0 to 1.0)
+function computeHistSimilarity(h1, h2) {
+  if (!h1 || !h2) return 0;
+  let score = 0;
+  for (let i = 0; i < 64; i++) {
+    score += Math.sqrt(h1[i] * h2[i]);
+  }
+  return score;
+}
+
+// Compute Intersection over Union (IoU)
+function computeIoU(b1, b2) {
+  const xA = Math.max(b1.x, b2.x);
+  const yA = Math.max(b1.y, b2.y);
+  const xB = Math.min(b1.x + b1.w, b2.x + b2.w);
+  const yB = Math.min(b1.y + b1.h, b2.y + b2.h);
+  const interArea = Math.max(0, xB - xA) * Math.max(0, yB - yA);
+  const box1Area = b1.w * b1.h;
+  const box2Area = b2.w * b2.h;
+  const unionArea = box1Area + box2Area - interArea;
+  return unionArea > 0 ? interArea / unionArea : 0;
+}
+
+// Load image asynchronously to offscreen canvas
+function loadImageToCanvas(url) {
+  return new Promise((resolve) => {
+    const imgObj = new Image();
+    imgObj.crossOrigin = 'Anonymous';
+    imgObj.onload = () => {
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = imgObj.width;
+      offCanvas.height = imgObj.height;
+      const offCtx = offCanvas.getContext('2d');
+      offCtx.drawImage(imgObj, 0, 0);
+      resolve({ canvas: offCanvas, ctx: offCtx, width: imgObj.width, height: imgObj.height });
+    };
+    imgObj.onerror = () => resolve(null);
+    imgObj.src = url;
+  });
+}
+
+async function runAutoLabelEngine() {
   if (galleryImages.length === 0) {
     alert('⚠️ Galeri gambar masih kosong!'); return;
   }
@@ -836,38 +904,92 @@ function runAutoLabelEngine() {
   if (progressCont) progressCont.style.display = 'block';
   if (btnRun) btnRun.disabled = true;
 
+  const refImgData = await loadImageToCanvas(galleryImages[currentImageIndex].url);
+  if (!refImgData) {
+    alert('⚠️ Gagal memproses gambar referensi!');
+    if (btnRun) btnRun.disabled = false;
+    return;
+  }
+
   const refAnns = galleryImages[currentImageIndex].annotations;
+  const refProfiles = [];
+  refAnns.forEach(ref => {
+    let w = ref.w || 80; let h = ref.h || 80;
+    let x = ref.x || 0; let y = ref.y || 0;
+    if (ref.type === 'polygon' && ref.points && ref.points.length >= 3) {
+      x = Math.min(...ref.points.map(p => p.x));
+      y = Math.min(...ref.points.map(p => p.y));
+      w = Math.max(...ref.points.map(p => p.x)) - x;
+      h = Math.max(...ref.points.map(p => p.y)) - y;
+    }
+    const hist = computeRegionHistogram(refImgData.ctx, x, y, w, h);
+    if (hist) {
+      refProfiles.push({ cls: ref.cls, w, h, hist });
+    }
+  });
+
   const total = galleryImages.length;
-  let current = 0;
 
-  const interval = setInterval(() => {
-    current++;
-    if (progressBar) progressBar.style.width = Math.round((current / total) * 100) + '%';
-    if (progressText) progressText.innerText = `AI mencocokkan fitur objek pada gambar ${current} / ${total}...`;
+  for (let idx = 0; idx < total; idx++) {
+    if (progressBar) progressBar.style.width = Math.round(((idx + 1) / total) * 100) + '%';
+    if (progressText) progressText.innerText = `AI memindai posisi & mencocokkan objek pada gambar ${idx + 1} / ${total}...`;
 
-    if (current - 1 !== currentImageIndex && current - 1 < galleryImages.length) {
-      const targetImg = galleryImages[current - 1];
-      refAnns.forEach(ref => {
-        let w = ref.w || 80; let h = ref.h || 80;
-        let x = Math.max(20, Math.min(canvas.width - w - 20, Math.round((ref.x || 50) + (Math.random() - 0.5) * 40)));
-        let y = Math.max(20, Math.min(canvas.height - h - 20, Math.round((ref.y || 50) + (Math.random() - 0.5) * 40)));
-        targetImg.annotations.push({
-          type: 'rect', x, y, w, h, cls: ref.cls
+    if (idx !== currentImageIndex) {
+      const targetData = await loadImageToCanvas(galleryImages[idx].url);
+      if (targetData) {
+        let candidates = [];
+
+        refProfiles.forEach(prof => {
+          const stride = Math.max(16, Math.round(Math.min(prof.w, prof.h) / 4));
+          for (let wy = 0; wy <= targetData.height - prof.h; wy += stride) {
+            for (let wx = 0; wx <= targetData.width - prof.w; wx += stride) {
+              const winHist = computeRegionHistogram(targetData.ctx, wx, wy, prof.w, prof.h);
+              const score = computeHistSimilarity(winHist, prof.hist);
+              if (score > 0.74) {
+                candidates.push({ x: wx, y: wy, w: prof.w, h: prof.h, score: score, cls: prof.cls });
+              }
+            }
+          }
         });
-      });
-    }
 
-    if (current >= total) {
-      clearInterval(interval);
-      if (btnRun) btnRun.disabled = false;
-      if (progressCont) progressCont.style.display = 'none';
-      closeAutoLabelModal();
-      renderGalleryStrip();
-      updateList();
-      redraw();
-      alert(`🤖 AI Auto-Label selesai! ${total} gambar di dalam galeri telah berhasil dilabeli otomatis berdasarkan referensi kelas Anda.`);
+        candidates.sort((a, b) => b.score - a.score);
+        let kept = [];
+        for (let cand of candidates) {
+          let overlap = false;
+          for (let k of kept) {
+            if (computeIoU(cand, k) > 0.35) {
+              overlap = true;
+              break;
+            }
+          }
+          if (!overlap) {
+            kept.push(cand);
+            if (kept.length >= 10) break;
+          }
+        }
+
+        kept.forEach(box => {
+          galleryImages[idx].annotations.push({
+            type: 'rect',
+            x: box.x,
+            y: box.y,
+            w: box.w,
+            h: box.h,
+            cls: box.cls
+          });
+        });
+      }
     }
-  }, 120);
+    await new Promise(r => setTimeout(r, 40));
+  }
+
+  if (btnRun) btnRun.disabled = false;
+  if (progressCont) progressCont.style.display = 'none';
+  closeAutoLabelModal();
+  renderGalleryStrip();
+  updateList();
+  redraw();
+  alert(`🤖 AI Auto-Label selesai! ${total} gambar di dalam galeri telah berhasil dipindai dan dilabeli tepat pada posisi objek yang menyerupai referensi.`);
 }
 
 function purchaseOfflineAIModel() {
