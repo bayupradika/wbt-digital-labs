@@ -414,7 +414,20 @@ function finishPointOrScissorMode() {
     return;
   }
 
-  // Complete Scissor Mode (Geometric Cut & Delete Smaller Area Piece)
+function getSegmentIntersection(p1, p2, q1, q2) {
+  let dx1 = p2.x - p1.x, dy1 = p2.y - p1.y;
+  let dx2 = q2.x - q1.x, dy2 = q2.y - q1.y;
+  let denom = dx1 * dy2 - dy1 * dx2;
+  if (Math.abs(denom) < 1e-8) return null;
+  let t = ((q1.x - p1.x) * dy2 - (q1.y - p1.y) * dx2) / denom;
+  let u = ((q1.x - p1.x) * dy1 - (q1.y - p1.y) * dx1) / denom;
+  if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+    return { x: p1.x + t * dx1, y: p1.y + t * dy1, tScissor: t, uPoly: u };
+  }
+  return null;
+}
+
+  // Complete Scissor Mode (Geometric Cut & Delete Smaller Area Piece without self-intersection)
   if (currentMode === 'scissor') {
     if (activeScissorPoints.length >= 2) {
       let cutApplied = false;
@@ -437,39 +450,78 @@ function finishPointOrScissorMode() {
             continue;
           }
 
-          // Check if any scissor segment intersects polygon
-          // Cut divides polygon vertices into two geometric half-planes relative to cut vector
-          let cutVecX = endPt.x - startPt.x;
-          let cutVecY = endPt.y - startPt.y;
+          let intersections = [];
+          const n = polyPts.length;
+          const m = activeScissorPoints.length;
 
-          let leftSide = [];
-          let rightSide = [];
-          polyPts.forEach(pt => {
-            let cross = cutVecX * (pt.y - startPt.y) - cutVecY * (pt.x - startPt.x);
-            if (cross >= 0) leftSide.push(pt);
-            else rightSide.push(pt);
-          });
+          for (let j = 0; j < m - 1; j++) {
+            let s1 = activeScissorPoints[j], s2 = activeScissorPoints[j + 1];
+            for (let k = 0; k < n; k++) {
+              let v1 = polyPts[k], v2 = polyPts[(k + 1) % n];
+              let hit = getSegmentIntersection(s1, s2, v1, v2);
+              if (hit) {
+                intersections.push({
+                  pt: { x: hit.x, y: hit.y },
+                  scissorSeg: j,
+                  tScissor: j + hit.tScissor,
+                  polyEdge: k,
+                  uPoly: hit.uPoly
+                });
+              }
+            }
+          }
 
-          // Form two closed candidate polygonal pieces bounded by the cut line
-          let pieceA = [...leftSide, ...activeScissorPoints];
-          let pieceB = [...rightSide, ...activeScissorPoints];
+          if (intersections.length >= 2) {
+            intersections.sort((a, b) => a.tScissor - b.tScissor);
 
-          let areaA = getPolygonArea(pieceA);
-          let areaB = getPolygonArea(pieceB);
+            const iEnter = intersections[0];
+            const iExit = intersections[intersections.length - 1];
 
-          // Keep the piece with LARGER area and delete smaller cut area!
-          if (leftSide.length >= 1 && rightSide.length >= 1) {
-            let keptPoints = areaA >= areaB ? pieceA : pieceB;
-            currAnn[i] = { type: 'polygon', points: keptPoints, cls: ann.cls };
-            cutApplied = true;
-            break;
+            if (Math.abs(iEnter.tScissor - iExit.tScissor) < 1e-5) continue;
+
+            let C = [iEnter.pt];
+            for (let j = iEnter.scissorSeg + 1; j <= iExit.scissorSeg; j++) {
+              C.push(activeScissorPoints[j]);
+            }
+            C.push(iExit.pt);
+
+            // Construct Piece 1 (traversing forward along perimeter from iEnter to iExit + reverse cut C)
+            let periForward = [iEnter.pt];
+            let currIdx = (iEnter.polyEdge + 1) % n;
+            while (currIdx !== (iExit.polyEdge + 1) % n) {
+              periForward.push(polyPts[currIdx]);
+              if (currIdx === iExit.polyEdge) break;
+              currIdx = (currIdx + 1) % n;
+            }
+            periForward.push(iExit.pt);
+            let piece1 = [...periForward, ...C.slice(1, -1).reverse()];
+
+            // Construct Piece 2 (traversing forward along perimeter from iExit to iEnter + forward cut C)
+            let periAround = [iExit.pt];
+            currIdx = (iExit.polyEdge + 1) % n;
+            while (currIdx !== (iEnter.polyEdge + 1) % n) {
+              periAround.push(polyPts[currIdx]);
+              if (currIdx === iEnter.polyEdge) break;
+              currIdx = (currIdx + 1) % n;
+            }
+            periAround.push(iEnter.pt);
+            let piece2 = [...periAround, ...C.slice(1, -1)];
+
+            let area1 = getPolygonArea(piece1);
+            let area2 = getPolygonArea(piece2);
+
+            if (piece1.length >= 3 && piece2.length >= 3) {
+              let keptPoints = area1 >= area2 ? piece1 : piece2;
+              currAnn[i] = { type: 'polygon', points: keptPoints, cls: ann.cls };
+              cutApplied = true;
+              break;
+            }
           }
         }
       }
 
       if (!cutApplied && activeScissorPoints.length >= 2) {
-        // If start/end point was inside, guide user with prompt rule
-        alert('⚠️ Syarat Mode Scissor: Titik awal klik dan titik akhir klik harus berada DI LUAR area bounding box yang dipotong!');
+        alert('⚠️ Pastikan pemotongan Scissor dimulai DI LUAR kotak, memotong melintasi garis kotak, dan berakhir DI LUAR kotak!');
       }
 
       activeScissorPoints = [];
