@@ -345,6 +345,146 @@ const toolsConfig = {
         <input type="text" id="sign-name" class="setting-input" value="Disahkan oleh: Direktur Utama WBT">
       </div>
     `
+  },
+  md_editor: {
+    title: 'Markdown & Document Editor Pro',
+    desc: 'Tulis dan format dokumen Markdown langsung dengan live HTML & PDF preview.',
+    icon: '<i class="fa-solid fa-file-word"></i>',
+    accept: '.md,.txt,.doc,.docx',
+    multiple: false,
+    minFiles: 1,
+    hint: 'Unggah file Markdown (.md) atau teks (.txt) untuk diedit atau tulis baru di bawah',
+    settings: `
+      <div style="width:100%; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div>
+          <label class="setting-label">Editor Markdown:</label>
+          <textarea id="md-input" class="setting-input" style="height:220px; font-family:monospace; font-size:13px;" placeholder="# Judul Dokumen\n\nTulis isi paragraf atau **teks tebal** di sini..."></textarea>
+        </div>
+        <div>
+          <label class="setting-label">Live Preview HTML:</label>
+          <div id="md-preview" style="height:220px; background:#0f172a; border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; overflow-y:auto; font-size:13px; color:#f8fafc;"></div>
+        </div>
+      </div>
+    `
+  },
+  word_counter: {
+    title: 'Document Stats & Word Counter Pro',
+    desc: 'Hitung total kata, karakter, paragraf, dan estimasi durasi membaca dokumen.',
+    icon: '<i class="fa-solid fa-calculator"></i>',
+    accept: '.txt,.md,.doc,.docx',
+    multiple: false,
+    minFiles: 1,
+    hint: 'Unggah file dokumen teks untuk dianalisis statistiknya',
+    settings: `
+      <div id="word-stats-box" style="width:100%; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; text-align:center;">
+        <div style="background:rgba(59,130,246,0.1); padding:12px; border-radius:10px;"><b id="stat-words" style="font-size:20px; color:#60a5fa;">0</b><div style="font-size:11px;">Kata</div></div>
+        <div style="background:rgba(16,185,129,0.1); padding:12px; border-radius:10px;"><b id="stat-chars" style="font-size:20px; color:#34d399;">0</b><div style="font-size:11px;">Karakter</div></div>
+        <div style="background:rgba(249,115,22,0.1); padding:12px; border-radius:10px;"><b id="stat-lines" style="font-size:20px; color:#fb923c;">0</b><div style="font-size:11px;">Paragraf</div></div>
+        <div style="background:rgba(168,85,247,0.1); padding:12px; border-radius:10px;"><b id="stat-time" style="font-size:20px; color:#c084fc;">0m</b><div style="font-size:11px;">Waktu Baca</div></div>
+      </div>
+    `
+  },
+  word_extract: {
+    title: 'Word & Text to HTML Extractor',
+    desc: 'Ekstrak isi teks dokumen dan ubah menjadi struktur HTML berskala produksi.',
+    icon: '<i class="fa-solid fa-code"></i>',
+    accept: '.txt,.md,.html,.doc,.docx',
+    multiple: false,
+    minFiles: 1,
+    hint: 'Pilih file teks/dokumen yang ingin diekstrak menjadi HTML',
+    settings: `
+      <div style="width:100%;">
+        <label class="setting-label">Opsi Format HTML:</label>
+        <select id="html-format-mode" class="setting-input">
+          <option value="clean">Clean HTML Semantic Tags (<p>, <h1>)</option>
+          <option value="raw">Raw Paragraphs Block</option>
+        </select>
+      </div>
+    `
+  },
+  csv_viewer: {
+    title: 'Spreadsheet Table Viewer & Filter',
+    desc: 'Buka, cari, dan pratinjau tabel spreadsheet CSV secara langsung.',
+    icon: '<i class="fa-solid fa-file-excel"></i>',
+    accept: '.csv,.tsv,.txt',
+    multiple: false,
+    minFiles: 1,
+    hint: 'Unggah file spreadsheet (.csv) untuk ditampilkan dalam grid tabel interaktif',
+    settings: `
+      <div style="width:100%;">
+        <input type="text" id="csv-search" class="setting-input" placeholder="🔍 Cari data di dalam tabel spreadsheet..." style="margin-bottom:12px;">
+        <div id="csv-table-container" style="max-height:260px; overflow:auto; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:8px;"></div>
+      </div>
+    `
+  },
+  csv_json: {
+    title: 'CSV ⇄ JSON Data Converter',
+    desc: 'Konversi tabel berbaris CSV menjadi format array JSON, atau sebaliknya.',
+    icon: '<i class="fa-solid fa-table-list"></i>',
+    accept: '.csv,.json,.txt',
+    multiple: false,
+    minFiles: 1,
+    hint: 'Pilih file .csv untuk dikonversi ke JSON (atau file .json untuk dikonversi ke CSV)',
+    settings: `
+      <div style="width:100%;">
+        <label class="setting-label">Target Konversi:</label>
+        <select id="convert-target" class="setting-input">
+          <option value="json">CSV to JSON Array</option>
+          <option value="csv">JSON to CSV Spreadsheet</option>
+        </select>
+      </div>
+    `
+  },
+  csv_pdf: {
+    title: 'CSV Table to PDF Exporter',
+    desc: 'Cetak data spreadsheet CSV menjadi dokumen laporan PDF formal berbingkai.',
+    icon: '<i class="fa-solid fa-print"></i>',
+    accept: '.csv,.tsv',
+    multiple: false,
+    minFiles: 1,
+    hint: 'Pilih file .csv yang ingin dicetak menjadi laporan PDF formal',
+    settings: `
+      <div style="width:100%;">
+        <label class="setting-label">Judul Laporan Dokumen PDF:</label>
+        <input type="text" id="csv-pdf-title" class="setting-input" value="Laporan Rekapitulasi Data Spreadsheet">
+      </div>
+    `
+  },
+  ppt_notes: {
+    title: 'Presentation Speaker Notes Helper',
+    desc: 'Ekstrak catatan panggung presentasi dari poin-poin draf slide presentasi Anda.',
+    icon: '<i class="fa-solid fa-file-powerpoint"></i>',
+    accept: '.txt,.md,.ppt,.pptx',
+    multiple: false,
+    minFiles: 1,
+    hint: 'Unggah naskah presentasi (.txt/.md) untuk dirangkum poin speaker notes-nya',
+    settings: `
+      <div style="width:100%;">
+        <label class="setting-label">Jumlah Poin Summary per Slide:</label>
+        <select id="ppt-points-count" class="setting-input">
+          <option value="3">3 Poin Utama per Bab</option>
+          <option value="5">5 Poin Rinci per Bab</option>
+        </select>
+      </div>
+    `
+  },
+  ppt_outline: {
+    title: 'Slide Outline Generator',
+    desc: 'Susun kerangka presentasi (*outline*) terstruktur per slide sebelum dipindahkan ke PowerPoint.',
+    icon: '<i class="fa-solid fa-list-check"></i>',
+    accept: '.txt,.md',
+    multiple: false,
+    minFiles: 1,
+    hint: 'Unggah topik atau draf materi (.txt) untuk diubah menjadi struktur Slide 1, Slide 2, dst.',
+    settings: `
+      <div style="width:100%;">
+        <label class="setting-label">Gaya Presentasi Outline:</label>
+        <select id="ppt-style" class="setting-input">
+          <option value="korporat">Profesional Korporat (Executive Summary)</option>
+          <option value="kreatif">Kreatif & Pitch Deck Startup</option>
+        </select>
+      </div>
+    `
   }
 };
 
@@ -458,8 +598,60 @@ function renderFileList() {
   const config = toolsConfig[activeTool];
   if (selectedFiles.length >= config.minFiles) {
     btnProcess.disabled = false;
+    autoPreviewOfficeTool();
   } else {
     btnProcess.disabled = true;
+  }
+}
+
+async function autoPreviewOfficeTool() {
+  if (selectedFiles.length === 0) return;
+  const file = selectedFiles[0];
+  const text = await file.text();
+
+  if (activeTool === 'md_editor') {
+    const mdInput = document.getElementById('md-input');
+    const mdPreview = document.getElementById('md-preview');
+    if (mdInput && mdPreview) {
+      mdInput.value = text;
+      mdPreview.innerHTML = window.marked ? marked.parse(text) : text;
+      mdInput.oninput = () => {
+        mdPreview.innerHTML = window.marked ? marked.parse(mdInput.value) : mdInput.value;
+      };
+    }
+  } else if (activeTool === 'word_counter') {
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const chars = text.length;
+    const lines = text.split(/\r?\n/).filter(l => l.trim()).length;
+    const readTime = Math.max(1, Math.ceil(words / 200));
+    if (document.getElementById('stat-words')) {
+      document.getElementById('stat-words').textContent = words.toLocaleString();
+      document.getElementById('stat-chars').textContent = chars.toLocaleString();
+      document.getElementById('stat-lines').textContent = lines.toLocaleString();
+      document.getElementById('stat-time').textContent = readTime + 'm';
+    }
+  } else if (activeTool === 'csv_viewer') {
+    const container = document.getElementById('csv-table-container');
+    const searchInput = document.getElementById('csv-search');
+    if (!container) return;
+    const rows = text.split(/\r?\n/).filter(r => r.trim()).map(r => r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/));
+    
+    function renderTable(filterQuery = '') {
+      let html = '<table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">';
+      rows.forEach((row, rIdx) => {
+        if (rIdx > 0 && filterQuery && !row.join(' ').toLowerCase().includes(filterQuery.toLowerCase())) return;
+        html += `<tr style="border-bottom:1px solid rgba(255,255,255,0.05); background:${rIdx === 0 ? 'rgba(59,130,246,0.2)' : 'transparent'};">`;
+        row.forEach(cell => {
+          const val = cell.replace(/^"|"$/g, '');
+          html += rIdx === 0 ? `<th style="padding:8px;">${val}</th>` : `<td style="padding:8px;">${val}</td>`;
+        });
+        html += '</tr>';
+      });
+      html += '</table>';
+      container.innerHTML = html;
+    }
+    renderTable();
+    if (searchInput) searchInput.oninput = (e) => renderTable(e.target.value);
   }
 }
 
@@ -512,6 +704,14 @@ async function processCurrentTool() {
     else if (activeTool === 'protect') await processProtect();
     else if (activeTool === 'unlock') await processUnlock();
     else if (activeTool === 'sign_studio') await processSignStudio();
+    else if (activeTool === 'md_editor') await processMdEditor();
+    else if (activeTool === 'word_counter') await processWordCounter();
+    else if (activeTool === 'word_extract') await processWordExtract();
+    else if (activeTool === 'csv_viewer') await processCsvViewer();
+    else if (activeTool === 'csv_json') await processCsvJson();
+    else if (activeTool === 'csv_pdf') await processCsvPdf();
+    else if (activeTool === 'ppt_notes') await processPptNotes();
+    else if (activeTool === 'ppt_outline') await processPptOutline();
     
     showToast('File berhasil diproses dan diunduh!', 'success');
   } catch (err) {
@@ -822,6 +1022,129 @@ async function processSignStudio() {
   });
   const pdfBytes = await pdf.save();
   downloadBlob(pdfBytes, 'Signed_Document_PDFToolkitLite.pdf', 'application/pdf');
+}
+
+async function processMdEditor() {
+  const mdInput = document.getElementById('md-input');
+  const content = mdInput ? mdInput.value : '';
+  const html = window.marked ? marked.parse(content) : content;
+  const docHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Dokumen Hasil</title><style>body{font-family:sans-serif;line-height:1.6;padding:40px;max-width:800px;margin:auto;}</style></head><body>${html}</body></html>`;
+  downloadBlob(new TextEncoder().encode(docHtml), 'Dokumen_WBT_Office.html', 'text/html');
+}
+
+async function processWordCounter() {
+  const file = selectedFiles[0];
+  const text = await file.text();
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const chars = text.length;
+  const lines = text.split(/\r?\n/).filter(l => l.trim()).length;
+  const report = `=== LAPORAN STATISTIK DOKUMEN WBT ===\nNama File: ${file.name}\nTotal Kata: ${words}\nTotal Karakter: ${chars}\nTotal Paragraf: ${lines}\nEstimasi Waktu Baca: ${Math.ceil(words/200)} Menit\n`;
+  downloadBlob(new TextEncoder().encode(report), 'Laporan_Statistik_Dokumen.txt', 'text/plain');
+}
+
+async function processWordExtract() {
+  const file = selectedFiles[0];
+  const text = await file.text();
+  const mode = document.getElementById('html-format-mode') ? document.getElementById('html-format-mode').value : 'clean';
+  let html = '';
+  if (mode === 'clean') {
+    const paragraphs = text.split(/\r?\n\r?\n/).filter(p => p.trim());
+    html = `<!DOCTYPE html>\n<html>\n<head><meta charset="utf-8"><title>${file.name}</title></head>\n<body>\n` + paragraphs.map(p => `  <p>${p.trim()}</p>`).join('\n') + `\n</body>\n</html>`;
+  } else {
+    html = `<pre>${text}</pre>`;
+  }
+  downloadBlob(new TextEncoder().encode(html), 'Extracted_Document.html', 'text/html');
+}
+
+async function processCsvViewer() {
+  const file = selectedFiles[0];
+  const text = await file.text();
+  downloadBlob(new TextEncoder().encode(text), 'Spreadsheet_Filtered.csv', 'text/csv');
+}
+
+async function processCsvJson() {
+  const file = selectedFiles[0];
+  const text = await file.text();
+  const target = document.getElementById('convert-target') ? document.getElementById('convert-target').value : 'json';
+  if (target === 'json') {
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length === 0) return;
+    const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+    const result = [];
+    for (let i = 1; i < lines.length; i++) {
+      const vals = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+      const obj = {};
+      headers.forEach((h, idx) => {
+        obj[h] = (vals[idx] || '').replace(/^"|"$/g, '');
+      });
+      result.push(obj);
+    }
+    downloadBlob(new TextEncoder().encode(JSON.stringify(result, null, 2)), 'Converted_Spreadsheet.json', 'application/json');
+  } else {
+    const json = JSON.parse(text);
+    if (!Array.isArray(json) || json.length === 0) return;
+    const headers = Object.keys(json[0]);
+    let csv = headers.map(h => `"${h}"`).join(',') + '\n';
+    json.forEach(row => {
+      csv += headers.map(h => `"${(row[h] !== undefined ? row[h] : '')}"`).join(',') + '\n';
+    });
+    downloadBlob(new TextEncoder().encode(csv), 'Converted_Data.csv', 'text/csv');
+  }
+}
+
+async function processCsvPdf() {
+  const file = selectedFiles[0];
+  const text = await file.text();
+  const title = document.getElementById('csv-pdf-title') ? document.getElementById('csv-pdf-title').value : 'Laporan Spreadsheet';
+  const pdf = await PDFDocument.create();
+  let page = pdf.addPage();
+  const { width, height } = page.getSize();
+  let y = height - 50;
+  page.drawText(title, { x: 40, y, size: 16 });
+  y -= 30;
+  
+  const lines = text.split(/\r?\n/).filter(l => l.trim()).slice(0, 30);
+  lines.forEach((line) => {
+    if (y < 40) {
+      page = pdf.addPage();
+      y = height - 50;
+    }
+    const cleanLine = line.replace(/"/g, '').substring(0, 80);
+    page.drawText(cleanLine, { x: 40, y, size: 10 });
+    y -= 16;
+  });
+  const pdfBytes = await pdf.save();
+  downloadBlob(pdfBytes, 'Laporan_Spreadsheet_WBT.pdf', 'application/pdf');
+}
+
+async function processPptNotes() {
+  const file = selectedFiles[0];
+  const text = await file.text();
+  const count = document.getElementById('ppt-points-count') ? document.getElementById('ppt-points-count').value : '3';
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  let notes = `=== SPEAKER NOTES PRESENTASI (${count} Poin per Slide) ===\n\n`;
+  let slideIdx = 1;
+  for (let i = 0; i < lines.length; i += parseInt(count)) {
+    notes += `[SLIDE ${slideIdx++}]\n`;
+    for (let j = 0; j < parseInt(count) && i + j < lines.length; j++) {
+      notes += `• ${lines[i + j]}\n`;
+    }
+    notes += '\n';
+  }
+  downloadBlob(new TextEncoder().encode(notes), 'Speaker_Notes_Presentasi.txt', 'text/plain');
+}
+
+async function processPptOutline() {
+  const file = selectedFiles[0];
+  const text = await file.text();
+  const style = document.getElementById('ppt-style') ? document.getElementById('ppt-style').value : 'korporat';
+  const paragraphs = text.split(/\r?\n\r?\n/).filter(p => p.trim());
+  let outline = `=== OUTLINE PRESENTASI (${style.toUpperCase()}) ===\n\n`;
+  paragraphs.forEach((p, idx) => {
+    outline += `SLIDE ${idx + 1}: ${p.split('.')[0] || 'Topik Bab'}\n`;
+    outline += `Poin-poin:\n- ${p.replace(/\r?\n/g, '\n- ')}\n\n`;
+  });
+  downloadBlob(new TextEncoder().encode(outline), 'Slide_Outline_Presentasi.txt', 'text/plain');
 }
 
 function downloadBlob(bytes, filename, mimeType) {

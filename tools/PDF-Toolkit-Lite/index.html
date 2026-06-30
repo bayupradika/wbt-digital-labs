@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Toolkit Lite - Kelola PDF Cepat, Ringan & Offline</title>
-  <meta name="description" content="Aplikasi web & mobile ringan untuk gabung, pisah, kompres, dan proteksi file PDF tanpa perlu upload ke server eksternal. Privasi 100% terjaga.">
+  <title>PDF & Office Toolkit Lite - Kelola PDF, Word, Excel, PPT & CSV Offline</title>
+  <meta name="description" content="Aplikasi web & mobile ringan untuk kelola PDF, Word, Excel, PPT, CSV, dan Markdown tanpa perlu upload ke server eksternal. Privasi 100% terjaga.">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
   <script>
     if (window['pdfjs-dist/build/pdf']) {
       window.pdfjsLib = window['pdfjs-dist/build/pdf'];
@@ -23,13 +24,13 @@
   <header class="navbar">
     <div class="container nav-content">
       <a href="#" class="logo">
-        <div class="logo-icon"><i class="fa-solid fa-file-pdf"></i></div>
-        <span class="logo-text">PDF<span class="text-gradient">Toolkit</span></span>
-        <span class="logo-badge">Lite v1.2</span>
+        <div class="logo-icon"><i class="fa-solid fa-file-shield"></i></div>
+        <span class="logo-text">Document<span class="text-gradient">Toolkit</span></span>
+        <span class="logo-badge">Office Pro v2.0</span>
       </a>
       
       <ul class="nav-links">
-        <li><a href="#tools-section" class="nav-link">Tools PDF</a></li>
+        <li><a href="#tools-section" class="nav-link">Fitur PDF & Office</a></li>
         <li><a href="#pricing-section" class="nav-link">Harga & Pro</a></li>
         <li><a href="#download-section" class="nav-link">Download App</a></li>
       </ul>
@@ -51,10 +52,10 @@
     <!-- Hero Section -->
     <section class="hero container">
       <div class="hero-badge">
-        <i class="fa-solid fa-shield-halved"></i> 100% Offline & Privasi Terjamin
+        <i class="fa-solid fa-shield-halved"></i> 100% Offline & Privasi Dokumen Terjamin
       </div>
-      <h1>Semua Kebutuhan <span class="text-gradient">Manipulasi PDF</span> dalam Satu Aplikasi Ringan</h1>
-      <p>Gabungkan, pisahkan, kompres, dan amankan dokumen PDF Anda langsung di peramban tanpa mengunggah data rahasia ke server eksternal.</p>
+      <h1>Semua Kebutuhan <span class="text-gradient">Dokumen Kantor</span> dalam Satu Portal Ringan</h1>
+      <p>Kelola file <b>PDF, Word (.docx), Excel (.xlsx/.csv), Presentasi (.ppt), & Markdown</b> tanpa mengunggah dokumen rahasia Anda ke server eksternal.</p>
     </section>
 
     <!-- Workspace Section (Hidden by default, shown when tool selected) -->
@@ -99,21 +100,107 @@
     <!-- Tools Grid Section -->
     <section id="tools-section" class="tools-section container">
       <div class="section-header">
-        <h2>Pilih <span class="text-gradient">Layanan PDF Studio</span> Anda</h2>
-        <p>Alur kerja interaktif 100% lokal & offline yang menyaingi kelengkapan fitur iLovePDF</p>
+        <h2>Pilih <span class="text-gradient">Layanan Dokumen & PDF Studio</span> Anda</h2>
+        <p>Alur kerja interaktif 100% lokal & offline untuk file PDF, Word, Excel, PPT, CSV, dan Markdown</p>
       </div>
 
       <!-- Category Filter Tabs -->
-      <div class="category-filter">
-        <button class="cat-btn active" onclick="filterCategory('all')"><i class="fa-solid fa-layer-group"></i> Semua Fitur (20)</button>
-        <button class="cat-btn" onclick="filterCategory('organize')"><i class="fa-solid fa-folder-tree"></i> Kelola & Struktur (5)</button>
-        <button class="cat-btn" onclick="filterCategory('optimize')"><i class="fa-solid fa-bolt"></i> Optimasi & Perbaikan (3)</button>
+      <div class="category-filter" style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px;">
+        <button class="cat-btn active" onclick="filterCategory('all')"><i class="fa-solid fa-layer-group"></i> Semua Fitur (28)</button>
+        <button class="cat-btn" style="border-color:#3b82f6; color:#60a5fa;" onclick="filterCategory('word')"><i class="fa-solid fa-file-word"></i> Word & Text (3)</button>
+        <button class="cat-btn" style="border-color:#10b981; color:#34d399;" onclick="filterCategory('excel')"><i class="fa-solid fa-file-excel"></i> Excel & CSV (3)</button>
+        <button class="cat-btn" style="border-color:#f97316; color:#fb923c;" onclick="filterCategory('ppt')"><i class="fa-solid fa-file-powerpoint"></i> PPT & Notes (2)</button>
+        <button class="cat-btn" onclick="filterCategory('organize')"><i class="fa-solid fa-folder-tree"></i> PDF Struktur (5)</button>
+        <button class="cat-btn" onclick="filterCategory('optimize')"><i class="fa-solid fa-bolt"></i> PDF Optimasi (3)</button>
         <button class="cat-btn" onclick="filterCategory('convert2pdf')"><i class="fa-solid fa-file-import"></i> Konversi ke PDF (3)</button>
-        <button class="cat-btn" onclick="filterCategory('convertfrom')"><i class="fa-solid fa-file-export"></i> Ekstrak & Konversi (3)</button>
-        <button class="cat-btn" onclick="filterCategory('editsec')"><i class="fa-solid fa-shield-halved"></i> Edit, Watermark & Sandi (6)</button>
+        <button class="cat-btn" onclick="filterCategory('convertfrom')"><i class="fa-solid fa-file-export"></i> Ekstrak PDF (3)</button>
+        <button class="cat-btn" onclick="filterCategory('editsec')"><i class="fa-solid fa-shield-halved"></i> PDF Keamanan (6)</button>
       </div>
 
       <div class="tools-grid" id="tools-grid">
+        <!-- WORD & TEXT TOOLS -->
+        <div class="tool-card cat-word" style="border:1px solid rgba(59,130,246,0.3);" onclick="selectTool('md_editor')">
+          <span class="tool-badge-new" style="background:#3b82f6;">WORD/DOCS</span>
+          <div>
+            <div class="tool-icon" style="color:#60a5fa; background:rgba(59,130,246,0.15);"><i class="fa-solid fa-file-word"></i></div>
+            <h3 class="tool-title" style="color:#60a5fa;">Markdown & Doc Editor Pro</h3>
+            <p class="tool-desc">Tulis, format heading/tabel, dan sunting dokumen dengan pratinjau live ekspor ke PDF & HTML.</p>
+          </div>
+          <div class="tool-action" style="color:#60a5fa;">Buka Editor <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card cat-word" style="border:1px solid rgba(59,130,246,0.3);" onclick="selectTool('word_counter')">
+          <span class="tool-badge-new" style="background:#3b82f6;">WORD/DOCS</span>
+          <div>
+            <div class="tool-icon" style="color:#60a5fa; background:rgba(59,130,246,0.15);"><i class="fa-solid fa-calculator"></i></div>
+            <h3 class="tool-title" style="color:#60a5fa;">Document Stats & Word Counter</h3>
+            <p class="tool-desc">Hitung otomatis jumlah kata, karakter, paragraf, waktu baca, & kepadatan kata dokumen teks.</p>
+          </div>
+          <div class="tool-action" style="color:#60a5fa;">Analisis Dokumen <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card cat-word" style="border:1px solid rgba(59,130,246,0.3);" onclick="selectTool('word_extract')">
+          <span class="tool-badge-new" style="background:#3b82f6;">WORD/DOCS</span>
+          <div>
+            <div class="tool-icon" style="color:#60a5fa; background:rgba(59,130,246,0.15);"><i class="fa-solid fa-code"></i></div>
+            <h3 class="tool-title" style="color:#60a5fa;">Word & Text to HTML Extractor</h3>
+            <p class="tool-desc">Konversi atau ekstrak teks dan draf dokumen menjadi kode HTML berskala produksi yang bersih.</p>
+          </div>
+          <div class="tool-action" style="color:#60a5fa;">Ekstrak HTML <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <!-- EXCEL & CSV TOOLS -->
+        <div class="tool-card cat-excel" style="border:1px solid rgba(16,185,129,0.3);" onclick="selectTool('csv_viewer')">
+          <span class="tool-badge-new" style="background:#10b981;">EXCEL/CSV</span>
+          <div>
+            <div class="tool-icon" style="color:#34d399; background:rgba(16,185,129,0.15);"><i class="fa-solid fa-file-excel"></i></div>
+            <h3 class="tool-title" style="color:#34d399;">Spreadsheet Table Viewer</h3>
+            <p class="tool-desc">Buka dan pratinjau data tabel spreadsheet Excel/CSV langsung dengan grid filter & urutan offline.</p>
+          </div>
+          <div class="tool-action" style="color:#34d399;">Buka Tabel <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card cat-excel" style="border:1px solid rgba(16,185,129,0.3);" onclick="selectTool('csv_json')">
+          <span class="tool-badge-new" style="background:#10b981;">EXCEL/CSV</span>
+          <div>
+            <div class="tool-icon" style="color:#34d399; background:rgba(16,185,129,0.15);"><i class="fa-solid fa-table-list"></i></div>
+            <h3 class="tool-title" style="color:#34d399;">CSV ⇄ JSON Data Converter</h3>
+            <p class="tool-desc">Konversi bolak-balik antara tabel berbaris CSV dan struktur data JSON dalam sekejap mata.</p>
+          </div>
+          <div class="tool-action" style="color:#34d399;">Konversi Data <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card cat-excel" style="border:1px solid rgba(16,185,129,0.3);" onclick="selectTool('csv_pdf')">
+          <span class="tool-badge-new" style="background:#10b981;">EXCEL/CSV</span>
+          <div>
+            <div class="tool-icon" style="color:#34d399; background:rgba(16,185,129,0.15);"><i class="fa-solid fa-print"></i></div>
+            <h3 class="tool-title" style="color:#34d399;">CSV Table to PDF Exporter</h3>
+            <p class="tool-desc">Cetak laporan spreadsheet Anda menjadi dokumen tabel PDF berformat rapi siap presentasi.</p>
+          </div>
+          <div class="tool-action" style="color:#34d399;">Cetak Laporan <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <!-- POWERPOINT TOOLS -->
+        <div class="tool-card cat-ppt" style="border:1px solid rgba(249,115,22,0.3);" onclick="selectTool('ppt_notes')">
+          <span class="tool-badge-new" style="background:#f97316;">POWERPOINT</span>
+          <div>
+            <div class="tool-icon" style="color:#fb923c; background:rgba(249,115,22,0.15);"><i class="fa-solid fa-file-powerpoint"></i></div>
+            <h3 class="tool-title" style="color:#fb923c;">Presentation Speaker Notes</h3>
+            <p class="tool-desc">Kelola dan ekstrak naskah presentasi panggung (*speaker notes*) dari poin-poin draf slide Anda.</p>
+          </div>
+          <div class="tool-action" style="color:#fb923c;">Kelola Catatan <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
+        <div class="tool-card cat-ppt" style="border:1px solid rgba(249,115,22,0.3);" onclick="selectTool('ppt_outline')">
+          <span class="tool-badge-new" style="background:#f97316;">POWERPOINT</span>
+          <div>
+            <div class="tool-icon" style="color:#fb923c; background:rgba(249,115,22,0.15);"><i class="fa-solid fa-list-check"></i></div>
+            <h3 class="tool-title" style="color:#fb923c;">Slide Outline Generator</h3>
+            <p class="tool-desc">Susun kerangka presentasi (*outline*) terstruktur per slide sebelum dipindahkan ke PowerPoint.</p>
+          </div>
+          <div class="tool-action" style="color:#fb923c;">Buat Outline <i class="fa-solid fa-arrow-right"></i></div>
+        </div>
+
         <!-- ORGANIZE TOOLS -->
         <div class="tool-card cat-organize" onclick="selectTool('merge')">
           <div>
