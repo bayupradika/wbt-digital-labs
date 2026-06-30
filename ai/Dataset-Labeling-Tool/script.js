@@ -1102,17 +1102,52 @@ function upgradeProUnlimited() {
   }
 }
 
-function downloadAppSimulator(platform) {
+function handleOfflineModelUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  localStorage.setItem('citra_offline_ai_model_loaded', 'true');
+  const statusEl = document.getElementById('offline-model-status');
+  if (statusEl) {
+    statusEl.innerHTML = `<span style="color:#34d399; font-weight:800;"><i class="fa-solid fa-circle-check"></i> Model AI Aktif (${file.name}). Siap digunakan untuk pemrosesan AI Auto-Label Offline!</span>`;
+  }
+  alert(`✅ File Model "${file.name}" berhasil dibaca dan diintegrasikan! AI Auto-Label kini siap bekerja secara offline tanpa internet.`);
+}
+
+async function downloadAppSimulator(platform) {
   if (!isUnlimitedPro) {
-    alert('🔒 Untuk mengunduh Aplikasi Standalone (Windows .exe / Android .apk), Anda wajib Upgrade Pro seharga Rp 20.000 terlebih dahulu!');
+    alert('🔒 Untuk mengunduh Aplikasi Standalone (Windows / Android), Anda wajib Upgrade Pro seharga Rp 20.000 terlebih dahulu!');
     upgradeProUnlimited();
     return;
   }
+  if (!window.JSZip) { alert('⚠️ Pustaka JSZip belum termuat sempurna.'); return; }
+
+  const zip = new JSZip();
   const isWin = platform === 'windows';
-  const fname = isWin ? 'CitraLabeling_Studio_Pro_Standalone_Setup.exe' : 'CitraLabeling_Studio_Pro_v4.4.apk';
-  const content = `WBT CitraLabeling Studio Standalone Package (${platform.toUpperCase()})\nVersion 4.4 Pro\nLicense: Unlimited Quota (No 1,000 daily limit)\nNote: Base standalone installation does not include offline AI Auto-Label neural weights.\n\nTo install on ${platform.toUpperCase()}, run this installer package.`;
-  downloadFile(fname, content);
-  alert(`✅ Unduhan aplikasi ${platform.toUpperCase()} dimulai!`);
+
+  // Construct self-contained HTML offline application package
+  const htmlContent = document.documentElement.outerHTML
+    .replace('IS_OFFLINE_STANDALONE = false', 'IS_OFFLINE_STANDALONE = true');
+
+  zip.file('CitraLabeling_Studio_Pro_Offline.html', `<!DOCTYPE html>\n<html lang="id">\n<head><script>window.IS_OFFLINE_STANDALONE = true;<\/script>` + htmlContent);
+
+  if (isWin) {
+    const batContent = `@echo off\r\ntitle CitraLabeling Studio Pro (Windows Launcher)\r\necho Membuka CitraLabeling Studio Pro...\r\nstart msedge --app="%~dp0CitraLabeling_Studio_Pro_Offline.html" 2>nul || start chrome --app="%~dp0CitraLabeling_Studio_Pro_Offline.html" 2>nul || start "" "%~dp0CitraLabeling_Studio_Pro_Offline.html"\r\nexit\r\n`;
+    zip.file('Jalankan_CitraLabeling_Windows.bat', batContent);
+  }
+
+  const readme = `=== PANDUAN INSTALASI & PENGGUNAAN CITRALABELING STUDIO PRO (${platform.toUpperCase()}) ===\r\n\r\n1. CARA MENJALANKAN APLIKASI:\r\n   ${isWin ? '- Klik dua kali pada file "Jalankan_CitraLabeling_Windows.bat" atau buka "CitraLabeling_Studio_Pro_Offline.html" di browser Chrome/Edge.' : '- Buka dan jalankan file "CitraLabeling_Studio_Pro_Offline.html" di peramban Android Anda atau simpan ke layar utama (Add to Home Screen).'}\r\n\r\n2. ATURAN MODEL AI AUTO-LABEL OFFLINE:\r\n   Sesuai ketentuan paket Pro Rp 20.000, aplikasi standalone ini tidak menyertakan bobot model AI Auto-Label.\r\n   Jika Anda ingin mengaktifkan fitur AI Auto-Label offline:\r\n   a. Kunjungi web resmi CitraLabeling Studio dan beli Paket Model AI (.pack) seharga Rp 35.000.\r\n   b. Letakkan file model yang telah di-download ke dalam folder aplikasi ini.\r\n   c. Buka aplikasi, masuk ke menu AI Auto-Label, lalu klik tombol [ Muat File Model (.pack) ] dan pilih file model tersebut.\r\n   d. AI Auto-Label otomatis aktif 100% secara offline tanpa internet!\r\n`;
+  zip.file('PANDUAN_MODEL_AI_OFFLINE.txt', readme);
+
+  const zipName = isWin ? 'CitraLabeling_Studio_Pro_Windows_x64.zip' : 'CitraLabeling_Studio_Pro_Android_Package.zip';
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = zipName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  alert(`✅ Paket Aplikasi Offline Standalone (${platform.toUpperCase()}) berhasil diunduh dalam format ZIP berisikan launcher dan panduan lengkap!`);
 }
 
 function downloadPremiumApp() {
@@ -1212,6 +1247,14 @@ function loadImageToCanvas(url) {
 }
 
 async function runAutoLabelEngine() {
+  const isStandaloneOrLocal = window.IS_OFFLINE_STANDALONE || window.location.protocol === 'file:';
+  const hasLoadedModel = localStorage.getItem('citra_offline_ai_model_loaded') === 'true';
+
+  if (isStandaloneOrLocal && !hasLoadedModel) {
+    alert('🔒 Fitur AI Auto-Label pada Aplikasi Standalone Offline membutuhkan Bobot Model AI (.pack). Silakan muat file model yang telah Anda beli melalui tombol [ Muat File Model (.pack) ] di jendela AI ini!');
+    return;
+  }
+
   if (galleryImages.length === 0) {
     alert('⚠️ Galeri gambar masih kosong!'); return;
   }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CitraLabeling Studio Pro - Bulk YOLO/VOC Annotator</title>
-  <link rel="stylesheet" href="style.css?v=4.7">
+  <link rel="stylesheet" href="style.css?v=4.8">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -148,8 +148,14 @@
         <button id="btn-run-autolabel" style="width:100%; padding:14px; border-radius:14px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; font-weight:800; font-size:14px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 6px 16px rgba(59,130,246,0.4);" onclick="runAutoLabelEngine()"><i class="fa-solid fa-bolt"></i> Jalankan AI Auto-Label Semua Gambar</button>
         
         <div style="border-top:1px dashed rgba(255,255,255,0.15); margin:8px 0; padding-top:14px; text-align:center;">
-          <div style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">Ingin menjalankan pemrosesan AI Auto-Label Offline berkecepatan tinggi di PC/Android tanpa internet?</div>
-          <button style="width:100%; padding:12px; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:13px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="purchaseOfflineAIModel()"><i class="fa-solid fa-brain"></i> Download Model AI Offline Package (.pack) - Rp 35.000</button>
+          <input type="file" id="ai-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleOfflineModelUpload(event)">
+          <div id="offline-model-status" style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">
+            Ingin menjalankan AI Auto-Label Offline di Aplikasi Standalone (PC/Android)?
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button style="flex:1; padding:11px; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="purchaseOfflineAIModel()"><i class="fa-solid fa-cart-shopping"></i> Beli & Download Model (.pack)</button>
+            <button style="flex:1; padding:11px; border-radius:12px; background:#10b981; color:white; font-weight:800; font-size:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="document.getElementById('ai-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat File Model (.pack)</button>
+          </div>
         </div>
       </div>
     </div>
@@ -227,7 +233,7 @@
     </div>
   </div>
 
-  <script src="../midtrans-pay.js?v=4.7"></script>
-  <script src="script.js?v=4.7"></script>
+  <script src="../midtrans-pay.js?v=4.8"></script>
+  <script src="script.js?v=4.8"></script>
 </body>
 </html>
