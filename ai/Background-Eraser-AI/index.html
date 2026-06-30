@@ -2,20 +2,20 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Background Eraser AI - Instant PNG Cutout</title>
+  <title>Background Eraser AI & Replacement Studio Pro</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="container">
     <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Eraser Pro</div>
+      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Eraser & Studio Pro</div>
       <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
     </div>
 
     <div class="grid">
       <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-image" style="color:#ec4899;"></i> 1. Foto Asli (Dengan Latar Belakang)</h2>
+        <h2 class="card-title"><i class="fa-solid fa-image" style="color:#ec4899;"></i> 1. Foto Subjek Asli</h2>
         <input type="file" id="file-input" accept="image/*" style="display: none;">
         
         <div class="canvas-wrapper" id="orig-wrapper"><canvas id="orig-canvas"></canvas></div>
@@ -23,23 +23,80 @@
         <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
           <i class="fa-solid fa-cloud-arrow-up" style="font-size:48px; color:#ec4899; margin-bottom:15px;"></i>
           <h3>Klik atau Tarik Foto ke Sini</h3>
-          <p style="font-size: 13px; color: #94a3b8;">Hapus latar belakang foto produk atau potret secara otomatis</p>
-          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Foto Contoh</button>
+          <p style="font-size: 13px; color: #94a3b8;">Hapus latar belakang secara akurat tanpa merusak objek manusia</p>
+          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Foto Potret Contoh</button>
         </div>
 
-        <button class="btn" onclick="eraseBackground()"><i class="fa-solid fa-scissors"></i> Hapus Latar Belakang Otomatis</button>
+        <div style="margin-top: 16px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06);">
+          <label style="font-size:12px; color:#f472b6; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-microchip"></i> Mesin Segmentasi AI</label>
+          <select id="engine-select" style="width:100%; padding:8px 12px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
+            <option value="floodfill">🤖 Local Smart Flood-Fill & Chroma Protection (100% Gratis Offline)</option>
+            <option value="cloud">⚡ Cloud Deep Neural Segmenter (Matte AI Edge Accuracy)</option>
+          </select>
+          
+          <div style="margin-top: 12px; display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:12px; color:#94a3b8;"><i class="fa-solid fa-sliders"></i> Toleransi Warna Latar (<span id="tol-val">45</span>)</label>
+            <input type="range" id="tolerance-slider" min="15" max="110" value="45" oninput="document.getElementById('tol-val').innerText = this.value" style="width:130px; cursor:pointer;">
+          </div>
+        </div>
+
+        <button class="btn" onclick="eraseBackground()"><i class="fa-solid fa-scissors"></i> Hapus Latar Belakang Sekarang</button>
       </div>
 
       <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-gem" style="color:#38bdf8;"></i> 2. Hasil Cutout PNG Transparan</h2>
+        <h2 class="card-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:#38bdf8;"></i> 2. Hasil & Studio Ganti Background</h2>
         <div class="canvas-wrapper transparent-bg" id="res-wrapper"><canvas id="res-canvas"></canvas></div>
         
-        <div id="res-placeholder" style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div id="res-placeholder" style="border: 1px dashed rgba(255,255,255,0.1); padding: 50px 20px; border-radius: 18px; text-align: center; color: #94a3b8; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
           <i class="fa-solid fa-object-ungroup" style="font-size: 40px; margin-bottom: 10px; color: #38bdf8;"></i>
-          <p>Hasil objek tanpa latar belakang (PNG Transparan) akan muncul di sini.</p>
+          <p>Hasil pemisahan objek & opsi ganti background akan aktif di sini.</p>
         </div>
 
-        <button class="btn btn-dl" id="dl-btn" style="display:none;" onclick="downloadPNG()"><i class="fa-solid fa-download"></i> Download PNG Transparan</button>
+        <!-- Studio Replacement Controls (Active after erase) -->
+        <div id="studio-controls" style="display:none; background: rgba(15,23,42,0.9); border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; padding: 14px; margin-top: 5px;">
+          <div style="font-size:12px; font-weight:800; color:#38bdf8; margin-bottom:6px;"><i class="fa-solid fa-palette"></i> PILIH OPSI PENGGANTI LATAR BELAKANG:</div>
+          
+          <div class="studio-tabs">
+            <div class="tab-btn active" id="tab-color-btn" onclick="switchStudioTab('color')">🎨 Warna Solid</div>
+            <div class="tab-btn" id="tab-img-btn" onclick="switchStudioTab('img')">🖼️ Upload Gambar</div>
+            <div class="tab-btn" id="tab-ai-btn" onclick="switchStudioTab('ai')">✨ AI Prompt BG</div>
+          </div>
+
+          <!-- Tab 1: Solid Color -->
+          <div id="panel-color" style="display:block;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <div class="color-swatch" style="background:transparent; border-style:dashed;" title="Transparan Asli" onclick="applySolidBg('transparent')"></div>
+              <div class="color-swatch" style="background:#dc2626;" title="Merah Pasfoto" onclick="applySolidBg('#dc2626')"></div>
+              <div class="color-swatch" style="background:#2563eb;" title="Biru Pasfoto" onclick="applySolidBg('#2563eb')"></div>
+              <div class="color-swatch" style="background:#ffffff;" title="Putih E-Commerce" onclick="applySolidBg('#ffffff')"></div>
+              <div class="color-swatch" style="background:#000000;" title="Hitam Studio" onclick="applySolidBg('#000000')"></div>
+              <div class="color-swatch" style="background:#eab308;" title="Kuning Cerah" onclick="applySolidBg('#eab308')"></div>
+              <div class="color-swatch" style="background:#22c55e;" title="Hijau Chroma Key" onclick="applySolidBg('#22c55e')"></div>
+              <label style="font-size:11px; color:#94a3b8; display:flex; align-items:center; gap:4px; margin-left:6px; cursor:pointer;">
+                <span>Custom:</span>
+                <input type="color" id="custom-color-picker" value="#a855f7" onchange="applySolidBg(this.value)" style="width:28px; height:28px; border:none; border-radius:6px; cursor:pointer;">
+              </label>
+            </div>
+          </div>
+
+          <!-- Tab 2: Custom Image Upload -->
+          <div id="panel-img" style="display:none;">
+            <input type="file" id="bg-file-input" accept="image/*" style="display:none;" onchange="loadCustomBg(event)">
+            <button style="width:100%; padding:10px; border-radius:10px; background:#1e293b; color:white; border:1px dashed #38bdf8; font-size:12px; font-weight:700; cursor:pointer;" onclick="document.getElementById('bg-file-input').click()">
+              <i class="fa-solid fa-folder-open"></i> Pilih Foto Latar Belakang dari Perangkat
+            </button>
+          </div>
+
+          <!-- Tab 3: AI Prompt Generator -->
+          <div id="panel-ai" style="display:none;">
+            <div style="display:flex; gap:6px;">
+              <input type="text" id="ai-bg-prompt" placeholder="Contoh: Studio mewah lampu neon ungu / Pantai tropis sunset..." style="flex:1; padding:8px 12px; border-radius:8px; background:#0f172a; color:white; border:1px solid rgba(255,255,255,0.2); font-size:12px;">
+              <button style="padding:8px 14px; border-radius:8px; background:linear-gradient(135deg,#38bdf8,#6366f1); color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="generateAiBg()"><i class="fa-solid fa-wand-magic-sparkles"></i> Buat</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-dl" id="dl-btn" style="display:none;" onclick="downloadCutout()"><i class="fa-solid fa-download"></i> Download Hasil Akhir (PNG / JPG)</button>
       </div>
     </div>
   </div>
