@@ -28,11 +28,17 @@ origImg.onload = function() {
   ctx.drawImage(origImg, 0, 0);
 };
 
+function toggleToleranceSlider(isChecked) {
+  const box = document.getElementById('tolerance-slider-box');
+  if (box) box.style.display = isChecked ? 'flex' : 'none';
+}
+
 function eraseBackground() {
   if (!loaded) { alert('⚠️ Unggah foto atau gunakan foto contoh terlebih dahulu!'); return; }
   if (!MidtransPay.incrementUsage()) return;
 
-  const tolerance = parseInt(document.getElementById('tolerance-slider').value) || 45;
+  const isManual = document.getElementById('toggle-tolerance-cb') && document.getElementById('toggle-tolerance-cb').checked;
+  const tolerance = isManual ? (parseInt(document.getElementById('tolerance-slider').value) || 70) : 70;
   const placeholder = document.getElementById('res-placeholder');
   placeholder.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size:32px; color:#ec4899;"></i><p style="margin-top:10px;">AI sedang menganalisis batas tepi & menghapus latar belakang secara akurat...</p>';
 
