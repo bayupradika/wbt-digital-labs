@@ -29,12 +29,22 @@
     .play-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 14px; text-align: center; font-weight: 800; font-size: 14px; color: #38bdf8; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .card:hover .play-btn { background: #38bdf8; color: #0f172a; border-color: #38bdf8; }
   </style>
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
   <div class="container">
     <header>
       <h1>🎮 ARCADE GAME CENTER</h1>
       <p class="subtitle">Koleksi 10 Game HTML5 Offline Tanpa Iklan untuk PC & Android, dilengkapi Sistem Topup Midtrans & 50 Gems Gratis!</p>
+      
+      <div style="margin-top: 24px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+        <button id="install-pwa-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 14px 28px; border-radius: 16px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px -5px rgba(16,185,129,0.4); transition: all 0.2s;" onclick="triggerInstallPrompt()">
+          <i class="fa-solid fa-mobile-screen-button" style="font-size: 20px;"></i> Install Aplikasi Game (Android / PC)
+        </button>
+        <a href="Buka-Game-Center-PC-Windows.bat" download style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: white; text-decoration: none; padding: 14px 24px; border-radius: 16px; font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 10px; transition: all 0.2s;">
+          <i class="fa-brands fa-windows" style="color: #38bdf8; font-size: 20px;"></i> Unduh Launcher Windows PC (.bat)
+        </a>
+      </div>
     </header>
 
     <div class="grid">
@@ -139,5 +149,35 @@
       </a>
     </div>
   </div>
+
+  <script>
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function triggerInstallPrompt() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            alert('🎉 Aplikasi berhasil diinstall ke perangkat Anda!');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        alert('💡 Cara Install:\n\n• Android Chrome: Ketuk menu 3 titik (⋮) di pojok kanan atas browser -> Pilih "Install App" / "Tambahkan ke Layar Utama".\n• PC Windows Chrome/Edge: Klik ikon Install (💻/➕) di bilah alamat (address bar) browser Anda.');
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          console.log('Game Portal SW Registered');
+        });
+      });
+    }
+  </script>
 </body>
 </html>

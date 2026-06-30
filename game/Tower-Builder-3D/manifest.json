@@ -1,0 +1,21 @@
+﻿{
+    "icons":  [
+                  {
+                      "type":  "image/png",
+                      "sizes":  "192x192",
+                      "src":  "https://via.placeholder.com/192x192/ec4899/ffffff?text=TOWER"
+                  },
+                  {
+                      "type":  "image/png",
+                      "sizes":  "512x512",
+                      "src":  "https://via.placeholder.com/512x512/ec4899/ffffff?text=TOWER"
+                  }
+              ],
+    "description":  "Game Arcade Offline Resmi dari WBT Digital Labs",
+    "background_color":  "#090d16",
+    "theme_color":  "#ec4899",
+    "name":  "WBT Tower Builder 3D",
+    "start_url":  "./index.html",
+    "display":  "standalone",
+    "short_name":  "Tower Builder 3D"
+}

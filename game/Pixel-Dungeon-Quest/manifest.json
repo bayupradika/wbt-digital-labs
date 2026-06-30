@@ -1,0 +1,21 @@
+﻿{
+    "icons":  [
+                  {
+                      "type":  "image/png",
+                      "sizes":  "192x192",
+                      "src":  "https://via.placeholder.com/192x192/eab308/ffffff?text=QUEST"
+                  },
+                  {
+                      "type":  "image/png",
+                      "sizes":  "512x512",
+                      "src":  "https://via.placeholder.com/512x512/eab308/ffffff?text=QUEST"
+                  }
+              ],
+    "description":  "Game Arcade Offline Resmi dari WBT Digital Labs",
+    "background_color":  "#090d16",
+    "theme_color":  "#eab308",
+    "name":  "WBT Pixel Dungeon Quest",
+    "start_url":  "./index.html",
+    "display":  "standalone",
+    "short_name":  "Pixel Dungeon Quest"
+}

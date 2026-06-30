@@ -1,0 +1,21 @@
+﻿{
+    "icons":  [
+                  {
+                      "type":  "image/png",
+                      "sizes":  "192x192",
+                      "src":  "https://via.placeholder.com/192x192/6366f1/ffffff?text=NINJA"
+                  },
+                  {
+                      "type":  "image/png",
+                      "sizes":  "512x512",
+                      "src":  "https://via.placeholder.com/512x512/6366f1/ffffff?text=NINJA"
+                  }
+              ],
+    "description":  "Game Arcade Offline Resmi dari WBT Digital Labs",
+    "background_color":  "#090d16",
+    "theme_color":  "#6366f1",
+    "name":  "WBT Shadow Ninja Jump",
+    "start_url":  "./index.html",
+    "display":  "standalone",
+    "short_name":  "Shadow Ninja Jump"
+}

@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Color Block Master - Puzzle Offline</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
   <div class="app-wrapper">
@@ -28,40 +29,40 @@
     </div>
 
     <!-- Booster Bar Prominent -->
-    <div class="booster-title">⚡ BOOSTER BANTUAN AKTIF</div>
+    <div class="booster-title">âš¡ BOOSTER BANTUAN AKTIF</div>
     <div class="boosters">
       <button class="booster-btn" onclick="useBooster('hammer')">
         <i class="fa-solid fa-gavel" style="color: #f43f5e;"></i>
         Palu Hancur
-        <span>50 🪙</span>
+        <span>50 ðŸª™</span>
       </button>
       <button class="booster-btn" onclick="useBooster('shuffle')">
         <i class="fa-solid fa-rotate" style="color: #38bdf8;"></i>
         Acak Balok
-        <span>30 🪙</span>
+        <span>30 ðŸª™</span>
       </button>
       <button class="booster-btn" onclick="useBooster('clear')">
         <i class="fa-solid fa-wand-magic-sparkles" style="color: #a855f7;"></i>
         Sapujagat
-        <span>100 🪙</span>
+        <span>100 ðŸª™</span>
       </button>
     </div>
 
     <!-- Instruction Hint Bar -->
     <div class="hint-bar" id="hint-text">
-      👉 Klik salah satu balok di bawah, lalu klik kotak di grid!
+      ðŸ‘‰ Klik salah satu balok di bawah, lalu klik kotak di grid!
     </div>
 
     <!-- Grid -->
     <div class="grid-container" id="grid"></div>
 
     <!-- Tray -->
-    <div class="tray-title">📦 PILIHAN BALOK ANDA</div>
+    <div class="tray-title">ðŸ“¦ PILIHAN BALOK ANDA</div>
     <div class="tray" id="tray"></div>
 
     <!-- Start Overlay -->
     <div class="overlay" id="start-screen">
-      <div style="font-size: 70px; margin-bottom: 10px;">🧩</div>
+      <div style="font-size: 70px; margin-bottom: 10px;">ðŸ§©</div>
       <h1>BLOCK <span style="color: #fbbf24;">MASTER</span></h1>
       <p style="color: #94a3b8; font-size: 15px; line-height: 1.6;">Letakkan susunan balok warna ke dalam papan grid.<br>Hapus baris & kolom untuk mencetak rekor skor tinggi!</p>
       <button class="btn" onclick="startGame()"><i class="fa-solid fa-play"></i> MULAI PERMAINAN</button>
@@ -86,15 +87,15 @@
         
         <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
           <div style="background: #1e293b; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1);">
-            <div><b style="color: #fbbf24; font-size: 18px;">🪙 200 Koin</b><div style="font-size: 12px; color: #94a3b8;">Starter Pack</div></div>
+            <div><b style="color: #fbbf24; font-size: 18px;">ðŸª™ 200 Koin</b><div style="font-size: 12px; color: #94a3b8;">Starter Pack</div></div>
             <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px;" onclick="buyCoins('200 Koin Starter', 3000, 200)">Rp 3.000</button>
           </div>
           <div style="background: #1e293b; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 2px solid #10b981;">
-            <div><b style="color: #fbbf24; font-size: 18px;">🪙 750 Koin</b><div style="font-size: 12px; color: #10b981; font-weight: 700;">🔥 Paling Laris</div></div>
+            <div><b style="color: #fbbf24; font-size: 18px;">ðŸª™ 750 Koin</b><div style="font-size: 12px; color: #10b981; font-weight: 700;">ðŸ”¥ Paling Laris</div></div>
             <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px; background: #10b981; box-shadow: none;" onclick="buyCoins('750 Koin Popular', 8000, 750)">Rp 8.000</button>
           </div>
           <div style="background: #1e293b; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1);">
-            <div><b style="color: #fbbf24; font-size: 18px;">🪙 2.000 Koin</b><div style="font-size: 12px; color: #38bdf8;">Paket Master</div></div>
+            <div><b style="color: #fbbf24; font-size: 18px;">ðŸª™ 2.000 Koin</b><div style="font-size: 12px; color: #38bdf8;">Paket Master</div></div>
             <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px;" onclick="buyCoins('2000 Koin Master', 15000, 2000)">Rp 15.000</button>
           </div>
         </div>
@@ -104,5 +105,15 @@
 
   <script src="../midtrans-pay.js"></script>
   <script src="game.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then(reg => {
+        console.log('SW registered:', reg);
+      }).catch(err => console.log('SW error:', err));
+    });
+  }
+</script>
 </body>
 </html>
+

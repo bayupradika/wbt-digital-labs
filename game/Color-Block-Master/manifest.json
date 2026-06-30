@@ -1,0 +1,21 @@
+﻿{
+    "icons":  [
+                  {
+                      "type":  "image/png",
+                      "sizes":  "192x192",
+                      "src":  "https://via.placeholder.com/192x192/fbbf24/ffffff?text=PUZZLE"
+                  },
+                  {
+                      "type":  "image/png",
+                      "sizes":  "512x512",
+                      "src":  "https://via.placeholder.com/512x512/fbbf24/ffffff?text=PUZZLE"
+                  }
+              ],
+    "description":  "Game Arcade Offline Resmi dari WBT Digital Labs",
+    "background_color":  "#090d16",
+    "theme_color":  "#fbbf24",
+    "name":  "WBT Color Block Master",
+    "start_url":  "./index.html",
+    "display":  "standalone",
+    "short_name":  "Color Block Master"
+}

@@ -1,0 +1,21 @@
+﻿{
+    "icons":  [
+                  {
+                      "type":  "image/png",
+                      "sizes":  "192x192",
+                      "src":  "https://via.placeholder.com/192x192/10b981/ffffff?text=FARM"
+                  },
+                  {
+                      "type":  "image/png",
+                      "sizes":  "512x512",
+                      "src":  "https://via.placeholder.com/512x512/10b981/ffffff?text=FARM"
+                  }
+              ],
+    "description":  "Game Arcade Offline Resmi dari WBT Digital Labs",
+    "background_color":  "#090d16",
+    "theme_color":  "#10b981",
+    "name":  "WBT Mini Farming Life",
+    "start_url":  "./index.html",
+    "display":  "standalone",
+    "short_name":  "Mini Farming Life"
+}

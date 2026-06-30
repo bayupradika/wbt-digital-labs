@@ -1,0 +1,21 @@
+﻿{
+    "icons":  [
+                  {
+                      "type":  "image/png",
+                      "sizes":  "192x192",
+                      "src":  "https://via.placeholder.com/192x192/14b8a6/ffffff?text=ZOMBIE"
+                  },
+                  {
+                      "type":  "image/png",
+                      "sizes":  "512x512",
+                      "src":  "https://via.placeholder.com/512x512/14b8a6/ffffff?text=ZOMBIE"
+                  }
+              ],
+    "description":  "Game Arcade Offline Resmi dari WBT Digital Labs",
+    "background_color":  "#090d16",
+    "theme_color":  "#14b8a6",
+    "name":  "WBT Zombie Defense Idle",
+    "start_url":  "./index.html",
+    "display":  "standalone",
+    "short_name":  "Zombie Defense Idle"
+}
