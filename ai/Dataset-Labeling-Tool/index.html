@@ -2,50 +2,92 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dataset Labeling Tool - YOLO / VOC Annotator</title>
-  <link rel="stylesheet" href="style.css">
+  <title>CitraLabeling Studio Pro - Bulk YOLO/VOC Annotator</title>
+  <link rel="stylesheet" href="style.css?v=3.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
   <div class="container">
     <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-vector-square"></i> AI Labeler Pro</div>
-      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+      <div class="logo"><i class="fa-solid fa-layer-group"></i> CitraLabeling Studio Pro</div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div class="badge" id="quota-display"><i class="fa-solid fa-infinity"></i> Kuota Harian: 1.000 / 1.000 File</div>
+        <button style="padding:8px 14px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
+        <button style="padding:8px 14px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('android')"><i class="fa-brands fa-android"></i> App Android</button>
+      </div>
     </div>
 
     <div class="grid">
+      <!-- Left Column: Canvas & Gallery -->
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h2 class="card-title" style="margin:0;"><i class="fa-solid fa-crop-simple" style="color:#fbbf24;"></i> Area Anotasi Bounding Box</h2>
-          <div>
-            <input type="file" id="file-input" accept="image/*" style="display:none;">
-            <button style="padding:6px 12px; border-radius:8px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-upload"></i> Unggah Foto</button>
-            <button style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); font-size:12px; font-weight:700; cursor:pointer;" onclick="loadSample()">Contoh</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <h2 class="card-title" style="margin:0;"><i class="fa-solid fa-vector-square" style="color:#38bdf8;"></i> Area Anotasi Citra (<span id="curr-img-name">Belum Ada Foto</span>)</h2>
+          
+          <div style="display:flex; gap:6px;">
+            <input type="file" id="file-input-multi" accept="image/*" multiple style="display:none;" onchange="handleMultiUpload(event)">
+            <input type="file" id="file-input-zip" accept=".zip,.rar" style="display:none;" onchange="handleZipUpload(event)">
+            
+            <button style="padding:7px 12px; border-radius:8px; background:#38bdf8; color:#0f172a; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="document.getElementById('file-input-multi').click()"><i class="fa-solid fa-images"></i> Upload Banyak Foto / Folder</button>
+            <button style="padding:7px 12px; border-radius:8px; background:#f59e0b; color:#0f172a; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="document.getElementById('file-input-zip').click()"><i class="fa-solid fa-file-zipper"></i> Upload ZIP / RAR</button>
+            <button style="padding:7px 12px; border-radius:8px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="loadSample()">Contoh</button>
+          </div>
+        </div>
+
+        <!-- Annotation Mode Toolbar with Keyboard Shortcuts -->
+        <div class="mode-toolbar">
+          <div class="mode-btn active" id="mode-rect" onclick="setAnnotateMode('rect')" title="Shortcut Keyboard: [R]">
+            <i class="fa-regular fa-square"></i> [R] Rectangle Mode
+          </div>
+          <div class="mode-btn" id="mode-oval" onclick="setAnnotateMode('oval')" title="Shortcut Keyboard: [O]">
+            <i class="fa-regular fa-circle"></i> [O] Oval Mode
+          </div>
+          <div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut Keyboard: [S]">
+            <i class="fa-solid fa-scissors"></i> [S] Scissor Cut
+          </div>
+          <div class="mode-btn" id="mode-point" onclick="setAnnotateMode('point')" title="Shortcut Keyboard: [P]">
+            <i class="fa-solid fa-dot-circle"></i> [P] Point Mode
           </div>
         </div>
         
         <div class="canvas-area" id="canvas-area"><canvas id="canvas"></canvas></div>
-        <p style="font-size:12px; color:#94a3b8; margin-top:10px;"><i class="fa-solid fa-circle-info"></i> Klik dan tarik kursor di atas foto untuk membuat kotak pembatas (Bounding Box).</p>
+        
+        <!-- Gallery Thumbnail Strip -->
+        <div style="font-size:12px; font-weight:700; color:#94a3b8; margin-top:12px;">Galeri File Citra Uploaded (<span id="gallery-count">0</span>):</div>
+        <div class="gallery-strip" id="gallery-strip">
+          <p style="color:#64748b; font-size:12px; padding:10px;">Unggah file gambar atau ZIP untuk menampilkannya di sini.</p>
+        </div>
       </div>
 
+      <!-- Right Column: Classes & Export -->
       <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-tags" style="color:#ef4444;"></i> Kelas & Daftar Objek</h2>
-        <label style="font-size:12px; font-weight:700; color:#94a3b8; margin-bottom:6px; display:block;">Nama Kelas Objek Aktif:</label>
-        <input type="text" class="label-input" id="class-name" value="mobil" placeholder="e.g. orang, mobil, kucing">
+        <h2 class="card-title"><i class="fa-solid fa-list-check" style="color:#fbbf24;"></i> Kelola Kelas (classes.txt)</h2>
         
-        <div style="margin-top:10px;">
-          <h4 style="font-size:14px; margin-bottom:8px; color:#e2e8f0;">Daftar Bounding Box (<span id="box-count">0</span>):</h4>
+        <div style="display:flex; gap:6px; margin-bottom:10px;">
+          <input type="text" class="label-input" id="new-class-input" placeholder="Nama kelas baru..." style="margin-bottom:0;">
+          <button style="padding:8px 14px; border-radius:10px; background:#10b981; color:#0f172a; border:none; font-weight:800; cursor:pointer; flex-shrink:0;" onclick="addNewClass()"><i class="fa-solid fa-plus"></i></button>
+          <input type="file" id="classes-file-input" accept=".txt" style="display:none;" onchange="uploadClassesTxt(event)">
+          <button style="padding:8px 12px; border-radius:10px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="document.getElementById('classes-file-input').click()" title="Upload classes.txt"><i class="fa-solid fa-file-import"></i></button>
+        </div>
+
+        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Klik untuk aktifkan label saat menggambar:</div>
+        <div class="class-list" id="class-pills"></div>
+
+        <button class="btn btn-export" style="margin-top:10px;" onclick="downloadClassesTxt()"><i class="fa-solid fa-download"></i> Download file classes.txt</button>
+
+        <div style="margin-top:18px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;">
+          <h4 style="font-size:14px; margin-bottom:8px; color:#e2e8f0;">Daftar Anotasi Citra Aktif (<span id="box-count">0</span>):</h4>
           <div class="box-list" id="box-list">
-            <p style="color:#64748b; font-size:13px; text-align:center; padding:20px;">Belum ada objek yang ditandai.</p>
+            <p style="color:#64748b; font-size:12px; text-align:center; padding:15px;">Belum ada anotasi.</p>
           </div>
         </div>
 
-        <button class="btn btn-export" onclick="exportYOLO()"><i class="fa-solid fa-file-code"></i> Download Format YOLO (.txt)</button>
-        <button class="btn btn-export" style="border-color:#a855f7; color:#d8b4fe;" onclick="exportVOC()"><i class="fa-solid fa-code"></i> Download Format Pascal VOC (.xml)</button>
+        <button class="btn" style="margin-top:16px;" onclick="exportYOLO()"><i class="fa-solid fa-file-code"></i> Download YOLO Format (.txt)</button>
+        <button class="btn btn-export" style="border-color:#a855f7; color:#d8b4fe;" onclick="exportVOC()"><i class="fa-solid fa-code"></i> Download Pascal VOC (.xml)</button>
       </div>
     </div>
   </div>
-  <script src="../midtrans-pay.js"></script>
-  <script src="script.js"></script>
+  <script src="../midtrans-pay.js?v=3.0"></script>
+  <script src="script.js?v=3.0"></script>
 </body>
 </html>
