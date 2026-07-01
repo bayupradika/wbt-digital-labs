@@ -17,10 +17,13 @@
                 <h1 class="app-title">Activity Tracker</h1>
                 <button class="theme-switch-btn" onclick="toggleTheme()" id="themeBtn">✨ Tema: Vibrant</button>
             </div>
-            <div class="header-status">
+            <div class="header-status" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
                 <span class="network-status" id="netStatus">● Online</span>
-                <span class="mobile-access-badge">📱 Mobile Sync: <strong id="mobileLink">Loading IP...</strong></span>
-                <span class="license-badge" id="licenseBadge" onclick="showLicenseModal()" style="cursor: pointer; background: #f59e0b; color: #fff; padding: 4px 12px; border-radius: 6px; font-weight: bold; transition: transform 0.2s;">⚡ Aktifkan PRO</span>
+                <span class="mobile-access-badge">📱 Mobile Sync: <strong id="mobileLink">Local</strong></span>
+                <button style="padding:6px 12px; border-radius:8px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:11px; font-weight:800; cursor:pointer;" onclick="downloadActivityApp('windows')">💻 App Windows</button>
+                <button style="padding:6px 12px; border-radius:8px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:11px; font-weight:800; cursor:pointer;" onclick="downloadActivityApp('android')">📱 App Android</button>
+                <button style="padding:6px 12px; border-radius:8px; background:#0284c7; color:white; border:none; font-size:11px; font-weight:800; cursor:pointer;" onclick="exportTasksCSV()">📊 Ekspor CSV</button>
+                <span class="license-badge" id="licenseBadge" onclick="showLicenseModal()" style="cursor: pointer; background: #f59e0b; color: #fff; padding: 4px 12px; border-radius: 6px; font-weight: bold;">⚡ Aktifkan PRO</span>
             </div>
         </header>
 

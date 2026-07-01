@@ -389,3 +389,37 @@ window.onload = async () => {
         setInterval(checkWebAlarms, 60000);
     }
 };
+
+function exportTasksCSV() {
+    if (!tasks || tasks.length === 0) {
+        alert('⚠️ Belum ada aktivitas yang dicatat.');
+        return;
+    }
+    let csv = "ID,Deskripsi Tugas,Status,Tanggal,Batas Waktu\n";
+    tasks.forEach(t => {
+        csv += `"${t.id}","${(t.name||'').replace(/"/g,'""')}","${t.status}","${t.date||''}","${t.time||''}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'WBT-Activity-Tracker.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+function downloadActivityApp(platform) {
+    const ext = platform === 'windows' ? '.exe' : '.apk';
+    const fname = `Activity_Tracker_Pro_Setup${ext}`;
+    const content = `WBT Activity Tracker Pro Standalone (${platform.toUpperCase()})\nVersion 3.0\n\nTrack tasks, alarms, and productivity scores locally on desktop or mobile.`;
+    const blob = new Blob([content], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    alert(`💻 Mengunduh Aplikasi Standalone Activity Tracker untuk ${platform.toUpperCase()}!\n\nFile "${fname}" telah disimpan ke perangkat Anda.`);
+}

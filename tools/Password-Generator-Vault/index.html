@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Generator & Cyber Vault Studio Pro - AES-256 Offline Security</title>
+  <link rel="stylesheet" href="style.css?v=3.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="container nav-content">
+      <a href="#" class="logo"><div class="logo-icon"><i class="fa-solid fa-shield-halved"></i></div>Cyber <span style="color:#10b981">Vault Pro</span></a>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <div class="quota-pill" id="quota-display" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadVaultApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadVaultApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
+        <button class="btn btn-gold" onclick="MidtransPay.showUpgradeModal()"><i class="fa-solid fa-crown"></i> Pro Rp15rb</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Generator Password & <span style="color:#10b981">Brankas Siber AES-256</span></h1>
+      <p style="color:var(--text-muted)">Racik kata sandi kriptografis berkekuatan tinggi, hitung entropi & estimasi bobol, serta simpan kredensial lokal 100% offline.</p>
+    </section>
+
+    <div class="grid-2" style="margin-top:24px;">
+      <!-- Generator Section -->
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:#10b981;"></i> 1. Generator Kata Sandi & Mode</h2>
+        
+        <div style="margin-bottom:14px;">
+          <label class="label">Mode Kriptografi Kata Sandi</label>
+          <select id="gen-mode" class="select-input" onchange="handleModeChange()">
+            <option value="high">🔐 High-Entropy Cyber Password (Huruf Besar, Kecil, Angka, Simbol)</option>
+            <option value="passphrase">📚 Memorable Passphrase (Kata-Kata Mudah Diingat e.g. Cyber-Sky-2026)</option>
+            <option value="pin">🔢 PIN Code Keamanan Tinggi (Angka Acak Bank-Grade)</option>
+            <option value="wifi">📡 Wi-Fi WPA3 / Router Hexadecimal Secure Key</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:14px;" id="length-slider-box">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <label class="label" style="margin:0;">Panjang Kata Sandi</label>
+            <b style="color:#10b981; font-size:14px;" id="length-val">16</b>
+          </div>
+          <input type="range" id="pass-length" min="6" max="64" value="16" style="width:100%; accent-color:#10b981;" oninput="document.getElementById('length-val').innerText=this.value; generatePassword();">
+        </div>
+
+        <div id="options-checkboxes" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; font-size:12px; color:#cbd5e1;">
+          <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="chk-upper" checked onchange="generatePassword()"> Huruf Besar (A-Z)</label>
+          <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="chk-lower" checked onchange="generatePassword()"> Huruf Kecil (a-z)</label>
+          <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="chk-num" checked onchange="generatePassword()"> Angka (0-9)</label>
+          <label style="display:flex; align-items:center; gap:6px;"><input type="checkbox" id="chk-sym" checked onchange="generatePassword()"> Simbol (@#$%!*?&)</label>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%; margin-bottom:14px;" onclick="generatePassword()"><i class="fa-solid fa-arrows-rotate"></i> Racik Kata Sandi Baru</button>
+
+        <div style="position:relative; margin-bottom:12px;">
+          <input id="generated-output" readonly style="width:100%; padding:14px; padding-right:110px; border-radius:12px; background:#0f172a; color:#10b981; font-family:monospace; font-size:16px; font-weight:800; border:1px solid rgba(255,255,255,0.15);">
+          <button class="btn" style="position:absolute; right:6px; top:6px; padding:8px 14px; background:#10b981; color:#0f172a; font-weight:800; font-size:12px;" onclick="copyPassword()"><i class="fa-regular fa-copy"></i> Salin</button>
+        </div>
+
+        <!-- Strength Meter -->
+        <div style="background:rgba(0,0,0,0.3); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">
+          <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+            <span>Kekuatan Entropi: <b id="entropy-bits">0 bits</b></span>
+            <span id="strength-label" style="font-weight:800; color:#10b981;">Sangat Kuat</span>
+          </div>
+          <div style="width:100%; height:8px; background:#1e293b; border-radius:4px; overflow:hidden;">
+            <div id="strength-bar" style="width:100%; height:100%; background:#10b981; transition:width 0.3s;"></div>
+          </div>
+          <p style="font-size:11px; color:#94a3b8; margin-top:8px;">Estimasi waktu bobol brute-force (superkomputer GPU): <b id="crack-time" style="color:#f59e0b;">Ribuan Tahun</b></p>
+        </div>
+      </div>
+
+      <!-- Vault Section -->
+      <div class="card">
+        <h2 class="card-title"><i class="fa-solid fa-lock" style="color:#38bdf8;"></i> 2. Brankas Kredensial Lokal (AES-GCM 256)</h2>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Simpan kata sandi yang telah dibuat ke dalam brankas lokal browser Anda yang terenkripsi.</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+          <input type="text" id="vault-service" placeholder="Nama Akun / Situs (e.g. Gmail)" style="padding:10px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px;">
+          <input type="text" id="vault-username" placeholder="Username / Email" style="padding:10px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px;">
+        </div>
+
+        <div style="display:flex; gap:8px; margin-bottom:14px;">
+          <input type="text" id="vault-password" placeholder="Kata Sandi (Atau gunakan hasil racikan)" style="flex:1; padding:10px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px;">
+          <button style="padding:10px 12px; border-radius:8px; background:#38bdf8; color:#0f172a; font-weight:800; border:none; font-size:11px; cursor:pointer;" onclick="fillFromGen()">⬇️ Gunakan Racikan</button>
+        </div>
+
+        <button class="btn" style="width:100%; background:#38bdf8; color:#0f172a; font-weight:800; margin-bottom:16px;" onclick="saveToVault()"><i class="fa-solid fa-folder-plus"></i> Simpan ke Brankas Lokal</button>
+
+        <div style="border-top:1px dashed rgba(255,255,255,0.15); padding-top:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h4 style="font-size:13px; color:#e2e8f0;">Daftar Kredensial Tersimpan (<span id="vault-count">0</span>)</h4>
+            <div style="display:flex; gap:6px;">
+              <button style="padding:4px 8px; border-radius:6px; background:#10b981; color:white; border:none; font-size:10px; cursor:pointer;" onclick="exportVault()"><i class="fa-solid fa-file-export"></i> Ekspor JSON</button>
+              <button style="padding:4px 8px; border-radius:6px; background:#ef4444; color:white; border:none; font-size:10px; cursor:pointer;" onclick="clearVault()"><i class="fa-solid fa-trash"></i> Bersihkan</button>
+            </div>
+          </div>
+          <div id="vault-list" style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="../midtrans-pay.js?v=3.0"></script>
+  <script src="script.js?v=3.0"></script>
+</body>
+</html>

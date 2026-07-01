@@ -2,45 +2,75 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini API Tester - Penguji REST API Ringan</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Mini API Tester Studio Pro - Lightweight REST & GraphQL Client</title>
+  <link rel="stylesheet" href="style.css?v=3.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <header class="navbar"><div class="container nav-content">
-    <a href="#" class="logo"><div class="logo-icon"><i class="fa-solid fa-paper-plane"></i></div>Mini <span style="color:#ec4899">API Tester</span></a>
-    <div style="display:flex; gap:12px; align-items:center;">
-      <div class="quota-pill" id="quota-display">Sisa Kuota: 3 / 3</div>
-      <button class="btn btn-gold" onclick="openModal()"><i class="fa-solid fa-crown"></i> Pro Rp20.000</button>
+  <header class="navbar">
+    <div class="container nav-content">
+      <a href="#" class="logo"><div class="logo-icon"><i class="fa-solid fa-paper-plane"></i></div>Mini <span style="color:#ec4899">API Studio Pro</span></a>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <div class="quota-pill" id="quota-display" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAPITesterApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAPITesterApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
+        <button class="btn btn-gold" onclick="MidtransPay.showUpgradeModal()"><i class="fa-solid fa-crown"></i> Pro Rp20rb</button>
+      </div>
     </div>
-  </div></header>
+  </header>
+
   <main class="container">
-    <div style="margin-top:30px;">
-      <h2>Alternatif Postman <span style="color:#ec4899">Ringan Dalam Peramban</span></h2>
-      <p style="color:var(--text-muted)">Uji endpoint REST API (GET, POST, PUT, DELETE) dengan respon JSON real-time.</p>
-    </div>
-    <div class="req-bar">
-      <select id="method" style="font-weight:700; color:#ec4899;"><option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option></select>
-      <input id="url" value="https://jsonplaceholder.typicode.com/todos/1" style="flex:1;" placeholder="https://api.example.com/endpoint">
-      <button class="btn btn-primary" onclick="sendRequest()"><i class="fa-solid fa-bolt"></i> Send Request</button>
-    </div>
-    <div class="grid-2">
-      <div><h3>Request Body (JSON - Untuk POST/PUT)</h3><textarea id="req-body" placeholder='{"title":"foo","body":"bar","userId":1}'></textarea></div>
+    <div style="margin-top:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
       <div>
-        <div style="display:flex; justify-content:space-between; align-items:center;"><h3>Response Body</h3><span id="status-badge" style="background:#232a3b; padding:4px 10px; border-radius:6px; font-size:12px;">Status: -</span></div>
-        <textarea id="res-body" readonly style="background:#0f1218;"></textarea>
+        <h2>Alternatif Postman <span style="color:#ec4899">Ringan Dalam Peramban</span></h2>
+        <p style="color:var(--text-muted)">Uji endpoint REST API (GET, POST, PUT, DELETE, PATCH) dengan Header Kustom & pelacakan durasi respon real-time.</p>
+      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="btn" style="background:#1e293b; font-size:11px;" onclick="loadPreset('get_todo')">💡 Preset GET Todo</button>
+        <button class="btn" style="background:#1e293b; font-size:11px;" onclick="loadPreset('post_create')">💡 Preset POST Create</button>
+        <button class="btn" style="background:#1e293b; font-size:11px;" onclick="loadPreset('get_users')">💡 Preset GET Users</button>
+      </div>
+    </div>
+
+    <div class="req-bar" style="margin-top:16px;">
+      <select id="method" style="font-weight:800; color:#ec4899; padding:12px; border-radius:10px; background:#151d2f; border:1px solid rgba(255,255,255,0.1);">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="PATCH">PATCH</option>
+        <option value="DELETE">DELETE</option>
+      </select>
+      <input id="url" value="https://jsonplaceholder.typicode.com/todos/1" style="flex:1; padding:12px; border-radius:10px; background:#151d2f; color:white; border:1px solid rgba(255,255,255,0.1);" placeholder="https://api.example.com/v1/endpoint">
+      <button class="btn btn-primary" style="padding:12px 20px;" onclick="sendRequest()"><i class="fa-solid fa-bolt"></i> Kirim Request</button>
+    </div>
+
+    <div style="margin:16px 0; background:#151d2f; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+      <label style="font-size:11px; font-weight:800; color:#ec4899; margin-bottom:6px; display:block;"><i class="fa-solid fa-key"></i> Custom Authorization / Request Headers (JSON Format)</label>
+      <input id="req-headers" value='{"Content-Type": "application/json"}' style="width:100%; padding:8px; border-radius:8px; background:#0f1218; color:#38bdf8; border:1px solid rgba(255,255,255,0.05); font-family:monospace; font-size:12px;">
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <h3>Request Body (JSON - Untuk POST/PUT/PATCH)</h3>
+        <textarea id="req-body" placeholder='{"title":"Sistem Baru","body":"Integrasi AI","userId":1}' style="min-height:240px;"></textarea>
+      </div>
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <h3>Response Body</h3>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span id="time-badge" style="background:#1e293b; color:#38bdf8; padding:4px 8px; border-radius:6px; font-size:11px;">Durasi: 0 ms</span>
+            <span id="status-badge" style="background:#232a3b; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:700;">Status: -</span>
+          </div>
+        </div>
+        <textarea id="res-body" readonly style="background:#0f1218; min-height:240px;"></textarea>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="btn" style="flex:1; background:#21262d; font-size:12px;" onclick="copyResBody()"><i class="fa-regular fa-copy"></i> Salin Respon</button>
+          <button class="btn" style="flex:1; background:#0284c7; font-size:12px;" onclick="downloadResBody()"><i class="fa-solid fa-download"></i> Simpan .JSON</button>
+        </div>
       </div>
     </div>
   </main>
-  <div class="modal" id="pro-modal"><div class="modal-content">
-    <button onclick="closeModal()" style="position:absolute; top:15px; right:15px; background:none; border:none; color:white; font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-    <i class="fa-solid fa-crown" style="font-size:40px; color:#fbbf24; margin-bottom:15px;"></i>
-    <h2>Upgrade Pro Lifetime</h2>
-    <p style="color:var(--text-muted); margin:10px 0;">Harga Spesial Indonesia: <b>Rp 20.000</b> (Hemat 20% dari pasar Rp25.000). Tanpa batas pengujian API!</p>
-    <button onclick="payWithMidtrans()" style="background:#002855; color:white; font-weight:700; padding:14px 20px; border-radius:12px; border:none; cursor:pointer; width:100%; margin:15px 0; font-size:15px; box-shadow:0 4px 15px rgba(0,40,85,0.4); transition:all 0.2s;"><i class="fa-solid fa-credit-card" style="color:#60a5fa; margin-right:8px;"></i> Bayar Otomatis via Midtrans</button>
-    <p style="font-size:12px; color:var(--text-muted);">Masukkan kode aktivasi (Ketik: <b>PRO20K</b>):</p>
-    <div style="display:flex; gap:8px; margin-top:10px;"><input id="act-code" placeholder="KODE" style="flex:1; padding:8px; border-radius:6px; background:#232a3b; border:1px solid var(--border-color); color:white;"><button class="btn btn-gold" onclick="activatePro()">Aktifkan</button></div>
-  </div></div>
-  <script src="app.js"></script>
-<script src="../midtrans-pay.js"></script>`r`n</body></html>
-
+  <script src="../midtrans-pay.js?v=3.0"></script>
+  <script src="app.js?v=3.0"></script>
+</body>
+</html>

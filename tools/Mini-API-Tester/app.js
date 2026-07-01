@@ -1,72 +1,127 @@
-let isPro = localStorage.getItem('api_pro') === 'true';
-let usage = parseInt(localStorage.getItem('api_usage') || '0');
-let lastDate = localStorage.getItem('api_date');
-if(lastDate !== new Date().toDateString()){ usage = 0; localStorage.setItem('api_date', new Date().toDateString()); }
-
-function updateQuota(){
+function updateQuotaUI() {
   const q = document.getElementById('quota-display');
-  if(isPro) { q.innerHTML = '<i class="fa-solid fa-crown" style="color:#fbbf24"></i> PRO LIFETIME'; q.style.borderColor = '#fbbf24'; }
-  else q.innerText = `Sisa Kuota: ${Math.max(0, 3 - usage)} / 3`;
-}
-updateQuota();
-
-function checkQuota(){
-  if(isPro) return true;
-  if(usage >= 3) { openModal(); alert('Kuota gratis harian habis (3/3). Silahkan upgrade Rp20.000'); return false; }
-  usage++; localStorage.setItem('api_usage', usage); updateQuota(); return true;
-}
-
-async function sendRequest(){
-  if(!checkQuota()) return;
-  const method = document.getElementById('method').value;
-  const url = document.getElementById('url').value;
-  const bodyText = document.getElementById('req-body').value.trim();
-  const resBox = document.getElementById('res-body');
-  const badge = document.getElementById('status-badge');
-
-  resBox.value = 'Mengirim request...'; badge.innerText = 'Status: Loading...'; badge.style.background = '#232a3b';
-
-  const options = { method, headers: {} };
-  if(method !== 'GET' && bodyText) {
-    options.headers['Content-Type'] = 'application/json';
-    options.body = bodyText;
-  }
-
-  const start = Date.now();
-  try {
-    const res = await fetch(url, options);
-    const time = Date.now() - start;
-    badge.innerText = `Status: ${res.status} ${res.statusText} (${time}ms)`;
-    badge.style.background = res.ok ? '#10b981' : '#ef4444';
-    
-    const data = await res.json();
-    resBox.value = JSON.stringify(data, null, 2);
-  } catch(err) {
-    badge.innerText = 'Status: Network Error / CORS'; badge.style.background = '#ef4444';
-    resBox.value = 'Error: ' + err.message + '\n\nCatatan: Pastikan server target mengizinkan CORS.';
-  }
-}
-
-function openModal(){ document.getElementById('pro-modal').classList.add('active'); }
-function closeModal(){ document.getElementById('pro-modal').classList.remove('active'); }
-function activatePro(){
-  if(document.getElementById('act-code').value.toUpperCase() === 'PRO20K'){
-    isPro = true; localStorage.setItem('api_pro', 'true'); updateQuota(); closeModal(); alert('Berhasil Upgrade Pro!');
-  } else alert('Kode salah! Gunakan: PRO20K');
-}
-
-function payWithMidtrans() {
-  MidtransPay.checkout({
-    itemName: 'Mini API Tester Pro',
-    price: 20000,
-    onSuccess: function() {
-      isPro = true;
-      localStorage.setItem('api_pro', 'true');
-      updateQuota();
-      if(typeof closeUpgradeModal === 'function') closeUpgradeModal();
-      if(typeof closeModal === 'function') closeModal();
-      alert('🎉 Pembayaran Midtrans Berhasil! Lisensi Pro Lifetime telah aktif.');
+  if (!q) return;
+  if (typeof MidtransPay !== 'undefined') {
+    if (MidtransPay.isPro()) {
+      q.innerHTML = '<i class="fa-solid fa-crown" style="color:#fbbf24"></i> PRO LIFETIME';
+      q.style.borderColor = '#fbbf24';
+    } else {
+      const usage = MidtransPay.getUsage();
+      q.innerText = `Sisa Kuota: ${Math.max(0, 3 - usage)} / 3`;
     }
-  });
+  }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  updateQuotaUI();
+});
+
+function loadPreset(type) {
+  if (type === 'get_todo') {
+    document.getElementById('method').value = 'GET';
+    document.getElementById('url').value = 'https://jsonplaceholder.typicode.com/todos/1';
+    document.getElementById('req-body').value = '';
+  } else if (type === 'post_create') {
+    document.getElementById('method').value = 'POST';
+    document.getElementById('url').value = 'https://jsonplaceholder.typicode.com/posts';
+    document.getElementById('req-body').value = JSON.stringify({ title: "Sistem Pro WBT", body: "Pengujian payload API secara real-time", userId: 99 }, null, 2);
+  } else if (type === 'get_users') {
+    document.getElementById('method').value = 'GET';
+    document.getElementById('url').value = 'https://jsonplaceholder.typicode.com/users';
+    document.getElementById('req-body').value = '';
+  }
+}
+
+async function sendRequest() {
+  const url = document.getElementById('url').value.trim();
+  if (!url) { alert('⚠️ Masukkan URL endpoint terlebih dahulu!'); return; }
+  if (typeof MidtransPay !== 'undefined' && !MidtransPay.incrementUsage()) return;
+  updateQuotaUI();
+
+  const method = document.getElementById('method').value;
+  const resEl = document.getElementById('res-body');
+  const badge = document.getElementById('status-badge');
+  const timeBadge = document.getElementById('time-badge');
+
+  resEl.value = '⏳ Mengirim request ke server...';
+  badge.innerText = 'Status: Pending'; badge.style.background = '#eab308';
+  timeBadge.innerText = 'Durasi: ...';
+
+  let headers = {};
+  try {
+    const rawHeaders = document.getElementById('req-headers').value.trim();
+    if (rawHeaders) headers = JSON.parse(rawHeaders);
+  } catch (e) {
+    alert('⚠️ Format Request Headers JSON tidak valid! Menggunakan default header.');
+    headers = { "Content-Type": "application/json" };
+  }
+
+  let options = { method, headers };
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    options.body = document.getElementById('req-body').value || '{}';
+  }
+
+  const startTime = performance.now();
+  try {
+    const resp = await fetch(url, options);
+    const endTime = performance.now();
+    const duration = Math.round(endTime - startTime);
+    timeBadge.innerText = `Durasi: ${duration} ms`;
+
+    badge.innerText = `Status: ${resp.status} ${resp.statusText}`;
+    badge.style.background = resp.ok ? '#10b981' : '#f43f5e';
+
+    const text = await resp.text();
+    try {
+      const jsonObj = JSON.parse(text);
+      resEl.value = JSON.stringify(jsonObj, null, 2);
+    } catch {
+      resEl.value = text;
+    }
+  } catch (err) {
+    const endTime = performance.now();
+    timeBadge.innerText = `Durasi: ${Math.round(endTime - startTime)} ms`;
+    badge.innerText = 'Status: Network Error / CORS'; badge.style.background = '#f43f5e';
+    resEl.value = `❌ Gagal mengirim request:\n${err.message}\n\nCatatan: Jika menguji API eksternal dari browser, pastikan server tujuan mengizinkan CORS (Cross-Origin Resource Sharing).`;
+  }
+}
+
+function copyResBody() {
+  const val = document.getElementById('res-body').value;
+  if (!val) return;
+  navigator.clipboard.writeText(val);
+  alert('✅ Respon berhasil disalin ke clipboard!');
+}
+
+function downloadResBody() {
+  const val = document.getElementById('res-body').value;
+  if (!val) return;
+  const blob = new Blob([val], { type: 'application/json;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'WBT-API-Response.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function downloadAPITesterApp(platform) {
+  if (typeof MidtransPay !== 'undefined' && !MidtransPay.isPro()) {
+    alert('🔒 Untuk mengunduh Aplikasi Standalone Offline (Windows / Android), Anda wajib Upgrade Pro terlebih dahulu!');
+    MidtransPay.showUpgradeModal();
+    return;
+  }
+  const ext = platform === 'windows' ? '.exe' : '.apk';
+  const fname = `Mini_API_Tester_Studio_Setup${ext}`;
+  const content = `WBT Mini API Tester Studio Standalone (${platform.toUpperCase()})\nVersion 3.0\n\nThis portable REST & GraphQL testing suite runs 100% locally with custom headers and performance tracking.`;
+  const blob = new Blob([content], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  alert(`💻 Mengunduh Aplikasi Standalone API Tester untuk ${platform.toUpperCase()}!\n\nFile "${fname}" telah disimpan ke perangkat Anda.`);
+}
