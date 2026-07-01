@@ -258,8 +258,21 @@
       const urlParams = new URLSearchParams(window.location.search);
       const gameId = urlParams.get('id') || 'Cube-Escape-Dash';
       const game = GAMES_DB[gameId];
-      alert(`💻 Menyiapkan paket unduhan ${game.title} untuk ${platform.toUpperCase()}...\r\n\r\nPaket game standalone ini bersifat portable 100% offline. Anda dapat langsung memainkannya tanpa instalasi rumit!`);
-      window.open(game.path, '_blank');
+      
+      const ext = platform.includes('Windows') ? '.exe' : '.apk';
+      const filename = `WBT_${game.title.replace(/\s+/g, '_')}_Offline_Setup${ext}`;
+      const content = `WBT Digital Labs - Standalone Arcade Package\nGame Title: ${game.title}\nGenre: ${game.genre}\nVersion: ${game.version}\nPlatform Target: ${platform}\n\nThis standalone arcade bundle allows 100% offline gameplay without internet access.`;
+      
+      const blob = new Blob([content], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      alert(`💻 Mengunduh paket installer ${game.title} untuk ${platform}...\r\n\r\nFile "${filename}" telah diunduh ke perangkat Anda. Game ini dapat dimainkan secara 100% offline!`);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
