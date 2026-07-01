@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline Audio Trimmer & Converter Studio - WBT Digital Labs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070a10;
+      --card-bg: #111827;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --primary: #ec4899;
+      --accent: #38bdf8;
+      --gold: #fbbf24;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+    header {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      text-decoration: none;
+    }
+    .brand span { color: var(--primary); }
+    .badge-offline {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+    .hero { text-align: center; margin-bottom: 30px; }
+    .hero h1 { font-family: 'Outfit', sans-serif; font-size: 36px; font-weight: 900; background: linear-gradient(135deg, #ec4899, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { color: var(--text-muted); font-size: 15px; margin-top: 8px; }
+
+    .upload-area {
+      background: var(--card-bg);
+      border: 2px dashed var(--border-color);
+      border-radius: 20px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 24px;
+    }
+    .upload-area:hover { border-color: var(--primary); background: rgba(236, 72, 153, 0.05); }
+
+    .workspace {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 26px;
+      display: none;
+    }
+    .waveform-box {
+      background: #0b0f19;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    canvas { width: 100%; height: 120px; background: #070a10; border-radius: 8px; }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media(max-width: 768px) { .controls-grid { grid-template-columns: 1fr; } }
+
+    .form-group { margin-bottom: 12px; }
+    .label { font-size: 13px; font-weight: 700; color: #cbd5e1; margin-bottom: 6px; display: block; }
+    .input {
+      width: 100%;
+      padding: 12px;
+      background: #0b0f19;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+    }
+    .btn {
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; }
+    .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #0f172a; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="../Portal-Tools.html" class="brand"><i class="fa-solid fa-waveform-lines"></i> WBT <span>Audio Studio Pro</span></a>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <div class="badge-offline"><i class="fa-solid fa-shield-halved"></i> 100% Offline & Tanpa Login</div>
+      <button class="btn btn-gold" style="padding: 8px 14px; font-size: 12px;" onclick="downloadAudioApp('windows')"><i class="fa-brands fa-windows"></i> Unduh App</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Offline Audio Trimmer & Converter Pro</h1>
+      <p>Potong rekaman suara, tingkatkan volume audio, dan atur kecepatan putar tanpa mengunggah file ke server eksternal.</p>
+    </div>
+
+    <div id="drop-zone" class="upload-area" onclick="document.getElementById('audio-file').click()">
+      <i class="fa-solid fa-music" style="font-size:48px; color:var(--primary); margin-bottom:12px;"></i>
+      <h3 style="font-family:'Outfit',sans-serif; font-size:20px;">Pilih atau Tarik File Audio Anda (.MP3, .WAV, .OGG, .M4A)</h3>
+      <p style="color:var(--text-muted); font-size:13px; margin-top:6px;">Pemrosesan 100% di dalam RAM komputer/ponsel Anda</p>
+      <input type="file" id="audio-file" accept="audio/*" style="display:none;" onchange="loadAudioFile(event)">
+    </div>
+
+    <div id="workspace" class="workspace">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 id="file-title" style="font-family:'Outfit',sans-serif; color:var(--accent);">File Terpilih: audio.mp3</h3>
+        <button class="btn" style="padding:6px 14px; font-size:12px; background:#1e293b;" onclick="playAudioPreview()"><i class="fa-solid fa-play"></i> Putar Pratinjau</button>
+      </div>
+
+      <div class="waveform-box">
+        <canvas id="wave-canvas" width="800" height="120"></canvas>
+      </div>
+
+      <div class="controls-grid">
+        <div class="form-group">
+          <label class="label"><i class="fa-solid fa-scissors"></i> Mulai Potong (Detik):</label>
+          <input type="number" id="trim-start" class="input" value="0" min="0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label class="label"><i class="fa-solid fa-stopwatch"></i> Selesai Potong (Detik):</label>
+          <input type="number" id="trim-end" class="input" value="30" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label class="label"><i class="fa-solid fa-volume-high"></i> Volume Booster (%):</label>
+          <input type="number" id="volume-boost" class="input" value="100" min="50" max="300" step="10">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="processAndExportAudio()"><i class="fa-solid fa-wand-magic-sparkles"></i> Potong & Unduh WAV Offline</button>
+        <button class="btn" style="background:#ef4444; color:white;" onclick="resetAudio()"><i class="fa-solid fa-trash"></i> Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../midtrans-pay.js?v=3.0"></script>
+  <script src="script.js?v=1.0"></script>
+</body>
+</html>

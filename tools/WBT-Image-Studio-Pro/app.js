@@ -278,6 +278,36 @@ const toolsConfig = {
     multiple: false,
     hint: 'Pilih 1 foto untuk dikonversi menjadi string Base64',
     settings: ''
+  },
+  watermark: {
+    title: 'Batch Copyright Watermark Studio',
+    desc: 'Bubuhkan teks hak cipta atau copyright watermark massal pada foto Anda.',
+    icon: '<i class="fa-solid fa-stamp"></i>',
+    accept: 'image/*',
+    multiple: true,
+    hint: 'Pilih hingga puluhan foto untuk dibubuhkan watermark sekaligus',
+    settings: `
+      <div class="setting-item">
+        <label class="setting-label">Teks Watermark Copyright</label>
+        <input type="text" id="wm-text" class="setting-input" value="© 2026 WBT Digital Labs - Confidential" placeholder="Ketik teks hak cipta...">
+      </div>
+      <div class="setting-item">
+        <label class="setting-label">Posisi Watermark</label>
+        <select id="wm-pos" class="setting-input">
+          <option value="bottom-right">Pojok Kanan Bawah</option>
+          <option value="center">Tengah Kanvas (Diagonal Watermark)</option>
+          <option value="bottom-left">Pojok Kiri Bawah</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label class="setting-label">Warna & Transparansi</label>
+        <select id="wm-color" class="setting-input">
+          <option value="rgba(255,255,255,0.6)">Putih Semi-Transparan</option>
+          <option value="rgba(245,158,11,0.85)">Emas / Gold Pro</option>
+          <option value="rgba(0,0,0,0.65)">Hitam Semi-Transparan</option>
+        </select>
+      </div>
+    `
   }
 };
 
@@ -653,14 +683,34 @@ async function processCropper() {
 
 // 9. Watermark Tool
 async function processWatermark() {
-  const text = document.getElementById('watermark-text').value || 'WBT DIGITAL LABS';
+  const textEl = document.getElementById('wm-text') || document.getElementById('watermark-text');
+  const text = textEl ? textEl.value : '© WBT Digital Labs';
+  const posEl = document.getElementById('wm-pos');
+  const pos = posEl ? posEl.value : 'bottom-right';
+  const colorEl = document.getElementById('wm-color');
+  const color = colorEl ? colorEl.value : 'rgba(255,255,255,0.6)';
+
   for (const file of selectedFiles) {
     const { canvas, ctx } = await loadImageToCanvas(file);
-    ctx.font = `bold ${Math.max(24, Math.floor(canvas.width / 18))}px Arial`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.textAlign = 'center';
-    ctx.fillText(text, canvas.width / 2, canvas.height - 40);
-    canvas.toBlob((blob) => downloadBlob(blob, `Watermarked_${file.name}`), 'image/jpeg', 0.92);
+    const fontSize = Math.max(24, Math.floor(canvas.width / 20));
+    ctx.font = `bold ${fontSize}px Arial`;
+    ctx.fillStyle = color;
+
+    if (pos === 'center') {
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(-Math.PI / 6);
+      ctx.textAlign = 'center';
+      ctx.fillText(text, 0, 0);
+      ctx.restore();
+    } else if (pos === 'bottom-left') {
+      ctx.textAlign = 'left';
+      ctx.fillText(text, 30, canvas.height - 30);
+    } else {
+      ctx.textAlign = 'right';
+      ctx.fillText(text, canvas.width - 30, canvas.height - 30);
+    }
+    canvas.toBlob((blob) => downloadBlob(blob, `Watermarked_${file.name}`), 'image/jpeg', 0.95);
   }
 }
 

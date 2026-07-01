@@ -53,6 +53,17 @@
                 </div>
             </div>
 
+            <!-- Pomodoro Focus Audio Generator Panel -->
+            <div class="add-task-panel glass" style="margin-top:15px; border-color:#a855f7;">
+                <h3 style="color:#d8b4fe;"><i class="fa-solid fa-headphones"></i> Pomodoro Focus Audio Generator (100% Offline Synth)</h3>
+                <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; align-items:center;">
+                    <button class="add-btn" style="background:#1e293b; color:#38bdf8; border:1px solid #38bdf8;" onclick="toggleFocusAudio('rain')">🌧️ Hujan Rintik</button>
+                    <button class="add-btn" style="background:#1e293b; color:#f59e0b; border:1px solid #f59e0b;" onclick="toggleFocusAudio('whitenoise')">🌊 White Noise</button>
+                    <button class="add-btn" style="background:#1e293b; color:#10b981; border:1px solid #10b981;" onclick="toggleFocusAudio('binaural')">🧘 Binaural Alpha Beats</button>
+                    <button class="add-btn" id="stop-audio-btn" style="background:#ef4444; color:white; display:none;" onclick="stopFocusAudio()">⏹️ Matikan Suara</button>
+                </div>
+            </div>
+
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('progress')">🔥 Waktu Berjalan</button>
                 <button class="tab-btn" onclick="switchTab('success')">✅ Riwayat Selesai</button>

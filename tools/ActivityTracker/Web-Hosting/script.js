@@ -420,6 +420,61 @@ function downloadActivityApp(platform) {
     a.download = fname;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
     alert(`💻 Mengunduh Aplikasi Standalone Activity Tracker untuk ${platform.toUpperCase()}!\n\nFile "${fname}" telah disimpan ke perangkat Anda.`);
+}
+
+let activeAudioCtx = null;
+let activeOsc1 = null, activeOsc2 = null, activeNoise = null;
+
+function stopFocusAudio() {
+    if (activeOsc1) { try { activeOsc1.stop(); } catch(e){} activeOsc1 = null; }
+    if (activeOsc2) { try { activeOsc2.stop(); } catch(e){} activeOsc2 = null; }
+    if (activeNoise) { try { activeNoise.stop(); } catch(e){} activeNoise = null; }
+    if (activeAudioCtx) { try { activeAudioCtx.close(); } catch(e){} activeAudioCtx = null; }
+    const stopBtn = document.getElementById('stop-audio-btn');
+    if (stopBtn) stopBtn.style.display = 'none';
+}
+
+function toggleFocusAudio(type) {
+    stopFocusAudio();
+    activeAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const stopBtn = document.getElementById('stop-audio-btn');
+    if (stopBtn) stopBtn.style.display = 'inline-block';
+
+    if (type === 'binaural') {
+        // Binaural Alpha waves (e.g. 200 Hz left, 210 Hz right = 10 Hz Alpha wave)
+        const merger = activeAudioCtx.createChannelMerger(2);
+        activeOsc1 = activeAudioCtx.createOscillator();
+        activeOsc2 = activeAudioCtx.createOscillator();
+        activeOsc1.frequency.value = 200;
+        activeOsc2.frequency.value = 210;
+        activeOsc1.connect(merger, 0, 0);
+        activeOsc2.connect(merger, 0, 1);
+        const gain = activeAudioCtx.createGain();
+        gain.gain.value = 0.25;
+        merger.connect(gain);
+        gain.connect(activeAudioCtx.destination);
+        activeOsc1.start(); activeOsc2.start();
+    } else {
+        // Pink/White noise for rain or ocean
+        const bufferSize = 2 * activeAudioCtx.sampleRate;
+        const noiseBuffer = activeAudioCtx.createBuffer(1, bufferSize, activeAudioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            if (type === 'rain') {
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                output[i] = (b0 + b1) * 0.3;
+            } else {
+                output[i] = white * 0.15;
+            }
+        }
+        activeNoise = activeAudioCtx.createBufferSource();
+        activeNoise.buffer = noiseBuffer;
+        activeNoise.loop = true;
+        activeNoise.connect(activeAudioCtx.destination);
+        activeNoise.start();
+    }
 }

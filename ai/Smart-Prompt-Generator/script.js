@@ -233,3 +233,20 @@ function downloadPromptApp(platform) {
 
   alert(`💻 Mengunduh Aplikasi Standalone ${platform.toUpperCase()} berukuran ringan (tanpa file model Prompt 35k).\n\nAnda dapat menaruh file model Prompt (.pack) di dalam folder yang sama agar terdeteksi otomatis saat offline!`);
 }
+
+function magicEnhancePrompt() {
+  const inp = document.getElementById('base-idea');
+  let text = inp.value.trim();
+  if (!text) { alert('⚠️ Ketik ide dasar terlebih dahulu (misal: "kucing di taman" atau "buat web toko online")!'); return; }
+  
+  const domain = document.getElementById('domain-select').value;
+  if (domain === 'image' || domain === 'video') {
+    inp.value = `${text}, cinematic hyper-detailed shot, 8k resolution masterpiece, professional dramatic lighting, volumetric fog, Octane Render, shot on 35mm lens f/1.8, Unreal Engine 5 aesthetic, photorealistic texture detailing`;
+  } else if (domain === 'music') {
+    inp.value = `Create a full song arrangement about "${text}". Genre: Modern Synthwave & Epic Orchestral Hybrid. Tempo: 125 BPM. Instrumentation: Punchy analog bass synth, atmospheric arpeggios, soaring electric guitar solo, and emotional female vocal melody with lush reverb.`;
+  } else {
+    inp.value = `Act as a World-Class Senior Chief Architect & AI Domain Expert. Your task is to comprehensively analyze and execute the following goal: "${text}".\n\nFramework Instructions:\n1. Provide a step-by-step technical execution blueprint.\n2. Identify potential architectural edge cases & security risks.\n3. Include clean, production-ready code examples with optimal best practices.`;
+  }
+  alert('✨ Magic Enhancer bekerja! Ide singkat Anda telah diperkaya dengan parameter master dan instruksi sistem tingkat tinggi.');
+  generatePrompts();
+}

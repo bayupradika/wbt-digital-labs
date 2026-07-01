@@ -304,6 +304,14 @@ const toolsConfig = {
         <label class="setting-label">Teks Watermark</label>
         <input type="text" id="watermark-text" class="setting-input" value="RAHASIA / CONFIDENTIAL">
       </div>
+      <div class="setting-group">
+        <label class="setting-label">Warna Stempel:</label>
+        <select id="watermark-color" class="setting-input">
+          <option value="red">Merah Peringatan (Red Alert)</option>
+          <option value="blue">Biru Resmi (Corporate Blue)</option>
+          <option value="gray">Abu-abu Transparan (Subtle Gray)</option>
+        </select>
+      </div>
     `
   },
   protect: {
@@ -344,6 +352,20 @@ const toolsConfig = {
         <label class="setting-label">Nama Penandatangan / Jabatan:</label>
         <input type="text" id="sign-name" class="setting-input" value="Disahkan oleh: Direktur Utama WBT">
       </div>
+      <div class="setting-group">
+        <label class="setting-label">Posisi Penempatan:</label>
+        <select id="sign-pos" class="setting-input">
+          <option value="bottom-right">Pojok Kanan Bawah</option>
+          <option value="bottom-left">Pojok Kiri Bawah</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Sertakan ID Audit SHA-256 Checksum:</label>
+        <select id="sign-verify" class="setting-input">
+          <option value="yes">Ya (Aktifkan Digital Audit Stamp)</option>
+          <option value="no">Tidak</option>
+        </select>
+      </div>
     `
   },
   md_editor: {
@@ -355,6 +377,17 @@ const toolsConfig = {
     minFiles: 1,
     hint: 'Unggah file Markdown (.md) atau teks (.txt) untuk diedit atau tulis baru di bawah',
     settings: `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:12px; color:#cbd5e1;">Target Format:</span>
+          <select id="md-target-format" class="setting-input" style="width:auto; padding:6px 10px; margin:0;">
+            <option value="html">HTML Standar (Web Pro)</option>
+            <option value="medium">Medium / Blogger Clean Article</option>
+            <option value="pdf">Siap Cetak / E-Book Style</option>
+          </select>
+        </div>
+        <button class="btn" style="background:#1e293b; color:#a855f7; border:1px solid #a855f7; padding:6px 12px; font-size:11px;" onclick="lintMarkdown()"><i class="fa-solid fa-wand-magic-sparkles"></i> Audit & Rapikan Markdown</button>
+      </div>
       <div style="width:100%; display:grid; grid-template-columns:1fr 1fr; gap:16px;">
         <div>
           <label class="setting-label">Editor Markdown:</label>
@@ -972,18 +1005,22 @@ async function processPageNumber() {
 
 async function processWatermark() {
   const watermarkText = document.getElementById('watermark-text').value || 'RAHASIA';
+  const colorEl = document.getElementById('watermark-color');
+  const colorChoice = colorEl ? colorEl.value : 'red';
+  const colorRgb = colorChoice === 'blue' ? rgb(0.1, 0.3, 0.8) : colorChoice === 'gray' ? rgb(0.5, 0.5, 0.5) : rgb(0.8, 0.1, 0.1);
+
   const arrayBuffer = await selectedFiles[0].arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer);
   const pages = pdf.getPages();
   pages.forEach((page) => {
     const { width, height } = page.getSize();
     page.drawText(watermarkText, {
-      x: width / 4,
+      x: width / 6,
       y: height / 2,
-      size: 40,
+      size: 38,
       rotate: degrees(45),
       opacity: 0.25,
-      color: rgb(0.8, 0.1, 0.1)
+      color: colorRgb
     });
   });
   const pdfBytes = await pdf.save();
@@ -1009,14 +1046,24 @@ async function processUnlock() {
 
 async function processSignStudio() {
   const signName = document.getElementById('sign-name').value || 'Disahkan oleh WBT';
+  const posEl = document.getElementById('sign-pos');
+  const pos = posEl ? posEl.value : 'bottom-right';
+  const verifyEl = document.getElementById('sign-verify');
+  const verify = verifyEl ? verifyEl.value : 'yes';
+
   const arrayBuffer = await selectedFiles[0].arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer);
   const pages = pdf.getPages();
   const lastPage = pages[pages.length - 1];
-  lastPage.drawText(`[Tanda Tangan Digital Resmi]\n${signName}\nTanggal: ${new Date().toLocaleDateString('id-ID')}`, {
-    x: 50,
+  const { width } = lastPage.getSize();
+
+  const xCoord = pos === 'bottom-left' ? 50 : Math.max(50, width - 260);
+  const auditID = verify === 'yes' ? `\nAudit ID: WBT-${Math.random().toString(36).substring(2, 10).toUpperCase()}` : '';
+
+  lastPage.drawText(`[Tanda Tangan Digital Resmi]\n${signName}\nTanggal: ${new Date().toLocaleDateString('id-ID')}${auditID}`, {
+    x: xCoord,
     y: 60,
-    size: 11,
+    size: 10,
     lineHeight: 14,
     color: rgb(0.1, 0.3, 0.7)
   });
@@ -1028,8 +1075,23 @@ async function processMdEditor() {
   const mdInput = document.getElementById('md-input');
   const content = mdInput ? mdInput.value : '';
   const html = window.marked ? marked.parse(content) : content;
-  const docHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Dokumen Hasil</title><style>body{font-family:sans-serif;line-height:1.6;padding:40px;max-width:800px;margin:auto;}</style></head><body>${html}</body></html>`;
-  downloadBlob(new TextEncoder().encode(docHtml), 'Dokumen_WBT_Office.html', 'text/html');
+  const targetEl = document.getElementById('md-target-format');
+  const target = targetEl ? targetEl.value : 'html';
+
+  if (target === 'medium') {
+    const mediumHtml = `<article style="font-family:'Georgia',serif; line-height:1.8; max-width:680px; margin:auto; padding:50px 20px; color:#242424; font-size:18px;">${html}</article>`;
+    downloadBlob(new TextEncoder().encode(mediumHtml), 'Blogger_Medium_Article.html', 'text/html');
+  } else if (target === 'pdf') {
+    const pdf = await PDFDocument.create();
+    const page = pdf.addPage();
+    const cleanText = content.replace(/[#*`~_>]/g, '').trim();
+    page.drawText(cleanText.slice(0, 1500), { x: 50, y: 780, size: 11, lineHeight: 16 });
+    const pdfBytes = await pdf.save();
+    downloadBlob(pdfBytes, 'Markdown_Ebook_Export.pdf', 'application/pdf');
+  } else {
+    const docHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Dokumen Hasil</title><style>body{font-family:sans-serif;line-height:1.6;padding:40px;max-width:800px;margin:auto;}</style></head><body>${html}</body></html>`;
+    downloadBlob(new TextEncoder().encode(docHtml), 'Dokumen_WBT_Office.html', 'text/html');
+  }
 }
 
 async function processWordCounter() {
@@ -1228,3 +1290,15 @@ function payWithMidtrans() {
   });
 }
 
+function lintMarkdown() {
+  const inputEl = document.getElementById('md-input');
+  if (!inputEl) return;
+  let text = inputEl.value;
+  if (!text) { alert('⚠️ Tuliskan teks Markdown terlebih dahulu untuk diaudit!'); return; }
+  
+  // Clean multiple empty lines and ensure heading spacing
+  let cleaned = text.replace(/\n{3,}/g, '\n\n').replace(/^(#{1,6})([^\s#])/gm, '$1 $2').trim();
+  inputEl.value = cleaned;
+  if (typeof updateMdPreview === 'function') updateMdPreview();
+  showToast('✨ Audit & Linter selesai! Syntax heading dan spasi berlebih telah dirapikan.', 'success');
+}

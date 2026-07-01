@@ -77,10 +77,12 @@
         </div>
         <textarea id="output-text" placeholder="Hasil transkripsi teks dari rekaman atau file audio Anda akan muncul di sini secara otomatis..." style="flex:1; min-height:260px;"></textarea>
         
-        <div style="display:flex; gap:10px; margin-top:12px;">
-          <button class="btn" style="flex:1;" onclick="copyText()"><i class="fa-regular fa-copy"></i> Salin Teks</button>
-          <button class="btn" style="flex:1; background:linear-gradient(135deg,#06b6d4,#3b82f6);" onclick="downloadTextAsDoc()"><i class="fa-solid fa-download"></i> Simpan .TXT</button>
-          <button class="btn" style="background:#1e293b; color:#ef4444; border:1px solid #ef4444; box-shadow:none; width:50px;" onclick="document.getElementById('output-text').value=''" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+          <button class="btn" style="background:#1e293b; color:#a855f7; border:1px solid #a855f7; font-size:11px;" onclick="removeFillerWords()"><i class="fa-solid fa-wand-magic-sparkles"></i> Bersihkan Kata Jeda (eee/hmm)</button>
+          <button class="btn" style="background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; font-size:11px;" onclick="translateTranscript()"><i class="fa-solid fa-language"></i> Terjemahkan ke Inggris (EN)</button>
+          <button class="btn" style="flex:1;" onclick="copyText()"><i class="fa-regular fa-copy"></i> Salin</button>
+          <button class="btn" style="flex:1; background:linear-gradient(135deg,#06b6d4,#3b82f6);" onclick="downloadTextAsDoc()"><i class="fa-solid fa-download"></i> .TXT</button>
+          <button class="btn" style="background:#1e293b; color:#ef4444; border:1px solid #ef4444; box-shadow:none; width:45px;" onclick="document.getElementById('output-text').value=''" title="Hapus"><i class="fa-solid fa-trash"></i></button>
         </div>
       </div>
     </div>

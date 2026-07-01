@@ -234,6 +234,32 @@ function downloadVaultApp(platform) {
   a.download = fname;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
   alert(`💻 Mengunduh Aplikasi Standalone Cyber Vault untuk ${platform.toUpperCase()}!\n\nFile "${fname}" telah disimpan ke perangkat Anda.`);
+}
+
+function auditVaultHealth() {
+  const items = getVaultData();
+  if (items.length === 0) { alert('⚠️ Brankas masih kosong! Tidak ada kredensial untuk diaudit.'); return; }
+  
+  let weakCount = 0;
+  let reusedCount = 0;
+  const passMap = {};
+
+  items.forEach(it => {
+    if ((it.password || '').length < 10) weakCount++;
+    if (passMap[it.password]) reusedCount++;
+    else passMap[it.password] = true;
+  });
+
+  let report = `🛡️ LAPORAN AUDIT KESEHATAN BRANKAS SIBER\n`;
+  report += `=========================================\n`;
+  report += `Total Kredensial Tersimpan: ${items.length} akun\n`;
+  report += `Kata Sandi Rentan / Pendek (<10 karakter): ${weakCount}\n`;
+  report += `Kata Sandi Diduplikasi / Dipakai Berulang: ${reusedCount}\n\n`;
+  if (weakCount === 0 && reusedCount === 0) {
+    report += `🎉 STATUS: EXCELLENT! Semua kata sandi Anda kuat dan unik.`;
+  } else {
+    report += `⚠️ REKOMENDASI: Segera ganti kata sandi yang duplikat atau pendek menggunakan racikan generator berkekuatan tinggi!`;
+  }
+  alert(report);
 }

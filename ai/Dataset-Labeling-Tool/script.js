@@ -1572,3 +1572,61 @@ function purchaseOfflineAIModel() {
     alert('🎉 Mengunduh Paket Bobot Model AI Offline (.pack) beserta Petunjuk Instalasi (.txt).');
   }
 }
+
+async function exportDatasetSplitZIP() {
+  if (galleryImages.length === 0) { alert('⚠️ Galeri masih kosong! Unggah gambar dan buat anotasi terlebih dahulu.'); return; }
+  if (typeof JSZip === 'undefined') { alert('⚠️ Pustaka JSZip belum dimuat.'); return; }
+  
+  const zip = new JSZip();
+  const trainImg = zip.folder("train/images");
+  const trainLbl = zip.folder("train/labels");
+  const valImg = zip.folder("val/images");
+  const valLbl = zip.folder("val/labels");
+
+  let trainCount = 0, valCount = 0;
+  galleryImages.forEach((imgObj, idx) => {
+    const isVal = (idx % 5 === 0); // 80% Train, 20% Val
+    const imgFolder = isVal ? valImg : trainImg;
+    const lblFolder = isVal ? valLbl : trainLbl;
+    if (isVal) valCount++; else trainCount++;
+
+    const baseName = imgObj.name.replace(/\.[^/.]+$/, "");
+    if (imgObj.file) {
+      imgFolder.file(imgObj.name, imgObj.file);
+    }
+
+    let yoloLines = imgObj.annotations.map(b => {
+      let clsIdx = classList.indexOf(b.cls);
+      if (clsIdx === -1) clsIdx = 0;
+      let cx = ((b.x || 0) + (b.w || 0)/2) / (canvas.width || 600);
+      let cy = ((b.y || 0) + (b.h || 0)/2) / (canvas.height || 400);
+      let nw = (b.w || 10) / (canvas.width || 600);
+      let nh = (b.h || 10) / (canvas.height || 400);
+      return `${clsIdx} ${cx.toFixed(6)} ${cy.toFixed(6)} ${nw.toFixed(6)} ${nh.toFixed(6)}`;
+    }).join('\n');
+    lblFolder.file(`${baseName}.txt`, yoloLines);
+  });
+
+  zip.file("data.yaml", `train: ../train/images\nval: ../val/images\n\ncannot_count: ${classList.length}\nnames: ${JSON.stringify(classList)}\n`);
+  const content = await zip.generateAsync({ type: "blob" });
+  const url = URL.createObjectURL(content);
+  const a = document.createElement('a');
+  a.href = url; a.download = "WBT-YOLO-Dataset-Split.zip";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  alert(`📦 Dataset Split ZIP berhasil diunduh!\n\n• Train: ${trainCount} gambar & label\n• Val: ${valCount} gambar & label\n• Termasuk data.yaml siap untuk Ultralytics YOLO!`);
+}
+
+function interpolateNextFrame() {
+  if (currentImageIndex < 0 || currentImageIndex >= galleryImages.length - 1) {
+    alert('⚠️ Pilih gambar yang memiliki frame/gambar berikutnya di galeri!'); return;
+  }
+  const currAnn = galleryImages[currentImageIndex].annotations;
+  if (currAnn.length === 0) { alert('⚠️ Gambar aktif tidak memiliki anotasi untuk disalin!'); return; }
+  
+  const nextImg = galleryImages[currentImageIndex + 1];
+  currAnn.forEach(b => {
+    nextImg.annotations.push(JSON.parse(JSON.stringify(b)));
+  });
+  alert(`🚀 Anotasi berhasil disalin & diinterpolasi ke gambar berikutnya (${nextImg.name})!`);
+  selectGalleryImage(currentImageIndex + 1);
+}

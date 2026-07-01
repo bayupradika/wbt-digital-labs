@@ -147,3 +147,62 @@ function downloadJSONApp(platform) {
   document.body.removeChild(a);
   alert(`💻 Mengunduh Aplikasi Standalone JSON Studio untuk ${platform.toUpperCase()}!\n\nFile "${fname}" telah disimpan ke perangkat Anda.`);
 }
+
+function getParsedOrAlert() {
+  const input = document.getElementById('input-json').value.trim();
+  if (!input) { alert('⚠️ Masukkan JSON mentah terlebih dahulu!'); return null; }
+  try {
+    return JSON.parse(input);
+  } catch (e) {
+    alert('❌ JSON tidak valid: ' + e.message);
+    return null;
+  }
+}
+
+function generateTSInterface() {
+  const obj = getParsedOrAlert();
+  if (!obj) return;
+  const sample = Array.isArray(obj) ? (obj[0] || {}) : obj;
+  let ts = "export interface RootObject {\n";
+  for (const key in sample) {
+    const val = sample[key];
+    const type = typeof val === 'number' ? 'number' : typeof val === 'boolean' ? 'boolean' : Array.isArray(val) ? 'any[]' : typeof val === 'object' && val !== null ? 'Record<string, any>' : 'string';
+    ts += `  ${key}: ${type};\n`;
+  }
+  ts += "}";
+  document.getElementById('output-json').value = ts;
+  document.getElementById('output-mode').innerText = "Format TypeScript Interface";
+  document.getElementById('status').innerText = "TS Generated";
+}
+
+function generateGoStruct() {
+  const obj = getParsedOrAlert();
+  if (!obj) return;
+  const sample = Array.isArray(obj) ? (obj[0] || {}) : obj;
+  let go = "type RootStruct struct {\n";
+  for (const key in sample) {
+    const val = sample[key];
+    const type = typeof val === 'number' ? 'float64' : typeof val === 'boolean' ? 'bool' : Array.isArray(val) ? '[]interface{}' : 'string';
+    const goKey = key.charAt(0).toUpperCase() + key.slice(1);
+    go += `\t${goKey} ${type} \`json:"${key}"\`\n`;
+  }
+  go += "}";
+  document.getElementById('output-json').value = go;
+  document.getElementById('output-mode').innerText = "Format Go Struct";
+  document.getElementById('status').innerText = "Go Generated";
+}
+
+function generatePythonClass() {
+  const obj = getParsedOrAlert();
+  if (!obj) return;
+  const sample = Array.isArray(obj) ? (obj[0] || {}) : obj;
+  let py = "from pydantic import BaseModel\nfrom typing import Any, List, Optional\n\nclass RootModel(BaseModel):\n";
+  for (const key in sample) {
+    const val = sample[key];
+    const type = typeof val === 'number' ? 'float' : typeof val === 'boolean' ? 'bool' : Array.isArray(val) ? 'List[Any]' : 'str';
+    py += `    ${key}: Optional[${type}] = None\n`;
+  }
+  document.getElementById('output-json').value = py;
+  document.getElementById('output-mode').innerText = "Format Python Pydantic Class";
+  document.getElementById('status').innerText = "Python Generated";
+}

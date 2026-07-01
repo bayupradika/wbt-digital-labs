@@ -40,6 +40,7 @@
           <button class="btn" style="padding:6px 12px; font-size:11px; background:#1e293b;" onclick="setQuery('SELECT * FROM sqlite_master WHERE type=\'table\';')">Daftar Semua Tabel</button>
           <button class="btn" style="padding:6px 12px; font-size:11px; background:#1e293b;" onclick="setQuery('SELECT sql FROM sqlite_master WHERE type=\'table\';')">Skema DDL Tabel</button>
           <button class="btn" style="padding:6px 12px; font-size:11px; background:#1e293b;" onclick="setQuery('SELECT count(*) as Total_Tables FROM sqlite_master WHERE type=\'table\';')">Hitung Jumlah Tabel</button>
+          <button class="btn" style="padding:6px 12px; font-size:11px; background:#a855f7; color:white;" onclick="auditIndexHealth()"><i class="fa-solid fa-heart-pulse"></i> Audit Index SQL</button>
         </div>
       </div>
 
@@ -48,6 +49,7 @@
         <button class="btn btn-primary" style="padding:12px 18px;" onclick="runQuery()"><i class="fa-solid fa-play"></i> Jalankan Query</button>
         <button class="btn" style="padding:12px 16px; background:#10b981;" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Ekspor CSV</button>
         <button class="btn" style="padding:12px 16px; background:#0284c7;" onclick="exportJSON()"><i class="fa-solid fa-code"></i> Ekspor JSON</button>
+        <button class="btn" style="padding:12px 16px; background:#f59e0b; color:#0f172a; font-weight:800;" onclick="exportSQLDump()"><i class="fa-solid fa-database"></i> Dump SQL</button>
       </div>
 
       <div style="overflow-x:auto; background:#111827; border-radius:14px; border:1px solid rgba(255,255,255,0.08); padding:12px;">

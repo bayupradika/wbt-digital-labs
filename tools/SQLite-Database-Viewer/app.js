@@ -119,3 +119,56 @@ function downloadSQLiteApp(platform) {
   document.body.removeChild(a);
   alert(`💻 Mengunduh Aplikasi Standalone SQLite Viewer untuk ${platform.toUpperCase()}!\n\nFile "${fname}" telah disimpan ke perangkat Anda.`);
 }
+
+function auditIndexHealth() {
+  if (!db) { alert('⚠️ Muat file database terlebih dahulu!'); return; }
+  try {
+    const res = db.exec("SELECT tbl_name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+    if (!res || res.length === 0) { alert('⚠️ Database kosong atau tidak memiliki tabel user.'); return; }
+    
+    let tables = res[0].values.map(r => r[0]);
+    let missingIdx = [];
+    tables.forEach(tbl => {
+      const idxRes = db.exec(`PRAGMA index_list("${tbl}");`);
+      if (!idxRes || idxRes.length === 0 || idxRes[0].values.length === 0) {
+        missingIdx.push(tbl);
+      }
+    });
+
+    let msg = `⚡ LAPORAN AUDIT PERFORMANSA & INDEX SQL\n`;
+    msg += `==========================================\n`;
+    msg += `Total Tabel Diperiksa: ${tables.length}\n`;
+    msg += `Tabel Tanpa Index Khusus: ${missingIdx.length}\n\n`;
+    if (missingIdx.length > 0) {
+      msg += `⚠️ Tabel berikut tidak memiliki Index (berpotensi lambat saat query besar):\n• ${missingIdx.join('\n• ')}\n\n💡 Saran: Tambahkan CREATE INDEX pada kolom yang sering dicari di WHERE.`;
+    } else {
+      msg += `🎉 EXCELLENT! Semua tabel memiliki struktur Index yang baik untuk performa cepat.`;
+    }
+    alert(msg);
+  } catch(e) {
+    alert('Gagal melakukan audit index: ' + e.message);
+  }
+}
+
+function exportSQLDump() {
+  if (!lastQueryResults || lastQueryResults.length === 0) { alert('⚠️ Jalankan query terlebih dahulu untuk mendump hasil ke SQL!'); return; }
+  const columns = lastQueryResults[0].columns;
+  const values = lastQueryResults[0].values;
+  
+  let sql = `-- WBT SQLite Dump Generator\n-- Exported on: ${new Date().toISOString()}\n\n`;
+  sql += `CREATE TABLE IF NOT EXISTS dump_table (${columns.map(c => `"${c}" TEXT`).join(', ')});\n\n`;
+  
+  values.forEach(row => {
+    const vals = row.map(v => v === null ? 'NULL' : `'${String(v).replace(/'/g, "''")}'`);
+    sql += `INSERT INTO dump_table (${columns.map(c => `"${c}"`).join(', ')}) VALUES (${vals.join(', ')});\n`;
+  });
+
+  const blob = new Blob([sql], { type: 'application/sql;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'WBT_Query_Dump.sql';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}

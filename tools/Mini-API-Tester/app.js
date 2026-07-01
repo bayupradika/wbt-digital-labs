@@ -122,6 +122,24 @@ function downloadAPITesterApp(platform) {
   a.download = fname;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
   alert(`💻 Mengunduh Aplikasi Standalone API Tester untuk ${platform.toUpperCase()}!\n\nFile "${fname}" telah disimpan ke perangkat Anda.`);
+}
+
+function importCurlCommand() {
+  const curl = prompt("Tempel perintah cURL dari Postman / Terminal di sini:", "curl -X POST https://jsonplaceholder.typicode.com/posts -H 'Content-Type: application/json' -d '{\"title\":\"foo\",\"body\":\"bar\"}'");
+  if (!curl) return;
+  
+  const methodMatch = curl.match(/-X\s+([A-Z]+)/i) || curl.match(/--request\s+([A-Z]+)/i);
+  if (methodMatch) document.getElementById('req-method').value = methodMatch[1].toUpperCase();
+  else if (curl.includes('-d ') || curl.includes('--data ')) document.getElementById('req-method').value = 'POST';
+  else document.getElementById('req-method').value = 'GET';
+
+  const urlMatch = curl.match(/https?:\/\/[^\s'"]+/);
+  if (urlMatch) document.getElementById('req-url').value = urlMatch[0];
+
+  const dataMatch = curl.match(/-d\s+['"]([^'"]+)['"]/i) || curl.match(/--data\s+['"]([^'"]+)['"]/i);
+  if (dataMatch) {
+    document.getElementById('req-body').value = dataMatch[1];
+  }
+  alert("✅ Perintah cURL berhasil diurai dan dimasukkan ke dalam form!");
 }

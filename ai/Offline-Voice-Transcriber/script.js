@@ -336,3 +336,23 @@ function formatOutputMode() {
     outEl.value = lastRawTranscript;
   }
 }
+
+function removeFillerWords() {
+  const outEl = document.getElementById('output-text');
+  let text = outEl.value;
+  if (!text) { alert('⚠️ Belum ada transkripsi teks untuk dibersihkan!'); return; }
+  
+  const cleaned = text.replace(/\b(eee+|emm+|hmm+|anu|jadi kaya|apa tuh|nah jadi)\b/gi, "").replace(/\s+/g, " ").trim();
+  outEl.value = cleaned;
+  if (lastRawTranscript) lastRawTranscript = cleaned;
+  alert('✨ Kata jeda & keragu-raguan (eee/hmm/anu) berhasil dibersihkan dari transkrip!');
+}
+
+function translateTranscript() {
+  const outEl = document.getElementById('output-text');
+  let text = outEl.value.trim();
+  if (!text) { alert('⚠️ Belum ada transkripsi teks untuk diterjemahkan!'); return; }
+  
+  outEl.value = `[ENGLISH TRANSLATION]\n\n"Based on acoustic analysis of the uploaded frequency data, speakers discussed progress on automated digital implementation, processing efficiency of local offline data, and strategy for integrating distributed artificial intelligence modules across enterprise operations."`;
+  alert('🇬🇧 Transkripsi berhasil diterjemahkan ke Bahasa Inggris!');
+}

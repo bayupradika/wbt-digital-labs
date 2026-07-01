@@ -83,6 +83,22 @@ async function checkGrammar() {
         .replace(/unutk menjadi seorang ilumawan sukses dimasa depan nya later/gi, "menjadi ilmuwan terkemuka.");
       suggestions.push('<b>Gaya Jurnalistik (Concise):</b> Menghilangkan kata-kata bersayap dan langsung fokus pada intisari berita.');
       suggestions.push('<b>Kalimat Aktif & Lugas:</b> "mempunyai cita-cita yang tinggi" diringkas menjadi <b>"memiliki ambisi besar"</b>.');
+    } else if (mode === 'marketing') {
+      corrected = `🔥 [SPECIAL OFFER] ${text}\n\n👉 Jangan lewatkan kesempatan emas ini! Klik link di bawah sekarang untuk mendapatkan diskon eksklusif dan penawaran terbatas sebelum kehabisan! 🚀✨`;
+      suggestions.push('<b>Persuasive Hook:</b> Ditambahkan panggilan bertindak (Call to Action) yang bertenaga untuk meningkatkan konversi pembeli.');
+      suggestions.push('<b>Emotional Trigger:</b> Penggunaan emoji & kalimat penawaran terbatas menciptakan urgensi (Fear of Missing Out).');
+    } else if (mode === 'cs') {
+      corrected = `Halo Kak, terima kasih banyak sudah menghubungi tim layanan pelanggan kami! 🙏😊\n\nTerkait informasi yang Kakak sampaikan:\n"${text}"\n\nKami sangat memahami perhatian Kakak dan tim kami sedang meninjau hal ini dengan saksama. Apakah ada hal lain yang bisa kami bantu? Kami siap melayani Kakak sepenuh hati! ✨`;
+      suggestions.push('<b>Nada Empati & Ramah:</b> Menggunakan sapaan akrab "Kak" serta ungkapan terima kasih untuk meredakan ketegangan pelanggan.');
+      suggestions.push('<b>Profesionalitas Service:</b> Menutup pesan dengan tawaran bantuan aktif.');
+    } else if (mode === 'legal') {
+      corrected = `BAHWA, pihak bersangkutan dengan ini menyatakan ketetapan formal atas pernyataan berikut:\n\n"${text}"\n\nSegala ketentuan, hak, dan kewajiban hukum yang timbul dari klausul di atas tunduk pada peraturan perundang-undangan yang berlaku dan mengikat kedua belah pihak secara sah.`;
+      suggestions.push('<b>Terminologi Hukum:</b> Penggunaan frasa baku "BAHWA", "klausul", dan "tunduk pada peraturan perundang-undangan".');
+      suggestions.push('<b>Ketegasan Kontraktual:</b> Mempertajam batas tanggung jawab hukum.');
+    } else if (mode === 'genz') {
+      corrected = `Jujurly ini relate banget sih gaes! 🔥 Skull emoji 💀\n\n"${text}"\n\nNo cap, ini tuh beneran bikin mindblowing & asik banget buat dibahas bareng bestie kalian. Gas langsung dicoba ygy! ✨😎`;
+      suggestions.push('<b>Slang Gen-Z:</b> Penggunaan kosakata tren pop-culture seperti "jujurly", "relate", "no cap", "ygy", dan "bestie".');
+      suggestions.push('<b>Casual Engagement:</b> Nada bicara super santai yang cocok untuk media sosial TikTok / Instagram Reels.');
     } else {
       // KBBI Formal
       corrected = text

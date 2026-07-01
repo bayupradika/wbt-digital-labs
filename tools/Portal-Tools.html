@@ -66,7 +66,7 @@
 </head>
 <body>
   <div class="sticky-nav">
-    <a href="#section-tools" class="nav-link tools"><i class="fa-solid fa-toolbox"></i> Tools (11)</a>
+    <a href="#section-tools" class="nav-link tools"><i class="fa-solid fa-toolbox"></i> Tools (14)</a>
     <a href="#section-ai" class="nav-link ai"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Suite (10)</a>
     <a href="#section-games" class="nav-link games"><i class="fa-solid fa-gamepad"></i> Games (10)</a>
   </div>
@@ -76,14 +76,18 @@
       <div style="font-size:13px; font-weight:800; color:#38bdf8; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px;"><i class="fa-solid fa-building-shield"></i> OFFICIAL PORTAL OF WBT CORP</div>
       <h1>⚡ WBT DIGITAL LABS</h1>
       <p class="subtitle">Pusat ekosistem inovasi produk digital terpadu karya <b>WBT Technologies</b>. Menghadirkan solusi teknologi mutakhir yang dipisahkan dalam 3 divisi utama: Utilities Tools, Smart AI Suite, dan Arcade Games.</p>
+      
+      <div style="margin: 30px auto 0; max-width: 600px; position: relative;">
+        <input type="text" id="portal-search" placeholder="🔍 Cari fitur / alat (e.g. 'qr', 'pdf', 'audio', 'compress', 'hash')..." style="width:100%; padding: 16px 24px; border-radius: 99px; background: #1e293b; border: 2px solid rgba(56,189,248,0.4); color: white; font-size: 15px; font-weight: 600; outline: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" oninput="filterPortalCards()">
+      </div>
     </header>
 
     <!-- SECTION 1: TOOLS -->
     <div id="section-tools" class="section-banner">
       <div class="section-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white;"><i class="fa-solid fa-toolbox"></i></div>
       <div>
-        <div class="section-title">BAGIAN 1: UTILITIES & TOOLS OFFLINE</div>
-        <div class="section-desc">Koleksi 11 aplikasi produktivitas ringan, super cepat, dan bekerja 100% offline tanpa batas di browser.</div>
+        <div class="section-title">BAGIAN 1: UTILITIES & TOOLS OFFLINE (14 TOOLS)</div>
+        <div class="section-desc">Koleksi 14 aplikasi produktivitas ringan, super cepat, dan bekerja 100% offline tanpa batas di browser.</div>
       </div>
     </div>
 
@@ -151,6 +155,36 @@
           <div class="desc">Pantau dan catat aktivitas produktivitas harian Anda dengan grafik statistik visual yang menarik.</div>
         </div>
         <div class="play-btn">Buka Aplikasi <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="QR-Barcode-Studio/index.html" target="_blank" class="card theme-tools" style="border: 1px solid rgba(16,185,129,0.4);">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #10b981, #06b6d4);"><i class="fa-solid fa-qrcode"></i></div>
+          <div class="badge badge-tools" style="background:#10b981; color:#0f172a; font-weight:800;">NEW STUDIO</div>
+          <div class="title" style="color:#34d399;">QR Code & Barcode Studio Pro</div>
+          <div class="desc">Racik QR Code kustom (Wi-Fi Auto Connect, vCard, URL) dengan logo di tengah atau scan barcode 100% lokal.</div>
+        </div>
+        <div class="play-btn" style="color:#34d399;">Buka Studio QR <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="Dev-Crypto-Studio/index.html" target="_blank" class="card theme-tools" style="border: 1px solid rgba(139,92,246,0.4);">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6);"><i class="fa-solid fa-code-compare"></i></div>
+          <div class="badge badge-tools" style="background:#8b5cf6; color:#ffffff; font-weight:800;">DEVTOYS PRO</div>
+          <div class="title" style="color:#a855f7;">Developer Swiss Army Knife</div>
+          <div class="desc">Text Diff Checker, Crypto Hash Studio (MD5/SHA-256/SHA-512), JWT Decoder offline, & Regex Live Tester.</div>
+        </div>
+        <div class="play-btn" style="color:#a855f7;">Buka DevToys Pro <i class="fa-solid fa-arrow-right"></i></div>
+      </a>
+
+      <a href="Audio-Studio-Lite/index.html" target="_blank" class="card theme-tools" style="border: 1px solid rgba(236,72,153,0.4);">
+        <div class="card-top">
+          <div class="icon-box" style="background: linear-gradient(135deg, #ec4899, #f59e0b);"><i class="fa-solid fa-waveform-lines"></i></div>
+          <div class="badge badge-tools" style="background:#ec4899; color:#ffffff; font-weight:800;">AUDIO PRO</div>
+          <div class="title" style="color:#f472b6;">Offline Audio Trimmer Pro</div>
+          <div class="desc">Potong rekaman suara (*Trim / Cut*), volume booster, & ekspor ke WAV offline langsung di browser.</div>
+        </div>
+        <div class="play-btn" style="color:#f472b6;">Buka Audio Studio <i class="fa-solid fa-arrow-right"></i></div>
       </a>
     </div>
 
@@ -382,5 +416,20 @@
       <p style="font-size:12px; margin-top:6px; color:#475569;">Empowering Next-Gen Productivity, Artificial Intelligence & Interactive Entertainment.</p>
     </footer>
   </div>
+
+  <script>
+    function filterPortalCards() {
+      const q = (document.getElementById('portal-search').value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('.grid .card');
+      cards.forEach(c => {
+        const text = c.innerText.toLowerCase();
+        if (!q || text.includes(q)) {
+          c.style.display = 'flex';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+    }
+  </script>
 </body>
 </html>
