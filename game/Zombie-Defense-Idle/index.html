@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Zombie Defense Idle - Strategy Offline</title>
+  <title>Zombie Defense Idle Pro - Strategy Offline</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="manifest" href="manifest.json">
@@ -10,7 +10,7 @@
 <body>
   <div class="app-wrapper">
     <div class="header">
-      <div class="logo">ZOMBIE <span style="color: #fbbf24;">DEFENSE</span></div>
+      <div class="logo">ZOMBIE <span style="color: #fbbf24;">DEFENSE PRO</span></div>
       <div style="display: flex; gap: 10px;">
         <div class="pill" style="color: #fbbf24;" onclick="openTopup()"><i class="fa-solid fa-coins"></i> <span id="gold-display">0</span></div>
         <div class="pill" style="color: #38bdf8;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> <span id="gem-display">0</span> <i class="fa-solid fa-plus-circle"></i></div>
@@ -18,39 +18,63 @@
     </div>
 
     <div class="stats-box">
-      <div><div style="font-size:12px;color:#94a3b8;">🛡️ DINDING BUNKER</div><div class="stat-val" style="color:#ef4444;" id="hp-display">100 / 100</div></div>
+      <div><div style="font-size:11px;color:#94a3b8;">🛡️ DINDING BUNKER</div><div class="stat-val" style="color:#ef4444;" id="hp-display">100 / 100</div></div>
       <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
-      <div><div style="font-size:12px;color:#94a3b8;">🧟 GELOMBANG</div><div class="stat-val" style="color:#fbbf24;" id="wave-display">Wave 1</div></div>
+      <div><div style="font-size:11px;color:#94a3b8;">🧟 GELOMBANG</div><div class="stat-val" style="color:#fbbf24;" id="wave-display">Wave 1</div></div>
+      <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
+      <div><div style="font-size:11px;color:#94a3b8;">🎯 SENJATA AKTIF</div><div class="stat-val" style="color:#38bdf8; font-size:16px;" id="weapon-display">🔫 Gatling</div></div>
     </div>
 
     <div class="hint-bar" id="hint-text">💥 Klik/Sentuh zombie untuk menembak atau biarkan meriam otomatis bekerja!</div>
 
     <canvas id="gameCanvas" width="480" height="350"></canvas>
 
+    <div class="weapon-tabs">
+      <div class="weapon-tab active" id="tab-gatling" onclick="selectWeapon('gatling')">
+        <i class="fa-solid fa-gun" style="font-size:16px; color:#fbbf24;"></i>
+        <span>🔫 Gatling</span>
+      </div>
+      <div class="weapon-tab" id="tab-plasma" onclick="selectWeapon('plasma')">
+        <i class="fa-solid fa-bolt" style="font-size:16px; color:#38bdf8;"></i>
+        <span>⚡ Plasma Laser</span>
+      </div>
+      <div class="weapon-tab" id="tab-mortar" onclick="selectWeapon('mortar')">
+        <i class="fa-solid fa-rocket" style="font-size:16px; color:#ef4444;"></i>
+        <span>🚀 Mortar Roket</span>
+      </div>
+    </div>
+
     <div class="upgrades">
       <button class="upg-btn" onclick="upgradeTurret()">
-        <i class="fa-solid fa-gun" style="color:#fbbf24; font-size:24px;"></i>
-        Upgrade Kekuatan Meriam
+        <i class="fa-solid fa-gears" style="color:#fbbf24; font-size:22px;"></i>
+        <span id="upg-title">Upgrade Gatling</span>
         <span id="turret-cost" style="color:#fbbf24; font-size:12px;">50 🪙</span>
       </button>
-      <button class="upg-btn" onclick="useAirstrike()">
-        <i class="fa-solid fa-jet-fighter" style="color:#ef4444; font-size:24px;"></i>
-        Serangan Udara Bom Semua
-        <span style="color:#38bdf8; font-size:12px;">10 💎</span>
+      <button class="upg-btn" onclick="repairBunker()">
+        <i class="fa-solid fa-shield-halved" style="color:#10b981; font-size:22px;"></i>
+        <span>Perbaiki & Perkuat Dinding (+30 HP)</span>
+        <span id="repair-cost" style="color:#10b981; font-size:12px;">40 🪙</span>
+      </button>
+      <button class="upg-btn" style="grid-column: span 2; flex-direction:row; justify-content:center;" onclick="useAirstrike()">
+        <i class="fa-solid fa-jet-fighter" style="color:#ef4444; font-size:22px;"></i>
+        <span>✈️ Panggil Serangan Udara Bom Napalm Semua Zombie</span>
+        <span style="color:#38bdf8; font-size:12px; margin-left:auto;">10 💎</span>
       </button>
     </div>
 
     <div class="overlay" id="start-screen">
-      <div style="font-size: 70px; margin-bottom: 10px;">🧟</div>
-      <h1>ZOMBIE <span style="color: #fbbf24;">DEFENSE</span></h1>
-      <p style="color: #fca5a5; font-size: 15px; line-height: 1.6;">Pertahankan benteng terakhir manusia dari serangan gerombolan zombie.<br>Upgrade meriam otomatis & gunakan bom udara!</p>
+      <div style="width: 100%; max-width: 340px; height: 150px; border-radius: 18px; overflow: hidden; margin-bottom: 12px; border: 2px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.8); background: #0f0a0a;">
+        <img src="hero.png" alt="Zombie Defense Hero Banner" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <h1>ZOMBIE <span style="color: #fbbf24;">DEFENSE PRO</span></h1>
+      <p style="color: #fca5a5; font-size: 13px; line-height: 1.5; margin-bottom: 6px;">Pertahankan benteng baja terakhir manusia dari 4 kelas zombie mutasi!<br>Pilih senjata Gatling, Plasma Laser, atau Mortar Roket!</p>
       <button class="btn" onclick="startGame()"><i class="fa-solid fa-play"></i> PERTAHANKAN BUNKER</button>
-      <button class="btn" style="background: #261c1c; color: #fbbf24; border: 2px solid #fbbf24; margin-top: 15px; box-shadow: none;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
+      <button class="btn" style="background: #261c1c; color: #fbbf24; border: 2px solid #fbbf24; margin-top: 12px; box-shadow: none;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>
 
     <div class="overlay hidden" id="gameover-screen">
       <h1 style="color: #ef4444;">JEBOL!</h1>
-      <p style="color: #94a3b8; margin: 10px 0;">Bunker berhasil dihancurkan gerombolan zombie!</p>
+      <p style="color: #94a3b8; margin: 10px 0;">Benteng baja berhasil dihancurkan gerombolan zombie!</p>
       <div style="font-size: 18px; margin: 15px 0;">Bertahan Hingga: <b id="final-wave" style="color: white; font-size: 36px; display: block;">Wave 1</b></div>
       <button class="btn" onclick="startGame()"><i class="fa-solid fa-rotate-right"></i> BERTEMPUR LAGI</button>
       <button class="btn" style="background: #261c1c; color: #fbbf24; border: 2px solid #fbbf24; margin-top: 15px; box-shadow: none;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
