@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail & Spesifikasi Game - WBT Arcade Center</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body {
+      background: #070913; color: #f8fafc; min-height: 100vh; padding-bottom: 80px;
+      background-image: radial-gradient(circle at 50% 0%, rgba(245,158,11,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 60%, rgba(236,72,153,0.1) 0%, transparent 40%);
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 30px 24px; }
+    
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 10px; color: #94a3b8; text-decoration: none; font-weight: 700; font-size: 15px; margin-bottom: 30px; transition: 0.2s;
+      background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.1);
+    }
+    .back-btn:hover { color: white; background: rgba(255,255,255,0.1); transform: translateX(-4px); }
+
+    /* Hero Banner */
+    .hero-box {
+      background: #111827; border: 1px solid rgba(245,158,11,0.3); border-radius: 30px; padding: 40px;
+      display: flex; flex-wrap: wrap; gap: 30px; align-items: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); position: relative; overflow: hidden;
+    }
+    .hero-icon { width: 130px; height: 130px; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 64px; flex-shrink: 0; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+    .hero-content { flex: 1; min-width: 280px; }
+    .badge { font-size: 12px; font-weight: 800; padding: 6px 16px; border-radius: 99px; display: inline-block; margin-bottom: 15px; text-transform: uppercase; background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); }
+    h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; margin-bottom: 12px; color: white; line-height: 1.2; }
+    .short-desc { color: #cbd5e1; font-size: 16px; line-height: 1.6; margin-bottom: 20px; }
+    .meta-tags { display: flex; flex-wrap: wrap; gap: 20px; color: #94a3b8; font-size: 14px; font-weight: 600; }
+    .meta-tags span { display: flex; align-items: center; gap: 6px; }
+
+    /* Action Bar */
+    .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 30px 0 50px; }
+    .btn-play {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0f172a; font-weight: 900; font-size: 18px; padding: 18px 24px; border-radius: 20px; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 15px 30px -5px rgba(245,158,11,0.5); transition: 0.2s;
+    }
+    .btn-play:hover { transform: translateY(-3px); box-shadow: 0 20px 35px -5px rgba(245,158,11,0.7); }
+
+    .btn-download {
+      background: #1e293b; color: white; font-weight: 800; font-size: 15px; padding: 18px 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; cursor: pointer;
+    }
+    .btn-download:hover { background: #334155; border-color: #38bdf8; color: #38bdf8; transform: translateY(-2px); }
+
+    /* Content Layout */
+    .content-grid { display: grid; grid-template-columns: 2fr 1.3fr; gap: 30px; }
+    @media (max-width: 850px) { .content-grid { grid-template-columns: 1fr; } }
+
+    .box { background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 30px; margin-bottom: 30px; }
+    .box-title { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; margin-bottom: 20px; color: #38bdf8; display: flex; align-items: center; gap: 10px; }
+    
+    p.long-desc { color: #cbd5e1; font-size: 15px; line-height: 1.8; margin-bottom: 20px; }
+    ul.feature-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    ul.feature-list li { display: flex; align-items: flex-start; gap: 12px; color: #cbd5e1; font-size: 15px; line-height: 1.6; }
+    ul.feature-list li i { color: #10b981; font-size: 18px; margin-top: 2px; }
+
+    /* Specs Table */
+    .spec-table { width: 100%; border-collapse: collapse; }
+    .spec-table tr { border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .spec-table tr:last-child { border-bottom: none; }
+    .spec-table td { padding: 14px 0; font-size: 14px; }
+    .spec-table td:first-child { color: #94a3b8; font-weight: 600; width: 45%; }
+    .spec-table td:last-child { color: white; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html#section-games" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Kembali ke Arcade Center</a>
+
+    <div id="game-render">
+      <!-- Dynamic Content Loaded via JS -->
+      <div style="text-align:center; padding:100px 0; color:#94a3b8;">
+        <i class="fa-solid fa-spinner fa-spin fa-3x"></i>
+        <p style="margin-top:20px;">Memuat informasi dan spesifikasi game...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GAMES_DB = {
+      'Cube-Escape-Dash': {
+        title: 'Cube Escape Dash',
+        icon: '🧊',
+        iconBg: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+        genre: 'Arcade Runner',
+        rating: '4.9 / 5.0',
+        version: 'v2.4 (Pro Edition)',
+        shortDesc: 'Game lompat rintangan neon seru dengan mekanisme gravitasi cepat, koleksi skin kubus epik, dan topup permata lokal.',
+        story: 'Dalam dunia siber kubik neon yang terus runtuh, Anda mengendalikan satu-satunya Kubus Cahaya yang tersisa. Lompat melewati duri laser, hindari balok plasma berjatuhan, dan raih rekor skor tertinggi untuk membuka puluhan skin kubus langka di toko.',
+        features: [
+          'Mekanisme kendali lompatan 1 tombol super responsif (60 FPS stabil).',
+          'Toko Skin Kubus lengkap dengan mata uang Gems & sistem topup QRIS cepat.',
+          'Efek partikel neon cerah dan musik latar electro arcade mendebarkan.',
+          'Dapat dimainkan 100% Offline tanpa koneksi internet setelah diunduh.'
+        ],
+        path: 'game/Cube-Escape-Dash/index.html'
+      },
+      'Color-Block-Master': {
+        title: 'Color Block Master',
+        icon: '🧩',
+        iconBg: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+        genre: 'Puzzle Tetris',
+        rating: '4.8 / 5.0',
+        version: 'v1.8',
+        shortDesc: 'Asah otak Anda dengan menyusun balok warna-warni di papan grid 8x8. Gunakan power-up Palu dan Bom Sapujagat!',
+        story: 'Game puzzle santai namun menantang yang dirancang untuk melatih logika spasial Anda. Susun balok geometri dari berbagai bentuk untuk menghabiskan baris atau kolom secara penuh. Dapatkan kombo beruntun untuk memicu efek ledakan warna gembira!',
+        features: [
+          'Papan grid 8x8 presisi tinggi dengan animasi pembersihan garis super halus.',
+          'Power-up eksklusif: Palu Penghancur Balok dan Bom Sapujagat.',
+          'Penyimpanan rekor High Score otomatis di memori peramban Anda.',
+          'Sangat ringan dan hemat baterai saat dimainkan di ponsel Android/iOS.'
+        ],
+        path: 'game/Color-Block-Master/index.html'
+      },
+      'Merge-Kingdom': {
+        title: 'Merge Kingdom',
+        icon: '🏰',
+        iconBg: 'linear-gradient(135deg, #10b981, #34d399)',
+        genre: 'Idle Merge RPG',
+        rating: '4.9 / 5.0',
+        version: 'v3.1',
+        shortDesc: 'Gabungan bangunan dan ksatria identik untuk membangun kerajaan mega penghasil emas otomatis tiada henti.',
+        story: 'Mulai dari pondok kayu sederhana, gabungkan dua bangunan sejenis untuk berevolusi menjadi menara batu, kastil megah, hingga benteng terapung legenda! Rekrut ksatria pelindung untuk mengumpulkan pajak koin emas bahkan saat Anda offline.',
+        features: [
+          'Sistem evolusi Merge 30+ tingkat bangunan dari zaman batu hingga abad pertengahan sakti.',
+          'Penghasilan Emas Otomatis (Idle Gold Generation) 24 jam non-stop.',
+          'Toko peningkatan kecepatan konstruksi dan berkah koin emas berganda.',
+          'Desain visual kartun fantasi yang cerah dan memanjakan mata.'
+        ],
+        path: 'game/Merge-Kingdom/index.html'
+      },
+      'Mini-Farming-Life': {
+        title: 'Mini Farming Life',
+        icon: '🧑‍🌾',
+        iconBg: 'linear-gradient(135deg, #22c55e, #4ade80)',
+        genre: 'Farming Simulation',
+        rating: '4.9 / 5.0',
+        version: 'v2.0',
+        shortDesc: 'Simulasi ladang pertanian santai. Tanam gandum, jagung, stroberi, dan gunakan pupuk ajaib untuk panen melimpah!',
+        story: 'Warisi sebidang tanah pertanian subur dan ubah menjadi kebun impian Anda. Pacul tanah, taburkan benih berkualitas, siram tepat waktu, dan panen tanaman organik segar untuk dijual ke pasar kota demi memperluas area lahan pertanian Anda.',
+        features: [
+          'Siklus pertumbuhan tanaman riil dengan kebutuhan penyiraman air.',
+          'Berbagai jenis benih dari sayuran harian hingga buah-buahan eksotis langka.',
+          'Pupuk Ajaib instan untuk mempercepat waktu panen berlipat ganda.',
+          'Suasana desa yang damai dan menenangkan pikiran.'
+        ],
+        path: 'game/Mini-Farming-Life/index.html'
+      },
+      'Neon-Drift-Racer': {
+        title: 'Neon Drift Racer',
+        icon: '🏎️',
+        iconBg: 'linear-gradient(135deg, #ec4899, #f472b6)',
+        genre: 'Cyberpunk Racing',
+        rating: '4.8 / 5.0',
+        version: 'v1.9',
+        shortDesc: 'Balapan drift mobil cyber berkecepatan tinggi melintasi jalan raya retro futuristik penuh rintangan neon.',
+        story: 'Masuki tahun 2088 di mana balapan jalan raya siber menjadi penentu kejayaan. Kemudikan supercar bermesin nitro melintasi lalu lintas malam hari, kumpulkan kapsul energi, dan hindari tabrakan berkecepatan tinggi.',
+        features: [
+          'Kontrol kemudi miring/geser super presisi dengan sensasi kecepatan ekstrem.',
+          'Sistem dorongan Turbo Nitro untuk menyalip kendaraan lawan seketika.',
+          'Grafis estetika Synthwave tahun 80-an dengan efek cahaya neon memukau.',
+          'Koleksi mobil sport futuristik yang dapat di-upgrade mesinnya.'
+        ],
+        path: 'game/Neon-Drift-Racer/index.html'
+      },
+      'Pixel-Dungeon-Quest': {
+        title: 'Pixel Dungeon Quest',
+        icon: '🛡️',
+        iconBg: 'linear-gradient(135deg, #a855f7, #c084fc)',
+        genre: 'Roguelike RPG',
+        rating: '4.9 / 5.0',
+        version: 'v2.5',
+        shortDesc: 'Jelajahi labirin gelap penjara bawah tanah, kalahkan monster slime beracun, dan kumpulkan pedang legenda!',
+        story: 'Sebagai seorang pahlawan ksatria berpiksel, Anda terjun ke kedalaman Dungeon Labirin Kegelapan untuk mencari Mahkota Raja yang hilang. Tiap lantai menyimpan teka-teki ubin rahasia, jebakan duri, dan raja monster penjaga.',
+        features: [
+          'Eksplorasi ubin labirin bergaya retro pixel-art RPG klasik 16-bit.',
+          'Pertarungan taktis melawan slime, kelelawar gua, dan naga mini.',
+          'Peti harta karun rahasia berisi ramuan penyembuh dan pedang api.',
+          'Penyimpanan progress petualangan secara otomatis di peramban.'
+        ],
+        path: 'game/Pixel-Dungeon-Quest/index.html'
+      },
+      'Shadow-Ninja-Jump': {
+        title: 'Shadow Ninja Jump',
+        icon: '🥷',
+        iconBg: 'linear-gradient(135deg, #6366f1, #818cf8)',
+        genre: 'Vertical Platformer',
+        rating: '4.8 / 5.0',
+        version: 'v1.7',
+        shortDesc: 'Lompat vertikal menembus puncak menara ninja bayangan. Hindari shuriken beterbangan dan raih rekor tertinggi.',
+        story: 'Dalam latihan ujian akhir Klan Ninja Bayangan, Anda harus memanjat Menara Langit Tanpa Ujung dengan melompat dari dinding ke dinding sambil menghindari serangan shuriken besi yang diluncurkan dari segala arah.',
+        features: [
+          'Mekanisme Wall-Jump vertikal cepat yang membutuhkan ketepatan reaksi.',
+          'Koleksi gulungan rahasia ninja untuk meningkatkan skor kelipatan.',
+          'Kendali sentuh atau mouse 1 klik yang sangat mudah dipelajari.',
+          'Tantangan refleks tanpa batas dengan tempo permainan yang semakin cepat.'
+        ],
+        path: 'game/Shadow-Ninja-Jump/index.html'
+      },
+      'Space-Survivor-Roguelike': {
+        title: 'Space Survivor',
+        icon: '🛸',
+        iconBg: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
+        genre: 'Action Shooter',
+        rating: '5.0 / 5.0',
+        version: 'v3.0 (Ultimate)',
+        shortDesc: 'Kemudikan pesawat tempur menembak laser otomatis menghancurkan gelombang asteroid & armada alien penyerbu.',
+        story: 'Pesawat eksplorasi Anda terjebak di tengah sabuk asteroid raksasa yang dijaga oleh armada robot alien musuh. Bertahanlah selama mungkin dengan menembakkan meriam plasma otomatis dan memungut kristal perisai energi.',
+        features: [
+          'Penembakan meriam laser otomatis bergaya Bullet-Hell berkecepatan 60 FPS.',
+          'Peningkatan senjata ganda, perisai energi, dan bom plasma pemusnah massal.',
+          'Gelombang serangan musuh dinamis yang menantang adrenalin.',
+          'Sangat lancar dimainkan di PC maupun perangkat smartphone Android.'
+        ],
+        path: 'game/Space-Survivor-Roguelike/index.html'
+      },
+      'Tower-Builder-3D': {
+        title: 'Tower Builder 3D',
+        icon: '🏢',
+        iconBg: 'linear-gradient(135deg, #0284c7, #38bdf8)',
+        genre: 'Precision Stacking',
+        rating: '4.8 / 5.0',
+        version: 'v1.6',
+        shortDesc: 'Jatuhkan balok konstruksi bergerak dengan ketepatan presisi sempurna untuk mendirikan menara pencakar langit tertinggi!',
+        story: 'Uji keseimbangan dan ketepatan ritme jari Anda dalam membangun gedung pencakar langit menembus awan. Setiap kesalahan penempatan akan memotong ukuran balok berikutnya hingga menara semakin menantang untuk dibangun.',
+        features: [
+          'Grafis 3D isometrik bersih dengan fisika penempatan balok akurat.',
+          'Efek suara kombo yang memuaskan untuk penempatan sempurna (Perfect Stack).',
+          'Latar belakang langit yang berubah dari pagi, senja, hingga malam berbintang.',
+          'Permainan adiktif untuk mengisi waktu luang di segala suasana.'
+        ],
+        path: 'game/Tower-Builder-3D/index.html'
+      },
+      'Zombie-Defense-Idle': {
+        title: 'Zombie Defense Idle',
+        icon: '🧟',
+        iconBg: 'linear-gradient(135deg, #ef4444, #f87171)',
+        genre: 'Tower Defense',
+        rating: '4.9 / 5.0',
+        version: 'v2.8',
+        shortDesc: 'Pertahankan bunker terakhir umat manusia. Upgrade meriam otomatis mesiu peledak & jatuhkan serangan udara!',
+        story: 'Gerombolan zombie infeksi mutan menyerbu gerbang bunker pertahanan terakhir bumi. Pasang meriam otomatis, upgrade kaliber peluru, dan panggil serangan udara pembom untuk membasmi ribuan zombie yang mendekat.',
+        features: [
+          'Pertahanan benteng otomatis dengan dzikir peluru tanpa henti.',
+          'Pohon peningkatan (Upgrade Tree) untuk meriam ganda, laser plasma, & ranjau.',
+          'Tombol Serangan Udara (Airstrike) untuk menghancurkan gelombang bos zombie.',
+          'Sistem perolehan koin offline saat Anda meninggalkan permainan.'
+        ],
+        path: 'game/Zombie-Defense-Idle/index.html'
+      }
+    };
+
+    function downloadGameStandalone(platform) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gameId = urlParams.get('id') || 'Cube-Escape-Dash';
+      const game = GAMES_DB[gameId];
+      alert(`💻 Menyiapkan paket unduhan ${game.title} untuk ${platform.toUpperCase()}...\r\n\r\nPaket game standalone ini bersifat portable 100% offline. Anda dapat langsung memainkannya tanpa instalasi rumit!`);
+      window.open(game.path, '_blank');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const gameId = urlParams.get('id') || 'Cube-Escape-Dash';
+      const game = GAMES_DB[gameId] || GAMES_DB['Cube-Escape-Dash'];
+
+      document.title = `${game.title} - WBT Arcade Center`;
+
+      const featureHtml = game.features.map(f => `<li><i class="fa-solid fa-check"></i> <span>${f}</span></li>`).join('');
+
+      document.getElementById('game-render').innerHTML = `
+        <div class="hero-box">
+          <div class="hero-icon" style="background: ${game.iconBg}">${game.icon}</div>
+          <div class="hero-content">
+            <div class="badge"><i class="fa-solid fa-gamepad"></i> ${game.genre}</div>
+            <h1>${game.title}</h1>
+            <p class="short-desc">${game.shortDesc}</p>
+            <div class="meta-tags">
+              <span><i class="fa-solid fa-star" style="color:#fbbf24;"></i> Rating: <b>${game.rating}</b></span>
+              <span><i class="fa-solid fa-code-commit" style="color:#38bdf8;"></i> Versi: <b>${game.version}</b></span>
+              <span><i class="fa-solid fa-bolt" style="color:#10b981;"></i> Status: <b>100% Offline Compatible</b></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-grid">
+          <a href="${game.path}" class="btn-play">
+            <i class="fa-solid fa-play"></i> MAINKAN DI BROWSER SEKARANG
+          </a>
+          <div onclick="downloadGameStandalone('Windows (.EXE)')" class="btn-download">
+            <i class="fa-brands fa-windows"></i> Download Standalone Windows
+          </div>
+          <div onclick="downloadGameStandalone('Android (.APK)')" class="btn-download">
+            <i class="fa-brands fa-android"></i> Download untuk Android
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <div>
+            <div class="box">
+              <div class="box-title"><i class="fa-solid fa-book-open"></i> Sinopsis & Alur Permainan</div>
+              <p class="long-desc">${game.story}</p>
+              <div class="box-title" style="margin-top:30px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Fitur Unggulan Game</div>
+              <ul class="feature-list">
+                ${featureHtml}
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <div class="box">
+              <div class="box-title"><i class="fa-solid fa-microchip"></i> Spesifikasi Sistem</div>
+              <table class="spec-table">
+                <tr><td>Sistem Operasi</td><td>Windows 10/11 / Android 8.0+</td></tr>
+                <tr><td>Platform Web</td><td>Chrome, Edge, Safari (HTML5)</td></tr>
+                <tr><td>Prosesor Min.</td><td>Intel Core i3 / Snapdragon 660</td></tr>
+                <tr><td>RAM Minimum</td><td>2 GB RAM (Super Ringan)</td></tr>
+                <tr><td>Penyimpanan</td><td>15 MB Ruang Tersedia</td></tr>
+                <tr><td>Koneksi Internet</td><td>Tidak Wajib (Offline Mode)</td></tr>
+                <tr><td>Lisensi Game</td><td>Gratis / Topup Gems Opsional</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>
