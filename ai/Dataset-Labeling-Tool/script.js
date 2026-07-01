@@ -1119,12 +1119,23 @@ async function downloadAppSimulator(platform) {
     upgradeProUnlimited();
     return;
   }
+
+  if (platform === 'windows') {
+    const exeUrl = 'CitraLabeling_Studio_Pro_Setup.exe';
+    const a = document.createElement('a');
+    a.href = exeUrl;
+    a.download = 'CitraLabeling_Studio_Pro_Setup.exe';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    alert('✅ File Installer Resmi Windows (.EXE) berhasil diunduh! Klik 2x pada file CitraLabeling_Studio_Pro_Setup.exe untuk memasang aplikasi ke komputer beserta pintasan Desktop.');
+    return;
+  }
+
   if (!window.JSZip) { alert('⚠️ Pustaka JSZip belum termuat sempurna.'); return; }
 
   const zip = new JSZip();
-  const isWin = platform === 'windows';
 
-  // Fetch external dependencies to embed inside the standalone package
   let cssText = "";
   let jsText = "";
   let midtransText = "";
@@ -1151,20 +1162,6 @@ async function downloadAppSimulator(platform) {
 
   const offlineJsText = "window.IS_OFFLINE_STANDALONE = true;\n" + jsText;
 
-  // 1. Create bin/ folder with modular standalone assets
-  const binFolder = zip.folder("bin");
-  if (cssText) binFolder.file("style.css", cssText);
-  if (midtransText) binFolder.file("midtrans-pay.js", midtransText);
-  if (offlineJsText) binFolder.file("script.js", offlineJsText);
-
-  let modularHtml = document.documentElement.outerHTML
-    .replace(/href="style\.css(\?v=[^"]+)?"/g, 'href="style.css"')
-    .replace(/src="\.\.\/midtrans-pay\.js(\?v=[^"]+)?"/g, 'src="midtrans-pay.js"')
-    .replace(/src="script\.js(\?v=[^"]+)?"/g, 'src="script.js"')
-    .replace('IS_OFFLINE_STANDALONE = false', 'IS_OFFLINE_STANDALONE = true');
-  binFolder.file("index.html", `<!DOCTYPE html>\n<html lang="id">\n` + modularHtml);
-
-  // 2. Construct 100% Self-Contained Portable HTML (All CSS & JS Inlined)
   let portableHtml = document.documentElement.outerHTML
     .replace(/<link[^>]+style\.css[^>]*>/i, cssText ? `<style>\n${cssText}\n</style>` : '')
     .replace(/<script[^>]+midtrans-pay\.js[^>]*><\/script>/i, midtransText ? `<script>\n${midtransText}\n</script>` : '')
@@ -1172,24 +1169,18 @@ async function downloadAppSimulator(platform) {
     .replace('IS_OFFLINE_STANDALONE = false', 'IS_OFFLINE_STANDALONE = true');
   zip.file('CitraLabeling_Studio_Pro_Portable.html', `<!DOCTYPE html>\n<html lang="id">\n` + portableHtml);
 
-  if (isWin) {
-    const setupBat = `@echo off\r\ntitle CitraLabeling Studio Pro - Setup Installer\r\ncls\r\necho ==========================================================\r\necho    CITRALABELING STUDIO PRO (WINDOWS INSTALLER WIZARD)\r\necho ==========================================================\r\necho.\r\necho Menyiapkan instalasi aplikasi ke direktori PC Anda...\r\nset "APPDIR=%USERPROFILE%\\CitraLabeling Studio Pro"\r\nif not exist "%APPDIR%" mkdir "%APPDIR%"\r\n\r\necho Menyalin berkas aplikasi dan gaya tampilan...\r\nxcopy /Y /I /E "%~dp0bin\\*" "%APPDIR%\\" >nul\r\n\r\necho Membuat Shortcut Desktop dan Start Menu Windows...\r\npowershell -NoProfile -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%USERPROFILE%\\Desktop\\CitraLabeling Studio Pro.lnk'); $s.TargetPath = 'msedge.exe'; $s.Arguments = '--app=\"%APPDIR%\\index.html\"'; $s.WorkingDirectory = '%APPDIR%'; $s.Description = 'CitraLabeling Studio Pro'; $s.Save();" 2>nul\r\npowershell -NoProfile -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\CitraLabeling Studio Pro.lnk'); $s.TargetPath = 'msedge.exe'; $s.Arguments = '--app=\"%APPDIR%\\index.html\"'; $s.WorkingDirectory = '%APPDIR%'; $s.Description = 'CitraLabeling Studio Pro'; $s.Save();" 2>nul\r\n\r\necho.\r\necho ==========================================================\r\necho  INSTALASI BERHASIL! Shortcut telah dibuat di Desktop Anda.\r\necho ==========================================================\r\necho Membuka CitraLabeling Studio Pro...\r\nstart msedge --app="%APPDIR%\\index.html" 2>nul || start chrome --app="%APPDIR%\\index.html" 2>nul || start "" "%APPDIR%\\index.html"\r\nexit\r\n`;
-    zip.file('Install_CitraLabeling_Studio_Pro.bat', setupBat);
-  }
-
-  const readme = `=== PANDUAN INSTALASI & PENGGUNAAN CITRALABELING STUDIO PRO (${platform.toUpperCase()}) ===\r\n\r\n${isWin ? 'CARA INSTALASI WINDOWS (REKOMENDASI):\r\n1. Ekstrak file ZIP ini ke folder komputer Anda.\r\n2. Klik dua kali pada file "Install_CitraLabeling_Studio_Pro.bat".\r\n3. Installer otomatis menginstal aplikasi lengkap (beserta CSS dan JS) ke PC Anda dan membuat Shortcut Desktop resmi!\r\n4. Setelah terinstal, Anda tinggal klik dua kali ikon "CitraLabeling Studio Pro" di Desktop Anda kapan pun ingin melabeli dataset.' : 'CARA INSTALASI ANDROID:\r\n1. Ekstrak arsip ZIP ini di HP Android Anda.\r\n2. Buka file "CitraLabeling_Studio_Pro_Portable.html" menggunakan peramban Google Chrome.\r\n3. Di menu Chrome (3 titik kanan atas), pilih "Tambahkan ke Layar Utama" (Add to Home Screen).\r\n4. Aplikasi kini terpasang sebagai icon aplikasi mandiri di HP Anda!'}\r\n\r\nALTERNATIF PORTABLE:\r\nAnda juga dapat langsung membuka file "CitraLabeling_Studio_Pro_Portable.html" di komputer atau ponsel mana pun tanpa perlu instalasi. File ini sudah menyertakan seluruh kode desain (CSS) dan interaktivitas (JS) secara mandiri 100% di dalamnya.\r\n\r\nMODEL AI AUTO-LABEL OFFLINE:\r\nUntuk mengaktifkan model AI lokal, pilih tombol [ Muat File Model (.pack) ] di dalam menu AI Auto-Label dan masukkan file model yang telah dibeli.\r\n`;
+  const readme = `=== PANDUAN INSTALASI CITRALABELING STUDIO PRO (ANDROID) ===\r\n\r\n1. Ekstrak arsip ZIP ini di HP Android Anda.\r\n2. Buka file "CitraLabeling_Studio_Pro_Portable.html" menggunakan peramban Google Chrome.\r\n3. Di menu Chrome (3 titik kanan atas), pilih "Tambahkan ke Layar Utama" (Add to Home Screen).\r\n4. Aplikasi kini terpasang sebagai icon aplikasi mandiri di HP Anda!\r\n\r\nMODEL AI AUTO-LABEL OFFLINE:\r\nUntuk mengaktifkan model AI lokal, pilih tombol [ Muat File Model (.pack) ] di dalam menu AI Auto-Label dan masukkan file model yang telah dibeli.\r\n`;
   zip.file('PANDUAN_INSTALASI.txt', readme);
 
-  const zipName = isWin ? 'CitraLabeling_Studio_Pro_Windows_Setup.zip' : 'CitraLabeling_Studio_Pro_Android_Setup.zip';
   const blob = await zip.generateAsync({ type: 'blob' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = zipName;
+  a.download = 'CitraLabeling_Studio_Pro_Android_Setup.zip';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  alert(`✅ Paket Installer & Portable CitraLabeling Studio Pro (${platform.toUpperCase()}) berhasil dibuat! Seluruh berkas gaya (CSS) dan logika (JS) telah dikemas sempurna.`);
+  alert('✅ Paket Portable CitraLabeling Studio Pro (Android) berhasil dibuat!');
 }
 
 function downloadPremiumApp() {
