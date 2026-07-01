@@ -25,7 +25,10 @@ let hp = maxHp;
 let gameRunning = false;
 let animationId;
 let isSimulating1900 = false;
-let wave = 1;
+
+// Dynamic Mouse/Touch Player Position in Safe Zone
+let playerX = 190;
+let activeStationTarget = null; // 'weapon', 'stone', or 'turret'
 
 // Entities & Combat VFX
 let enemies = [];
@@ -47,7 +50,6 @@ setInterval(updateClock, 1000);
 updateClock();
 updateHUD();
 
-// If locked out on reload, show lockout screen
 if (isLockedOut) {
   setTimeout(() => triggerCoreStoneStolen(), 300);
 }
@@ -81,7 +83,7 @@ function toggleSimulate1900() {
   }
   updateClock();
   if (isSimulating1900 && gameRunning) {
-    spawnFloatingText(190, 240, '⚠️ GELOMBANG HORDE 19:00 WIB TIBA!', '#ef4444');
+    spawnFloatingText(playerX, 240, '⚠️ GELOMBANG HORDE 19:00 WIB TIBA!', '#ef4444');
     screenShake = 12;
   }
 }
@@ -99,24 +101,6 @@ function updateHUD() {
   const pEl = document.getElementById('phase-display');
   if (pEl) pEl.innerText = phaseNames[currentPhase] || `Fase ${currentPhase}`;
 
-  // Update Costs
-  const kCost = knifeLvl * 50;
-  const pCost = pistolLvl * 50;
-  const wCost = wallLvl * 40;
-  const tCost = (turretLvl + 1) * 150;
-
-  document.getElementById('upg-knife-title').innerText = `🗡️ Pisau Tangan Kiri (Lv.${knifeLvl})`;
-  document.getElementById('upg-knife-cost').innerText = `${kCost} 🪙`;
-
-  document.getElementById('upg-pistol-title').innerText = `🔫 Pistol Tangan Kanan (Lv.${pistolLvl})`;
-  document.getElementById('upg-pistol-cost').innerText = `${pCost} 🪙`;
-
-  document.getElementById('upg-wall-title').innerText = `💠 Energi Core Stone (Lv.${wallLvl})`;
-  document.getElementById('upg-wall-cost').innerText = `${wCost} 🪙`;
-
-  document.getElementById('upg-turret-title').innerText = `🤖 Senjata Turret Otomatis (Lv.${turretLvl})`;
-  document.getElementById('upg-turret-cost').innerText = `${tCost} 🪙`;
-
   localStorage.setItem('outpost_gold', gold);
   localStorage.setItem('outpost_gems', gems);
   localStorage.setItem('outpost_knife_lvl', knifeLvl);
@@ -133,7 +117,6 @@ function startGame() {
     return;
   }
   document.getElementById('start-screen').classList.add('hidden');
-  document.getElementById('gameover-screen').classList.add('hidden');
   document.getElementById('lockout-screen').classList.add('hidden');
   hp = maxHp;
   enemies = [];
@@ -141,8 +124,11 @@ function startGame() {
   particles = [];
   floatingTexts = [];
   tanks = [];
+  playerX = 190;
   gameRunning = true;
   updateHUD();
+  // Spawn initial enemy immediately so user sees them right away
+  spawnEnemy();
   cancelAnimationFrame(animationId);
   loop();
 }
@@ -157,10 +143,9 @@ function triggerCoreStoneStolen() {
   const cost = penalties[currentPhase] || 100;
 
   document.getElementById('lockout-cost').innerText = `💎 ${cost} Permata`;
-  document.getElementById('lockout-desc').innerText = `Tugu Batu Core Stone direbut oleh bos musuh Fase ${currentPhase}! Anda memerlukan ${cost} Permata untuk menebus dan mengakses kembali permainan. Mainkan mini-game atau topup untuk menebusnya!`;
+  document.getElementById('lockout-desc').innerText = `Tugu Batu Core Stone direbut oleh musuh Fase ${currentPhase}! Anda memerlukan ${cost} Permata untuk menebus dan mengakses kembali permainan. Mainkan mini-game atau topup untuk menebusnya!`;
   
   document.getElementById('start-screen').classList.add('hidden');
-  document.getElementById('gameover-screen').classList.add('hidden');
   document.getElementById('lockout-screen').classList.remove('hidden');
 }
 
@@ -175,19 +160,34 @@ function payRansom() {
   isLockedOut = false;
   localStorage.setItem('corestone_locked', 'false');
   updateHUD();
-  alert('🎉 TEBUSAN BERHASIL! Tugu Batu Core Stone telah dipulihkan. Anda siap bertempur kembali!');
+  alert('🎉 TEBUSAN BERHASIL! Tugu Batu Core Stone telah dipulihkan.');
   startGame();
 }
 
-// Manual Tap to Shoot
+// Mouse / Touch Hover Movement & Aiming
+canvas.addEventListener('mousemove', e => {
+  if (!gameRunning) return;
+  const rect = canvas.getBoundingClientRect();
+  playerX = Math.max(35, Math.min(canvas.width - 35, e.clientX - rect.left));
+  checkStationProximity();
+});
+
+canvas.addEventListener('touchmove', e => {
+  if (!gameRunning) return;
+  const rect = canvas.getBoundingClientRect();
+  playerX = Math.max(35, Math.min(canvas.width - 35, e.touches[0].clientX - rect.left));
+  checkStationProximity();
+});
+
+// Click / Tap to Shoot Pistol from Player Position
 canvas.addEventListener('mousedown', e => {
   if (!gameRunning) return;
   const rect = canvas.getBoundingClientRect();
   firePlayerPistol(e.clientX - rect.left, e.clientY - rect.top);
 });
+
 canvas.addEventListener('touchstart', e => {
   if (!gameRunning) return;
-  e.preventDefault();
   const rect = canvas.getBoundingClientRect();
   firePlayerPistol(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
 });
@@ -197,23 +197,85 @@ function firePlayerPistol(tx, ty) {
   muzzleFlash = 5;
   screenShake = 2;
 
-  let dmg = pistolLvl * 20;
-  let angle = Math.atan2(ty - 440, tx - 280);
+  let dmg = pistolLvl * 22;
+  let startX = playerX + 22;
+  let startY = 445;
+  let angle = Math.atan2(ty - startY, tx - startX);
   bullets.push({
-    x: 280, y: 440,
+    x: startX, y: startY,
     vx: Math.cos(angle) * 18, vy: Math.sin(angle) * 18,
     dmg: dmg
   });
-  spawnParticle(280, 440, '#fbbf24', 4);
+  spawnParticle(startX, startY, '#fbbf24', 4);
 }
 
 function triggerKnifeMelee(targetEnemy) {
   knifeStabAnim = 15;
-  let dmg = knifeLvl * 40;
+  let dmg = knifeLvl * 45;
   targetEnemy.hp -= dmg;
   spawnParticle(targetEnemy.x, targetEnemy.y, '#ef4444', 8);
   spawnFloatingText(targetEnemy.x, targetEnemy.y - 15, `🗡️ -${dmg}`, '#ef4444');
   if (targetEnemy.hp <= 0) killEnemy(targetEnemy);
+}
+
+// Check proximity to stations in safe zone (y = 420-480)
+function checkStationProximity() {
+  const box = document.getElementById('action-box');
+  if (!box) return;
+
+  if (Math.abs(playerX - 70) < 45) {
+    activeStationTarget = 'weapon';
+    document.getElementById('action-title').innerText = `🛠️ Upgrade Pisau & Pistol (Lv.${knifeLvl})`;
+    document.getElementById('action-cost').innerText = `Biaya: ${knifeLvl * 50} 🪙`;
+    box.classList.remove('hidden');
+  } else if (Math.abs(playerX - 190) < 45) {
+    activeStationTarget = 'stone';
+    document.getElementById('action-title').innerText = `💠 Perkuat Energi Core Stone (Lv.${wallLvl})`;
+    document.getElementById('action-cost').innerText = `Biaya: ${wallLvl * 40} 🪙`;
+    box.classList.remove('hidden');
+  } else if (Math.abs(playerX - 310) < 45) {
+    activeStationTarget = 'turret';
+    document.getElementById('action-title').innerText = `🤖 Pasang Turret & Panggil Tank`;
+    document.getElementById('action-cost').innerText = `Biaya: ${(turretLvl + 1) * 150} 🪙`;
+    box.classList.remove('hidden');
+  } else {
+    activeStationTarget = null;
+    box.classList.add('hidden');
+  }
+}
+
+function triggerHoverUpgrade() {
+  if (!activeStationTarget) return;
+  if (activeStationTarget === 'weapon') {
+    let cost = knifeLvl * 50;
+    if (gold < cost) { openTopup(); return; }
+    gold -= cost;
+    knifeLvl++; pistolLvl++;
+    spawnFloatingText(playerX, 420, '🛠️ SENJATA DIUPGRADE!', '#fbbf24');
+  } else if (activeStationTarget === 'stone') {
+    let cost = wallLvl * 40;
+    if (gold < cost) { openTopup(); return; }
+    gold -= cost;
+    wallLvl++; maxHp += 50; hp = maxHp;
+    spawnFloatingText(playerX, 420, '💠 CORE STONE DIPERKUAT!', '#38bdf8');
+  } else if (activeStationTarget === 'turret') {
+    let cost = (turretLvl + 1) * 150;
+    if (gold >= cost) {
+      gold -= cost; turretLvl++;
+      spawnFloatingText(playerX, 420, '🤖 TURRET AKTIF!', '#10b981');
+    } else if (gold >= 200) {
+      gold -= 200;
+      tanks.push({ x: 190, y: 400 });
+      tanks.push({ x: 120, y: 430 });
+      tanks.push({ x: 260, y: 430 });
+      screenShake = 6;
+      spawnFloatingText(playerX, 420, '🚜 PELETON TANK TIBA!', '#10b981');
+    } else {
+      openTopup(); return;
+    }
+  }
+  updateHUD();
+  checkStationProximity();
 }
 
 function spawnEnemy() {
@@ -221,27 +283,26 @@ function spawnEnemy() {
   const isNightHorde = isSimulating1900 || now.getHours() === 19;
 
   let baseHp = (25 + survivorLvl * 15) * (currentPhase === 2 ? 1.8 : (currentPhase === 3 ? 2.6 : 1));
-  let speed = 0.35 + Math.random() * 0.25;
-  let spawnX = 140 + Math.random() * 100;
+  let speed = 0.4 + Math.random() * 0.3;
+  let spawnX = 80 + Math.random() * 220;
 
-  // Boss Check every 15 enemies killed / wave progress
-  if (Math.random() < 0.15 && isNightHorde) {
+  if (Math.random() < 0.18 && isNightHorde) {
     if (currentPhase === 1) {
-      enemies.push({ name: '🦹 BOS PEMIMPIN GENG', x: spawnX, y: 100, hp: baseHp * 4, maxHp: baseHp * 4, speed: speed * 0.6, size: 38, reward: 50, color: '#f59e0b', isBoss: true });
+      enemies.push({ name: '🦹 BOS PEMIMPIN GENG', x: spawnX, y: 80, hp: baseHp * 4, maxHp: baseHp * 4, speed: speed * 0.6, size: 38, reward: 50, color: '#f59e0b', isBoss: true });
     } else if (currentPhase === 2) {
-      enemies.push({ name: '🧪 ILMUWAN SETENGAH MUTAN', x: spawnX, y: 100, hp: baseHp * 5, maxHp: baseHp * 5, speed: speed * 0.7, size: 42, reward: 80, color: '#a855f7', isBoss: true });
+      enemies.push({ name: '🧪 ILMUWAN SETENGAH MUTAN', x: spawnX, y: 80, hp: baseHp * 5, maxHp: baseHp * 5, speed: speed * 0.7, size: 42, reward: 80, color: '#a855f7', isBoss: true });
     } else {
-      enemies.push({ name: '🧟 ILMUWAN ZOMBIE BERPIKIR', x: spawnX, y: 100, hp: baseHp * 6, maxHp: baseHp * 6, speed: speed * 0.8, size: 45, reward: 120, color: '#10b981', isBoss: true });
+      enemies.push({ name: '🧟 ILMUWAN ZOMBIE BERPIKIR', x: spawnX, y: 80, hp: baseHp * 6, maxHp: baseHp * 6, speed: speed * 0.8, size: 45, reward: 120, color: '#10b981', isBoss: true });
     }
   } else {
     let icon = currentPhase === 1 ? '🦹' : (currentPhase === 2 ? '🧪' : '🧟');
     enemies.push({
       name: `${icon} Pasukan Sindikat`,
-      x: spawnX, y: 100,
+      x: spawnX, y: 80,
       hp: baseHp, maxHp: baseHp,
       speed: speed * (isNightHorde ? 1.4 : 1.0),
-      size: 26,
-      reward: 12 * currentPhase,
+      size: 28,
+      reward: 15 * currentPhase,
       color: currentPhase === 1 ? '#38bdf8' : (currentPhase === 2 ? '#c084fc' : '#34d399')
     });
   }
@@ -260,9 +321,9 @@ function killEnemy(enemy) {
     if (enemy.isBoss) {
       if (currentPhase < 3) {
         currentPhase++;
-        alert(`💥 BOS DIKALAHKAN!\n\nMemasuki Fase ${currentPhase}!\nIlmuwan Jahat mengambil alih eksperimen dan pasukan musuh kini bertambah kuat!`);
+        alert(`💥 BOS DIKALAHKAN!\n\nMemasuki Fase ${currentPhase}!\nIlmuwan Jahat mengambil alih bereksperimen dengan setengah mutan!`);
       } else {
-        alert(`🏆 LUAR BIASA!\n\nIlmuwan Zombie Berpikir berhasil dipukul mundur! Dia melarikan diri ke pulau lain untuk berevolusi menjadi Monster Raksasa!`);
+        alert(`🏆 LUAR BIASA!\n\nIlmuwan Zombie Berpikir berhasil dipukul mundur! Ia kabur untuk berevolusi menjadi Kaiju Raksasa!`);
       }
       updateHUD();
     }
@@ -298,11 +359,11 @@ function loop() {
   // 1. Render 3D Perspective Environment
   render3DEnvironment();
 
-  // 2. Spawn Enemies
+  // 2. Continuous Enemy Spawning
   const now = new Date();
   const isNightHorde = isSimulating1900 || now.getHours() === 19;
   spawnTimer++;
-  let spawnInterval = isNightHorde ? 40 : 120;
+  let spawnInterval = isNightHorde ? 30 : 65; // Fast continuous march
   if (spawnTimer >= spawnInterval) {
     spawnEnemy();
     spawnTimer = 0;
@@ -314,7 +375,7 @@ function loop() {
     if (autoShootTimer > Math.max(10, 45 - turretLvl * 3)) {
       if (enemies.length > 0) {
         let target = enemies[0];
-        bullets.push({ x: 190, y: 390, vx: (target.x - 190) * 0.08, vy: (target.y - 390) * 0.08, dmg: turretLvl * 15 });
+        bullets.push({ x: 310, y: 390, vx: (target.x - 310) * 0.08, vy: (target.y - 390) * 0.08, dmg: turretLvl * 15 });
       }
       autoShootTimer = 0;
     }
@@ -342,7 +403,7 @@ function loop() {
     b.x += b.vx; b.y += b.vy;
     ctx.fillStyle = '#fbbf24';
     ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2); ctx.fill();
-    if (b.y < 90 || b.x < 0 || b.x > canvas.width || b.y > canvas.height) {
+    if (b.y < 80 || b.x < 0 || b.x > canvas.width || b.y > canvas.height) {
       bullets.splice(i, 1); continue;
     }
     for (let j = enemies.length - 1; j >= 0; j--) {
@@ -362,8 +423,8 @@ function loop() {
   for (let i = enemies.length - 1; i >= 0; i--) {
     let e = enemies[i];
     e.y += e.speed;
-    let depthProgress = Math.max(0, Math.min(1, (e.y - 100) / 280));
-    let scale = 0.35 + depthProgress * 0.85;
+    let depthProgress = Math.max(0, Math.min(1, (e.y - 80) / 320));
+    let scale = 0.4 + depthProgress * 0.8;
 
     ctx.save();
     ctx.translate(e.x, e.y);
@@ -373,25 +434,29 @@ function loop() {
     ctx.fillStyle = e.color;
     ctx.beginPath(); ctx.arc(0, 0, e.size / 2, 0, Math.PI * 2); ctx.fill();
     ctx.shadowBlur = 0;
-    ctx.font = '20px sans-serif';
-    ctx.fillText(e.name.slice(0, 2), -10, 6);
+    ctx.font = '22px sans-serif';
+    ctx.fillText(e.name.slice(0, 2), -11, 7);
 
     ctx.restore();
 
-    ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(e.x - 18, e.y - (e.size * scale) / 2 - 10, 36, 4);
-    ctx.fillStyle = '#ef4444'; ctx.fillRect(e.x - 18, e.y - (e.size * scale) / 2 - 10, Math.max(0, (e.hp / e.maxHp) * 36), 4);
+    ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, 40, 5);
+    ctx.fillStyle = '#ef4444'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, Math.max(0, (e.hp / e.maxHp) * 40), 5);
 
-    if (e.y >= 370) {
-      if (knifeStabAnim === 0 && gameTick % 25 === 0) triggerKnifeMelee(e);
-      hp -= 0.25 * currentPhase;
+    // When enemy touches Barricade Wall (y >= 380)
+    if (e.y >= 380) {
+      // Check if player is nearby with Knife (within 60px)
+      if (Math.abs(playerX - e.x) < 65 && knifeStabAnim === 0 && gameTick % 20 === 0) {
+        triggerKnifeMelee(e);
+      }
+      hp -= 0.3 * currentPhase;
       screenShake = 1;
       updateHUD();
       if (hp <= 0) { triggerCoreStoneStolen(); return; }
     }
   }
 
-  // 7. Render Core Stone Monolith & FPS HUD
-  renderCoreStoneAndFPSHUD();
+  // 7. Render Interactive Stations, Monolith, Wall & Dynamic Player Character
+  renderWorldAndPlayer();
 
   // 8. Update Particles & Texts
   for (let i = particles.length - 1; i >= 0; i--) {
@@ -416,111 +481,75 @@ function loop() {
 }
 
 function render3DEnvironment() {
-  let skyGrad = ctx.createLinearGradient(0, 0, 0, 100);
+  let skyGrad = ctx.createLinearGradient(0, 0, 0, 80);
   skyGrad.addColorStop(0, '#020617'); skyGrad.addColorStop(1, '#1e1b4b');
-  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 100);
+  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 80);
 
-  let groundGrad = ctx.createLinearGradient(0, 100, 0, canvas.height);
+  let groundGrad = ctx.createLinearGradient(0, 80, 0, canvas.height);
   groundGrad.addColorStop(0, '#111827'); groundGrad.addColorStop(1, '#1f2937');
-  ctx.fillStyle = groundGrad; ctx.fillRect(0, 100, canvas.width, canvas.height - 100);
+  ctx.fillStyle = groundGrad; ctx.fillRect(0, 80, canvas.width, canvas.height - 80);
 
   ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(190, 100); ctx.lineTo(0, 480);
-  ctx.moveTo(190, 100); ctx.lineTo(100, 480);
-  ctx.moveTo(190, 100); ctx.lineTo(280, 480);
-  ctx.moveTo(190, 100); ctx.lineTo(380, 480);
+  ctx.moveTo(190, 80); ctx.lineTo(0, 480);
+  ctx.moveTo(190, 80); ctx.lineTo(100, 480);
+  ctx.moveTo(190, 80); ctx.lineTo(280, 480);
+  ctx.moveTo(190, 80); ctx.lineTo(380, 480);
   ctx.stroke();
 
-  [140, 200, 280, 370].forEach(y => {
+  [130, 190, 270, 360].forEach(y => {
     ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
   });
 }
 
-function renderCoreStoneAndFPSHUD() {
-  // 1. Giant Core Stone Monolith (2x character height behind fence)
-  ctx.save();
-  ctx.fillStyle = '#334155';
-  ctx.fillRect(155, 360, 70, 70);
-  ctx.strokeStyle = '#475569'; ctx.lineWidth = 3;
-  ctx.strokeRect(155, 360, 70, 70);
+function renderWorldAndPlayer() {
+  // A. Interactive Stations behind fence
+  // Station 1: Weapon Workbench (x = 70)
+  ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(40, 415, 60, 40);
+  ctx.font = '24px sans-serif'; ctx.fillText('🛠️', 55, 442);
+  ctx.font = '10px sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.fillText('Senjata', 53, 460);
 
-  // Glowing Core Runic Logo in Center
+  // Station 2: Core Stone Monolith (Center x = 190)
+  ctx.save();
+  ctx.fillStyle = '#334155'; ctx.fillRect(155, 355, 70, 70);
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 3; ctx.strokeRect(155, 355, 70, 70);
   ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 18;
-  ctx.font = '36px sans-serif';
-  ctx.fillText('💠', 170, 405);
+  ctx.font = '36px sans-serif'; ctx.fillText('💠', 172, 402);
   ctx.restore();
 
-  // 2. Wooden Barricade Fence in front of stone
-  ctx.fillStyle = '#3e2723';
-  ctx.fillRect(0, 420, canvas.width, 25);
-  ctx.font = '22px sans-serif';
-  for (let x = 10; x < canvas.width; x += 35) {
-    ctx.fillText('🪵', x, 440);
+  // Station 3: Turret & Tank Station (x = 310)
+  ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(280, 415, 60, 40);
+  ctx.font = '24px sans-serif'; ctx.fillText('🤖🚀', 293, 442);
+  ctx.font = '10px sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.fillText('Turret/Tank', 285, 460);
+
+  // B. Wooden Barricade Fence
+  ctx.fillStyle = '#3e2723'; ctx.fillRect(0, 420, canvas.width, 22);
+  ctx.font = '20px sans-serif';
+  for (let x = 8; x < canvas.width; x += 32) {
+    ctx.fillText('🪵', x, 438);
   }
 
-  // 3. Left Hand Knife
+  // C. Dynamic Player 3D Hands moving with mouse/touch (playerX)
   ctx.save();
-  let knifeOffset = knifeStabAnim > 0 ? -25 : 0;
-  ctx.translate(60, 455 + knifeOffset);
-  ctx.font = '44px sans-serif';
-  ctx.fillText('🗡️', 0, 0);
-  ctx.restore();
+  // Left Hand: Survival Knife
+  let knifeOffset = knifeStabAnim > 0 ? -28 : 0;
+  ctx.font = '42px sans-serif';
+  ctx.fillText('🗡️', playerX - 35, 470 + knifeOffset);
 
-  // 4. Right Hand Pistol
-  ctx.save();
+  // Right Hand: Tactical Pistol
   let pistolOffset = pistolRecoilAnim > 0 ? 12 : 0;
-  ctx.translate(270, 445 + pistolOffset);
-  ctx.font = '44px sans-serif';
-  ctx.fillText('🔫', 0, 0);
+  ctx.fillText('🔫', playerX + 8, 465 + pistolOffset);
   if (muzzleFlash > 0) {
     ctx.font = '28px sans-serif';
-    ctx.fillText('💥', -15, -20);
+    ctx.fillText('💥', playerX - 5, 440);
   }
   ctx.restore();
 }
 
-function upgradeItem(type) {
-  let cost = 0;
-  if (type === 'knife') {
-    cost = knifeLvl * 50;
-    if (gold < cost) { openTopup(); return; }
-    gold -= cost; knifeLvl++;
-  } else if (type === 'pistol') {
-    cost = pistolLvl * 50;
-    if (gold < cost) { openTopup(); return; }
-    gold -= cost; pistolLvl++;
-  } else if (type === 'wall') {
-    cost = wallLvl * 40;
-    if (gold < cost) { openTopup(); return; }
-    gold -= cost; wallLvl++; maxHp += 50; hp = maxHp;
-  } else if (type === 'turret') {
-    cost = (turretLvl + 1) * 150;
-    if (gold < cost) { openTopup(); return; }
-    gold -= cost; turretLvl++;
-  }
-  updateHUD();
-}
-
-function summonTankPlatoon() {
-  if (gold < 200) { openTopup(); return; }
-  gold -= 200;
-  tanks.push({ x: 190, y: 400 });
-  tanks.push({ x: 120, y: 430 });
-  tanks.push({ x: 260, y: 430 });
-  updateHUD();
-  screenShake = 6;
-}
-
-// Target Practice Mini-Game for Redemption
+// Target Practice Mini-Game
 let mgTimerInterval;
-function openMiniGame() {
-  document.getElementById('minigame-modal').classList.add('active');
-}
-function closeMiniGame() {
-  clearInterval(mgTimerInterval);
-  document.getElementById('minigame-modal').classList.remove('active');
-}
+function openMiniGame() { document.getElementById('minigame-modal').classList.add('active'); }
+function closeMiniGame() { clearInterval(mgTimerInterval); document.getElementById('minigame-modal').classList.remove('active'); }
 function startMiniGameRound() {
   const area = document.getElementById('mg-area');
   area.innerHTML = '';
@@ -538,8 +567,7 @@ function startMiniGameRound() {
     t.style.left = Math.floor(Math.random() * 280) + 'px';
     t.style.top = Math.floor(Math.random() * 160) + 'px';
     t.onclick = () => {
-      score += 5;
-      gems += 5;
+      score += 5; gems += 5;
       document.getElementById('mg-score').innerText = score;
       updateHUD();
       t.remove();
@@ -548,9 +576,7 @@ function startMiniGameRound() {
     area.appendChild(t);
   };
 
-  spawnTarget();
-  spawnTarget();
-
+  spawnTarget(); spawnTarget();
   mgTimerInterval = setInterval(() => {
     timeLeft--;
     document.getElementById('mg-timer').innerText = timeLeft;
@@ -572,7 +598,7 @@ function buyGems(itemName, price, amount) {
       gems += amount;
       updateHUD();
       closeTopup();
-      alert(`🎉 Topup Logistik Berhasil! +${amount} Gems ditambahkan.`);
+      alert(`🎉 Topup Berhasil! +${amount} Gems ditambahkan.`);
     }
   });
 }

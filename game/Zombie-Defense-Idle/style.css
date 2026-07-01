@@ -13,28 +13,28 @@ body { background: #0b0f19; color: #f8fafc; min-height: 100vh; padding: 12px 6px
 .currency-bar { display: flex; gap: 8px; }
 .pill { background: #1f2937; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 99px; font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
-.stats-box { background: #1f2937; border-radius: 14px; padding: 10px 14px; text-align: center; margin-bottom: 12px; display: flex; justify-content: space-around; align-items: center; border: 1px solid rgba(255,255,255,0.06); }
+.stats-box { background: #1f2937; border-radius: 14px; padding: 10px 14px; text-align: center; margin-bottom: 10px; display: flex; justify-content: space-around; align-items: center; border: 1px solid rgba(255,255,255,0.06); }
 .stat-lbl { font-size: 10px; font-weight: 700; color: #94a3b8; margin-bottom: 2px; }
 .stat-val { font-size: 14px; font-weight: 900; font-family: 'Outfit', sans-serif; }
 .vert-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.1); }
 
+.hint-banner { background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.3); color: #e0f2fe; font-size: 11px; line-height: 1.4; padding: 8px 12px; border-radius: 12px; margin-bottom: 12px; text-align: center; }
+
 .canvas-container { position: relative; width: 100%; margin-bottom: 14px; }
-canvas { width: 100%; height: 480px; background: #05070d; border-radius: 16px; border: 2px solid rgba(56,189,248,0.25); display: block; cursor: crosshair; box-shadow: inset 0 0 30px rgba(0,0,0,0.9); }
+canvas { width: 100%; height: 520px; background: #05070d; border-radius: 16px; border: 2px solid rgba(56,189,248,0.25); display: block; cursor: crosshair; box-shadow: inset 0 0 30px rgba(0,0,0,0.9); }
 
 .sim-toggle-box { position: absolute; top: 10px; right: 10px; }
 .sim-btn { background: rgba(17,24,39,0.85); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); color: #fbbf24; font-size: 11px; font-weight: 800; padding: 6px 10px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
 .sim-btn:hover { background: #fbbf24; color: #0f172a; }
 
-.section-title { font-size: 13px; font-weight: 800; color: #cbd5e1; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-
-.upgrades-grid { display: grid; grid-template-columns: 1fr; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px; }
-.upg-card { background: #1f2937; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 10px; display: flex; align-items: center; gap: 12px; cursor: pointer; text-align: left; transition: all 0.2s; color: white; }
-.upg-card:hover { border-color: #38bdf8; background: #263346; transform: translateY(-1px); }
-.upg-icon { width: 40px; height: 40px; border-radius: 10px; background: #111827; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.upg-info { flex: 1; display: flex; flex-direction: column; }
-.upg-info b { font-size: 13px; font-weight: 800; margin-bottom: 2px; }
-.upg-info span { font-size: 11px; color: #94a3b8; line-height: 1.3; }
-.upg-cost { background: rgba(56,189,248,0.15); border: 1px solid #38bdf8; color: #38bdf8; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px; flex-shrink: 0; }
+.interactive-action-box { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(15,23,42,0.95); backdrop-filter: blur(8px); border: 2px solid #fbbf24; border-radius: 16px; padding: 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); z-index: 20; cursor: pointer; animation: bounce 1s infinite alternate; }
+.interactive-action-box.hidden { display: none; }
+@keyframes bounce { 0% { transform: translate(-50%, 0); } 100% { transform: translate(-50%, -6px); } }
+.action-arrow { font-size: 26px; color: #fbbf24; }
+.action-details { display: flex; flex-direction: column; text-align: left; }
+.action-details b { font-size: 14px; font-weight: 800; color: white; }
+.action-details span { font-size: 12px; }
+.action-btn { background: #fbbf24; color: #0f172a; font-weight: 800; font-size: 12px; padding: 6px 12px; border-radius: 8px; }
 
 .overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(11,15,25,0.95); backdrop-filter: blur(12px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 50; padding: 24px; text-align: center; border-radius: 22px; }
 .overlay.hidden { display: none; }

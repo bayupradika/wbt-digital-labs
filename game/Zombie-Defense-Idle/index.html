@@ -30,70 +30,37 @@
       <div class="vert-divider"></div>
       <div>
         <div class="stat-lbl">📖 FASE CERITA</div>
-        <div class="stat-val" id="phase-display" style="color:#fbbf24; font-size:13px;">Fase 1: Pemimpin Geng</div>
+        <div class="stat-val" id="phase-display" style="color:#fbbf24; font-size:12px;">Fase 1: Pemimpin Geng</div>
       </div>
       <div class="vert-divider"></div>
       <div>
         <div class="stat-lbl">⚠️ STATUS 19:00 WIB</div>
-        <div class="stat-val" id="horde-status" style="color:#10b981; font-size:12px;">Patroli Siang</div>
+        <div class="stat-val" id="horde-status" style="color:#10b981; font-size:11px;">Patroli Siang</div>
       </div>
+    </div>
+
+    <!-- Instructions Bar -->
+    <div class="hint-banner">
+      🖱️ <b>Gerakkan Mouse</b> di area bawah untuk memindahkan posisi karakter 3D.<br>
+      ⚡ <b>Dekati Objek/Station</b> di sebalik pagar untuk memunculkan panah <b>Upgrade</b>!
     </div>
 
     <!-- 3D Portrait Canvas Viewport -->
     <div class="canvas-container">
-      <canvas id="gameCanvas" width="380" height="500"></canvas>
+      <canvas id="gameCanvas" width="380" height="520"></canvas>
       <div class="sim-toggle-box">
         <button class="sim-btn" id="sim-horde-btn" onclick="toggleSimulate1900()"><i class="fa-solid fa-clock"></i> Tes Jam 19:00</button>
       </div>
     </div>
 
-    <!-- Infinite RPG Upgrades Section -->
-    <div class="section-title"><i class="fa-solid fa-arrow-up-right-dots" style="color:#fbbf24;"></i> Upgrade Kekuatan Tanpa Batas (Infinite RPG)</div>
-    <div class="upgrades-grid">
-      <button class="upg-card" onclick="upgradeItem('knife')">
-        <div class="upg-icon"><i class="fa-solid fa-kitchen-set" style="color:#e2e8f0;"></i></div>
-        <div class="upg-info">
-          <b id="upg-knife-title">🗡️ Pisau Tangan Kiri (Lv.1)</b>
-          <span>Tebasan melee otomatis saat musuh menyentuh pagar tugu</span>
-        </div>
-        <div class="upg-cost" id="upg-knife-cost">50 🪙</div>
-      </button>
-
-      <button class="upg-card" onclick="upgradeItem('pistol')">
-        <div class="upg-icon"><i class="fa-solid fa-gun" style="color:#fbbf24;"></i></div>
-        <div class="upg-info">
-          <b id="upg-pistol-title">🔫 Pistol Tangan Kanan (Lv.1)</b>
-          <span>Damage tembakan FPS & kecepatan fire rate jarak jauh</span>
-        </div>
-        <div class="upg-cost" id="upg-pistol-cost">50 🪙</div>
-      </button>
-
-      <button class="upg-card" onclick="upgradeItem('wall')">
-        <div class="upg-icon"><i class="fa-solid fa-shield-halved" style="color:#38bdf8;"></i></div>
-        <div class="upg-info">
-          <b id="upg-wall-title">💠 Energi Batu Core Stone (Lv.1)</b>
-          <span>Meningkatkan kapasitas Max HP ketahanan Tugu & Pagar</span>
-        </div>
-        <div class="upg-cost" id="upg-wall-cost">40 🪙</div>
-      </button>
-
-      <button class="upg-card" onclick="upgradeItem('turret')">
-        <div class="upg-icon"><i class="fa-solid fa-robot" style="color:#10b981;"></i></div>
-        <div class="upg-info">
-          <b id="upg-turret-title">🤖 Senjata Turret Otomatis (Lv.0)</b>
-          <span>Meriam pertahanan otomatis di atas pagar ranting</span>
-        </div>
-        <div class="upg-cost" id="upg-turret-cost">150 🪙</div>
-      </button>
-
-      <button class="upg-card" style="grid-column: span 2;" onclick="summonTankPlatoon()">
-        <div class="upg-icon"><i class="fa-solid fa-truck-monster" style="color:#fbbf24;"></i></div>
-        <div class="upg-info">
-          <b>🛡️ Panggil Peleton Tank Militer Bantuan</b>
-          <span>Mengirim peleton tank menggilas gerombolan musuh di depan tugu</span>
-        </div>
-        <div class="upg-cost" style="background:#fbbf24; color:#0f172a;">200 🪙</div>
-      </button>
+    <!-- Interactive Hover Upgrade Action Box (Appears dynamically when touching station) -->
+    <div class="interactive-action-box hidden" id="action-box" onclick="triggerHoverUpgrade()">
+      <div class="action-arrow"><i class="fa-solid fa-circle-arrow-up"></i></div>
+      <div class="action-details">
+        <b id="action-title">Upgrade Objek</b>
+        <span id="action-cost" style="color:#fbbf24; font-weight:800;">Biaya: 50 🪙</span>
+      </div>
+      <div class="action-btn">KLIK UPGRADE</div>
     </div>
 
     <!-- Start Overlay -->
@@ -102,8 +69,8 @@
         <img src="hero.png" alt="Core Stone Banner" style="width:100%; height:100%; object-fit:cover;">
       </div>
       <h1>CORE <span style="color: #38bdf8;">STONE</span></h1>
-      <p class="desc-text">Pertahankan Tugu Batu Bercahaya di desa terpencil dari incaran Pemimpin Geng Sindikat & Ilmuwan Jahat!<br>Sudut pandang 3D FPS Portrait (Tangan Kiri 🗡️ & Kanan 🔫).</p>
-      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> PERTAHANKAN CORE STONE</button>
+      <p class="desc-text">Pertahankan Tugu Batu Bercahaya di desa terpencil dari incaran Pemimpin Geng Sindikat & Ilmuwan Jahat!<br><br>🖱️ <b>Gerakkan Mouse</b> untuk menggerakkan karakter di balik pagar.<br>🗡️ Pisau Kiri menebas otomatis, 🔫 Pistol Kanan menembak saat diklik!</p>
+      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> MASUK POS PERTAHANAN</button>
       <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>
 
@@ -112,7 +79,7 @@
       <div style="font-size: 60px; margin-bottom: 8px;">🔒💠</div>
       <h1 style="color: #ef4444; font-size:28px;">CORE STONE DICURI!</h1>
       <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin: 8px 0;" id="lockout-desc">
-        Pemimpin Geng berhasil menerobos pagar dan merampas Tugu Batu Energi! Anda harus membayar tebusan Permata untuk menebusnya kembali.
+        Pemimpin Geng berhasil merampas Tugu Batu Energi! Anda harus membayar tebusan Permata untuk menebusnya kembali.
       </p>
       <div style="background:#1f2937; padding:12px 20px; border-radius:14px; border:2px solid #ef4444; margin: 12px 0;">
         <div style="font-size:11px; color:#94a3b8;">BIAYA TEBUSAN RECOVERY TUGU:</div>
