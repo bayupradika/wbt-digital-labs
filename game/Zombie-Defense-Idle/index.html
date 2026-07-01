@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Outpost 3D: FPS RPG Survival Defense</title>
+  <title>Core Stone: Survival Defense</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="manifest" href="manifest.json">
@@ -12,7 +12,7 @@
     <!-- Top Bar: Clock & Currencies -->
     <div class="header">
       <div class="logo-box">
-        <div class="logo">OUTPOST <span style="color: #fbbf24;">3D</span></div>
+        <div class="logo">CORE <span style="color: #38bdf8;">STONE</span></div>
         <div class="clock-badge" id="clock-display">🕒 WIB 12:00:00</div>
       </div>
       <div class="currency-bar">
@@ -24,26 +24,26 @@
     <!-- Stats HUD -->
     <div class="stats-box">
       <div>
-        <div class="stat-lbl">🛡️ TEMBOK BARIKADE</div>
-        <div class="stat-val" style="color:#ef4444;" id="hp-display">100 / 100</div>
+        <div class="stat-lbl">💠 CORE STONE & PAGAR</div>
+        <div class="stat-val" style="color:#38bdf8;" id="hp-display">100 / 100</div>
       </div>
       <div class="vert-divider"></div>
       <div>
-        <div class="stat-lbl">⚠️ STATUS HORDE</div>
-        <div class="stat-val" id="horde-status" style="color:#10b981;">Patroli Siang (Normal)</div>
+        <div class="stat-lbl">📖 FASE CERITA</div>
+        <div class="stat-val" id="phase-display" style="color:#fbbf24; font-size:13px;">Fase 1: Pemimpin Geng</div>
       </div>
       <div class="vert-divider"></div>
       <div>
-        <div class="stat-lbl">🎖️ LEVEL SURVIVOR</div>
-        <div class="stat-val" style="color:#fbbf24;" id="level-display">Lv. 1</div>
+        <div class="stat-lbl">⚠️ STATUS 19:00 WIB</div>
+        <div class="stat-val" id="horde-status" style="color:#10b981; font-size:12px;">Patroli Siang</div>
       </div>
     </div>
 
     <!-- 3D Portrait Canvas Viewport -->
     <div class="canvas-container">
-      <canvas id="gameCanvas" width="380" height="520"></canvas>
+      <canvas id="gameCanvas" width="380" height="500"></canvas>
       <div class="sim-toggle-box">
-        <button class="sim-btn" id="sim-horde-btn" onclick="toggleSimulate1900()"><i class="fa-solid fa-clock"></i> Tes Simulasi Jam 19:00 WIB</button>
+        <button class="sim-btn" id="sim-horde-btn" onclick="toggleSimulate1900()"><i class="fa-solid fa-clock"></i> Tes Jam 19:00</button>
       </div>
     </div>
 
@@ -54,7 +54,7 @@
         <div class="upg-icon"><i class="fa-solid fa-kitchen-set" style="color:#e2e8f0;"></i></div>
         <div class="upg-info">
           <b id="upg-knife-title">🗡️ Pisau Tangan Kiri (Lv.1)</b>
-          <span>Serangan jarak dekat saat musuh menyentuh pagar</span>
+          <span>Tebasan melee otomatis saat musuh menyentuh pagar tugu</span>
         </div>
         <div class="upg-cost" id="upg-knife-cost">50 🪙</div>
       </button>
@@ -63,77 +63,96 @@
         <div class="upg-icon"><i class="fa-solid fa-gun" style="color:#fbbf24;"></i></div>
         <div class="upg-info">
           <b id="upg-pistol-title">🔫 Pistol Tangan Kanan (Lv.1)</b>
-          <span>Damage tembakan FPS & kecepatan fire rate</span>
+          <span>Damage tembakan FPS & kecepatan fire rate jarak jauh</span>
         </div>
         <div class="upg-cost" id="upg-pistol-cost">50 🪙</div>
       </button>
 
       <button class="upg-card" onclick="upgradeItem('wall')">
-        <div class="upg-icon"><i class="fa-solid fa-shield-halved" style="color:#ef4444;"></i></div>
+        <div class="upg-icon"><i class="fa-solid fa-shield-halved" style="color:#38bdf8;"></i></div>
         <div class="upg-info">
-          <b id="upg-wall-title">🧱 Tembok Kayu Barikade (Lv.1)</b>
-          <span>Meningkatkan kapasitas Max HP & ketahanan tembok</span>
+          <b id="upg-wall-title">💠 Energi Batu Core Stone (Lv.1)</b>
+          <span>Meningkatkan kapasitas Max HP ketahanan Tugu & Pagar</span>
         </div>
         <div class="upg-cost" id="upg-wall-cost">40 🪙</div>
       </button>
 
       <button class="upg-card" onclick="upgradeItem('turret')">
-        <div class="upg-icon"><i class="fa-solid fa-robot" style="color:#38bdf8;"></i></div>
+        <div class="upg-icon"><i class="fa-solid fa-robot" style="color:#10b981;"></i></div>
         <div class="upg-info">
-          <b id="upg-turret-title">🤖 Senjata Otomatis (Lv.0)</b>
-          <span>Turret meriam otomatis membantu menembak musuh</span>
+          <b id="upg-turret-title">🤖 Senjata Turret Otomatis (Lv.0)</b>
+          <span>Meriam pertahanan otomatis di atas pagar ranting</span>
         </div>
         <div class="upg-cost" id="upg-turret-cost">150 🪙</div>
       </button>
 
       <button class="upg-card" style="grid-column: span 2;" onclick="summonTankPlatoon()">
-        <div class="upg-icon"><i class="fa-solid fa-truck-monster" style="color:#10b981;"></i></div>
+        <div class="upg-icon"><i class="fa-solid fa-truck-monster" style="color:#fbbf24;"></i></div>
         <div class="upg-info">
           <b>🛡️ Panggil Peleton Tank Militer Bantuan</b>
-          <span>Mengirim tank baja menggilas gerombolan musuh di depan tembok</span>
+          <span>Mengirim peleton tank menggilas gerombolan musuh di depan tugu</span>
         </div>
-        <div class="upg-cost" style="background:#10b981; color:#0f172a;">200 🪙</div>
+        <div class="upg-cost" style="background:#fbbf24; color:#0f172a;">200 🪙</div>
       </button>
     </div>
 
     <!-- Start Overlay -->
     <div class="overlay" id="start-screen">
       <div class="hero-box">
-        <img src="hero.png" alt="Outpost 3D FPS Banner" style="width:100%; height:100%; object-fit:cover;">
+        <img src="hero.png" alt="Core Stone Banner" style="width:100%; height:100%; object-fit:cover;">
       </div>
-      <h1>OUTPOST <span style="color: #fbbf24;">3D FPS</span></h1>
-      <p class="desc-text">Bertahan di balik tembok barikade dalam sudut pandang 3D FPS!<br>Tangan Kiri Pisau Melee (`🗡️`) & Tangan Kanan Pistol (`🔫`).<br>Upgrade kekuatan tanpa batas dengan Koin Emas!</p>
-      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> MASUK POS PERTAHANAN</button>
+      <h1>CORE <span style="color: #38bdf8;">STONE</span></h1>
+      <p class="desc-text">Pertahankan Tugu Batu Bercahaya di desa terpencil dari incaran Pemimpin Geng Sindikat & Ilmuwan Jahat!<br>Sudut pandang 3D FPS Portrait (Tangan Kiri 🗡️ & Kanan 🔫).</p>
+      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> PERTAHANKAN CORE STONE</button>
       <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>
 
-    <!-- Gameover Overlay -->
-    <div class="overlay hidden" id="gameover-screen">
-      <h1 style="color: #ef4444;">TEMBOK HANCUR!</h1>
-      <p style="color: #94a3b8; margin: 8px 0;">Sindikat musuh berhasil menerobos barikade pertahanan Anda!</p>
-      <div style="font-size: 16px; margin: 12px 0;">Skor Bertahan: <b id="final-score" style="color: #fbbf24; font-size: 32px; display: block;">0 Detik</b></div>
-      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-rotate-right"></i> BERTAHAN LAGI</button>
-      <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
+    <!-- Ransom Lockout Overlay (When Core Stone is Stolen) -->
+    <div class="overlay hidden" id="lockout-screen">
+      <div style="font-size: 60px; margin-bottom: 8px;">🔒💠</div>
+      <h1 style="color: #ef4444; font-size:28px;">CORE STONE DICURI!</h1>
+      <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin: 8px 0;" id="lockout-desc">
+        Pemimpin Geng berhasil menerobos pagar dan merampas Tugu Batu Energi! Anda harus membayar tebusan Permata untuk menebusnya kembali.
+      </p>
+      <div style="background:#1f2937; padding:12px 20px; border-radius:14px; border:2px solid #ef4444; margin: 12px 0;">
+        <div style="font-size:11px; color:#94a3b8;">BIAYA TEBUSAN RECOVERY TUGU:</div>
+        <b id="lockout-cost" style="color:#ef4444; font-size:26px;">💎 100 Permata</b>
+      </div>
+      <button class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="openMiniGame()"><i class="fa-solid fa-gamepad"></i> MAINKAN MINI-GAME (+25 GEMS)</button>
+      <button class="btn-primary" style="margin-top:10px;" onclick="payRansom()"><i class="fa-solid fa-unlock"></i> BAYAR TEBUSAN & REBUT TUGU</button>
+      <button class="btn-secondary" style="margin-top:10px;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS CEPAT</button>
+    </div>
+
+    <!-- Redemption Mini-Game Modal -->
+    <div class="modal" id="minigame-modal">
+      <div class="modal-content" style="max-width:380px; text-align:center;">
+        <button onclick="closeMiniGame()" class="close-btn">&times;</button>
+        <h2 style="font-family:'Outfit',sans-serif; color:#fbbf24;"><i class="fa-solid fa-bullseye"></i> Latihan Tembak Pos</h2>
+        <p style="color:#94a3b8; font-size:12px; margin: 6px 0 12px;">Ketuk target merah secepat mungkin dalam 15 detik untuk mengumpulkan hadiah Permata gratis!</p>
+        <div style="font-size:18px; font-weight:800; color:#38bdf8; margin-bottom:10px;">Waktu: <span id="mg-timer">15</span>s | Hadiah: <span id="mg-score">0</span> 💎</div>
+        <div id="mg-area" style="width:100%; height:220px; background:#05070d; border-radius:14px; position:relative; border:2px solid rgba(255,255,255,0.15); overflow:hidden;"></div>
+        <button class="btn-primary" id="mg-start-btn" style="margin: 14px auto 0; width:100%; justify-content:center;" onclick="startMiniGameRound()"><i class="fa-solid fa-play"></i> MULAI LATIHAN</button>
+      </div>
     </div>
 
     <!-- Topup Modal -->
     <div class="modal" id="topup-modal">
       <div class="modal-content">
         <button onclick="closeTopup()" class="close-btn">&times;</button>
-        <h2 style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-gem" style="color: #38bdf8;"></i> Toko Logistik Pos</h2>
-        <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Gunakan Gems untuk membeli Koin Emas & Panggilan Darurat!</p>
+        <h2 style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-gem" style="color: #38bdf8;"></i> Toko Permata Pos</h2>
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Gunakan Gems untuk menebus Core Stone & Panggilan Peleton!</p>
         <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 18px;">
           <div class="topup-row">
-            <div><b style="color: #38bdf8; font-size: 16px;">💎 300 Gems</b><div style="font-size: 11px; color: #94a3b8;">Paket Prajurit</div></div>
-            <button class="btn-buy" onclick="buyGems('300 Gems Prajurit', 3000, 300)">Rp 3.000</button>
+            <div><b style="color: #38bdf8; font-size: 16px;">💎 100 Gems</b><div style="font-size: 11px; color: #94a3b8;">Paket Tebusan Fase 1</div></div>
+            <button class="btn-buy" onclick="buyGems('100 Gems Tebusan', 2000, 100)">Rp 2.000</button>
           </div>
           <div class="topup-row featured">
-            <div><b style="color: #38bdf8; font-size: 16px;">💎 1.000 Gems</b><div style="font-size: 11px; color: #ef4444; font-weight: 700;">🔥 Komandan Pos</div></div>
-            <button class="btn-buy featured" onclick="buyGems('1000 Gems Komandan', 8000, 1000)">Rp 8.000</button>
+            <div><b style="color: #38bdf8; font-size: 16px;">💎 300 Gems</b><div style="font-size: 11px; color: #ef4444; font-weight: 700;">🔥 Paket Tebusan Fase 2</div></div>
+            <button class="btn-buy featured" onclick="buyGems('300 Gems Tebusan', 5000, 300)">Rp 5.000</button>
           </div>
           <div class="topup-row">
-            <div><b style="color: #38bdf8; font-size: 16px;">💎 3.000 Gems</b><div style="font-size: 11px; color: #fbbf24;">Paket Jenderal Sultan</div></div>
-            <button class="btn-buy" style="background:#fbbf24; color:#0f172a;" onclick="buyGems('3000 Gems Jenderal', 15000, 3000)">Rp 15.000</button>
+            <div><b style="color: #38bdf8; font-size: 16px;">💎 500 Gems</b><div style="font-size: 11px; color: #fbbf24;">Paket Sultan Fase 3</div></div>
+            <button class="btn-buy" style="background:#fbbf24; color:#0f172a;" onclick="buyGems('500 Gems Sultan', 10000, 500)">Rp 10.000</button>
           </div>
         </div>
       </div>
