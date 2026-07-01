@@ -2,44 +2,68 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Text Summarizer - Smart Article Summary</title>
-  <link rel="stylesheet" href="style.css">
+  <title>AI Text Summarizer Studio Pro - Local NLP Extractor</title>
+  <link rel="stylesheet" href="style.css?v=3.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@xenova/transformers@2.14.0"></script>
 </head>
 <body>
   <div class="container">
     <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Summarizer Pro</div>
-      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Summarizer Studio Pro</div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadSummarizerApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadSummarizerApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
+      </div>
     </div>
 
     <div class="grid">
       <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-file-lines" style="color:#a855f7;"></i> 1. Tempel Teks Artikel Panjang</h2>
-        <textarea id="input-text" placeholder="Tempel artikel, berita, atau laporan panjang di sini..."></textarea>
+        <h2 class="card-title"><i class="fa-solid fa-file-lines" style="color:#a855f7;"></i> 1. Tempel Teks Artikel / Laporan Panjang</h2>
         
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-          <button style="padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="loadSampleText()">Gunakan Teks Contoh</button>
-          
-          <select id="nlp-engine" style="padding: 8px 12px; border-radius: 10px; background: #1e293b; color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); font-size: 12px; font-weight: 700;">
-            <option value="textrank">🤖 Local NLP Engine (TF-IDF & Sentence Rank)</option>
-            <option value="cloud">⚡ Cloud AI Neural Extractor</option>
+        <div style="width:100%; margin-bottom:12px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+          <label style="font-size:11px; color:#a855f7; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-microchip"></i> Mesin NLP Ringkasan</label>
+          <select id="nlp-engine" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
+            <option value="neural">🧬 WebAssembly Neural Transformers NLP (100% Offline Deep Summary)</option>
+            <option value="textrank">🤖 Local TF-IDF & Sentence Rank Extractor (Sangat Cepat)</option>
           </select>
         </div>
 
-        <button class="btn" style="margin-top:16px;" onclick="summarizeText()"><i class="fa-solid fa-wand-magic-sparkles"></i> Analisis NLP & Rangkum Teks</button>
+        <textarea id="input-text" placeholder="Tempel artikel, berita, atau dokumen laporan panjang di sini..."></textarea>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+          <button style="padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="loadSampleText()">Gunakan Teks Contoh</button>
+        </div>
+
+        <button class="btn" style="margin-top:14px;" onclick="summarizeText()"><i class="fa-solid fa-wand-magic-sparkles"></i> Analisis NLP & Ekstrak Rangkuman AI</button>
+
+        <!-- Offline Model Section -->
+        <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
+          <input type="file" id="summarizer-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleSummarizerOfflineModelUpload(event)">
+          <div id="summarizer-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
+            Ingin Neural Transformers lokal 100% di Aplikasi Standalone (Tanpa Internet)?
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;" onclick="purchaseSummarizerOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model NLP (.pack)</button>
+            <button style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;" onclick="document.getElementById('summarizer-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+          </div>
+        </div>
       </div>
 
       <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-list-check" style="color:#38bdf8;"></i> 2. Hasil Rangkuman AI</h2>
+        <h2 class="card-title"><i class="fa-solid fa-list-check" style="color:#38bdf8;"></i> 2. Hasil Rangkuman Executive Summary</h2>
         <div id="output-box" style="background: #1e293b; border: 1px solid rgba(255,255,255,0.08); padding: 20px; border-radius: 16px; flex: 1; font-size: 14px; line-height: 1.6; color: #e2e8f0; overflow-y: auto;">
-          <p style="color: #94a3b8; text-align: center; margin-top: 80px;"><i class="fa-solid fa-align-left" style="font-size:32px; margin-bottom:10px;"></i><br>Hasil rangkuman poin-poin penting akan muncul di sini.</p>
+          <p style="color: #94a3b8; text-align: center; margin-top: 80px;"><i class="fa-solid fa-align-left" style="font-size:32px; margin-bottom:10px;"></i><br>Hasil rangkuman poin-poin penting eksekutif akan muncul di sini.</p>
         </div>
-        <button class="btn btn-copy" id="copy-btn" style="display:none;" onclick="copySummary()"><i class="fa-regular fa-copy"></i> Salin Rangkuman</button>
+        <div style="display:flex; gap:10px; margin-top:14px; width:100%;">
+          <button class="btn btn-copy" id="copy-btn" style="display:none; flex:1;" onclick="copySummary()"><i class="fa-regular fa-copy"></i> Salin Rangkuman</button>
+          <button class="btn" id="dl-txt-btn" style="display:none; flex:1; background:#0284c7;" onclick="downloadSummaryDoc()"><i class="fa-solid fa-file-arrow-down"></i> Simpan .TXT</button>
+        </div>
       </div>
     </div>
   </div>
-  <script src="../midtrans-pay.js"></script>
-  <script src="script.js"></script>
+  <script src="../midtrans-pay.js?v=3.0"></script>
+  <script src="script.js?v=3.0"></script>
 </body>
 </html>
