@@ -6,6 +6,101 @@ let currentBgType = 'transparent'; // 'transparent', 'color', 'image'
 let currentBgColor = 'transparent';
 let customBgImage = null;
 
+let brushMode = 'none'; // 'none', 'erase', 'restore'
+let brushSize = 25;
+let bgBlurLevel = 0;
+let canvasRatio = 'original';
+let textOverlay = "";
+let isDrawingBrush = false;
+
+setTimeout(updateEraserQuotaUI, 500);
+
+function updateEraserQuotaUI() {
+  const todayKey = 'eraser_ai_daily_' + new Date().toISOString().slice(0,10);
+  const used = parseInt(localStorage.getItem(todayKey) || '0', 10);
+  const activeLimitStr = localStorage.getItem('eraser_ai_tier_limit') || '100';
+  const el = document.getElementById('quota-count');
+  const badgeEl = document.getElementById('quota-badge');
+
+  if (activeLimitStr === 'unlimited' || localStorage.getItem('eraser_offline_ai_model_loaded') === 'true' || localStorage.getItem('wbt_pro_unlocked') === 'true') {
+    if (el) el.innerHTML = `${used} / <span style="color:#34d399;">UNLIMITED PRO</span>`;
+    if (badgeEl) badgeEl.innerHTML = `⚡ Kuota: ${used} / <strong style="color:#34d399;">UNLIMITED VIP</strong>`;
+  } else {
+    if (el) el.innerText = used;
+  }
+}
+
+function checkDailyEraserQuota(countNeeded = 1) {
+  const activeLimitStr = localStorage.getItem('eraser_ai_tier_limit') || '100';
+  if (activeLimitStr === 'unlimited' || localStorage.getItem('eraser_offline_ai_model_loaded') === 'true' || localStorage.getItem('wbt_pro_unlocked') === 'true') {
+    return true;
+  }
+
+  const todayKey = 'eraser_ai_daily_' + new Date().toISOString().slice(0,10);
+  let currentUsage = parseInt(localStorage.getItem(todayKey) || '0', 10);
+  const activeLimit = parseInt(activeLimitStr, 10) || 100;
+
+  if (currentUsage + countNeeded > activeLimit) {
+    const sisa = Math.max(0, activeLimit - currentUsage);
+    alert(`⚡ Kuota Harian (${activeLimit} Gambar/Hari) Telah Habis!\n\nHari ini Anda telah menghapus latar belakang ${currentUsage} foto.\n\nSilakan upgrade ke Paket Studio Pro atau buka aplikasi standalone offline untuk penghapusan gambar tanpa batas!`);
+    if (typeof MidtransPay.showUpgradeModal === 'function') MidtransPay.showUpgradeModal();
+    return false;
+  }
+
+  currentUsage += countNeeded;
+  localStorage.setItem(todayKey, currentUsage.toString());
+  updateEraserQuotaUI();
+  return true;
+}
+
+setTimeout(() => {
+  const resCanvasEl = document.getElementById('res-canvas');
+  if (resCanvasEl) {
+    resCanvasEl.addEventListener('mousedown', startBrush);
+    resCanvasEl.addEventListener('mousemove', moveBrush);
+    resCanvasEl.addEventListener('mouseup', endBrush);
+    resCanvasEl.addEventListener('touchstart', e => { e.preventDefault(); startBrush(e.touches[0]); });
+    resCanvasEl.addEventListener('touchmove', e => { e.preventDefault(); moveBrush(e.touches[0]); });
+    resCanvasEl.addEventListener('touchend', endBrush);
+  }
+}, 1000);
+
+function startBrush(e) {
+  if (brushMode === 'none' || !loaded) return;
+  isDrawingBrush = true;
+  applyBrushAtEvent(e);
+}
+function moveBrush(e) {
+  if (!isDrawingBrush || brushMode === 'none') return;
+  applyBrushAtEvent(e);
+}
+function endBrush() { isDrawingBrush = false; }
+
+function applyBrushAtEvent(e) {
+  const cvs = document.getElementById('res-canvas');
+  if (!cvs) return;
+  const rect = cvs.getBoundingClientRect();
+  const scaleX = cutoutCanvas.width / rect.width;
+  const scaleY = cutoutCanvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+
+  const cutCtx = cutoutCanvas.getContext('2d');
+  cutCtx.save();
+  cutCtx.beginPath();
+  cutCtx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+
+  if (brushMode === 'erase') {
+    cutCtx.globalCompositeOperation = 'destination-out';
+    cutCtx.fill();
+  } else if (brushMode === 'restore') {
+    cutCtx.clip();
+    cutCtx.drawImage(origImg, 0, 0, cutoutCanvas.width, cutoutCanvas.height);
+  }
+  cutCtx.restore();
+  renderComposite();
+}
+
 document.getElementById('file-input').addEventListener('change', function(e) {
   if (e.target.files && e.target.files[0]) {
     const reader = new FileReader();
@@ -37,7 +132,7 @@ let tfBodyPixNet = null;
 
 async function eraseBackground() {
   if (!loaded) { alert('⚠️ Unggah foto atau gunakan foto contoh terlebih dahulu!'); return; }
-  if (!MidtransPay.incrementUsage()) return;
+  if (!checkDailyEraserQuota(1)) return;
 
   const engine = document.getElementById('engine-select') ? document.getElementById('engine-select').value : 'floodfill';
   const isManual = document.getElementById('toggle-tolerance-cb') && document.getElementById('toggle-tolerance-cb').checked;
@@ -173,18 +268,40 @@ let enableShadow = false;
 
 function renderComposite() {
   const cvs = document.getElementById('res-canvas');
-  cvs.width = cutoutCanvas.width;
-  cvs.height = cutoutCanvas.height;
+  if (!cvs || !cutoutCanvas.width) return;
+
+  let targetW = cutoutCanvas.width;
+  let targetH = cutoutCanvas.height;
+
+  if (canvasRatio === '1:1') {
+    const maxDim = Math.max(targetW, targetH);
+    targetW = maxDim; targetH = maxDim;
+  } else if (canvasRatio === '4:5') {
+    targetW = targetH * (4/5);
+  } else if (canvasRatio === '16:9') {
+    targetW = targetH * (16/9);
+  }
+
+  cvs.width = targetW;
+  cvs.height = targetH;
   const ctx = cvs.getContext('2d');
   ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-  // Draw replacement background layer
+  const offsetX = (targetW - cutoutCanvas.width) / 2;
+  const offsetY = (targetH - cutoutCanvas.height) / 2;
+
+  // Draw replacement background layer with blur if enabled
+  ctx.save();
+  if (bgBlurLevel > 0) {
+    ctx.filter = `blur(${bgBlurLevel}px)`;
+  }
   if (currentBgType === 'color' && currentBgColor !== 'transparent') {
     ctx.fillStyle = currentBgColor;
     ctx.fillRect(0, 0, cvs.width, cvs.height);
   } else if (currentBgType === 'image' && customBgImage) {
     ctx.drawImage(customBgImage, 0, 0, cvs.width, cvs.height);
   }
+  ctx.restore();
 
   // Draw Drop Shadow if enabled
   ctx.save();
@@ -195,7 +312,7 @@ function renderComposite() {
     ctx.shadowOffsetY = 15;
   }
 
-  // Draw Outline Sticker if enabled (draw scaled cutout multiple times beneath)
+  // Draw Outline Sticker if enabled
   if (enableOutline) {
     const tempCvs = document.createElement('canvas');
     tempCvs.width = cutoutCanvas.width;
@@ -207,12 +324,24 @@ function renderComposite() {
     tempCtx.fillRect(0, 0, tempCvs.width, tempCvs.height);
 
     const offsets = [[-6,0], [6,0], [0,-6], [0,6], [-4,-4], [4,-4], [-4,4], [4,4]];
-    offsets.forEach(off => ctx.drawImage(tempCvs, off[0], off[1]));
+    offsets.forEach(off => ctx.drawImage(tempCvs, offsetX + off[0], offsetY + off[1]));
   }
 
   // Draw transparent foreground cutout layer over background
-  ctx.drawImage(cutoutCanvas, 0, 0);
+  ctx.drawImage(cutoutCanvas, offsetX, offsetY);
   ctx.restore();
+
+  // Draw Text Overlay / Watermark if provided
+  if (textOverlay && textOverlay.trim() !== "") {
+    ctx.save();
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.shadowColor = "rgba(0,0,0,0.8)";
+    ctx.shadowBlur = 4;
+    ctx.textAlign = "center";
+    ctx.fillText(textOverlay, cvs.width / 2, cvs.height - 25);
+    ctx.restore();
+  }
 }
 
 function toggleSubjectOutline() {
@@ -228,10 +357,47 @@ function toggleSubjectShadow() {
 }
 
 function switchStudioTab(tab) {
-  ['color', 'img', 'ai'].forEach(t => {
-    document.getElementById(`tab-${t}-btn`).className = 'tab-btn' + (t === tab ? ' active' : '');
-    document.getElementById(`panel-${t}`).style.display = (t === tab ? 'block' : 'none');
+  ['color', 'img', 'brush', 'canvas'].forEach(t => {
+    const btn = document.getElementById(`tab-${t}-btn`);
+    const panel = document.getElementById(`panel-${t}`);
+    if (btn) btn.className = 'tab-btn' + (t === tab ? ' active' : '');
+    if (panel) panel.style.display = (t === tab ? 'block' : 'none');
   });
+}
+
+function setBrushMode(mode) {
+  brushMode = mode;
+  ['erase', 'restore'].forEach(m => {
+    const b = document.getElementById(`brush-mode-${m}`);
+    if (b) b.style.opacity = (mode === m ? '1' : '0.5');
+  });
+}
+
+function setBrushSize(val) {
+  brushSize = parseInt(val, 10) || 25;
+  const el = document.getElementById('brush-size-val');
+  if (el) el.innerText = brushSize;
+}
+
+function setBgBlur(val) {
+  bgBlurLevel = parseInt(val, 10) || 0;
+  renderComposite();
+}
+
+function setCanvasRatio(val) {
+  canvasRatio = val;
+  renderComposite();
+}
+
+function setTextOverlay(val) {
+  textOverlay = val;
+  renderComposite();
+}
+
+function redirectToCanva() {
+  if (confirm("🚀 Mengalihkan ke Canva Pro Editor\n\nAnda dapat mengunduh hasil transparan/putih terlebih dahulu lalu langsung menyusun katalog toko atau menambahkan elemen desain di Canva.")) {
+    window.open("https://www.canva.com/design/create", "_blank");
+  }
 }
 
 function applySolidBg(colorHex) {
