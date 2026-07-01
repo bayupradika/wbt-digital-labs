@@ -39,28 +39,29 @@
       </div>
     </div>
 
-    <!-- Instructions Bar -->
-    <div class="hint-banner">
-      🖱️ <b>Gerakkan Mouse</b> di area bawah untuk memindahkan posisi karakter 3D.<br>
-      ⚡ <b>Dekati Objek/Station</b> di sebalik pagar untuk memunculkan panah <b>Upgrade</b>!
+    <!-- Grid Controls & Keyboard Shortcut Guide -->
+    <div class="controls-guide">
+      <div class="cg-item"><b>[W,A,S,D]</b> Gerak Grid 8x4</div>
+      <div class="cg-item"><b>[Mouse]</b> Hadap & Tembak</div>
+      <div class="cg-item" style="color:#10b981;"><b>[T]</b> Bangun Tower (100🪙)</div>
+      <div class="cg-item" style="color:#fbbf24;"><b>[U]</b> Upgrade Objek Mepet</div>
     </div>
 
     <!-- 3D Portrait Canvas Viewport -->
     <div class="canvas-container">
-      <canvas id="gameCanvas" width="380" height="520"></canvas>
+      <canvas id="gameCanvas" width="380" height="540"></canvas>
       <div class="sim-toggle-box">
         <button class="sim-btn" id="sim-horde-btn" onclick="toggleSimulate1900()"><i class="fa-solid fa-clock"></i> Tes Jam 19:00</button>
       </div>
     </div>
 
-    <!-- Interactive Hover Upgrade Action Box (Appears dynamically when touching station) -->
-    <div class="interactive-action-box hidden" id="action-box" onclick="triggerHoverUpgrade()">
-      <div class="action-arrow"><i class="fa-solid fa-circle-arrow-up"></i></div>
-      <div class="action-details">
-        <b id="action-title">Upgrade Objek</b>
-        <span id="action-cost" style="color:#fbbf24; font-weight:800;">Biaya: 50 🪙</span>
+    <!-- Hover Proximity Upgrade Prompt HUD -->
+    <div class="proximity-prompt hidden" id="prox-prompt">
+      <div class="prox-icon">⚡</div>
+      <div class="prox-text">
+        <b id="prox-title">Mepet Objek</b>
+        <span id="prox-hint">Tekan tombol <b>[U]</b> di keyboard untuk Upgrade!</span>
       </div>
-      <div class="action-btn">KLIK UPGRADE</div>
     </div>
 
     <!-- Start Overlay -->
@@ -69,7 +70,7 @@
         <img src="hero.png" alt="Core Stone Banner" style="width:100%; height:100%; object-fit:cover;">
       </div>
       <h1>CORE <span style="color: #38bdf8;">STONE</span></h1>
-      <p class="desc-text">Pertahankan Tugu Batu Bercahaya di desa terpencil dari incaran Pemimpin Geng Sindikat & Ilmuwan Jahat!<br><br>🖱️ <b>Gerakkan Mouse</b> untuk menggerakkan karakter di balik pagar.<br>🗡️ Pisau Kiri menebas otomatis, 🔫 Pistol Kanan menembak saat diklik!</p>
+      <p class="desc-text">Pertahanan Grid 8x4 di sebalik pagar barikade!<br><br>⌨️ <b>W, A, S, D</b> : Gerak karakter (punya collider mandiri)<br>🖱️ <b>Arahkan Kursor & Klik</b> : Menghadap musuh & menembak<br>🏗️ <b>Tekan T</b> : Bangun Tower di depan karakter<br>⚡ <b>Mepet Objek + Tekan U</b> : Upgrade Tugu/Tower/Pagar</p>
       <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> MASUK POS PERTAHANAN</button>
       <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>

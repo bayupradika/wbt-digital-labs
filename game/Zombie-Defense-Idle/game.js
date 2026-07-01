@@ -2,7 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // Game Persistent State & Story Lore
-let gold = parseInt(localStorage.getItem('outpost_gold') || '150');
+let gold = parseInt(localStorage.getItem('outpost_gold') || '250');
 let gems = parseInt(localStorage.getItem('outpost_gems') || '50');
 let currentPhase = parseInt(localStorage.getItem('corestone_phase') || '1');
 let isLockedOut = localStorage.getItem('corestone_locked') === 'true';
@@ -17,7 +17,6 @@ if (!localStorage.getItem('outpost_init_starter')) {
 let knifeLvl = parseInt(localStorage.getItem('outpost_knife_lvl') || '1');
 let pistolLvl = parseInt(localStorage.getItem('outpost_pistol_lvl') || '1');
 let wallLvl = parseInt(localStorage.getItem('outpost_wall_lvl') || '1');
-let turretLvl = parseInt(localStorage.getItem('outpost_turret_lvl') || '0');
 let survivorLvl = parseInt(localStorage.getItem('outpost_survivor_lvl') || '1');
 
 let maxHp = 100 + (wallLvl - 1) * 50;
@@ -26,9 +25,35 @@ let gameRunning = false;
 let animationId;
 let isSimulating1900 = false;
 
-// Dynamic Mouse/Touch Player Position in Safe Zone
-let playerX = 190;
-let activeStationTarget = null; // 'weapon', 'stone', or 'turret'
+// 8 Columns x 4 Rows Grid System behind front wall (y = 360 to 520)
+// Grid cell width = 380 / 8 = 47.5px. Grid cell height = 40px.
+// gridY = 0 is row closest to enemies/wall (y=360..400)
+// gridY = 3 is bottom back row (y=480..520)
+const GRID_COLS = 8;
+const GRID_ROWS = 4;
+let grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
+
+// Player position in Grid (1x1 collider)
+let playerCol = 3;
+let playerRow = 2;
+let mouseX = 190;
+let mouseY = 200;
+
+// Towers array stored in Grid
+let towers = [];
+
+// Initialize Core Stone occupying 2 columns x 1 row at bottom center back (col 3 & 4, row 3)
+function initGrid() {
+  grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
+  grid[3][3] = { type: 'stone', name: 'Core Stone' };
+  grid[3][4] = { type: 'stone', name: 'Core Stone' };
+  towers.forEach(t => {
+    if (t.col >= 0 && t.col < GRID_COLS && t.row >= 0 && t.row < GRID_ROWS) {
+      grid[t.row][t.col] = t;
+    }
+  });
+}
+initGrid();
 
 // Entities & Combat VFX
 let enemies = [];
@@ -83,7 +108,7 @@ function toggleSimulate1900() {
   }
   updateClock();
   if (isSimulating1900 && gameRunning) {
-    spawnFloatingText(playerX, 240, '⚠️ GELOMBANG HORDE 19:00 WIB TIBA!', '#ef4444');
+    spawnFloatingText(190, 240, '⚠️ GELOMBANG HORDE 19:00 WIB TIBA!', '#ef4444');
     screenShake = 12;
   }
 }
@@ -106,7 +131,6 @@ function updateHUD() {
   localStorage.setItem('outpost_knife_lvl', knifeLvl);
   localStorage.setItem('outpost_pistol_lvl', pistolLvl);
   localStorage.setItem('outpost_wall_lvl', wallLvl);
-  localStorage.setItem('outpost_turret_lvl', turretLvl);
   localStorage.setItem('outpost_survivor_lvl', survivorLvl);
   localStorage.setItem('corestone_phase', currentPhase);
 }
@@ -124,10 +148,12 @@ function startGame() {
   particles = [];
   floatingTexts = [];
   tanks = [];
-  playerX = 190;
+  towers = [];
+  playerCol = 3;
+  playerRow = 2;
+  initGrid();
   gameRunning = true;
   updateHUD();
-  // Spawn initial enemy immediately so user sees them right away
   spawnEnemy();
   cancelAnimationFrame(animationId);
   loop();
@@ -143,7 +169,7 @@ function triggerCoreStoneStolen() {
   const cost = penalties[currentPhase] || 100;
 
   document.getElementById('lockout-cost').innerText = `💎 ${cost} Permata`;
-  document.getElementById('lockout-desc').innerText = `Tugu Batu Core Stone direbut oleh musuh Fase ${currentPhase}! Anda memerlukan ${cost} Permata untuk menebus dan mengakses kembali permainan. Mainkan mini-game atau topup untuk menebusnya!`;
+  document.getElementById('lockout-desc').innerText = `Tugu Batu Core Stone direbut oleh musuh Fase ${currentPhase}! Anda memerlukan ${cost} Permata untuk menebus dan mengakses kembali permainan.`;
   
   document.getElementById('start-screen').classList.add('hidden');
   document.getElementById('lockout-screen').classList.remove('hidden');
@@ -164,32 +190,18 @@ function payRansom() {
   startGame();
 }
 
-// Mouse / Touch Hover Movement & Aiming
+// Track Mouse / Cursor Position for Facing Direction
 canvas.addEventListener('mousemove', e => {
-  if (!gameRunning) return;
   const rect = canvas.getBoundingClientRect();
-  playerX = Math.max(35, Math.min(canvas.width - 35, e.clientX - rect.left));
-  checkStationProximity();
+  mouseX = e.clientX - rect.left;
+  mouseY = e.clientY - rect.top;
 });
 
-canvas.addEventListener('touchmove', e => {
-  if (!gameRunning) return;
-  const rect = canvas.getBoundingClientRect();
-  playerX = Math.max(35, Math.min(canvas.width - 35, e.touches[0].clientX - rect.left));
-  checkStationProximity();
-});
-
-// Click / Tap to Shoot Pistol from Player Position
+// Click / Tap to Shoot Pistol
 canvas.addEventListener('mousedown', e => {
   if (!gameRunning) return;
   const rect = canvas.getBoundingClientRect();
   firePlayerPistol(e.clientX - rect.left, e.clientY - rect.top);
-});
-
-canvas.addEventListener('touchstart', e => {
-  if (!gameRunning) return;
-  const rect = canvas.getBoundingClientRect();
-  firePlayerPistol(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
 });
 
 function firePlayerPistol(tx, ty) {
@@ -197,85 +209,181 @@ function firePlayerPistol(tx, ty) {
   muzzleFlash = 5;
   screenShake = 2;
 
-  let dmg = pistolLvl * 22;
-  let startX = playerX + 22;
-  let startY = 445;
+  let cellW = canvas.width / GRID_COLS;
+  let startX = playerCol * cellW + cellW / 2;
+  let startY = 360 + playerRow * 40 + 20;
+
   let angle = Math.atan2(ty - startY, tx - startX);
   bullets.push({
     x: startX, y: startY,
     vx: Math.cos(angle) * 18, vy: Math.sin(angle) * 18,
-    dmg: dmg
+    dmg: pistolLvl * 25
   });
   spawnParticle(startX, startY, '#fbbf24', 4);
 }
 
-function triggerKnifeMelee(targetEnemy) {
-  knifeStabAnim = 15;
-  let dmg = knifeLvl * 45;
-  targetEnemy.hp -= dmg;
-  spawnParticle(targetEnemy.x, targetEnemy.y, '#ef4444', 8);
-  spawnFloatingText(targetEnemy.x, targetEnemy.y - 15, `🗡️ -${dmg}`, '#ef4444');
-  if (targetEnemy.hp <= 0) killEnemy(targetEnemy);
-}
+// Keyboard Shortcuts: W, A, S, D for Grid Movement, T for Tower, U for Upgrade
+window.addEventListener('keydown', e => {
+  if (!gameRunning) return;
+  const key = e.key.toUpperCase();
 
-// Check proximity to stations in safe zone (y = 420-480)
-function checkStationProximity() {
-  const box = document.getElementById('action-box');
-  if (!box) return;
+  let targetCol = playerCol;
+  let targetRow = playerRow;
 
-  if (Math.abs(playerX - 70) < 45) {
-    activeStationTarget = 'weapon';
-    document.getElementById('action-title').innerText = `🛠️ Upgrade Pisau & Pistol (Lv.${knifeLvl})`;
-    document.getElementById('action-cost').innerText = `Biaya: ${knifeLvl * 50} 🪙`;
-    box.classList.remove('hidden');
-  } else if (Math.abs(playerX - 190) < 45) {
-    activeStationTarget = 'stone';
-    document.getElementById('action-title').innerText = `💠 Perkuat Energi Core Stone (Lv.${wallLvl})`;
-    document.getElementById('action-cost').innerText = `Biaya: ${wallLvl * 40} 🪙`;
-    box.classList.remove('hidden');
-  } else if (Math.abs(playerX - 310) < 45) {
-    activeStationTarget = 'turret';
-    document.getElementById('action-title').innerText = `🤖 Pasang Turret & Panggil Tank`;
-    document.getElementById('action-cost').innerText = `Biaya: ${(turretLvl + 1) * 150} 🪙`;
-    box.classList.remove('hidden');
-  } else {
-    activeStationTarget = null;
-    box.classList.add('hidden');
+  if (key === 'W' || key === 'ARROWUP') targetRow--;
+  else if (key === 'S' || key === 'ARROWDOWN') targetRow++;
+  else if (key === 'A' || key === 'ARROWLEFT') targetCol--;
+  else if (key === 'D' || key === 'ARROWRIGHT') targetCol++;
+  else if (key === 'T') {
+    tryBuildTower();
+    return;
+  } else if (key === 'U') {
+    tryProximityUpgrade();
+    return;
   }
+
+  // Check Grid Movement Bounds & Colliders (Cannot walk into Core Stone or Tower)
+  if (targetCol !== playerCol || targetRow !== playerRow) {
+    if (targetCol >= 0 && targetCol < GRID_COLS && targetRow >= 0 && targetRow < GRID_ROWS) {
+      // Check solid collider in cell
+      if (grid[targetRow][targetCol] === null) {
+        playerCol = targetCol;
+        playerRow = targetRow;
+        checkProximityPrompt();
+      } else {
+        // Bump animation / floating feedback
+        let obj = grid[targetRow][targetCol];
+        let cellW = canvas.width / GRID_COLS;
+        spawnFloatingText(targetCol * cellW + 20, 360 + targetRow * 40, `🧱 Objek: ${obj.name || 'Menghalangi'}`, '#fca5a5');
+      }
+    }
+  }
+});
+
+function tryBuildTower() {
+  // Build tower on the empty grid cell right in front of player (row - 1) or closest adjacent
+  let frontRow = playerRow - 1;
+  if (frontRow < 0) {
+    alert('⚠️ Tidak bisa membangun tower di luar garis pagar depan!');
+    return;
+  }
+  if (grid[frontRow][playerCol] !== null) {
+    alert('⚠️ Petak grid di depan Anda sudah terisi objek lain!');
+    return;
+  }
+  if (gold < 100) {
+    alert('⚠️ Koin Emas tidak cukup untuk membangun Tower (Butuh: 100 🪙)');
+    openTopup();
+    return;
+  }
+
+  gold -= 100;
+  let newTower = { type: 'tower', name: 'Tower Pertahanan', col: playerCol, row: frontRow, lvl: 1 };
+  towers.push(newTower);
+  grid[frontRow][playerCol] = newTower;
+  updateHUD();
+  let cellW = canvas.width / GRID_COLS;
+  spawnParticle(playerCol * cellW + cellW / 2, 360 + frontRow * 40 + 20, '#38bdf8', 12);
+  spawnFloatingText(playerCol * cellW + cellW / 2, 360 + frontRow * 40, '🤖 TOWER DIBANGUN!', '#38bdf8');
+  checkProximityPrompt();
 }
 
-function triggerHoverUpgrade() {
-  if (!activeStationTarget) return;
-  if (activeStationTarget === 'weapon') {
-    let cost = knifeLvl * 50;
-    if (gold < cost) { openTopup(); return; }
-    gold -= cost;
-    knifeLvl++; pistolLvl++;
-    spawnFloatingText(playerX, 420, '🛠️ SENJATA DIUPGRADE!', '#fbbf24');
-  } else if (activeStationTarget === 'stone') {
+function tryProximityUpgrade() {
+  // Check adjacent cells (including same cell / front boundary)
+  let upgradedAny = false;
+  let cellW = canvas.width / GRID_COLS;
+  let px = playerCol * cellW + cellW / 2;
+  let py = 360 + playerRow * 40 + 20;
+
+  // 1. Check if adjacent to Front Wall (playerRow === 0)
+  if (playerRow === 0) {
     let cost = wallLvl * 40;
-    if (gold < cost) { openTopup(); return; }
-    gold -= cost;
-    wallLvl++; maxHp += 50; hp = maxHp;
-    spawnFloatingText(playerX, 420, '💠 CORE STONE DIPERKUAT!', '#38bdf8');
-  } else if (activeStationTarget === 'turret') {
-    let cost = (turretLvl + 1) * 150;
     if (gold >= cost) {
-      gold -= cost; turretLvl++;
-      spawnFloatingText(playerX, 420, '🤖 TURRET AKTIF!', '#10b981');
-    } else if (gold >= 200) {
-      gold -= 200;
-      tanks.push({ x: 190, y: 400 });
-      tanks.push({ x: 120, y: 430 });
-      tanks.push({ x: 260, y: 430 });
-      screenShake = 6;
-      spawnFloatingText(playerX, 420, '🚜 PELETON TANK TIBA!', '#10b981');
+      gold -= cost; wallLvl++; maxHp += 50; hp = maxHp;
+      spawnFloatingText(px, py - 30, '💠 PAGAR & TUGU DIPERKUAT!', '#38bdf8');
+      upgradedAny = true;
     } else {
       openTopup(); return;
     }
   }
+
+  // 2. Check adjacent grid cells for Core Stone or Tower
+  for (let r = Math.max(0, playerRow - 1); r <= Math.min(GRID_ROWS - 1, playerRow + 1); r++) {
+    for (let c = Math.max(0, playerCol - 1); c <= Math.min(GRID_COLS - 1, playerCol + 1); c++) {
+      let obj = grid[r][c];
+      if (obj && obj.type === 'stone' && !upgradedAny) {
+        let cost = wallLvl * 40;
+        if (gold >= cost) {
+          gold -= cost; wallLvl++; maxHp += 50; hp = maxHp;
+          spawnFloatingText(px, py - 30, '💠 ENERGI CORE STONE NAIK!', '#38bdf8');
+          upgradedAny = true;
+        }
+      } else if (obj && obj.type === 'tower' && !upgradedAny) {
+        let cost = obj.lvl * 100;
+        if (gold >= cost) {
+          gold -= cost; obj.lvl++;
+          spawnFloatingText(c * cellW + 20, 360 + r * 40, `🤖 TOWER LV.${obj.lvl}!`, '#10b981');
+          upgradedAny = true;
+        }
+      }
+    }
+  }
+
+  // 3. If no adjacent object, upgrade player weapons
+  if (!upgradedAny) {
+    let cost = knifeLvl * 50;
+    if (gold >= cost) {
+      gold -= cost; knifeLvl++; pistolLvl++;
+      spawnFloatingText(px, py - 30, `🛠️ SENJATA LV.${knifeLvl}!`, '#fbbf24');
+      upgradedAny = true;
+    } else {
+      openTopup(); return;
+    }
+  }
+
   updateHUD();
-  checkStationProximity();
+  checkProximityPrompt();
+}
+
+function checkProximityPrompt() {
+  const prompt = document.getElementById('prox-prompt');
+  const title = document.getElementById('prox-title');
+  if (!prompt || !title) return;
+
+  if (playerRow === 0) {
+    title.innerText = `Mepet Pagar Barikade (Biaya: ${wallLvl * 40} 🪙)`;
+    prompt.classList.remove('hidden');
+    return;
+  }
+
+  for (let r = Math.max(0, playerRow - 1); r <= Math.min(GRID_ROWS - 1, playerRow + 1); r++) {
+    for (let c = Math.max(0, playerCol - 1); c <= Math.min(GRID_COLS - 1, playerCol + 1); c++) {
+      let obj = grid[r][c];
+      if (obj) {
+        if (obj.type === 'stone') {
+          title.innerText = `Mepet Core Stone (Biaya: ${wallLvl * 40} 🪙)`;
+          prompt.classList.remove('hidden');
+          return;
+        } else if (obj.type === 'tower') {
+          title.innerText = `Mepet Tower Lv.${obj.lvl} (Biaya: ${obj.lvl * 100} 🪙)`;
+          prompt.classList.remove('hidden');
+          return;
+        }
+      }
+    }
+  }
+
+  title.innerText = `Senjata Karakter (Biaya: ${knifeLvl * 50} 🪙)`;
+  prompt.classList.remove('hidden');
+}
+
+function triggerKnifeMelee(targetEnemy) {
+  knifeStabAnim = 15;
+  let dmg = knifeLvl * 50;
+  targetEnemy.hp -= dmg;
+  spawnParticle(targetEnemy.x, targetEnemy.y, '#ef4444', 8);
+  spawnFloatingText(targetEnemy.x, targetEnemy.y - 15, `🗡️ -${dmg}`, '#ef4444');
+  if (targetEnemy.hp <= 0) killEnemy(targetEnemy);
 }
 
 function spawnEnemy() {
@@ -283,22 +391,22 @@ function spawnEnemy() {
   const isNightHorde = isSimulating1900 || now.getHours() === 19;
 
   let baseHp = (25 + survivorLvl * 15) * (currentPhase === 2 ? 1.8 : (currentPhase === 3 ? 2.6 : 1));
-  let speed = 0.4 + Math.random() * 0.3;
-  let spawnX = 80 + Math.random() * 220;
+  let speed = 0.45 + Math.random() * 0.3;
+  let spawnX = 40 + Math.random() * 300;
 
   if (Math.random() < 0.18 && isNightHorde) {
     if (currentPhase === 1) {
-      enemies.push({ name: '🦹 BOS PEMIMPIN GENG', x: spawnX, y: 80, hp: baseHp * 4, maxHp: baseHp * 4, speed: speed * 0.6, size: 38, reward: 50, color: '#f59e0b', isBoss: true });
+      enemies.push({ name: '🦹 BOS PEMIMPIN GENG', x: spawnX, y: 70, hp: baseHp * 4, maxHp: baseHp * 4, speed: speed * 0.6, size: 38, reward: 50, color: '#f59e0b', isBoss: true });
     } else if (currentPhase === 2) {
-      enemies.push({ name: '🧪 ILMUWAN SETENGAH MUTAN', x: spawnX, y: 80, hp: baseHp * 5, maxHp: baseHp * 5, speed: speed * 0.7, size: 42, reward: 80, color: '#a855f7', isBoss: true });
+      enemies.push({ name: '🧪 ILMUWAN SETENGAH MUTAN', x: spawnX, y: 70, hp: baseHp * 5, maxHp: baseHp * 5, speed: speed * 0.7, size: 42, reward: 80, color: '#a855f7', isBoss: true });
     } else {
-      enemies.push({ name: '🧟 ILMUWAN ZOMBIE BERPIKIR', x: spawnX, y: 80, hp: baseHp * 6, maxHp: baseHp * 6, speed: speed * 0.8, size: 45, reward: 120, color: '#10b981', isBoss: true });
+      enemies.push({ name: '🧟 ILMUWAN ZOMBIE BERPIKIR', x: spawnX, y: 70, hp: baseHp * 6, maxHp: baseHp * 6, speed: speed * 0.8, size: 45, reward: 120, color: '#10b981', isBoss: true });
     }
   } else {
     let icon = currentPhase === 1 ? '🦹' : (currentPhase === 2 ? '🧪' : '🧟');
     enemies.push({
       name: `${icon} Pasukan Sindikat`,
-      x: spawnX, y: 80,
+      x: spawnX, y: 70,
       hp: baseHp, maxHp: baseHp,
       speed: speed * (isNightHorde ? 1.4 : 1.0),
       size: 28,
@@ -356,54 +464,41 @@ function loop() {
     screenShake--;
   }
 
-  // 1. Render 3D Perspective Environment
-  render3DEnvironment();
+  // 1. Render Environment & Grid Zone
+  renderEnvironmentAndGrid();
 
   // 2. Continuous Enemy Spawning
   const now = new Date();
   const isNightHorde = isSimulating1900 || now.getHours() === 19;
   spawnTimer++;
-  let spawnInterval = isNightHorde ? 30 : 65; // Fast continuous march
+  let spawnInterval = isNightHorde ? 28 : 60;
   if (spawnTimer >= spawnInterval) {
     spawnEnemy();
     spawnTimer = 0;
   }
 
-  // 3. Auto Turret
-  if (turretLvl > 0) {
-    autoShootTimer++;
-    if (autoShootTimer > Math.max(10, 45 - turretLvl * 3)) {
+  // 3. Automated Towers Shooting
+  autoShootTimer++;
+  if (autoShootTimer > 35) {
+    towers.forEach(t => {
       if (enemies.length > 0) {
         let target = enemies[0];
-        bullets.push({ x: 310, y: 390, vx: (target.x - 310) * 0.08, vy: (target.y - 390) * 0.08, dmg: turretLvl * 15 });
-      }
-      autoShootTimer = 0;
-    }
-  }
-
-  // 4. Update Tanks
-  for (let i = tanks.length - 1; i >= 0; i--) {
-    let t = tanks[i];
-    t.y -= 2.5;
-    ctx.font = '32px sans-serif';
-    ctx.fillText('🛡️🚜', t.x, t.y);
-    enemies.forEach(e => {
-      if (Math.hypot(t.x - e.x, t.y - e.y) < 40) {
-        e.hp -= 200;
-        spawnParticle(e.x, e.y, '#fbbf24', 10);
-        if (e.hp <= 0) killEnemy(e);
+        let cellW = canvas.width / GRID_COLS;
+        let tx = t.col * cellW + cellW / 2;
+        let ty = 360 + t.row * 40 + 20;
+        bullets.push({ x: tx, y: ty, vx: (target.x - tx) * 0.09, vy: (target.y - ty) * 0.09, dmg: t.lvl * 20 });
       }
     });
-    if (t.y < 80) tanks.splice(i, 1);
+    autoShootTimer = 0;
   }
 
-  // 5. Update Bullets
+  // 4. Update Bullets
   for (let i = bullets.length - 1; i >= 0; i--) {
     let b = bullets[i];
     b.x += b.vx; b.y += b.vy;
     ctx.fillStyle = '#fbbf24';
     ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2); ctx.fill();
-    if (b.y < 80 || b.x < 0 || b.x > canvas.width || b.y > canvas.height) {
+    if (b.y < 70 || b.x < 0 || b.x > canvas.width || b.y > canvas.height) {
       bullets.splice(i, 1); continue;
     }
     for (let j = enemies.length - 1; j >= 0; j--) {
@@ -419,12 +514,12 @@ function loop() {
     }
   }
 
-  // 6. Update Enemies
+  // 5. Update Enemies
   for (let i = enemies.length - 1; i >= 0; i--) {
     let e = enemies[i];
     e.y += e.speed;
-    let depthProgress = Math.max(0, Math.min(1, (e.y - 80) / 320));
-    let scale = 0.4 + depthProgress * 0.8;
+    let depthProgress = Math.max(0, Math.min(1, (e.y - 70) / 290));
+    let scale = 0.45 + depthProgress * 0.75;
 
     ctx.save();
     ctx.translate(e.x, e.y);
@@ -442,23 +537,21 @@ function loop() {
     ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, 40, 5);
     ctx.fillStyle = '#ef4444'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, Math.max(0, (e.hp / e.maxHp) * 40), 5);
 
-    // When enemy touches Barricade Wall (y >= 380)
-    if (e.y >= 380) {
-      // Check if player is nearby with Knife (within 60px)
-      if (Math.abs(playerX - e.x) < 65 && knifeStabAnim === 0 && gameTick % 20 === 0) {
+    // When enemy touches Front Wall boundary (y >= 355)
+    if (e.y >= 355) {
+      let cellW = canvas.width / GRID_COLS;
+      let px = playerCol * cellW + cellW / 2;
+      if (playerRow === 0 && Math.abs(px - e.x) < 70 && knifeStabAnim === 0 && gameTick % 20 === 0) {
         triggerKnifeMelee(e);
       }
-      hp -= 0.3 * currentPhase;
+      hp -= 0.35 * currentPhase;
       screenShake = 1;
       updateHUD();
       if (hp <= 0) { triggerCoreStoneStolen(); return; }
     }
   }
 
-  // 7. Render Interactive Stations, Monolith, Wall & Dynamic Player Character
-  renderWorldAndPlayer();
-
-  // 8. Update Particles & Texts
+  // 6. Update Particles & Texts
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
     p.x += p.vx; p.y += p.vy; p.life--;
@@ -480,69 +573,89 @@ function loop() {
   animationId = requestAnimationFrame(loop);
 }
 
-function render3DEnvironment() {
-  let skyGrad = ctx.createLinearGradient(0, 0, 0, 80);
+function renderEnvironmentAndGrid() {
+  // A. Sky & Ground
+  let skyGrad = ctx.createLinearGradient(0, 0, 0, 70);
   skyGrad.addColorStop(0, '#020617'); skyGrad.addColorStop(1, '#1e1b4b');
-  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 80);
+  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 70);
 
-  let groundGrad = ctx.createLinearGradient(0, 80, 0, canvas.height);
-  groundGrad.addColorStop(0, '#111827'); groundGrad.addColorStop(1, '#1f2937');
-  ctx.fillStyle = groundGrad; ctx.fillRect(0, 80, canvas.width, canvas.height - 80);
+  ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 70, canvas.width, 290);
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(190, 80); ctx.lineTo(0, 480);
-  ctx.moveTo(190, 80); ctx.lineTo(100, 480);
-  ctx.moveTo(190, 80); ctx.lineTo(280, 480);
-  ctx.moveTo(190, 80); ctx.lineTo(380, 480);
-  ctx.stroke();
-
-  [130, 190, 270, 360].forEach(y => {
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-  });
-}
-
-function renderWorldAndPlayer() {
-  // A. Interactive Stations behind fence
-  // Station 1: Weapon Workbench (x = 70)
-  ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(40, 415, 60, 40);
-  ctx.font = '24px sans-serif'; ctx.fillText('🛠️', 55, 442);
-  ctx.font = '10px sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.fillText('Senjata', 53, 460);
-
-  // Station 2: Core Stone Monolith (Center x = 190)
-  ctx.save();
-  ctx.fillStyle = '#334155'; ctx.fillRect(155, 355, 70, 70);
-  ctx.strokeStyle = '#475569'; ctx.lineWidth = 3; ctx.strokeRect(155, 355, 70, 70);
-  ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 18;
-  ctx.font = '36px sans-serif'; ctx.fillText('💠', 172, 402);
-  ctx.restore();
-
-  // Station 3: Turret & Tank Station (x = 310)
-  ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.fillRect(280, 415, 60, 40);
-  ctx.font = '24px sans-serif'; ctx.fillText('🤖🚀', 293, 442);
-  ctx.font = '10px sans-serif'; ctx.fillStyle = '#94a3b8'; ctx.fillText('Turret/Tank', 285, 460);
-
-  // B. Wooden Barricade Fence
-  ctx.fillStyle = '#3e2723'; ctx.fillRect(0, 420, canvas.width, 22);
-  ctx.font = '20px sans-serif';
-  for (let x = 8; x < canvas.width; x += 32) {
-    ctx.fillText('🪵', x, 438);
+  // B. Front Barricade Wall Boundary (y = 355 to 360)
+  ctx.fillStyle = '#3e2723'; ctx.fillRect(0, 355, canvas.width, 10);
+  ctx.font = '18px sans-serif';
+  for (let x = 6; x < canvas.width; x += 30) {
+    ctx.fillText('🪵', x, 364);
   }
 
-  // C. Dynamic Player 3D Hands moving with mouse/touch (playerX)
-  ctx.save();
-  // Left Hand: Survival Knife
-  let knifeOffset = knifeStabAnim > 0 ? -28 : 0;
-  ctx.font = '42px sans-serif';
-  ctx.fillText('🗡️', playerX - 35, 470 + knifeOffset);
+  // C. 8x4 Grid Zone behind Front Wall (y = 360 to 520)
+  let cellW = canvas.width / GRID_COLS;
+  let cellH = 40;
+  for (let r = 0; r < GRID_ROWS; r++) {
+    for (let c = 0; c < GRID_COLS; c++) {
+      let x = c * cellW;
+      let y = 360 + r * cellH;
 
-  // Right Hand: Tactical Pistol
-  let pistolOffset = pistolRecoilAnim > 0 ? 12 : 0;
-  ctx.fillText('🔫', playerX + 8, 465 + pistolOffset);
+      ctx.strokeStyle = 'rgba(56,189,248,0.15)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, cellW, cellH);
+
+      // Render Grid Objects
+      let obj = grid[r][c];
+      if (obj) {
+        if (obj.type === 'stone') {
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(x + 2, y + 2, cellW - 4, cellH - 4);
+          if (c === 3) {
+            ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 15;
+            ctx.font = '28px sans-serif';
+            ctx.fillText('💠', x + 20, y + 30);
+            ctx.shadowBlur = 0;
+          }
+        } else if (obj.type === 'tower') {
+          ctx.fillStyle = '#1e3a8a';
+          ctx.fillRect(x + 4, y + 4, cellW - 8, cellH - 8);
+          ctx.font = '22px sans-serif';
+          ctx.fillText('🤖', x + 10, y + 28);
+          ctx.font = '9px sans-serif'; ctx.fillStyle = '#38bdf8';
+          ctx.fillText(`Lv.${obj.lvl}`, x + 10, y + 38);
+        }
+      }
+    }
+  }
+
+  // D. Render 3D Player Character on Grid Cell (playerCol, playerRow) facing mouse direction
+  let px = playerCol * cellW + cellW / 2;
+  let py = 360 + playerRow * cellH + cellH / 2;
+
+  // Highlight player grid cell
+  ctx.fillStyle = 'rgba(251,191,36,0.2)';
+  ctx.fillRect(playerCol * cellW, 360 + playerRow * cellH, cellW, cellH);
+
+  // Calculate facing rotation angle towards mouse
+  let angle = Math.atan2(mouseY - py, mouseX - px);
+
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.rotate(angle + Math.PI / 2); // Rotate hands to face cursor
+
+  // Player body circle
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
+
+  // Left Hand Knife
+  let kOffset = knifeStabAnim > 0 ? -16 : 0;
+  ctx.font = '26px sans-serif';
+  ctx.fillText('🗡️', -25, -6 + kOffset);
+
+  // Right Hand Pistol
+  let pOffset = pistolRecoilAnim > 0 ? 8 : 0;
+  ctx.fillText('🔫', 6, -6 + pOffset);
   if (muzzleFlash > 0) {
-    ctx.font = '28px sans-serif';
-    ctx.fillText('💥', playerX - 5, 440);
+    ctx.font = '20px sans-serif';
+    ctx.fillText('💥', 6, -26);
   }
+
   ctx.restore();
 }
 
