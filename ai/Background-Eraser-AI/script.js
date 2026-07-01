@@ -168,6 +168,9 @@ async function eraseBackground() {
   }, 100);
 }
 
+let enableOutline = false;
+let enableShadow = false;
+
 function renderComposite() {
   const cvs = document.getElementById('res-canvas');
   cvs.width = cutoutCanvas.width;
@@ -183,8 +186,45 @@ function renderComposite() {
     ctx.drawImage(customBgImage, 0, 0, cvs.width, cvs.height);
   }
 
+  // Draw Drop Shadow if enabled
+  ctx.save();
+  if (enableShadow) {
+    ctx.shadowColor = 'rgba(0,0,0,0.65)';
+    ctx.shadowBlur = 28;
+    ctx.shadowOffsetX = 8;
+    ctx.shadowOffsetY = 15;
+  }
+
+  // Draw Outline Sticker if enabled (draw scaled cutout multiple times beneath)
+  if (enableOutline) {
+    const tempCvs = document.createElement('canvas');
+    tempCvs.width = cutoutCanvas.width;
+    tempCvs.height = cutoutCanvas.height;
+    const tempCtx = tempCvs.getContext('2d');
+    tempCtx.drawImage(cutoutCanvas, 0, 0);
+    tempCtx.globalCompositeOperation = 'source-in';
+    tempCtx.fillStyle = '#ffffff';
+    tempCtx.fillRect(0, 0, tempCvs.width, tempCvs.height);
+
+    const offsets = [[-6,0], [6,0], [0,-6], [0,6], [-4,-4], [4,-4], [-4,4], [4,4]];
+    offsets.forEach(off => ctx.drawImage(tempCvs, off[0], off[1]));
+  }
+
   // Draw transparent foreground cutout layer over background
   ctx.drawImage(cutoutCanvas, 0, 0);
+  ctx.restore();
+}
+
+function toggleSubjectOutline() {
+  enableOutline = !enableOutline;
+  renderComposite();
+  alert(enableOutline ? '✨ Sticker Outline Putih diaktifkan!' : '⭕ Sticker Outline dimatikan.');
+}
+
+function toggleSubjectShadow() {
+  enableShadow = !enableShadow;
+  renderComposite();
+  alert(enableShadow ? '✨ Drop Shadow 3D diaktifkan!' : '⭕ Drop Shadow dimatikan.');
 }
 
 function switchStudioTab(tab) {

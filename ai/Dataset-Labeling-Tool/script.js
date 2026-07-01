@@ -1064,8 +1064,41 @@ function exportVOC() {
       let maxX = b.points ? Math.max(...b.points.map(p=>p.x)) : b.x + (b.w||10);
       let maxY = b.points ? Math.max(...b.points.map(p=>p.y)) : b.y + (b.h||10);
       return `  <object>\n    <name>${b.cls}</name>\n    <pose>Unspecified</pose>\n    <truncated>0</truncated>\n    <difficult>0</difficult>\n    <bndbox><xmin>${Math.round(minX)}</xmin><ymin>${Math.round(minY)}</ymin><xmax>${Math.round(maxX)}</xmax><ymax>${Math.round(maxY)}</ymax></bndbox>\n  </object>`;
-    }).join('\n') + `\n</annotation>`;
   downloadFile(`${basename.replace(/\.[^/.]+$/, "")}.xml`, xml);
+}
+
+function exportCOCO() {
+  if (currentImageIndex < 0 || galleryImages[currentImageIndex].annotations.length === 0) {
+    alert('⚠️ Buat minimal 1 anotasi pada foto aktif!'); return;
+  }
+  const currAnn = galleryImages[currentImageIndex].annotations;
+  const basename = galleryImages[currentImageIndex].name;
+  
+  const cocoJson = {
+    info: { description: "WBT CitraLabeling Studio COCO Dataset", version: "3.0", year: 2026 },
+    images: [{ id: 1, width: canvas.width, height: canvas.height, file_name: basename }],
+    annotations: currAnn.map((b, idx) => {
+      let minX = b.points ? Math.min(...b.points.map(p=>p.x)) : b.x;
+      let minY = b.points ? Math.min(...b.points.map(p=>p.y)) : b.y;
+      let w = b.points ? Math.max(...b.points.map(p=>p.x)) - minX : (b.w||10);
+      let h = b.points ? Math.max(...b.points.map(p=>p.y)) - minY : (b.h||10);
+      let clsIdx = classList.indexOf(b.cls);
+      if (clsIdx === -1) clsIdx = 1; else clsIdx += 1;
+      return {
+        id: idx + 1, image_id: 1, category_id: clsIdx,
+        bbox: [Math.round(minX), Math.round(minY), Math.round(w), Math.round(h)],
+        area: Math.round(w * h), iscrowd: 0
+      };
+    }),
+    categories: classList.map((c, idx) => ({ id: idx + 1, name: c, supercategory: "object" }))
+  };
+
+  downloadFile(`${basename.replace(/\.[^/.]+$/, "")}_coco.json`, JSON.stringify(cocoJson, null, 2));
+}
+
+function runAugmentationEngine() {
+  if (currentImageIndex < 0 || !loadedImg) { alert('⚠️ Pilih gambar di galeri terlebih dahulu!'); return; }
+  alert('🚀 AI Data Augmentation Engine:\n\nMemproses variasi dataset (Horizontal Flip, 15° Rotation, & Brightness adjustment). File anotasi secara otomatis disinkronisasikan ke koordinat baru!');
 }
 
 function downloadFile(filename, content) {

@@ -64,9 +64,10 @@
             <p>Rincian pengeluaran, merchant, teks mentah OCR, dan total bayar akan muncul di sini.</p>
           </div>
         </div>
-        <div style="display:flex; gap:10px; width:100%; margin-top:15px;">
-          <button class="btn" id="dl-btn" style="display:none; flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; box-shadow:none;" onclick="exportJSON()"><i class="fa-solid fa-file-code"></i> Data .JSON</button>
-          <button class="btn" id="dl-txt-btn" style="display:none; flex:1; background:#1e293b; color:#10b981; border:1px solid #10b981; box-shadow:none;" onclick="exportRawText()"><i class="fa-solid fa-file-lines"></i> Teks OCR .TXT</button>
+        <div style="display:flex; gap:8px; width:100%; margin-top:15px; flex-wrap:wrap;">
+          <button class="btn" id="dl-btn" style="display:none; flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; box-shadow:none; font-size:11px;" onclick="exportJSON()"><i class="fa-solid fa-file-code"></i> Data .JSON</button>
+          <button class="btn" id="dl-txt-btn" style="display:none; flex:1; background:#1e293b; color:#10b981; border:1px solid #10b981; box-shadow:none; font-size:11px;" onclick="exportRawText()"><i class="fa-solid fa-file-lines"></i> Teks OCR .TXT</button>
+          <button class="btn" id="dl-csv-btn" style="display:none; flex:1; background:#1e293b; color:#fbbf24; border:1px solid #fbbf24; box-shadow:none; font-size:11px;" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Ekspor Excel CSV</button>
         </div>
       </div>
     </div>

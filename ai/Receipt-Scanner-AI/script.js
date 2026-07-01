@@ -143,6 +143,8 @@ function renderReceiptOutput() {
   `;
   document.getElementById('dl-btn').style.display = 'flex';
   document.getElementById('dl-txt-btn').style.display = 'flex';
+  const csvBtn = document.getElementById('dl-csv-btn');
+  if (csvBtn) csvBtn.style.display = 'flex';
 }
 
 function exportJSON() {
@@ -161,6 +163,24 @@ function exportRawText() {
   const a = document.createElement('a');
   a.href = url;
   a.download = 'WBT-Receipt-Raw-OCR.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function exportCSV() {
+  if (!extractedData) return;
+  let csv = `Merchant,Tanggal,No Receipt,Total\n"${extractedData.merchant || ''}","${extractedData.date || ''}","${extractedData.receipt_id || ''}","${extractedData.total || ''}"\n\nNama Barang,Harga Satuan\n`;
+  if (extractedData.items) {
+    extractedData.items.forEach(it => {
+      csv += `"${(it.name || '').replace(/"/g, '""')}","${it.price || ''}"\n`;
+    });
+  }
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'WBT-Receipt-Report.csv';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

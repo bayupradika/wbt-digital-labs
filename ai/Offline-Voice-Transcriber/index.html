@@ -66,7 +66,15 @@
       </div>
 
       <div class="card" style="align-items: stretch; text-align: left;">
-        <h2 class="card-title"><i class="fa-solid fa-file-word" style="color:#38bdf8;"></i> 2. Hasil Transkripsi Teks AI</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+          <h2 class="card-title" style="margin:0;"><i class="fa-solid fa-file-word" style="color:#38bdf8;"></i> 2. Hasil Transkripsi Teks AI</h2>
+          <select id="format-mode" style="padding:6px 12px; border-radius:8px; background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:800; font-size:12px;" onchange="formatOutputMode()">
+            <option value="txt">📄 Plain Text Bersih (.TXT)</option>
+            <option value="srt">🎬 Subtitle Video Timestamps (.SRT)</option>
+            <option value="diarization">👥 Speaker Diarization (Pembicara 1 & 2)</option>
+            <option value="summary">📌 AI Meeting Summary & Notulen Rapat</option>
+          </select>
+        </div>
         <textarea id="output-text" placeholder="Hasil transkripsi teks dari rekaman atau file audio Anda akan muncul di sini secara otomatis..." style="flex:1; min-height:260px;"></textarea>
         
         <div style="display:flex; gap:10px; margin-top:12px;">

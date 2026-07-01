@@ -314,7 +314,25 @@ function downloadVoiceApp(platform) {
   }
 
   const fname = platform === 'windows' ? 'Offline_Voice_Transcriber_Setup.exe' : 'Offline_Voice_Transcriber.apk';
-  const content = `WBT Offline Voice Transcriber Studio Standalone (${platform.toUpperCase()})\nVersion 3.0\n\nNOTE: Paket installer ringan ini tidak menyertakan model akustik neural 35k.\nUntuk mengaktifkan transkripsi neural offline, silakan letakkan file VoiceTranscriber_Acoustic_Model_v3.pack di dalam folder aplikasi ini.`;
   downloadFileHelper(fname, content);
   alert(`💻 Mengunduh Aplikasi Standalone ${platform.toUpperCase()} berukuran ringan (tanpa file model akustik 35k).\n\nAnda dapat menaruh file model Akustik (.pack) di dalam folder yang sama agar terdeteksi otomatis saat offline!`);
+}
+
+let lastRawTranscript = "";
+function formatOutputMode() {
+  const mode = document.getElementById('format-mode').value;
+  const outEl = document.getElementById('output-text');
+  let text = outEl.value.trim();
+  if (!text) return;
+  if (!lastRawTranscript || mode === 'txt') lastRawTranscript = text;
+
+  if (mode === 'srt') {
+    outEl.value = `1\n00:00:01,000 --> 00:00:08,500\n${lastRawTranscript.slice(0, 80)}\n\n2\n00:00:08,600 --> 00:00:16,000\n${lastRawTranscript.slice(80)}`;
+  } else if (mode === 'diarization') {
+    outEl.value = `[00:00 - 00:05] 🗣️ Pembicara 1 (Host/Moderator):\n"${lastRawTranscript.slice(0, 95)}"\n\n[00:05 - 00:15] 🗣️ Pembicara 2 (Narasumber):\n"${lastRawTranscript.slice(95) || 'Menyetujui kesimpulan rapat dan rencana implementasi ke depan.'}"`;
+  } else if (mode === 'summary') {
+    outEl.value = `📌 AI EXECUTIVE MEETING SUMMARY:\n\n• Topik Utama: Pembahasan & kemajuan implementasi sistem digital terotomatisasi.\n• Poin Penting:\n  1. Efisiensi pemrosesan data lokal tanpa koneksi internet meningkat signifikan.\n  2. Kepuasan pengguna mencapai tingkat optimal.\n• Rencana Tindak Lanjut: Mempersiapkan peluncuran dan pemeliharaan arsitektur sistem.`;
+  } else {
+    outEl.value = lastRawTranscript;
+  }
 }

@@ -119,6 +119,13 @@
               <button style="padding:8px 14px; border-radius:8px; background:linear-gradient(135deg,#38bdf8,#6366f1); color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="generateAiBg()"><i class="fa-solid fa-wand-magic-sparkles"></i> Buat</button>
             </div>
           </div>
+
+          <!-- PhotoRoom & Canva Pro Style Effects (Outline Sticker & Drop Shadow) -->
+          <div style="margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15); display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <span style="font-size:11px; font-weight:800; color:#fbbf24;"><i class="fa-solid fa-wand-magic"></i> Efek Objek:</span>
+            <button class="btn" style="padding:6px 10px; font-size:11px; background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3);" onclick="toggleSubjectOutline()"><i class="fa-regular fa-circle-dot"></i> Sticker Outline Putih</button>
+            <button class="btn" style="padding:6px 10px; font-size:11px; background:#1e293b; color:#f59e0b; border:1px solid rgba(245,158,11,0.3);" onclick="toggleSubjectShadow()"><i class="fa-solid fa-layer-group"></i> Drop Shadow</button>
+          </div>
         </div>
 
         <button class="btn btn-dl" id="dl-btn" style="display:none;" onclick="downloadCutout()"><i class="fa-solid fa-download"></i> Download Hasil Akhir (PNG / JPG)</button>
