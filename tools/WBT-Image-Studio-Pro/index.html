@@ -20,7 +20,7 @@
         WBT <span class="text-gradient">Image Studio</span>
         <span class="badge-wbt">Pro Suite</span>
       </a>
-      <div style="display: flex; gap: 14px; align-items: center;">
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
         <div class="quota-pill">
           <i class="fa-solid fa-bolt" style="color: var(--gold);"></i>
           <span>Kuota Harian: <b class="quota-count" id="quota-display">3 / 3</b></span>
@@ -28,6 +28,8 @@
         <button class="btn btn-gold" onclick="openUpgradeModal()">
           <i class="fa-solid fa-crown"></i> Pro Lifetime (Rp 25.000)
         </button>
+        <button class="btn" style="background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:800; font-size:12px; cursor:pointer;" onclick="downloadImageStudioApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
+        <button class="btn" style="background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:800; font-size:12px; cursor:pointer;" onclick="downloadImageStudioApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
       </div>
     </div>
   </header>
@@ -78,6 +80,18 @@
         <button class="btn btn-primary" id="btn-process" disabled onclick="processCurrentTool()">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Jalankan Pemrosesan & Unduh
         </button>
+      </div>
+
+      <!-- Offline Model Section -->
+      <div style="margin-top:20px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
+        <input type="file" id="studio-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleStudioOfflineModelUpload(event)">
+        <div id="studio-offline-status" style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">
+          Ingin Super-Resolution AI & OCR lokal 100% di Aplikasi Standalone (Tanpa Internet)?
+        </div>
+        <div style="display:flex; justify-content:center; gap:10px; max-width:480px; margin:0 auto;">
+          <button class="btn" style="flex:1; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:12px;" onclick="purchaseStudioOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model AI Studio (.pack)</button>
+          <button class="btn" style="flex:1; background:#10b981; color:white; font-weight:800; font-size:12px;" onclick="document.getElementById('studio-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+        </div>
       </div>
     </div>
   </section>
