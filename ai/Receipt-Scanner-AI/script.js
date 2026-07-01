@@ -10,8 +10,16 @@ setTimeout(updateDailyQuotaUI, 500);
 function updateDailyQuotaUI() {
   const todayKey = 'receipt_scanner_daily_umkm_' + new Date().toISOString().slice(0,10);
   const used = parseInt(localStorage.getItem(todayKey) || '0', 10);
+  const activeLimitStr = localStorage.getItem('receipt_scanner_tier_limit') || '10';
   const el = document.getElementById('quota-used');
-  if (el) el.innerText = used;
+  const badgeEl = document.getElementById('daily-quota-badge');
+
+  if (activeLimitStr === 'unlimited' || localStorage.getItem('receipt_offline_ai_model_loaded') === 'true' || localStorage.getItem('wbt_pro_unlocked') === 'true') {
+    if (el) el.innerHTML = `${used} / <span style="color:#34d399;">UNLIMITED VIP</span>`;
+    if (badgeEl) badgeEl.style.borderColor = '#34d399';
+  } else {
+    if (el) el.innerText = `${used} / ${activeLimitStr}`;
+  }
 }
 
 document.getElementById('file-input').addEventListener('change', function(e) {
@@ -72,18 +80,38 @@ async function checkReceiptOfflineModel() {
   return true;
 }
 
+function purchaseTierPackage(tier, price, limit, mayarUrl) {
+  window.open(mayarUrl, '_blank');
+  const namaTier = tier.toUpperCase();
+  const hargaStr = "Rp " + price.toLocaleString('id-ID');
+  
+  if (confirm(`🛒 MEMBUKA PAYMENT GATEWAY MAYAR.ID\n\nPaket Dipilih: TIER ${namaTier}\nHarga: ${hargaStr}\nBatas Kuota Baru: ${limit === 'unlimited' ? 'UNLIMITED + Download APK/EXE' : limit + ' Struk/Hari'}\n\nApakah Anda sudah menyelesaikan pembayaran di Mayar.id atau ingin melakukan SIMULASI AKTIVASI otomatis sekarang?`)) {
+    if (limit === 'unlimited') {
+      localStorage.setItem('receipt_scanner_tier_limit', 'unlimited');
+      localStorage.setItem('wbt_pro_unlocked', 'true');
+      localStorage.setItem('receipt_offline_ai_model_loaded', 'true');
+      alert(`🎉 SELAMAT! PAKET PRO VIP UNLIMITED BERHASIL DIAKTIFKAN!\n\nKini Anda dapat memindai struk tanpa batas selamanya serta mengunduh aplikasi standalone offline 100%.`);
+    } else {
+      localStorage.setItem('receipt_scanner_tier_limit', limit.toString());
+      alert(`🎉 BERHASIL UPGRADE KE PAKET ${namaTier} (${hargaStr})!\n\nBatas kuota harian Anda telah ditingkatkan menjadi ${limit} Struk/Hari.`);
+    }
+    updateDailyQuotaUI();
+  }
+}
+
 function checkDailyUMKMQuota(countNeeded = 1) {
-  if (localStorage.getItem('receipt_offline_ai_model_loaded') === 'true' || localStorage.getItem('wbt_pro_unlocked') === 'true') {
+  const activeLimitStr = localStorage.getItem('receipt_scanner_tier_limit') || '10';
+  if (activeLimitStr === 'unlimited' || localStorage.getItem('receipt_offline_ai_model_loaded') === 'true' || localStorage.getItem('wbt_pro_unlocked') === 'true') {
     return true;
   }
+
   const todayKey = 'receipt_scanner_daily_umkm_' + new Date().toISOString().slice(0,10);
   let currentUsage = parseInt(localStorage.getItem(todayKey) || '0', 10);
-  const DAILY_FREE_LIMIT = 10; // 70% dari rata-rata volume struk harian UMKM (15 struk/hari)
+  const activeLimit = parseInt(activeLimitStr, 10) || 10;
 
-  if (currentUsage + countNeeded > DAILY_FREE_LIMIT) {
-    const sisa = Math.max(0, DAILY_FREE_LIMIT - currentUsage);
-    alert(`⚡ Kuota Harian Gratis UMKM Telah Habis!\n\nBatas penggunaan gratis harian adalah ${DAILY_FREE_LIMIT} struk/hari (70% dari rata-rata volume struk harian UMKM).\n\nHari ini Anda telah memindai ${currentUsage} struk (Sisa kuota hari ini: ${sisa} struk).\n\nSilakan beli Paket Model OCR / Lisensi PRO seharga Rp 35.000 untuk pemindaian batch tanpa batas (Unlimited Batch Scan selamanya)!`);
-    if (typeof purchaseReceiptOfflineModel === 'function') purchaseReceiptOfflineModel();
+  if (currentUsage + countNeeded > activeLimit) {
+    const sisa = Math.max(0, activeLimit - currentUsage);
+    alert(`⚡ Kuota Harian (${activeLimit} Struk/Hari) Telah Habis!\n\nHari ini Anda telah memindai ${currentUsage} struk (Sisa kuota hari ini: ${sisa} struk).\n\nSilakan pilih Paket Upgrade Kuota di bawah:\n• Starter (50 Struk): Rp 5.000\n• Bisnis (200 Struk): Rp 10.000\n• Juragan (500 Struk): Rp 20.000\n• PRO VIP (Unlimited + APK): Rp 35.000`);
     return false;
   }
 
