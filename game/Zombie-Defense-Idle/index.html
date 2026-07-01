@@ -2,101 +2,138 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Zombie Defense Idle Pro - Strategy Offline</title>
+  <title>Outpost 3D: FPS RPG Survival Defense</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
   <div class="app-wrapper">
+    <!-- Top Bar: Clock & Currencies -->
     <div class="header">
-      <div class="logo">ZOMBIE <span style="color: #fbbf24;">DEFENSE PRO</span></div>
-      <div style="display: flex; gap: 10px;">
+      <div class="logo-box">
+        <div class="logo">OUTPOST <span style="color: #fbbf24;">3D</span></div>
+        <div class="clock-badge" id="clock-display">🕒 WIB 12:00:00</div>
+      </div>
+      <div class="currency-bar">
         <div class="pill" style="color: #fbbf24;" onclick="openTopup()"><i class="fa-solid fa-coins"></i> <span id="gold-display">0</span></div>
-        <div class="pill" style="color: #38bdf8;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> <span id="gem-display">0</span> <i class="fa-solid fa-plus-circle"></i></div>
+        <div class="pill" style="color: #38bdf8;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> <span id="gem-display">0</span> <i class="fa-solid fa-plus"></i></div>
       </div>
     </div>
 
+    <!-- Stats HUD -->
     <div class="stats-box">
-      <div><div style="font-size:11px;color:#94a3b8;">🛡️ DINDING BUNKER</div><div class="stat-val" style="color:#ef4444;" id="hp-display">100 / 100</div></div>
-      <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
-      <div><div style="font-size:11px;color:#94a3b8;">🧟 GELOMBANG</div><div class="stat-val" style="color:#fbbf24;" id="wave-display">Wave 1</div></div>
-      <div style="width:1px;background:rgba(255,255,255,0.1);"></div>
-      <div><div style="font-size:11px;color:#94a3b8;">🎯 SENJATA AKTIF</div><div class="stat-val" style="color:#38bdf8; font-size:16px;" id="weapon-display">🔫 Gatling</div></div>
-    </div>
-
-    <div class="hint-bar" id="hint-text">💥 Klik/Sentuh zombie untuk menembak atau biarkan meriam otomatis bekerja!</div>
-
-    <canvas id="gameCanvas" width="480" height="350"></canvas>
-
-    <div class="weapon-tabs">
-      <div class="weapon-tab active" id="tab-gatling" onclick="selectWeapon('gatling')">
-        <i class="fa-solid fa-gun" style="font-size:16px; color:#fbbf24;"></i>
-        <span>🔫 Gatling</span>
+      <div>
+        <div class="stat-lbl">🛡️ TEMBOK BARIKADE</div>
+        <div class="stat-val" style="color:#ef4444;" id="hp-display">100 / 100</div>
       </div>
-      <div class="weapon-tab" id="tab-plasma" onclick="selectWeapon('plasma')">
-        <i class="fa-solid fa-bolt" style="font-size:16px; color:#38bdf8;"></i>
-        <span>⚡ Plasma Laser</span>
+      <div class="vert-divider"></div>
+      <div>
+        <div class="stat-lbl">⚠️ STATUS HORDE</div>
+        <div class="stat-val" id="horde-status" style="color:#10b981;">Patroli Siang (Normal)</div>
       </div>
-      <div class="weapon-tab" id="tab-mortar" onclick="selectWeapon('mortar')">
-        <i class="fa-solid fa-rocket" style="font-size:16px; color:#ef4444;"></i>
-        <span>🚀 Mortar Roket</span>
+      <div class="vert-divider"></div>
+      <div>
+        <div class="stat-lbl">🎖️ LEVEL SURVIVOR</div>
+        <div class="stat-val" style="color:#fbbf24;" id="level-display">Lv. 1</div>
       </div>
     </div>
 
-    <div class="upgrades">
-      <button class="upg-btn" onclick="upgradeTurret()">
-        <i class="fa-solid fa-gears" style="color:#fbbf24; font-size:22px;"></i>
-        <span id="upg-title">Upgrade Gatling</span>
-        <span id="turret-cost" style="color:#fbbf24; font-size:12px;">50 🪙</span>
+    <!-- 3D Portrait Canvas Viewport -->
+    <div class="canvas-container">
+      <canvas id="gameCanvas" width="380" height="520"></canvas>
+      <div class="sim-toggle-box">
+        <button class="sim-btn" id="sim-horde-btn" onclick="toggleSimulate1900()"><i class="fa-solid fa-clock"></i> Tes Simulasi Jam 19:00 WIB</button>
+      </div>
+    </div>
+
+    <!-- Infinite RPG Upgrades Section -->
+    <div class="section-title"><i class="fa-solid fa-arrow-up-right-dots" style="color:#fbbf24;"></i> Upgrade Kekuatan Tanpa Batas (Infinite RPG)</div>
+    <div class="upgrades-grid">
+      <button class="upg-card" onclick="upgradeItem('knife')">
+        <div class="upg-icon"><i class="fa-solid fa-kitchen-set" style="color:#e2e8f0;"></i></div>
+        <div class="upg-info">
+          <b id="upg-knife-title">🗡️ Pisau Tangan Kiri (Lv.1)</b>
+          <span>Serangan jarak dekat saat musuh menyentuh pagar</span>
+        </div>
+        <div class="upg-cost" id="upg-knife-cost">50 🪙</div>
       </button>
-      <button class="upg-btn" onclick="repairBunker()">
-        <i class="fa-solid fa-shield-halved" style="color:#10b981; font-size:22px;"></i>
-        <span>Perbaiki & Perkuat Dinding (+30 HP)</span>
-        <span id="repair-cost" style="color:#10b981; font-size:12px;">40 🪙</span>
+
+      <button class="upg-card" onclick="upgradeItem('pistol')">
+        <div class="upg-icon"><i class="fa-solid fa-gun" style="color:#fbbf24;"></i></div>
+        <div class="upg-info">
+          <b id="upg-pistol-title">🔫 Pistol Tangan Kanan (Lv.1)</b>
+          <span>Damage tembakan FPS & kecepatan fire rate</span>
+        </div>
+        <div class="upg-cost" id="upg-pistol-cost">50 🪙</div>
       </button>
-      <button class="upg-btn" style="grid-column: span 2; flex-direction:row; justify-content:center;" onclick="useAirstrike()">
-        <i class="fa-solid fa-jet-fighter" style="color:#ef4444; font-size:22px;"></i>
-        <span>✈️ Panggil Serangan Udara Bom Napalm Semua Zombie</span>
-        <span style="color:#38bdf8; font-size:12px; margin-left:auto;">10 💎</span>
+
+      <button class="upg-card" onclick="upgradeItem('wall')">
+        <div class="upg-icon"><i class="fa-solid fa-shield-halved" style="color:#ef4444;"></i></div>
+        <div class="upg-info">
+          <b id="upg-wall-title">🧱 Tembok Kayu Barikade (Lv.1)</b>
+          <span>Meningkatkan kapasitas Max HP & ketahanan tembok</span>
+        </div>
+        <div class="upg-cost" id="upg-wall-cost">40 🪙</div>
+      </button>
+
+      <button class="upg-card" onclick="upgradeItem('turret')">
+        <div class="upg-icon"><i class="fa-solid fa-robot" style="color:#38bdf8;"></i></div>
+        <div class="upg-info">
+          <b id="upg-turret-title">🤖 Senjata Otomatis (Lv.0)</b>
+          <span>Turret meriam otomatis membantu menembak musuh</span>
+        </div>
+        <div class="upg-cost" id="upg-turret-cost">150 🪙</div>
+      </button>
+
+      <button class="upg-card" style="grid-column: span 2;" onclick="summonTankPlatoon()">
+        <div class="upg-icon"><i class="fa-solid fa-truck-monster" style="color:#10b981;"></i></div>
+        <div class="upg-info">
+          <b>🛡️ Panggil Peleton Tank Militer Bantuan</b>
+          <span>Mengirim tank baja menggilas gerombolan musuh di depan tembok</span>
+        </div>
+        <div class="upg-cost" style="background:#10b981; color:#0f172a;">200 🪙</div>
       </button>
     </div>
 
+    <!-- Start Overlay -->
     <div class="overlay" id="start-screen">
-      <div style="width: 100%; max-width: 340px; height: 150px; border-radius: 18px; overflow: hidden; margin-bottom: 12px; border: 2px solid rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.8); background: #0f0a0a;">
-        <img src="hero.png" alt="Zombie Defense Hero Banner" style="width:100%; height:100%; object-fit:cover;">
+      <div class="hero-box">
+        <img src="hero.png" alt="Outpost 3D FPS Banner" style="width:100%; height:100%; object-fit:cover;">
       </div>
-      <h1>ZOMBIE <span style="color: #fbbf24;">DEFENSE PRO</span></h1>
-      <p style="color: #fca5a5; font-size: 13px; line-height: 1.5; margin-bottom: 6px;">Pertahankan benteng baja terakhir manusia dari 4 kelas zombie mutasi!<br>Pilih senjata Gatling, Plasma Laser, atau Mortar Roket!</p>
-      <button class="btn" onclick="startGame()"><i class="fa-solid fa-play"></i> PERTAHANKAN BUNKER</button>
-      <button class="btn" style="background: #261c1c; color: #fbbf24; border: 2px solid #fbbf24; margin-top: 12px; box-shadow: none;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
+      <h1>OUTPOST <span style="color: #fbbf24;">3D FPS</span></h1>
+      <p class="desc-text">Bertahan di balik tembok barikade dalam sudut pandang 3D FPS!<br>Tangan Kiri Pisau Melee (`🗡️`) & Tangan Kanan Pistol (`🔫`).<br>Upgrade kekuatan tanpa batas dengan Koin Emas!</p>
+      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> MASUK POS PERTAHANAN</button>
+      <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>
 
+    <!-- Gameover Overlay -->
     <div class="overlay hidden" id="gameover-screen">
-      <h1 style="color: #ef4444;">JEBOL!</h1>
-      <p style="color: #94a3b8; margin: 10px 0;">Benteng baja berhasil dihancurkan gerombolan zombie!</p>
-      <div style="font-size: 18px; margin: 15px 0;">Bertahan Hingga: <b id="final-wave" style="color: white; font-size: 36px; display: block;">Wave 1</b></div>
-      <button class="btn" onclick="startGame()"><i class="fa-solid fa-rotate-right"></i> BERTEMPUR LAGI</button>
-      <button class="btn" style="background: #261c1c; color: #fbbf24; border: 2px solid #fbbf24; margin-top: 15px; box-shadow: none;" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
+      <h1 style="color: #ef4444;">TEMBOK HANCUR!</h1>
+      <p style="color: #94a3b8; margin: 8px 0;">Sindikat musuh berhasil menerobos barikade pertahanan Anda!</p>
+      <div style="font-size: 16px; margin: 12px 0;">Skor Bertahan: <b id="final-score" style="color: #fbbf24; font-size: 32px; display: block;">0 Detik</b></div>
+      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-rotate-right"></i> BERTAHAN LAGI</button>
+      <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>
 
+    <!-- Topup Modal -->
     <div class="modal" id="topup-modal">
       <div class="modal-content">
-        <button onclick="closeTopup()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fca5a5; font-size: 26px; cursor: pointer;">&times;</button>
-        <h2 style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-gem" style="color: #38bdf8;"></i> Toko Permata Militer</h2>
-        <p style="color: #fca5a5; font-size: 13px; margin-top: 5px;">Gunakan Gems untuk memanggil bom serangan udara!</p>
-        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
-          <div style="background: #261c1c; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1);">
-            <div><b style="color: #38bdf8; font-size: 18px;">💎 300 Gems</b><div style="font-size: 12px; color: #94a3b8;">Paket Prajurit</div></div>
-            <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px; background: #38bdf8; color: #0f172a;" onclick="buyGems('300 Gems Prajurit', 3000, 300)">Rp 3.000</button>
+        <button onclick="closeTopup()" class="close-btn">&times;</button>
+        <h2 style="font-family: 'Outfit', sans-serif;"><i class="fa-solid fa-gem" style="color: #38bdf8;"></i> Toko Logistik Pos</h2>
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 4px;">Gunakan Gems untuk membeli Koin Emas & Panggilan Darurat!</p>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 18px;">
+          <div class="topup-row">
+            <div><b style="color: #38bdf8; font-size: 16px;">💎 300 Gems</b><div style="font-size: 11px; color: #94a3b8;">Paket Prajurit</div></div>
+            <button class="btn-buy" onclick="buyGems('300 Gems Prajurit', 3000, 300)">Rp 3.000</button>
           </div>
-          <div style="background: #261c1c; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 2px solid #ef4444;">
-            <div><b style="color: #38bdf8; font-size: 18px;">💎 1.000 Gems</b><div style="font-size: 12px; color: #ef4444; font-weight: 700;">🔥 Komandan Jenderal</div></div>
-            <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px; background: #ef4444; color: white; box-shadow: none;" onclick="buyGems('1000 Gems Jenderal', 8000, 1000)">Rp 8.000</button>
+          <div class="topup-row featured">
+            <div><b style="color: #38bdf8; font-size: 16px;">💎 1.000 Gems</b><div style="font-size: 11px; color: #ef4444; font-weight: 700;">🔥 Komandan Pos</div></div>
+            <button class="btn-buy featured" onclick="buyGems('1000 Gems Komandan', 8000, 1000)">Rp 8.000</button>
           </div>
-          <div style="background: #261c1c; padding: 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.1);">
-            <div><b style="color: #38bdf8; font-size: 18px;">💎 3.000 Gems</b><div style="font-size: 12px; color: #fbbf24;">Paket Nuklir Sultan</div></div>
-            <button class="btn" style="padding: 10px 18px; margin: 0; font-size: 14px; background: #fbbf24; color: #0f172a;" onclick="buyGems('3000 Gems Nuklir', 15000, 3000)">Rp 15.000</button>
+          <div class="topup-row">
+            <div><b style="color: #38bdf8; font-size: 16px;">💎 3.000 Gems</b><div style="font-size: 11px; color: #fbbf24;">Paket Jenderal Sultan</div></div>
+            <button class="btn-buy" style="background:#fbbf24; color:#0f172a;" onclick="buyGems('3000 Gems Jenderal', 15000, 3000)">Rp 15.000</button>
           </div>
         </div>
       </div>
@@ -107,9 +144,7 @@
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').then(reg => {
-        console.log('SW registered:', reg);
-      }).catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW error:', err));
     });
   }
 </script>
