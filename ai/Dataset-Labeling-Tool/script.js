@@ -1279,6 +1279,8 @@ function loadImageToCanvas(url) {
   });
 }
 
+let tfCocoModel = null;
+
 async function runAutoLabelEngine() {
   const isStandaloneOrLocal = window.IS_OFFLINE_STANDALONE || window.location.protocol === 'file:';
   const hasLoadedModel = localStorage.getItem('citra_offline_ai_model_loaded') === 'true';
@@ -1291,11 +1293,6 @@ async function runAutoLabelEngine() {
   if (galleryImages.length === 0) {
     alert('⚠️ Galeri gambar masih kosong!'); return;
   }
-  if (currentImageIndex < 0 || galleryImages[currentImageIndex].annotations.length === 0) {
-    alert('⚠️ Buat minimal 1 bounding box referensi pada gambar saat ini terlebih dahulu sebagai panduan AI!');
-    closeAutoLabelModal();
-    return;
-  }
 
   const progressCont = document.getElementById('ai-progress-container');
   const progressBar = document.getElementById('ai-progress-bar');
@@ -1305,83 +1302,146 @@ async function runAutoLabelEngine() {
   if (progressCont) progressCont.style.display = 'block';
   if (btnRun) btnRun.disabled = true;
 
-  const refImgData = await loadImageToCanvas(galleryImages[currentImageIndex].url);
-  if (!refImgData) {
-    alert('⚠️ Gagal memproses gambar referensi!');
-    if (btnRun) btnRun.disabled = false;
-    return;
+  const total = galleryImages.length;
+  let useDeepLearning = false;
+
+  if (window.cocoSsd) {
+    try {
+      if (progressText) progressText.innerText = 'Memuat Model Deep Learning Neural Network (COCO-SSD WebGL)...';
+      if (!tfCocoModel) {
+        tfCocoModel = await window.cocoSsd.load();
+      }
+      useDeepLearning = true;
+    } catch (err) {
+      console.warn('Gagal memuat COCO-SSD, beralih ke engine One-Shot Correlator lokal:', err);
+    }
   }
 
-  const refAnns = galleryImages[currentImageIndex].annotations;
-  const refProfiles = [];
-  refAnns.forEach(ref => {
-    let w = ref.w || 80; let h = ref.h || 80;
-    let x = ref.x || 0; let y = ref.y || 0;
-    if (ref.type === 'polygon' && ref.points && ref.points.length >= 3) {
-      x = Math.min(...ref.points.map(p => p.x));
-      y = Math.min(...ref.points.map(p => p.y));
-      w = Math.max(...ref.points.map(p => p.x)) - x;
-      h = Math.max(...ref.points.map(p => p.y)) - y;
-    }
-    const hist = computeRegionHistogram(refImgData.ctx, x, y, w, h);
-    if (hist) {
-      refProfiles.push({ cls: ref.cls, w, h, hist });
-    }
-  });
+  if (useDeepLearning && tfCocoModel) {
+    for (let idx = 0; idx < total; idx++) {
+      if (progressBar) progressBar.style.width = Math.round(((idx + 1) / total) * 100) + '%';
+      if (progressText) progressText.innerText = `[Neural Engine] Mendeteksi objek pada gambar ${idx + 1} / ${total}...`;
 
-  const total = galleryImages.length;
+      const imgEl = new Image();
+      imgEl.crossOrigin = 'anonymous';
+      await new Promise((res) => {
+        imgEl.onload = res;
+        imgEl.onerror = res;
+        imgEl.src = galleryImages[idx].url;
+      });
 
-  for (let idx = 0; idx < total; idx++) {
-    if (progressBar) progressBar.style.width = Math.round(((idx + 1) / total) * 100) + '%';
-    if (progressText) progressText.innerText = `AI memindai posisi & mencocokkan objek pada gambar ${idx + 1} / ${total}...`;
-
-    if (idx !== currentImageIndex) {
-      const targetData = await loadImageToCanvas(galleryImages[idx].url);
-      if (targetData) {
-        let candidates = [];
-
-        refProfiles.forEach(prof => {
-          const stride = Math.max(16, Math.round(Math.min(prof.w, prof.h) / 4));
-          for (let wy = 0; wy <= targetData.height - prof.h; wy += stride) {
-            for (let wx = 0; wx <= targetData.width - prof.w; wx += stride) {
-              const winHist = computeRegionHistogram(targetData.ctx, wx, wy, prof.w, prof.h);
-              const score = computeHistSimilarity(winHist, prof.hist);
-              if (score > 0.74) {
-                candidates.push({ x: wx, y: wy, w: prof.w, h: prof.h, score: score, cls: prof.cls });
-              }
+      if (imgEl.width > 0 && imgEl.height > 0) {
+        const predictions = await tfCocoModel.detect(imgEl);
+        predictions.forEach(pred => {
+          if (pred.score >= 0.52) {
+            const [bx, by, bw, bh] = pred.bbox;
+            let targetCls = pred.class;
+            if (idx === currentImageIndex && galleryImages[currentImageIndex].annotations.length > 0) {
+              targetCls = galleryImages[currentImageIndex].annotations[0].cls || pred.class;
+            } else if (labels.length > 0 && !labels.includes(pred.class)) {
+              if (labels[0]) targetCls = labels[0];
             }
-          }
-        });
-
-        candidates.sort((a, b) => b.score - a.score);
-        let kept = [];
-        for (let cand of candidates) {
-          let overlap = false;
-          for (let k of kept) {
-            if (computeIoU(cand, k) > 0.35) {
-              overlap = true;
-              break;
+            if (!labels.includes(targetCls)) {
+              labels.push(targetCls);
             }
+            galleryImages[idx].annotations.push({
+              type: 'rect',
+              x: Math.round(bx),
+              y: Math.round(by),
+              w: Math.round(bw),
+              h: Math.round(bh),
+              cls: targetCls
+            });
           }
-          if (!overlap) {
-            kept.push(cand);
-            if (kept.length >= 10) break;
-          }
-        }
-
-        kept.forEach(box => {
-          galleryImages[idx].annotations.push({
-            type: 'rect',
-            x: box.x,
-            y: box.y,
-            w: box.w,
-            h: box.h,
-            cls: box.cls
-          });
         });
       }
+      await new Promise(r => setTimeout(r, 20));
     }
-    await new Promise(r => setTimeout(r, 40));
+  } else {
+    if (currentImageIndex < 0 || galleryImages[currentImageIndex].annotations.length === 0) {
+      alert('⚠️ Buat minimal 1 bounding box referensi pada gambar saat ini terlebih dahulu sebagai panduan AI!');
+      if (btnRun) btnRun.disabled = false;
+      if (progressCont) progressCont.style.display = 'none';
+      return;
+    }
+
+    const refImgData = await loadImageToCanvas(galleryImages[currentImageIndex].url);
+    if (!refImgData) {
+      alert('⚠️ Gagal memproses gambar referensi!');
+      if (btnRun) btnRun.disabled = false;
+      if (progressCont) progressCont.style.display = 'none';
+      return;
+    }
+
+    const refAnns = galleryImages[currentImageIndex].annotations;
+    const refProfiles = [];
+    refAnns.forEach(ref => {
+      let w = ref.w || 80; let h = ref.h || 80;
+      let x = ref.x || 0; let y = ref.y || 0;
+      if (ref.type === 'polygon' && ref.points && ref.points.length >= 3) {
+        x = Math.min(...ref.points.map(p => p.x));
+        y = Math.min(...ref.points.map(p => p.y));
+        w = Math.max(...ref.points.map(p => p.x)) - x;
+        h = Math.max(...ref.points.map(p => p.y)) - y;
+      }
+      const hist = computeRegionHistogram(refImgData.ctx, x, y, w, h);
+      if (hist) {
+        refProfiles.push({ cls: ref.cls, w, h, hist });
+      }
+    });
+
+    for (let idx = 0; idx < total; idx++) {
+      if (progressBar) progressBar.style.width = Math.round(((idx + 1) / total) * 100) + '%';
+      if (progressText) progressText.innerText = `[One-Shot Engine] Memindai & mencocokkan objek pada gambar ${idx + 1} / ${total}...`;
+
+      if (idx !== currentImageIndex) {
+        const targetData = await loadImageToCanvas(galleryImages[idx].url);
+        if (targetData) {
+          let candidates = [];
+
+          refProfiles.forEach(prof => {
+            const stride = Math.max(16, Math.round(Math.min(prof.w, prof.h) / 4));
+            for (let wy = 0; wy <= targetData.height - prof.h; wy += stride) {
+              for (let wx = 0; wx <= targetData.width - prof.w; wx += stride) {
+                const winHist = computeRegionHistogram(targetData.ctx, wx, wy, prof.w, prof.h);
+                const score = computeHistSimilarity(winHist, prof.hist);
+                if (score > 0.74) {
+                  candidates.push({ x: wx, y: wy, w: prof.w, h: prof.h, score: score, cls: prof.cls });
+                }
+              }
+            }
+          });
+
+          candidates.sort((a, b) => b.score - a.score);
+          let kept = [];
+          for (let cand of candidates) {
+            let overlap = false;
+            for (let k of kept) {
+              if (computeIoU(cand, k) > 0.35) {
+                overlap = true;
+                break;
+              }
+            }
+            if (!overlap) {
+              kept.push(cand);
+              if (kept.length >= 10) break;
+            }
+          }
+
+          kept.forEach(box => {
+            galleryImages[idx].annotations.push({
+              type: 'rect',
+              x: box.x,
+              y: box.y,
+              w: box.w,
+              h: box.h,
+              cls: box.cls
+            });
+          });
+        }
+      }
+      await new Promise(r => setTimeout(r, 40));
+    }
   }
 
   if (btnRun) btnRun.disabled = false;
@@ -1390,7 +1450,7 @@ async function runAutoLabelEngine() {
   renderGalleryStrip();
   updateList();
   redraw();
-  alert(`🤖 AI Auto-Label selesai! ${total} gambar di dalam galeri telah berhasil dipindai dan dilabeli tepat pada posisi objek yang menyerupai referensi.`);
+  alert(`🤖 AI Auto-Label Selesai! ${total} gambar telah berhasil dipindai dan dilabeli menggunakan ${useDeepLearning ? 'Deep Learning Neural Network (COCO-SSD)' : 'One-Shot Feature Correlator'}.`);
 }
 
 function purchaseOfflineAIModel() {
