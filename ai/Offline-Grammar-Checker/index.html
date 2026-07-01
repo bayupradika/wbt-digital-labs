@@ -2,38 +2,73 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline Grammar Checker - Indonesian & English</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Offline Grammar Checker Studio Pro - KBBI & Multilingual Writing Assistant</title>
+  <link rel="stylesheet" href="style.css?v=3.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="container">
     <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-spell-check"></i> AI Grammar Pro</div>
-      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+      <div class="logo"><i class="fa-solid fa-spell-check"></i> AI Grammar Studio Pro</div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadGrammarApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
+        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadGrammarApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
+      </div>
     </div>
 
     <div class="grid">
       <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-pen-nib" style="color:#6366f1;"></i> 1. Teks Asli (Yang Ingin Diperiksa)</h2>
-        <textarea id="input-text" placeholder="Ketik atau tempel kalimat yang ingin diperiksa tata bahasanya di sini..."></textarea>
-        <button style="margin-top: 10px; padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer; align-self: flex-start;" onclick="loadSample()">Gunakan Teks Contoh</button>
-        <button class="btn" onclick="checkGrammar()"><i class="fa-solid fa-magnifying-glass"></i> Periksa Tata Bahasa & Ejaan</button>
+        <h2 class="card-title"><i class="fa-solid fa-pen-nib" style="color:#6366f1;"></i> 1. Teks Asli & Mode Koreksi</h2>
+        
+        <div style="width:100%; margin-bottom:12px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+          <label style="font-size:11px; color:#6366f1; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-layer-group"></i> Mode Penulisan & Bahasa</label>
+          <select id="grammar-mode" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
+            <option value="kbbi">🇮🇩 Formal KBBI & Ejaan EYD Baku (Skripsi / Surat Resmi)</option>
+            <option value="journalistic">📰 Jurnalistik & Berita (Ringkas, Padat, Kalimat Aktif)</option>
+            <option value="english">🇬🇧 English Academic & Professional Proofreading</option>
+            <option value="paraphrase">✨ AI Parafrase Kreatif (Mengubah Struktur Kalimat Tanpa Ubah Makna)</option>
+          </select>
+        </div>
+
+        <textarea id="input-text" placeholder="Ketik atau tempel kalimat dokumen yang ingin diperiksa tata bahasanya di sini..."></textarea>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+          <button style="padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="loadSample()">Gunakan Teks Contoh</button>
+          <span id="char-counter" style="font-size:11px; color:#94a3b8;">0 karakter</span>
+        </div>
+
+        <button class="btn" style="margin-top:14px;" onclick="checkGrammar()"><i class="fa-solid fa-magnifying-glass"></i> Periksa Tata Bahasa & Koreksi AI</button>
+
+        <!-- Offline Model Section -->
+        <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
+          <input type="file" id="grammar-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleGrammarOfflineModelUpload(event)">
+          <div id="grammar-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
+            Ingin Mesin Grammar lokal 100% di Aplikasi Standalone (Tanpa Internet)?
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;" onclick="purchaseGrammarOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model Grammar (.pack)</button>
+            <button style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;" onclick="document.getElementById('grammar-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+          </div>
+        </div>
       </div>
 
       <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-check-double" style="color:#10b981;"></i> 2. Koreksi & Saran AI</h2>
+        <h2 class="card-title"><i class="fa-solid fa-check-double" style="color:#10b981;"></i> 2. Hasil Koreksi & Analisis Bahasa</h2>
         <div id="output-box" style="flex: 1; overflow-y: auto;">
           <div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
             <i class="fa-solid fa-clipboard-check" style="font-size: 40px; margin-bottom: 10px; color: #10b981;"></i>
-            <p>Saran perbaikan kalimat dan ejaan baku akan muncul di sini.</p>
+            <p>Saran perbaikan kalimat, analisis kesalahan ejaan, dan parafrase akan muncul di sini.</p>
           </div>
         </div>
-        <button class="btn btn-copy" id="copy-btn" style="display:none;" onclick="copyCorrected()"><i class="fa-regular fa-copy"></i> Salin Teks yang Telah Diperbaiki</button>
+        <div style="display:flex; gap:10px; margin-top:14px; width:100%;">
+          <button class="btn btn-copy" id="copy-btn" style="display:none; flex:1;" onclick="copyCorrected()"><i class="fa-regular fa-copy"></i> Salin Hasil</button>
+          <button class="btn" id="dl-txt-btn" style="display:none; flex:1; background:#0284c7;" onclick="downloadGrammarDoc()"><i class="fa-solid fa-file-word"></i> Simpan .TXT</button>
+        </div>
       </div>
     </div>
   </div>
-  <script src="../midtrans-pay.js"></script>
-  <script src="script.js"></script>
+  <script src="../midtrans-pay.js?v=3.0"></script>
+  <script src="script.js?v=3.0"></script>
 </body>
 </html>
