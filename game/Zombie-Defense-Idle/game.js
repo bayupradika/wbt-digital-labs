@@ -8,11 +8,16 @@ let gems = parseInt(localStorage.getItem('outpost_gems') || '50');
 let currentPhase = parseInt(localStorage.getItem('corestone_phase') || '1');
 let isLockedOut = localStorage.getItem('corestone_locked') === 'true';
 
-if (!localStorage.getItem('outpost_init_starter')) {
+if (!localStorage.getItem('outpost_init_v2')) {
+  gold = 100; // Starter gold pas 100 untuk bangun 1 turret
   gems = Math.max(gems, 50);
-  localStorage.setItem('outpost_init_starter', 'true');
+  localStorage.setItem('outpost_init_v2', 'true');
+  localStorage.setItem('outpost_gold', '100');
   localStorage.setItem('outpost_gems', gems);
 }
+
+let techLabBuilt = localStorage.getItem('outpost_tech_lab') === 'true';
+let techLabMesh = null;
 
 // Infinite Upgrade Levels
 let knifeLvl = parseInt(localStorage.getItem('outpost_knife_lvl') || '1');
@@ -130,6 +135,7 @@ function init3D() {
   grid[1][4] = { type: 'stone', name: 'Core Stone' };
 
   buildBarricadeWall();
+  buildTechLabMesh();
   buildFPSArms();
 }
 
@@ -180,6 +186,55 @@ function buildBarricadeWall() {
       fenceMeshes.push(log);
     }
   }
+}
+
+function buildTechLabMesh() {
+  if (techLabMesh) scene.remove(techLabMesh);
+  techLabMesh = new THREE.Group();
+
+  const posX = colToX(2);
+  const posZ = rowToZ(1);
+  techLabMesh.position.set(posX, 0, posZ);
+
+  if (!techLabBuilt) {
+    // Holographic Construction Blueprint Pad
+    const padGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.1, 16);
+    const padMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true });
+    const pad = new THREE.Mesh(padGeo, padMat);
+    pad.position.y = 0.08;
+    techLabMesh.add(pad);
+
+    const pillarGeo = new THREE.CylinderGeometry(0.05, 0.05, 1.5, 8);
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 2) {
+      const p = new THREE.Mesh(pillarGeo, padMat);
+      p.position.set(Math.cos(angle) * 1.0, 0.75, Math.sin(angle) * 1.0);
+      techLabMesh.add(p);
+    }
+  } else {
+    // Built Tech Lab 3D Building
+    const baseGeo = new THREE.BoxGeometry(2.2, 1.8, 2.2);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 0.9;
+    techLabMesh.add(base);
+
+    // Glowing Neon Dome
+    const domeGeo = new THREE.SphereGeometry(0.8, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+    const domeMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+    const dome = new THREE.Mesh(domeGeo, domeMat);
+    dome.position.y = 1.8;
+    techLabMesh.add(dome);
+
+    // Spinning Radar Antenna
+    const antGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.0);
+    const antMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24 });
+    const ant = new THREE.Mesh(antGeo, antMat);
+    ant.position.y = 2.4;
+    techLabMesh.add(ant);
+  }
+
+  scene.add(techLabMesh);
+  grid[1][2] = { type: 'tech_lab', built: techLabBuilt };
 }
 
 function buildFPSArms() {
@@ -373,6 +428,7 @@ window.addEventListener('keydown', e => {
   if (!gameRunning) return;
   const k = e.key.toUpperCase();
   if (k === 'T') tryBuildTower();
+  if (k === 'R') tryBuildTechLab();
   if (k === 'U') tryProximityUpgrade();
   if (k === 'I') toggleInventory();
   if (e.key === 'Escape') closeInventory();
@@ -501,11 +557,20 @@ function buildSciFiTurretTower() {
 }
 
 function tryBuildTower() {
+  if (towers.length >= 1) {
+    alert('⚠️ Batas Pembangunan: Anda hanya bisa membangun maksimal 1 Turret di Pos saat ini!');
+    return;
+  }
+  if (gold < 100) {
+    alert('⚠️ Gold tidak cukup! Membangun Turret membutuhkan 100 Gold.');
+    return;
+  }
+
   let currentCol = Math.max(0, Math.min(7, xToCol(playerX)));
   let currentRow = Math.max(1, Math.min(4, zToRow(playerZ)));
   let frontRow = currentRow + 1;
 
-  if (frontRow > 4 || grid[frontRow][currentCol] !== null || gold < 100) return;
+  if (frontRow > 4 || grid[frontRow][currentCol] !== null) return;
   gold -= 100;
 
   const tObj = buildSciFiTurretTower();
@@ -518,14 +583,77 @@ function tryBuildTower() {
   updateHUD();
 }
 
+function tryBuildTechLab() {
+  if (techLabBuilt) {
+    alert('✅ Bangunan Riset Teknologi sudah beroperasi!');
+    return;
+  }
+  if (gold < 150) {
+    alert('⚠️ Gold tidak cukup! Membangun Bangunan Riset Teknologi membutuhkan 150 Gold.');
+    return;
+  }
+  gold -= 150;
+  techLabBuilt = true;
+  localStorage.setItem('outpost_tech_lab', 'true');
+  buildTechLabMesh();
+  updateHUD();
+  alert('🔬 Riset Teknologi berhasil dibangun! Sekarang Anda memenuhi syarat untuk meningkatkan Turret dan Pagar ke Level 2+!');
+}
+
 function tryProximityUpgrade() {
   let currentRow = zToRow(playerZ);
-  if (currentRow >= 4 && fenceHp < fenceMaxHp * 2 && gold >= wallLvl * 40) {
-    gold -= wallLvl * 40; wallLvl++; fenceMaxHp += 60; fenceHp = fenceMaxHp; buildBarricadeWall();
-  } else if (gold >= knifeLvl * 50) {
-    gold -= knifeLvl * 50; knifeLvl++; pistolLvl++;
+  let currentCol = xToCol(playerX);
+
+  // 1. Cek di dekat Bangunan Riset Teknologi (Kolom 2, Baris 1-2)
+  if (currentRow <= 2 && Math.abs(currentCol - 2) <= 1.5 && !techLabBuilt) {
+    tryBuildTechLab();
+    return;
   }
-  updateHUD();
+
+  // 2. Cek di dekat Pagar (Baris 4-5)
+  if (currentRow >= 3.5) {
+    const wallCost = 250 * wallLvl;
+    if (wallLvl >= 1 && !techLabBuilt) {
+      alert('🔒 RISET TEKNOLOGI DIPERLUKAN!\nAnda harus membangun Bangunan Riset Teknologi (Tekan [R] dekat pos, 150 Gold) terlebih dahulu sebelum bisa meningkatkan Pagar ke Level ' + (wallLvl + 1) + '!');
+      return;
+    }
+    if (gold < wallCost) {
+      alert('⚠️ Gold tidak cukup! Upgrade Pagar ke Lv ' + (wallLvl + 1) + ' membutuhkan ' + wallCost + ' Gold.');
+      return;
+    }
+    gold -= wallCost;
+    wallLvl++;
+    fenceMaxHp += 100;
+    fenceHp = fenceMaxHp;
+    buildBarricadeWall();
+    localStorage.setItem('outpost_wall_lvl', wallLvl);
+    updateHUD();
+    alert('🛡️ Pagar berhasil ditingkatkan ke Level ' + wallLvl + '!');
+    return;
+  }
+
+  // 3. Cek di dekat Turret
+  if (towers.length > 0) {
+    let t = towers[0];
+    if (Math.abs(currentRow - t.row) <= 1.5 && Math.abs(currentCol - t.col) <= 1.5) {
+      const turretCost = 250 * t.lvl;
+      if (t.lvl >= 1 && !techLabBuilt) {
+        alert('🔒 RISET TEKNOLOGI DIPERLUKAN!\nAnda harus membangun Bangunan Riset Teknologi (Tekan [R] dekat pos, 150 Gold) terlebih dahulu sebelum bisa meningkatkan Turret ke Level ' + (t.lvl + 1) + '!');
+        return;
+      }
+      if (gold < turretCost) {
+        alert('⚠️ Gold tidak cukup! Upgrade Turret ke Lv ' + (t.lvl + 1) + ' membutuhkan ' + turretCost + ' Gold.');
+        return;
+      }
+      gold -= turretCost;
+      t.lvl++;
+      updateHUD();
+      alert('🏗️ Turret berhasil ditingkatkan ke Level ' + t.lvl + '! Kerusakan kini ' + (t.lvl * 8) + ' per tembakan!');
+      return;
+    }
+  }
+
+  alert('💡 Petunjuk Upgrade:\n- Mepet ke Turret lalu tekan [U] untuk upgrade Turret (250 Gold x Lv).\n- Mepet ke Pagar lalu tekan [U] untuk upgrade Pagar (250 Gold x Lv).\n- Tekan [R] di dekat Kolom 2 untuk membangun Riset Teknologi (150 Gold).');
 }
 
 function buildFullHumanoidEnemy(isPatrol) {
