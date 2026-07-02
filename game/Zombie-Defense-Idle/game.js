@@ -62,7 +62,8 @@ let particles = [];
 let floatingTexts = [];
 
 let autoShootTimer = 0;
-let spawnTimer = 0;
+let attackerSpawnTimer = 0; // 3 per minute = every 20s (1200 frames at 60fps)
+let patrolSpawnTimer = 0;   // 1 per minute = every 60s (3600 frames at 60fps)
 let gameTick = 0;
 let screenShake = 0;
 let knifeStabAnim = 0;
@@ -87,10 +88,10 @@ function updateClock() {
   const statusEl = document.getElementById('horde-status');
   if (statusEl) {
     if (isNightHorde) {
-      statusEl.innerText = '🔥 HORDE 19:00 WIB (Siaga 1)';
+      statusEl.innerText = '🔥 JAM 19:00 WIB (Aktif)';
       statusEl.style.color = '#ef4444';
     } else {
-      statusEl.innerText = '🛡️ Patroli Biasa (Siang)';
+      statusEl.innerText = '🛡️ Patroli Siang';
       statusEl.style.color = '#10b981';
     }
   }
@@ -106,7 +107,7 @@ function toggleSimulate1900() {
   }
   updateClock();
   if (isSimulating1900 && gameRunning) {
-    spawnFloatingText(190, 240, '⚠️ GELOMBANG HORDE 19:00 WIB TIBA!', '#ef4444');
+    spawnFloatingText(190, 240, '⚠️ JAM 19:00 WIB: GEROMBOLAN TIBA!', '#ef4444');
     screenShake = 12;
   }
 }
@@ -169,8 +170,12 @@ function startGame() {
   playerRow = 2;
   initGrid();
   gameRunning = true;
+  attackerSpawnTimer = 0;
+  patrolSpawnTimer = 0;
   updateHUD();
-  spawnEnemy();
+  // Spawn initial 1 attacker and 1 patrol right away on start
+  spawnEnemy(false);
+  spawnEnemy(true);
   cancelAnimationFrame(animationId);
   loop();
 }
@@ -394,21 +399,38 @@ function triggerKnifeMelee(targetEnemy) {
   if (targetEnemy.hp <= 0) killEnemy(targetEnemy);
 }
 
-function spawnEnemy() {
+function spawnEnemy(isPatrol = false) {
   const now = new Date();
   const isNightHorde = isSimulating1900 || now.getHours() === 19;
 
   let baseHp = (25 + survivorLvl * 15) * (currentPhase === 2 ? 1.8 : (currentPhase === 3 ? 2.6 : 1));
-  let speed = 0.45 + Math.random() * 0.3;
-  let spawnX = 40 + Math.random() * 300;
+  let speed = 0.4 + Math.random() * 0.25;
+  let spawnX = 50 + Math.random() * 280;
 
-  if (Math.random() < 0.18 && isNightHorde) {
+  if (isPatrol) {
+    let patrolIcon = currentPhase === 1 ? '🔍' : (currentPhase === 2 ? '🧬' : '📡');
+    enemies.push({
+      name: `${patrolIcon} Patroli Pengintai`,
+      x: spawnX, y: 80 + Math.random() * 100,
+      vx: (Math.random() > 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.5),
+      vy: (Math.random() > 0.5 ? 1 : -1) * (0.3 + Math.random() * 0.3),
+      hp: baseHp * 0.8, maxHp: baseHp * 0.8,
+      speed: 0,
+      size: 26,
+      reward: 35 * currentPhase,
+      color: '#06b6d4',
+      isPatrol: true
+    });
+    return;
+  }
+
+  if (Math.random() < 0.2 && isNightHorde) {
     if (currentPhase === 1) {
-      enemies.push({ name: '🦹 BOS PEMIMPIN GENG', x: spawnX, y: 70, hp: baseHp * 4, maxHp: baseHp * 4, speed: speed * 0.6, size: 38, reward: 50, color: '#f59e0b', isBoss: true });
+      enemies.push({ name: '🦹 BOS PEMIMPIN GENG', x: spawnX, y: 70, hp: baseHp * 4, maxHp: baseHp * 4, speed: speed * 0.6, size: 38, reward: 50, color: '#f59e0b', isBoss: true, isPatrol: false });
     } else if (currentPhase === 2) {
-      enemies.push({ name: '🧪 ILMUWAN SETENGAH MUTAN', x: spawnX, y: 70, hp: baseHp * 5, maxHp: baseHp * 5, speed: speed * 0.7, size: 42, reward: 80, color: '#a855f7', isBoss: true });
+      enemies.push({ name: '🧪 ILMUWAN SETENGAH MUTAN', x: spawnX, y: 70, hp: baseHp * 5, maxHp: baseHp * 5, speed: speed * 0.7, size: 42, reward: 80, color: '#a855f7', isBoss: true, isPatrol: false });
     } else {
-      enemies.push({ name: '🧟 ILMUWAN ZOMBIE BERPIKIR', x: spawnX, y: 70, hp: baseHp * 6, maxHp: baseHp * 6, speed: speed * 0.8, size: 45, reward: 120, color: '#10b981', isBoss: true });
+      enemies.push({ name: '🧟 ILMUWAN ZOMBIE BERPIKIR', x: spawnX, y: 70, hp: baseHp * 6, maxHp: baseHp * 6, speed: speed * 0.8, size: 45, reward: 120, color: '#10b981', isBoss: true, isPatrol: false });
     }
   } else {
     let icon = currentPhase === 1 ? '🦹' : (currentPhase === 2 ? '🧪' : '🧟');
@@ -416,10 +438,11 @@ function spawnEnemy() {
       name: `${icon} Pasukan Sindikat`,
       x: spawnX, y: 70,
       hp: baseHp, maxHp: baseHp,
-      speed: speed * (isNightHorde ? 1.4 : 1.0),
+      speed: speed * (isNightHorde ? 1.3 : 1.0),
       size: 28,
       reward: 15 * currentPhase,
-      color: currentPhase === 1 ? '#38bdf8' : (currentPhase === 2 ? '#c084fc' : '#34d399')
+      color: currentPhase === 1 ? '#38bdf8' : (currentPhase === 2 ? '#c084fc' : '#34d399'),
+      isPatrol: false
     });
   }
 }
@@ -475,14 +498,18 @@ function loop() {
   // 1. Render Environment & Grid Zone
   renderEnvironmentAndGrid();
 
-  // 2. Continuous Enemy Spawning
-  const now = new Date();
-  const isNightHorde = isSimulating1900 || now.getHours() === 19;
-  spawnTimer++;
-  let spawnInterval = isNightHorde ? 28 : 60;
-  if (spawnTimer >= spawnInterval) {
-    spawnEnemy();
-    spawnTimer = 0;
+  // 2. Strict Cadence: Exactly 3 attackers per minute (every 1200 frames at 60 FPS)
+  // and exactly 1 patrol unit per minute (every 3600 frames at 60 FPS), unchanged by phase
+  attackerSpawnTimer++;
+  if (attackerSpawnTimer >= 1200) {
+    spawnEnemy(false);
+    attackerSpawnTimer = 0;
+  }
+
+  patrolSpawnTimer++;
+  if (patrolSpawnTimer >= 3600) {
+    spawnEnemy(true);
+    patrolSpawnTimer = 0;
   }
 
   // 3. Automated Towers Shooting
@@ -522,22 +549,34 @@ function loop() {
     }
   }
 
-  // 5. Update Enemies & Check Physical Fence Block
+  // 5. Update Enemies (Attackers vs Patrol Units)
   for (let i = enemies.length - 1; i >= 0; i--) {
     let e = enemies[i];
     
-    // If fence HP > 0, block enemy advance at y = 350
-    if (e.y < 350 || fenceHp <= 0) {
-      e.y += e.speed;
+    if (e.isPatrol) {
+      // Patrol unit moves randomly in the background zone (y = 70 to 220) without approaching fence
+      e.x += e.vx;
+      e.y += e.vy;
+      if (e.x < 35 || e.x > canvas.width - 35) e.vx *= -1;
+      if (e.y < 75 || e.y > 220) e.vy *= -1;
+      if (Math.random() < 0.02) {
+        e.vx = (Math.random() - 0.5) * 1.5;
+        e.vy = (Math.random() - 0.5) * 0.8;
+      }
     } else {
-      // Blocked at fence! Attack fence
-      e.y = 350;
-      fenceHp -= 0.25 * currentPhase;
-      screenShake = 1;
-      updateHUD();
-      if (fenceHp <= 0) {
-        spawnFloatingText(canvas.width / 2, 350, '💥 PAGAR DEPAN RUNTUH!', '#ef4444');
-        screenShake = 10;
+      // Attacking unit marches down toward fence
+      if (e.y < 350 || fenceHp <= 0) {
+        e.y += e.speed;
+      } else {
+        // Blocked at fence! Attack fence
+        e.y = 350;
+        fenceHp -= 0.25 * currentPhase;
+        screenShake = 1;
+        updateHUD();
+        if (fenceHp <= 0) {
+          spawnFloatingText(canvas.width / 2, 350, '💥 PAGAR DEPAN RUNTUH!', '#ef4444');
+          screenShake = 10;
+        }
       }
     }
 
@@ -552,7 +591,7 @@ function loop() {
     ctx.fillStyle = e.color;
     ctx.beginPath(); ctx.arc(0, 0, e.size / 2, 0, Math.PI * 2); ctx.fill();
     ctx.shadowBlur = 0;
-    ctx.font = '22px sans-serif';
+    ctx.font = '20px sans-serif';
     ctx.fillText(e.name.slice(0, 2), -11, 7);
 
     ctx.restore();
@@ -561,7 +600,7 @@ function loop() {
     ctx.fillStyle = '#ef4444'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, Math.max(0, (e.hp / e.maxHp) * 40), 5);
 
     // Melee attack when touching player row 0 near fence
-    if (e.y >= 350 && playerRow === 0) {
+    if (!e.isPatrol && e.y >= 350 && playerRow === 0) {
       let cellW = canvas.width / GRID_COLS;
       let px = playerCol * cellW + cellW / 2;
       if (Math.abs(px - e.x) < 65 && knifeStabAnim === 0 && gameTick % 20 === 0) {
@@ -570,7 +609,7 @@ function loop() {
     }
 
     // If enemy reaches Core Stone at back row (y >= 460)
-    if (e.y >= 460) {
+    if (!e.isPatrol && e.y >= 460) {
       stoneHp -= 0.4 * currentPhase;
       screenShake = 2;
       updateHUD();
@@ -615,7 +654,6 @@ function renderEnvironmentAndGrid() {
       ctx.fillText('🪵', x, 359);
     }
   } else {
-    // Ruined fence debris
     ctx.font = '14px sans-serif';
     for (let x = 15; x < canvas.width; x += 55) {
       ctx.fillText('💥🪵', x, 358);
