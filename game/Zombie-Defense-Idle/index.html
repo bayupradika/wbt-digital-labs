@@ -37,11 +37,6 @@
             <span class="hud-stat-val" style="color:#fbbf24;"><span id="gold-display">100</span> G</span>
           </div>
           <div class="hud-divider"></div>
-          <div class="hud-stat-item" style="cursor:pointer;" onclick="openInventory()">
-            <span class="hud-stat-lbl">🪵 BAHAN KAYU</span>
-            <span class="hud-stat-val" style="color:#e2e8f0;"><span id="wood-display">0</span> 🪵</span>
-          </div>
-          <div class="hud-divider"></div>
           <div class="hud-stat-item" onclick="openTopup()" style="cursor:pointer;">
             <span class="hud-stat-lbl">💎 PERMATA GEMS</span>
             <span class="hud-stat-val" style="color:#38bdf8;"><span id="gem-display">50</span> 💎</span>
@@ -62,17 +57,19 @@
 
     <!-- Bottom HUD Bar -->
     <div class="hud-bottom">
-      <div class="controls-bar">
-        <div class="ctrl-tag"><kbd>W A S D</kbd> Gerak</div>
-        <div class="ctrl-tag" style="color:#fbbf24;"><kbd>Q</kbd> Ganti Senjata (<span id="active-wep-lbl">Pistol</span>)</div>
-        <div class="ctrl-tag" style="color:#10b981;"><kbd>T</kbd> Bangun Turret (100🪙)</div>
+      <div class="controls-bar" style="flex-wrap: wrap;">
+        <div class="ctrl-tag"><kbd>W A S D</kbd> Gerak 360°</div>
+        <div class="ctrl-tag" style="color:#38bdf8;"><kbd>SPASI</kbd> Lompat Pagar</div>
+        <div class="ctrl-tag" style="color:#fbbf24;"><kbd>Q</kbd> Ganti (<span id="active-wep-lbl">Pistol</span>)</div>
+        <div class="ctrl-tag" style="color:#10b981;"><kbd>B</kbd> Menu Bangunan</div>
         <div class="ctrl-tag" style="color:#a855f7;"><kbd>U</kbd> Upgrade Kursor (+)</div>
-        <div class="ctrl-tag" style="color:#38bdf8;"><kbd>I</kbd> Tas Bahan</div>
-        <div class="ctrl-tag" style="color:#e2e8f0;"><kbd>E</kbd> Senjata</div>
+        <div class="ctrl-tag" style="color:#e2e8f0;"><kbd>E</kbd> Gudang Senjata</div>
+        <div class="ctrl-tag" style="color:#fbbf24;"><kbd>I</kbd> Tas Grid Bahan</div>
       </div>
 
       <div class="controls-bar" style="gap: 8px;">
-        <button class="btn-pc" style="padding: 8px 16px; font-size: 12px; width: auto; background:#3b82f6; color:white;" onclick="openEquipment()"><i class="fa-solid fa-gun"></i> [E] SENJATA</button>
+        <button class="btn-pc" style="padding: 8px 14px; font-size: 12px; width: auto; background:#10b981; color:white;" onclick="openBuildingMenu()"><i class="fa-solid fa-gavel"></i> [B] BANGUNAN</button>
+        <button class="btn-pc" style="padding: 8px 14px; font-size: 12px; width: auto; background:#3b82f6; color:white;" onclick="openEquipment()"><i class="fa-solid fa-gun"></i> [E] SENJATA</button>
         <button class="btn-pc" style="padding: 8px 16px; font-size: 12px; width: auto; background:#2563eb; color:white;" onclick="openInventory()"><i class="fa-solid fa-briefcase"></i> [I] TAS BAHAN</button>
       </div>
     </div>
@@ -116,55 +113,147 @@
 
   <!-- Inventory Modal -->
   <div class="modal" id="inventory-modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 680px;">
       <button onclick="closeInventory()" class="close-btn">&times;</button>
-      <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 6px;"><i class="fa-solid fa-briefcase" style="color: #fbbf24;"></i> Tas Bahan Material [I]</h2>
-      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Tekan shortcut <b>[I]</b> atau <b>[ESC]</b> untuk menutup tas bahan.</p>
+      <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 6px;"><i class="fa-solid fa-briefcase" style="color: #fbbf24;"></i> Tas Bahan Material & Aset Grid [I]</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Semua sumber daya yang Anda kumpulkan di pertempuran tersimpan di dalam sel grid ini.</p>
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-        <div style="background:#1e293b; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
-          <div style="font-weight:800; color:#fbbf24; font-size:15px; margin-bottom:6px;">🪙 Kekayaan Gold</div>
-          <div style="font-size:20px; font-weight:800; color:#fbbf24; margin-bottom:4px;"><span id="inv-gold-val">100</span> G</div>
-          <div style="font-size:11px; color:#94a3b8;">Bertumbuh +0.1/dtk & +1/kill</div>
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
+        <!-- Slot 1: Gold -->
+        <div style="background:#1e293b; padding:12px; border-radius:12px; border:2px solid #fbbf24; text-align:center;">
+          <div style="font-size:26px; margin-bottom:4px;">🪙</div>
+          <div style="font-size:11px; color:#94a3b8; font-weight:700;">GOLD COIN</div>
+          <div style="font-size:15px; font-weight:800; color:#fbbf24; margin-top:2px;"><span id="inv-grid-gold">100</span> G</div>
         </div>
-        <div style="background:#1e293b; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
-          <div style="font-weight:800; color:#e2e8f0; font-size:15px; margin-bottom:6px;">🪵 Bahan Kayu Hutan</div>
-          <div style="font-size:20px; font-weight:800; color:#e2e8f0; margin-bottom:4px;"><span id="inv-wood-val">0</span> 🪵</div>
-          <div style="font-size:11px; color:#94a3b8;">Muncul di luar pagar (Menit 3-5)</div>
+        <!-- Slot 2: Permata -->
+        <div style="background:#1e293b; padding:12px; border-radius:12px; border:2px solid #38bdf8; text-align:center;">
+          <div style="font-size:26px; margin-bottom:4px;">💎</div>
+          <div style="font-size:11px; color:#94a3b8; font-weight:700;">PERMATA GEMS</div>
+          <div style="font-size:15px; font-weight:800; color:#38bdf8; margin-top:2px;"><span id="inv-grid-gems">50</span></div>
         </div>
-        <div style="background:#1e293b; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
-          <div style="font-weight:800; color:#a855f7; font-size:15px; margin-bottom:6px;">🔬 Riset Teknologi</div>
-          <div style="font-size:14px; color:#e2e8f0; margin-bottom:4px;">Status: <b id="inv-tech-lbl" style="color:#a855f7;">Belum Dibangun</b></div>
-          <div style="font-size:11px; color:#94a3b8;">Upgrade butuh 500 Gold + 10 Kayu</div>
+        <!-- Slot 3: Kayu -->
+        <div style="background:#1e293b; padding:12px; border-radius:12px; border:2px solid #a16207; text-align:center;">
+          <div style="font-size:26px; margin-bottom:4px;">🪵</div>
+          <div style="font-size:11px; color:#94a3b8; font-weight:700;">KAYU HUTAN</div>
+          <div style="font-size:15px; font-weight:800; color:#fde047; margin-top:2px;"><span id="inv-grid-wood">0</span></div>
         </div>
-        <div style="background:#1e293b; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
-          <div style="font-weight:800; color:#10b981; font-size:15px; margin-bottom:6px;">🛡️ Level Pagar & Barak</div>
-          <div style="font-size:14px; color:#e2e8f0; margin-bottom:4px;">Pagar: <b id="inv-wall-lbl" style="color:#10b981;">Lv 1</b> | Barak: <b id="inv-barrack-lbl" style="color:#38bdf8;">Lv 0</b></div>
-          <div style="font-size:11px; color:#94a3b8;">Biaya Pagar naik 50%, HP naik 25%</div>
+        <!-- Slot 4: Riset Tech -->
+        <div style="background:#1e293b; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); text-align:center;">
+          <div style="font-size:26px; margin-bottom:4px;">🔬</div>
+          <div style="font-size:11px; color:#94a3b8; font-weight:700;">RISET TECH</div>
+          <div style="font-size:13px; font-weight:800; color:#a855f7; margin-top:2px;" id="inv-grid-tech">Belum Ada</div>
         </div>
+        <!-- Slot 5: Level Pagar -->
+        <div style="background:#1e293b; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); text-align:center;">
+          <div style="font-size:26px; margin-bottom:4px;">🛡️</div>
+          <div style="font-size:11px; color:#94a3b8; font-weight:700;">PAGAR POS</div>
+          <div style="font-size:13px; font-weight:800; color:#10b981; margin-top:2px;" id="inv-grid-wall">Level 1</div>
+        </div>
+        <!-- Slot 6: Level Barak -->
+        <div style="background:#1e293b; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.1); text-align:center;">
+          <div style="font-size:26px; margin-bottom:4px;">⛺</div>
+          <div style="font-size:11px; color:#94a3b8; font-weight:700;">BARAK PASUKAN</div>
+          <div style="font-size:13px; font-weight:800; color:#38bdf8; margin-top:2px;" id="inv-grid-barrack">Level 0</div>
+        </div>
+        <!-- Slot Kosong 7..12 -->
+        <div style="background:#0f172a; padding:12px; border-radius:12px; border:1px dashed rgba(255,255,255,0.08); text-align:center; opacity:0.5;"><div style="font-size:22px;">📦</div><div style="font-size:10px; color:#64748b;">Kosong</div></div>
+        <div style="background:#0f172a; padding:12px; border-radius:12px; border:1px dashed rgba(255,255,255,0.08); text-align:center; opacity:0.5;"><div style="font-size:22px;">📦</div><div style="font-size:10px; color:#64748b;">Kosong</div></div>
+        <div style="background:#0f172a; padding:12px; border-radius:12px; border:1px dashed rgba(255,255,255,0.08); text-align:center; opacity:0.5;"><div style="font-size:22px;">📦</div><div style="font-size:10px; color:#64748b;">Kosong</div></div>
+        <div style="background:#0f172a; padding:12px; border-radius:12px; border:1px dashed rgba(255,255,255,0.08); text-align:center; opacity:0.5;"><div style="font-size:22px;">📦</div><div style="font-size:10px; color:#64748b;">Kosong</div></div>
+        <div style="background:#0f172a; padding:12px; border-radius:12px; border:1px dashed rgba(255,255,255,0.08); text-align:center; opacity:0.5;"><div style="font-size:22px;">📦</div><div style="font-size:10px; color:#64748b;">Kosong</div></div>
+        <div style="background:#0f172a; padding:12px; border-radius:12px; border:1px dashed rgba(255,255,255,0.08); text-align:center; opacity:0.5;"><div style="font-size:22px;">📦</div><div style="font-size:10px; color:#64748b;">Kosong</div></div>
       </div>
     </div>
   </div>
 
-  <!-- Equipment Modal -->
-  <div class="modal" id="equipment-modal">
-    <div class="modal-content" style="max-width: 640px;">
-      <button onclick="closeEquipment()" class="close-btn">&times;</button>
-      <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 6px;"><i class="fa-solid fa-gun" style="color: #3b82f6;"></i> Manajemen Senjata FPS [E]</h2>
-      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Tekan shortcut <b>[Q]</b> saat bertempur untuk berganti senjata aktif di tangan.</p>
+  <!-- Building Menu Modal [B] -->
+  <div class="modal" id="building-modal">
+    <div class="modal-content" style="max-width: 580px;">
+      <button onclick="closeBuildingMenu()" class="close-btn">&times;</button>
+      <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 6px;"><i class="fa-solid fa-gavel" style="color: #10b981;"></i> Daftar Pembangunan Instan [B]</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Pilih bangunan lalu klik <b>Oke Bangun</b>. Kekurangan Gold otomatis dikonversi dari Permata (1 💎 = 18 Gold).</p>
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-        <div id="wep-slot-1" style="background:#1e293b; padding:16px; border-radius:16px; border:2px solid #fbbf24;">
-          <div style="font-weight:800; color:#fbbf24; font-size:15px; margin-bottom:6px;">🔫 Slot 1: Ranged Weapon</div>
-          <div style="font-size:16px; font-weight:800; color:white; margin-bottom:4px;">Pistol Taktis FPS</div>
-          <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Damage: 10/bullet | Speed: 2/dtk</div>
-          <span style="background:#fbbf24; color:#0f172a; font-size:11px; font-weight:800; padding:6px 10px; border-radius:8px;">Sedang Dipegang [Q]</span>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+        <label style="display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 14px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="radio" name="build-select" value="turret" checked style="width: 18px; height: 18px; accent-color: #10b981;">
+            <div>
+              <div style="font-weight: 800; font-size: 15px; color: #fbbf24;">🏗️ Sci-Fi Railgun Turret</div>
+              <div style="font-size: 12px; color: #94a3b8;">Kecepatan tembak 3x pemain, penargetan otomatis 360°.</div>
+            </div>
+          </div>
+          <span style="background: #0f172a; color: #fbbf24; font-weight: 800; font-size: 13px; padding: 6px 12px; border-radius: 8px;">100 Gold</span>
+        </label>
+
+        <label style="display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 14px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="radio" name="build-select" value="tech" style="width: 18px; height: 18px; accent-color: #10b981;">
+            <div>
+              <div style="font-weight: 800; font-size: 15px; color: #a855f7;">🔬 Bangunan Riset Teknologi</div>
+              <div style="font-size: 12px; color: #94a3b8;">Desain Geo-Dome Quantum Plasma. Syarat wajib upgrade Level 2+.</div>
+            </div>
+          </div>
+          <span style="background: #0f172a; color: #a855f7; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px;">500 G + 10 🪵</span>
+        </label>
+
+        <label style="display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 14px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="radio" name="build-select" value="barrack" style="width: 18px; height: 18px; accent-color: #10b981;">
+            <div>
+              <div style="font-weight: 800; font-size: 15px; color: #38bdf8;">⛺ Barak Pertahanan Pasukan</div>
+              <div style="font-size: 12px; color: #94a3b8;">Pusat komando pertahanan pos. Syarat wajib upgrade Pagar Level 4+.</div>
+            </div>
+          </div>
+          <span style="background: #0f172a; color: #38bdf8; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px;">400 G + 5 🪵</span>
+        </label>
+      </div>
+
+      <button onclick="confirmBuildSelection()" class="btn-pc" style="width: 100%; padding: 14px; background: #10b981; color: white; font-size: 15px; font-weight: 800; border-radius: 14px; border: none; cursor: pointer;"><i class="fa-solid fa-check-circle"></i> OKE, BANGUN SEKARANG INSTANT</button>
+    </div>
+  </div>
+
+  <!-- Equipment Modal [E] -->
+  <div class="modal" id="equipment-modal">
+    <div class="modal-content" style="max-width: 740px;">
+      <button onclick="closeEquipment()" class="close-btn">&times;</button>
+      <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 6px;"><i class="fa-solid fa-gun" style="color: #3b82f6;"></i> Gudang Senjata & Pilihan Loadout [E]</h2>
+      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Tekan tombol <b>[Q]</b> saat bertempur untuk bertukar antara Senjata Jarak Jauh (Slot 1) dan Senjata Melee (Slot 2).</p>
+      
+      <div style="font-weight: 800; color: #fbbf24; font-size: 14px; margin-bottom: 8px;">🔫 SLOT 1: SENJATA JARAK JAUH (RANGED)</div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+        <div style="background:#1e293b; padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-weight:800; color:white; font-size:14px;">Pistol Taktis FPS</div>
+          <div style="font-size:11px; color:#94a3b8; margin:4px 0 10px;">Dmg: 10 | Spd: 2/dtk</div>
+          <button class="btn-pc" style="padding:6px; font-size:11px; width:100%; background:#2563eb; color:white;" onclick="selectWeapon('ranged', 'pistol')">Pilih Pistol</button>
         </div>
-        <div id="wep-slot-2" style="background:#1e293b; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08);">
-          <div style="font-weight:800; color:#e2e8f0; font-size:15px; margin-bottom:6px;">🗡️ Slot 2: Melee Weapon</div>
-          <div style="font-size:16px; font-weight:800; color:white; margin-bottom:4px;">Pisau Survival Komando</div>
-          <div style="font-size:12px; color:#94a3b8; margin-bottom:12px;">Damage: 15/hit | Melee Strike</div>
-          <span style="background:#0f172a; color:#94a3b8; font-size:11px; font-weight:800; padding:6px 10px; border-radius:8px;">Dalam Sarung [Q]</span>
+        <div style="background:#1e293b; padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-weight:800; color:#38bdf8; font-size:14px;">Sci-Fi Sniper Rifle</div>
+          <div style="font-size:11px; color:#94a3b8; margin:4px 0 10px;">Dmg: 45 | Spd: 0.7/dtk</div>
+          <button class="btn-pc" style="padding:6px; font-size:11px; width:100%; background:#0284c7; color:white;" onclick="selectWeapon('ranged', 'sniper')">Pilih Sniper</button>
+        </div>
+        <div style="background:#1e293b; padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-weight:800; color:#ef4444; font-size:14px;">Combat Shotgun</div>
+          <div style="font-size:11px; color:#94a3b8; margin:4px 0 10px;">Dmg: 24 | Sebar Area</div>
+          <button class="btn-pc" style="padding:6px; font-size:11px; width:100%; background:#dc2626; color:white;" onclick="selectWeapon('ranged', 'shotgun')">Pilih Shotgun</button>
+        </div>
+      </div>
+
+      <div style="font-weight: 800; color: #10b981; font-size: 14px; margin-bottom: 8px;">🗡️ SLOT 2: SENJATA JARAK DEKAT (MELEE)</div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+        <div style="background:#1e293b; padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-weight:800; color:white; font-size:14px;">Pisau Komando</div>
+          <div style="font-size:11px; color:#94a3b8; margin:4px 0 10px;">Dmg: 15 | Cepat (4/dtk)</div>
+          <button class="btn-pc" style="padding:6px; font-size:11px; width:100%; background:#059669; color:white;" onclick="selectWeapon('melee', 'knife')">Pilih Pisau</button>
+        </div>
+        <div style="background:#1e293b; padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-weight:800; color:#a855f7; font-size:14px;">Katana Plasma</div>
+          <div style="font-size:11px; color:#94a3b8; margin:4px 0 10px;">Dmg: 30 | Tebas Tebal</div>
+          <button class="btn-pc" style="padding:6px; font-size:11px; width:100%; background:#7c3aed; color:white;" onclick="selectWeapon('melee', 'sword')">Pilih Katana</button>
+        </div>
+        <div style="background:#1e293b; padding:14px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+          <div style="font-weight:800; color:#fbbf24; font-size:14px;">Kapak Titanium</div>
+          <div style="font-size:11px; color:#94a3b8; margin:4px 0 10px;">Dmg: 40 | Brutal Strike</div>
+          <button class="btn-pc" style="padding:6px; font-size:11px; width:100%; background:#d97706; color:white;" onclick="selectWeapon('melee', 'axe')">Pilih Kapak</button>
         </div>
       </div>
     </div>

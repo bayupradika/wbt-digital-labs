@@ -22,7 +22,13 @@ let barracksLvl = parseInt(localStorage.getItem('outpost_barracks_lvl') || '0');
 let techLabMesh = null;
 let woodCount = parseInt(localStorage.getItem('outpost_wood') || '0');
 let woodItems = [];
-let activeWeaponSlot = 1; // 1 = Pistol (Ranged), 2 = Pisau (Melee)
+let activeWeaponSlot = 1; // 1 = Ranged, 2 = Melee
+let equippedRanged = localStorage.getItem('outpost_eq_ranged') || 'pistol'; // pistol, sniper, shotgun
+let equippedMelee = localStorage.getItem('outpost_eq_melee') || 'knife'; // knife, sword, axe
+let techLabRadarRing = null;
+let isJumping = false;
+let jumpVy = 0;
+let playerY = 3.2;
 
 // Infinite Upgrade Levels
 let knifeLvl = parseInt(localStorage.getItem('outpost_knife_lvl') || '1');
@@ -202,40 +208,57 @@ function buildTechLabMesh() {
   techLabMesh.position.set(posX, 0, posZ);
 
   if (!techLabBuilt) {
-    // Holographic Construction Blueprint Pad
-    const padGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.1, 16);
+    const padGeo = new THREE.CylinderGeometry(1.4, 1.4, 0.1, 6);
     const padMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true });
     const pad = new THREE.Mesh(padGeo, padMat);
     pad.position.y = 0.08;
     techLabMesh.add(pad);
 
-    const pillarGeo = new THREE.CylinderGeometry(0.05, 0.05, 1.5, 8);
-    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 2) {
+    const pillarGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.8, 6);
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 3) {
       const p = new THREE.Mesh(pillarGeo, padMat);
-      p.position.set(Math.cos(angle) * 1.0, 0.75, Math.sin(angle) * 1.0);
+      p.position.set(Math.cos(angle) * 1.2, 0.9, Math.sin(angle) * 1.2);
       techLabMesh.add(p);
     }
   } else {
-    // Built Tech Lab 3D Building
-    const baseGeo = new THREE.BoxGeometry(2.2, 1.8, 2.2);
-    const baseMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8, roughness: 0.3 });
+    // 1. Hexagonal Armored Base Pedestal
+    const baseGeo = new THREE.CylinderGeometry(1.5, 1.7, 0.8, 6);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9, roughness: 0.2 });
     const base = new THREE.Mesh(baseGeo, baseMat);
-    base.position.y = 0.9;
+    base.position.y = 0.4;
     techLabMesh.add(base);
 
-    // Glowing Neon Dome
-    const domeGeo = new THREE.SphereGeometry(0.8, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-    const domeMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+    // 2. Quantum Glass Geodesic Dome
+    const domeGeo = new THREE.SphereGeometry(1.2, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+    const domeMat = new THREE.MeshStandardMaterial({ color: 0x8b5cf6, metalness: 0.3, roughness: 0.1, transparent: true, opacity: 0.55 });
     const dome = new THREE.Mesh(domeGeo, domeMat);
-    dome.position.y = 1.8;
+    dome.position.y = 0.8;
     techLabMesh.add(dome);
 
-    // Spinning Radar Antenna
-    const antGeo = new THREE.CylinderGeometry(0.08, 0.08, 1.0);
-    const antMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24 });
-    const ant = new THREE.Mesh(antGeo, antMat);
-    ant.position.y = 2.4;
-    techLabMesh.add(ant);
+    // 3. Inner Quantum Core Sphere
+    const coreGeo = new THREE.SphereGeometry(0.45, 16, 16);
+    const coreMat = new THREE.MeshBasicMaterial({ color: 0xa855f7 });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    core.position.y = 1.4;
+    techLabMesh.add(core);
+
+    // 4. Rotating Holographic Radar Ring
+    const ringGeo = new THREE.TorusGeometry(1.45, 0.06, 8, 32);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    techLabRadarRing = new THREE.Mesh(ringGeo, ringMat);
+    techLabRadarRing.position.y = 1.2;
+    techLabRadarRing.rotation.x = Math.PI / 2;
+    techLabMesh.add(techLabRadarRing);
+
+    // 5. External Energy Supports
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 2) {
+      const supGeo = new THREE.BoxGeometry(0.15, 1.4, 0.15);
+      const supMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 });
+      const sup = new THREE.Mesh(supGeo, supMat);
+      sup.position.set(Math.cos(angle) * 1.3, 0.9, Math.sin(angle) * 1.3);
+      sup.rotation.y = -angle;
+      techLabMesh.add(sup);
+    }
   }
 
   scene.add(techLabMesh);
@@ -243,45 +266,59 @@ function buildTechLabMesh() {
 }
 
 function buildFPSArms() {
-  scene.add(camera);
+  if (knifeGroup) camera.remove(knifeGroup);
+  if (pistolGroup) camera.remove(pistolGroup);
 
-  // Left Hand: Survival Knife
+  // Left Hand / Melee Group
   knifeGroup = new THREE.Group();
-  const bladeGeo = new THREE.BoxGeometry(0.06, 0.45, 0.04);
-  const bladeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 });
-  const blade = new THREE.Mesh(bladeGeo, bladeMat);
-  blade.position.y = 0.25;
-  knifeGroup.add(blade);
-  const hGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.2);
-  const hMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
-  const h = new THREE.Mesh(hGeo, hMat);
-  knifeGroup.add(h);
+  if (equippedMelee === 'sword') {
+    // Katana Plasma
+    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.8, 0.06), new THREE.MeshBasicMaterial({ color: 0xa855f7 }));
+    blade.position.y = 0.45; knifeGroup.add(blade);
+  } else if (equippedMelee === 'axe') {
+    // Kapak Titanium
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+    handle.position.y = 0.3; knifeGroup.add(handle);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.25, 0.3), new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9 }));
+    head.position.set(0, 0.5, 0.1); knifeGroup.add(head);
+  } else {
+    // Pisau Survival
+    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.45, 0.04), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9 }));
+    blade.position.y = 0.25; knifeGroup.add(blade);
+  }
   knifeGroup.position.set(-0.35, -0.3, -0.65);
-  knifeGroup.rotation.z = 0.2;
-  knifeGroup.rotation.x = 0.4;
+  knifeGroup.rotation.z = 0.2; knifeGroup.rotation.x = 0.4;
   camera.add(knifeGroup);
 
-  // Right Hand: Tactical Pistol
+  // Right Hand / Ranged Group
   pistolGroup = new THREE.Group();
-  const barrelGeo = new THREE.BoxGeometry(0.08, 0.12, 0.4);
   const gunMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.7, roughness: 0.3 });
-  const barrel = new THREE.Mesh(barrelGeo, gunMat);
-  pistolGroup.add(barrel);
-  const gripGeo = new THREE.BoxGeometry(0.07, 0.2, 0.1);
-  const grip = new THREE.Mesh(gripGeo, gunMat);
-  grip.position.set(0, -0.12, 0.1);
-  grip.rotation.x = 0.3;
-  pistolGroup.add(grip);
+  if (equippedRanged === 'sniper') {
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.85), gunMat);
+    pistolGroup.add(barrel);
+    const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.3), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+    scope.rotation.x = Math.PI / 2; scope.position.set(0, 0.12, 0); pistolGroup.add(scope);
+  } else if (equippedRanged === 'shotgun') {
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.55), new THREE.MeshStandardMaterial({ color: 0xdc2626 }));
+    pistolGroup.add(barrel);
+  } else {
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.4), gunMat);
+    pistolGroup.add(barrel);
+  }
+  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.2, 0.1), gunMat);
+  grip.position.set(0, -0.12, 0.1); grip.rotation.x = 0.3; pistolGroup.add(grip);
   pistolGroup.position.set(0.32, -0.25, -0.6);
   camera.add(pistolGroup);
 
-  // Muzzle Flash
-  const flashGeo = new THREE.SphereGeometry(0.12);
+  const flashGeo = new THREE.SphereGeometry(0.14);
   const flashMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
   muzzleFlashMesh = new THREE.Mesh(flashGeo, flashMat);
-  muzzleFlashMesh.position.set(0, 0, -0.3);
+  muzzleFlashMesh.position.set(0, 0, -0.4);
   muzzleFlashMesh.visible = false;
   pistolGroup.add(muzzleFlashMesh);
+
+  pistolGroup.visible = (activeWeaponSlot === 1);
+  knifeGroup.visible = (activeWeaponSlot === 2);
 }
 
 init3D();
@@ -302,8 +339,6 @@ function updateHUD() {
   if (gEl) gEl.innerText = Math.floor(gold).toLocaleString('id-ID');
   const gemEl = document.getElementById('gem-display');
   if (gemEl) gemEl.innerText = gems.toLocaleString('id-ID');
-  const wEl = document.getElementById('wood-display');
-  if (wEl) wEl.innerText = woodCount.toLocaleString('id-ID');
 
   const fHpEl = document.getElementById('fence-hp-display');
   if (fHpEl) {
@@ -319,18 +354,29 @@ function updateHUD() {
   const sHpEl = document.getElementById('stone-hp-display');
   if (sHpEl) sHpEl.innerText = `${Math.max(0, Math.floor(stoneHp))} / ${stoneMaxHp}`;
 
-  const invGold = document.getElementById('inv-gold-val');
-  if (invGold) invGold.innerText = Math.floor(gold).toLocaleString('id-ID');
-  const invWood = document.getElementById('inv-wood-val');
+  // Populate Grid Inventory Cells [I]
+  const invG = document.getElementById('inv-grid-gold');
+  if (invG) invG.innerText = Math.floor(gold).toLocaleString('id-ID') + ' G';
+  const invGem = document.getElementById('inv-grid-gems');
+  if (invGem) invGem.innerText = gems.toLocaleString('id-ID');
+  const invWood = document.getElementById('inv-grid-wood');
   if (invWood) invWood.innerText = woodCount.toLocaleString('id-ID');
-  const invTech = document.getElementById('inv-tech-lbl');
-  if (invTech) invTech.innerText = techLabLvl > 0 ? `Level ${techLabLvl}` : 'Belum Dibangun';
-  const invWall = document.getElementById('inv-wall-lbl');
-  if (invWall) invWall.innerText = `Lv ${wallLvl}`;
-  const invBar = document.getElementById('inv-barrack-lbl');
-  if (invBar) invBar.innerText = `Lv ${barracksLvl}`;
+  const invTech = document.getElementById('inv-grid-tech');
+  if (invTech) invTech.innerText = techLabLvl > 0 ? `Level ${techLabLvl}` : 'Belum Ada';
+  const invWall = document.getElementById('inv-grid-wall');
+  if (invWall) invWall.innerText = `Level ${wallLvl}`;
+  const invBar = document.getElementById('inv-grid-barrack');
+  if (invBar) invBar.innerText = `Level ${barracksLvl}`;
+
+  // Active Weapon Label
   const activeWep = document.getElementById('active-wep-lbl');
-  if (activeWep) activeWep.innerText = activeWeaponSlot === 1 ? 'Pistol' : 'Pisau';
+  if (activeWep) {
+    if (activeWeaponSlot === 1) {
+      activeWep.innerText = equippedRanged === 'sniper' ? 'Sniper Rifle' : (equippedRanged === 'shotgun' ? 'Shotgun' : 'Pistol');
+    } else {
+      activeWep.innerText = equippedMelee === 'sword' ? 'Katana Plasma' : (equippedMelee === 'axe' ? 'Kapak Titanium' : 'Pisau Komando');
+    }
+  }
 }
 
 function startGame() {
@@ -429,16 +475,19 @@ function fireFPSPistol() {
   if (playerFireCooldown > 0) return;
 
   if (activeWeaponSlot === 2) {
-    // Melee Knife Attack (4 hits / sec -> cooldown 15)
-    playerFireCooldown = 15;
-    if (knifeGroup) knifeGroup.rotation.z = -0.5;
-    setTimeout(() => { if (knifeGroup) knifeGroup.rotation.z = 0.2; }, 100);
+    // Melee Attack
+    let dmg = 15, cd = 15, reach = 2.8;
+    if (equippedMelee === 'sword') { dmg = 30; cd = 24; reach = 3.5; }
+    else if (equippedMelee === 'axe') { dmg = 40; cd = 33; reach = 3.2; }
 
-    // Strike closest enemy within 2.8 meters
+    playerFireCooldown = cd;
+    if (knifeGroup) knifeGroup.rotation.z = -0.55;
+    setTimeout(() => { if (knifeGroup) knifeGroup.rotation.z = 0.2; }, 120);
+
     for (let i = enemies.length - 1; i >= 0; i--) {
       let e = enemies[i];
-      if (camera.position.distanceTo(e.mesh.position) < 2.8) {
-        e.hp -= 15;
+      if (camera.position.distanceTo(e.mesh.position) < reach) {
+        e.hp -= dmg;
         if (e.hp <= 0) {
           gold += 1; updateHUD();
           scene.remove(e.mesh); enemies.splice(i, 1);
@@ -449,27 +498,50 @@ function fireFPSPistol() {
     return;
   }
 
-  // Ranged Pistol Attack (Max 2 bullets / sec -> cooldown 30)
-  playerFireCooldown = 30;
-  pistolRecoilAnim = 10;
+  // Ranged Attack
+  let dmg = 10, cd = 30, spdMult = 1.5;
+  if (equippedRanged === 'sniper') { dmg = 45; cd = 85; spdMult = 3.2; }
+  else if (equippedRanged === 'shotgun') { dmg = 24; cd = 50; spdMult = 1.4; }
+
+  playerFireCooldown = cd;
+  pistolRecoilAnim = 12;
   if (muzzleFlashMesh) muzzleFlashMesh.visible = true;
   setTimeout(() => { if (muzzleFlashMesh) muzzleFlashMesh.visible = false; }, 60);
 
-  const bulletGeo = new THREE.SphereGeometry(0.18);
-  const bulletMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
-  const bMesh = new THREE.Mesh(bulletGeo, bulletMat);
+  const bulletGeo = new THREE.SphereGeometry(equippedRanged === 'sniper' ? 0.25 : 0.16);
+  const bulletMat = new THREE.MeshBasicMaterial({ color: equippedRanged === 'sniper' ? 0x38bdf8 : 0xfbbf24 });
 
-  const dir = new THREE.Vector3(0, 0, -1);
-  dir.applyQuaternion(camera.quaternion);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
 
-  bMesh.position.copy(camera.position).addScaledVector(dir, 0.8);
-  scene.add(bMesh);
-  bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(1.5), dmg: 10 });
+  if (equippedRanged === 'shotgun') {
+    // Burst 3 pellets
+    for (let s = -0.1; s <= 0.1; s += 0.1) {
+      const bM = new THREE.Mesh(bulletGeo, bulletMat);
+      const pelletDir = dir.clone().add(new THREE.Vector3(s + (Math.random()-0.5)*0.05, (Math.random()-0.5)*0.05, 0)).normalize();
+      bM.position.copy(camera.position).addScaledVector(pelletDir, 0.8);
+      scene.add(bM);
+      bullets.push({ mesh: bM, dir: pelletDir.multiplyScalar(spdMult), dmg: dmg / 3 });
+    }
+  } else {
+    const bMesh = new THREE.Mesh(bulletGeo, bulletMat);
+    bMesh.position.copy(camera.position).addScaledVector(dir, 0.8);
+    scene.add(bMesh);
+    bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(spdMult), dmg: dmg });
+  }
 }
 
 window.addEventListener('keydown', e => {
   keysPressed[e.key.toUpperCase()] = true;
+  if (e.key === ' ' || e.code === 'Space') keysPressed['SPACE'] = true;
+
   if (!gameRunning) return;
+  if (e.key === ' ' || e.code === 'Space') {
+    if (!isJumping) {
+      isJumping = true;
+      jumpVy = 0.28;
+    }
+  }
+
   const k = e.key.toUpperCase();
   if (k === 'Q') {
     activeWeaponSlot = activeWeaponSlot === 1 ? 2 : 1;
@@ -478,18 +550,30 @@ window.addEventListener('keydown', e => {
     updateHUD();
   }
   if (k === 'E') openEquipment();
+  if (k === 'B') openBuildingMenu();
   if (k === 'T') tryBuildTower();
-  if (k === 'R') tryBuildTechLab();
   if (k === 'U') tryProximityUpgrade();
   if (k === 'I') toggleInventory();
-  if (e.key === 'Escape') { closeInventory(); closeEquipment(); }
+  if (e.key === 'Escape') { closeInventory(); closeEquipment(); closeBuildingMenu(); }
 });
 
 window.addEventListener('keyup', e => {
   keysPressed[e.key.toUpperCase()] = false;
+  if (e.key === ' ' || e.code === 'Space') keysPressed['SPACE'] = false;
 });
 
 function handleSmoothPlayerMovement() {
+  if (isJumping) {
+    playerY += jumpVy;
+    jumpVy -= 0.016;
+    if (playerY <= CAMERA_HEIGHT) {
+      playerY = CAMERA_HEIGHT;
+      isJumping = false;
+    }
+  } else {
+    playerY = CAMERA_HEIGHT;
+  }
+
   const moveSpeed = 0.12;
   let fwd = 0;
   let side = 0;
@@ -511,28 +595,29 @@ function handleSmoothPlayerMovement() {
 
     nextX = Math.max(colToX(0), Math.min(colToX(7), nextX));
 
-    // Jendela waktu aman looting kayu: Menit ke 3-5 setiap iterasi 5 menit di luar jam 19:00
+    // Bisa melintasi pagar saat melompat atau saat waktu aman looting
     let nowH = new Date().getHours();
     let isDangerHour = isSimulating1900 || (nowH === 19);
     let minuteInCycle = Math.floor((gameTick % 18000) / 3600);
     let canLootOutside = !isDangerHour && (minuteInCycle >= 3);
 
-    let minZLimit = canLootOutside ? rowToZ(17) : rowToZ(4.5);
+    let minZLimit = (isJumping || canLootOutside) ? rowToZ(17) : rowToZ(4.5);
     nextZ = Math.max(minZLimit, Math.min(rowToZ(1), nextZ));
 
     let targetCol = Math.max(0, Math.min(7, xToCol(nextX)));
     let targetRow = Math.max(0, Math.min(19, zToRow(nextZ)));
     
-    if (grid[targetRow][targetCol] === null) {
+    // Saat melompat tinggi, lewati hambatan grid
+    if ((isJumping && playerY > 3.6) || grid[targetRow][targetCol] === null) {
       playerX = nextX;
       playerZ = nextZ;
     } else {
       if (grid[zToRow(playerZ)][targetCol] === null) playerX = nextX;
       if (grid[targetRow][xToCol(playerX)] === null) playerZ = nextZ;
     }
-
-    camera.position.set(playerX, CAMERA_HEIGHT, playerZ);
   }
+
+  camera.position.set(playerX, playerY, playerZ);
 }
 
 function buildSciFiTurretTower() {
@@ -611,27 +696,45 @@ function buildSciFiTurretTower() {
   return { group: group, head: turretHead };
 }
 
+function checkAndPayWithGemConversion(goldCost) {
+  if (gold >= goldCost) {
+    gold -= goldCost;
+    localStorage.setItem('outpost_gold', gold);
+    updateHUD();
+    return true;
+  }
+  const missingGold = Math.ceil(goldCost - gold);
+  const neededGems = Math.ceil(missingGold / 18);
+  if (gems >= neededGems) {
+    if (confirm(`⚠️ Gold tidak cukup (kurang ${missingGold} Gold).\nKonversi otomatis ${neededGems} Permata 💎 (setara ${neededGems * 18} Gold) untuk melanjutkan pembangunan?`)) {
+      gems -= neededGems;
+      gold = 0;
+      localStorage.setItem('outpost_gems', gems);
+      localStorage.setItem('outpost_gold', gold);
+      updateHUD();
+      return true;
+    }
+  } else {
+    alert(`⚠️ Gold dan Permata Tidak Cukup!\nAnda butuh ${goldCost} Gold (kurang ${missingGold} Gold). Jika dikonversi membutuhkan ${neededGems} 💎, namun Anda hanya memiliki ${gems} 💎.`);
+  }
+  return false;
+}
+
 function tryBuildTower() {
   if (towers.length >= 1) {
     alert('⚠️ Batas Pembangunan: Anda hanya bisa memiliki maksimal 1 Turret di Pos saat ini!');
     return;
   }
-  if (gold < 100) {
-    alert('⚠️ Gold tidak cukup! Membangun Turret membutuhkan 100 Gold.');
-    return;
-  }
+  if (!checkAndPayWithGemConversion(100)) return;
 
-  let currentCol = xToCol(playerX);
-  if (currentCol < 3 || currentCol > 4) {
-    alert('⚠️ Posisi Tidak Sah: Turret hanya bisa dibangun di 1 titik tengah depan pos (Kolom 3 atau 4)!');
-    return;
-  }
-
-  let currentRow = Math.max(1, Math.min(4, zToRow(playerZ)));
+  let currentCol = Math.max(3, Math.min(4, xToCol(playerX)));
   let frontRow = 4; // Tepat di baris pertahanan tengah
 
-  if (grid[frontRow][currentCol] !== null) return;
-  gold -= 100;
+  if (grid[frontRow][currentCol] !== null) {
+    // Coba kolom sebelah
+    currentCol = (currentCol === 3) ? 4 : 3;
+    if (grid[frontRow][currentCol] !== null) return;
+  }
 
   const tObj = buildSciFiTurretTower();
   tObj.group.position.set(colToX(currentCol), 0, rowToZ(frontRow));
@@ -648,11 +751,12 @@ function tryBuildTechLab() {
     alert('✅ Bangunan Riset Teknologi sudah mencapai Level Maksimal (Lv 2)!');
     return;
   }
-  if (gold < 500 || woodCount < 10) {
-    alert(`⚠️ Bahan Kurang! Membangun/Upgrade Riset Teknologi membutuhkan 500 Gold (Anda punya ${Math.floor(gold)}) dan 10 Kayu (Anda punya ${woodCount}).`);
+  if (woodCount < 10) {
+    alert(`⚠️ Kayu Kurang! Membangun Riset Teknologi membutuhkan 10 Kayu (Anda punya ${woodCount} 🪵). Ambil di hutan luar pagar.`);
     return;
   }
-  gold -= 500;
+  if (!checkAndPayWithGemConversion(500)) return;
+
   woodCount -= 10;
   techLabBuilt = true;
   techLabLvl++;
@@ -661,7 +765,7 @@ function tryBuildTechLab() {
   localStorage.setItem('outpost_wood', woodCount);
   buildTechLabMesh();
   updateHUD();
-  alert(`🔬 Riset Teknologi berhasil ditingkatkan ke Level ${techLabLvl}!`);
+  alert(`🔬 Riset Teknologi Quantum berhasil dibangun/ditingkatkan ke Level ${techLabLvl}!`);
 }
 
 function tryProximityUpgrade() {
@@ -710,11 +814,8 @@ function tryProximityUpgrade() {
       alert('🔒 RISET TEKNOLOGI DIPERLUKAN!\nUpgrade Turret ke Level 2 membutuhkan Bangunan Riset Teknologi Level 1!');
       return;
     }
-    if (gold < turretCost) {
-      alert(`⚠️ Gold tidak cukup! Upgrade Turret ke Lv ${t.lvl + 1} membutuhkan ${turretCost} Gold.`);
-      return;
-    }
-    gold -= turretCost;
+    if (!checkAndPayWithGemConversion(turretCost)) return;
+
     t.lvl++;
     updateHUD();
     alert(`🏗️ Turret berhasil ditingkatkan ke Level ${t.lvl}! Kerusakan naik 25% menjadi ${Math.floor(8 * Math.pow(1.25, t.lvl - 1))} per bulet!`);
@@ -731,11 +832,8 @@ function tryProximityUpgrade() {
       alert('🔒 SYARAT UPGRADE PAGAR LV 4+:\nMembutuhkan Bangunan Riset Teknologi Level 2 dan Barak Level 1!');
       return;
     }
-    if (gold < wallCost) {
-      alert(`⚠️ Gold tidak cukup! Upgrade Pagar ke Lv ${wallLvl + 1} membutuhkan ${wallCost} Gold.`);
-      return;
-    }
-    gold -= wallCost;
+    if (!checkAndPayWithGemConversion(wallCost)) return;
+
     wallLvl++;
     fenceMaxHp = Math.floor(100 * Math.pow(1.25, wallLvl - 1));
     fenceHp = fenceMaxHp;
@@ -842,6 +940,8 @@ function loop() {
     return;
   }
   gameTick++;
+
+  if (techLabRadarRing) techLabRadarRing.rotation.z += 0.04;
 
   // Pertumbuhan pasif 0.1 Gold / detik (+0.01 setiap 6 tick di 60 FPS)
   if (gameTick % 6 === 0) {
@@ -981,31 +1081,96 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-function openTopup() { document.getElementById('topup-modal').classList.add('active'); }
+function openTopup() {
+  if (document.pointerLockElement === canvas) document.exitPointerLock();
+  document.getElementById('topup-modal').classList.add('active');
+}
 function closeTopup() { document.getElementById('topup-modal').classList.remove('active'); }
 function buyGems(n, p, a) {
   MidtransPay.checkout({ itemName: n, price: p, onSuccess: () => { gems += a; updateHUD(); closeTopup(); } });
 }
 
+// Modal Tas Bahan [I]
 function openInventory() {
-  if (document.pointerLockElement === canvas && document.exitPointerLock) document.exitPointerLock();
+  if (document.pointerLockElement === canvas) document.exitPointerLock();
+  updateHUD();
   const modal = document.getElementById('inventory-modal');
-  if (modal) {
-    document.getElementById('inv-gold-val').innerText = gold.toLocaleString('id-ID');
-    document.getElementById('inv-gem-val').innerText = gems.toLocaleString('id-ID');
-    modal.classList.add('active');
-  }
+  if (modal) modal.classList.add('active');
 }
-
 function closeInventory() {
   const modal = document.getElementById('inventory-modal');
   if (modal) modal.classList.remove('active');
 }
-
 function toggleInventory() {
   const modal = document.getElementById('inventory-modal');
   if (modal && modal.classList.contains('active')) closeInventory();
   else openInventory();
+}
+
+// Modal Penyimpanan Senjata [E]
+function openEquipment() {
+  if (document.pointerLockElement === canvas) document.exitPointerLock();
+  updateHUD();
+  const modal = document.getElementById('equipment-modal');
+  if (modal) modal.classList.add('active');
+}
+function closeEquipment() {
+  const modal = document.getElementById('equipment-modal');
+  if (modal) modal.classList.remove('active');
+}
+function selectWeapon(slotType, weaponName) {
+  if (slotType === 'ranged') {
+    equippedRanged = weaponName;
+    localStorage.setItem('outpost_eq_ranged', weaponName);
+    alert(`🔫 Senjata Jarak Jauh (Slot 1) berhasil diganti menjadi ${weaponName.toUpperCase()}!`);
+  } else {
+    equippedMelee = weaponName;
+    localStorage.setItem('outpost_eq_melee', weaponName);
+    alert(`🗡️ Senjata Melee (Slot 2) berhasil diganti menjadi ${weaponName.toUpperCase()}!`);
+  }
+  buildFPSArms();
+  updateHUD();
+}
+
+// Modal Pusat Bangunan [B]
+function openBuildingMenu() {
+  if (document.pointerLockElement === canvas) document.exitPointerLock();
+  const modal = document.getElementById('building-modal');
+  if (modal) modal.classList.add('active');
+}
+function closeBuildingMenu() {
+  const modal = document.getElementById('building-modal');
+  if (modal) modal.classList.remove('active');
+}
+function toggleBuildingMenu() {
+  const modal = document.getElementById('building-modal');
+  if (modal && modal.classList.contains('active')) closeBuildingMenu();
+  else openBuildingMenu();
+}
+function confirmBuildSelection() {
+  const selected = document.querySelector('input[name="build-select"]:checked');
+  if (!selected) return;
+  const val = selected.value;
+  closeBuildingMenu();
+
+  if (val === 'turret') {
+    tryBuildTower();
+  } else if (val === 'tech') {
+    tryBuildTechLab();
+  } else if (val === 'barrack') {
+    const cost = Math.floor(400 * Math.pow(1.5, barracksLvl));
+    if (woodCount < 5) {
+      alert(`⚠️ Kayu Kurang! Membangun/Upgrade Barak membutuhkan 5 Kayu (Anda punya ${woodCount} 🪵).`);
+      return;
+    }
+    if (!checkAndPayWithGemConversion(cost)) return;
+    woodCount -= 5;
+    barracksLvl++;
+    localStorage.setItem('outpost_barracks_lvl', barracksLvl);
+    localStorage.setItem('outpost_wood', woodCount);
+    updateHUD();
+    alert(`⛺ Barak Pertahanan Pasukan berhasil ditingkatkan ke Level ${barracksLvl}! Membuka batas upgrade Pagar pos!`);
+  }
 }
 
 function toggleSimulate1900() {
