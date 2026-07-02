@@ -405,15 +405,57 @@ function tryProximityUpgrade() {
   updateHUD();
 }
 
+function buildFullHumanoidEnemy(isPatrol) {
+  const g = new THREE.Group();
+  const skinMat = new THREE.MeshStandardMaterial({color: 0xfed7aa, roughness: 0.5});
+  const shirtColor = isPatrol ? 0x06b6d4 : (currentPhase === 1 ? 0xd97706 : 0xdc2626);
+  const shirtMat = new THREE.MeshStandardMaterial({color: shirtColor, roughness: 0.6});
+  const pantsMat = new THREE.MeshStandardMaterial({color: 0x1e293b, roughness: 0.7});
+  const bootMat = new THREE.MeshStandardMaterial({color: 0x0f172a, roughness: 0.8});
+
+  // Torso
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.38, 0.75, 8), shirtMat);
+  torso.position.y = 1.35; g.add(torso);
+
+  // Head & Hair
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.44, 0.38), skinMat);
+  head.position.y = 1.9; g.add(head);
+  const hair = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.18, 0.44), new THREE.MeshStandardMaterial({color: 0x3e2723}));
+  hair.position.set(0, 2.14, -0.02); g.add(hair);
+
+  // Left Arm + Hand
+  const lSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.4, 6), shirtMat);
+  lSleeve.position.set(-0.55, 1.5, 0); lSleeve.rotation.z = 0.2; g.add(lSleeve);
+  const lForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.4, 6), skinMat);
+  lForearm.position.set(-0.65, 1.15, 0); lForearm.rotation.z = 0.2; g.add(lForearm);
+
+  // Right Arm + Hand
+  const rSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.4, 6), shirtMat);
+  rSleeve.position.set(0.55, 1.5, 0); rSleeve.rotation.z = -0.2; g.add(rSleeve);
+  const rForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.4, 6), skinMat);
+  rForearm.position.set(0.65, 1.15, 0); rForearm.rotation.z = -0.2; g.add(rForearm);
+
+  // Left & Right Legs + Boots
+  const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.75, 6), pantsMat);
+  lLeg.position.set(-0.2, 0.5, 0); g.add(lLeg);
+  const lBoot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.2, 0.35), bootMat);
+  lBoot.position.set(-0.2, 0.1, 0.05); g.add(lBoot);
+
+  const rLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.75, 6), pantsMat);
+  rLeg.position.set(0.2, 0.5, 0); g.add(rLeg);
+  const rBoot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.2, 0.35), bootMat);
+  rBoot.position.set(0.2, 0.1, 0.05); g.add(rBoot);
+
+  return g;
+}
+
 function spawnEnemy(isPatrol = false) {
   const spawnCol = Math.floor(Math.random() * GRID_COLS);
   const spawnRow = isPatrol ? (12 + Math.floor(Math.random() * 4)) : 19;
   const hp = (25 + survivorLvl * 15) * (currentPhase === 2 ? 1.8 : 1);
 
-  const eGeo = new THREE.CylinderGeometry(0.5, 0.5, 2.4, 8);
-  const eMat = new THREE.MeshStandardMaterial({ color: isPatrol ? 0x06b6d4 : (currentPhase === 1 ? 0x38bdf8 : 0xc084fc) });
-  const eMesh = new THREE.Mesh(eGeo, eMat);
-  eMesh.position.set(colToX(spawnCol), 1.2, rowToZ(spawnRow));
+  const eMesh = buildFullHumanoidEnemy(isPatrol);
+  eMesh.position.set(colToX(spawnCol), 0, rowToZ(spawnRow));
   scene.add(eMesh);
 
   enemies.push({
