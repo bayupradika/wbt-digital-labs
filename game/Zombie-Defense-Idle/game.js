@@ -325,20 +325,16 @@ canvas.addEventListener('mousemove', e => {
     prevMouseX = e.clientX;
     prevMouseY = e.clientY;
   } else {
-    // Free 360-degree look around by moving cursor toward canvas boundaries
-    const rect = canvas.getBoundingClientRect();
-    const nx = (e.clientX - rect.left) / rect.width * 2 - 1;
-    const ny = -(e.clientY - rect.top) / rect.height * 2 + 1;
-    cameraYaw = -nx * Math.PI; // Full 180 degrees left + right = 360 deg look around
-    cameraPitch = ny * 0.55;
-    camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
-    return;
+    moveX = e.movementX || 0;
+    moveY = e.movementY || 0;
   }
 
-  cameraYaw -= moveX * 0.0035;
-  cameraPitch -= moveY * 0.0035;
-  cameraPitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, cameraPitch));
-  camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
+  if (moveX !== 0 || moveY !== 0) {
+    cameraYaw -= moveX * 0.0035;
+    cameraPitch -= moveY * 0.0035;
+    cameraPitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, cameraPitch));
+    camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
+  }
 });
 
 function fireFPSPistol() {
