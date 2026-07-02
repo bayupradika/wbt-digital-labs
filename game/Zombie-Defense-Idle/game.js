@@ -228,6 +228,7 @@ init3D();
 setInterval(updateClock, 1000);
 updateClock();
 updateHUD();
+requestAnimationFrame(loop);
 
 function updateClock() {
   const now = new Date();
@@ -256,9 +257,12 @@ function updateHUD() {
 }
 
 function startGame() {
-  if (isLockedOut) { triggerCoreStoneStolen(); return; }
+  isLockedOut = false;
+  localStorage.setItem('corestone_locked', 'false');
   document.getElementById('start-screen').classList.add('hidden');
-  document.getElementById('lockout-screen').classList.add('hidden');
+  const lockoutEl = document.getElementById('lockout-screen');
+  if (lockoutEl) lockoutEl.classList.add('hidden');
+
   fenceMaxHp = 100 + (wallLvl - 1) * 60; fenceHp = fenceMaxHp;
   stoneMaxHp = 200 + (stoneLvl - 1) * 100; stoneHp = stoneMaxHp;
   buildBarricadeWall();
@@ -272,7 +276,11 @@ function startGame() {
   gameRunning = true;
   spawnEnemy(false);
   spawnEnemy(true);
-  loop();
+  updateHUD();
+
+  if (canvas && canvas.requestPointerLock) {
+    canvas.requestPointerLock();
+  }
 }
 
 function triggerCoreStoneStolen() {
@@ -593,7 +601,15 @@ function spawnEnemy(isPatrol = false) {
 let isSimulating1900 = false;
 
 function loop() {
-  if (!gameRunning) return;
+  if (!gameRunning) {
+    if (camera && renderer && scene) {
+      cameraYaw += 0.002;
+      camera.rotation.set(0, cameraYaw, 0, 'YXZ');
+      renderer.render(scene, camera);
+    }
+    requestAnimationFrame(loop);
+    return;
+  }
   gameTick++;
 
   if (playerFireCooldown > 0) playerFireCooldown--;
@@ -740,9 +756,9 @@ function toggleSimulate1900() {
 }
 
 window.addEventListener('resize', () => {
-  if (camera && renderer && container) {
-    camera.aspect = container.clientWidth / container.clientHeight;
+  if (camera && renderer) {
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight);
   }
 });
