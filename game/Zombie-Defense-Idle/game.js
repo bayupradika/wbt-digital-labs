@@ -375,6 +375,82 @@ function handleSmoothPlayerMovement() {
   }
 }
 
+function buildSciFiTurretTower() {
+  const group = new THREE.Group();
+
+  // 1. Reinforced Armored Octagonal Foundation Base
+  const baseGeo = new THREE.CylinderGeometry(0.85, 1.1, 0.7, 8);
+  const baseMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.9 });
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.position.y = 0.35;
+  group.add(base);
+
+  // Neon Energy Ring on base
+  const ringGeo = new THREE.TorusGeometry(0.8, 0.05, 8, 16);
+  const neonMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+  const ring = new THREE.Mesh(ringGeo, neonMat);
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.68;
+  group.add(ring);
+
+  // 2. Rotating Turret Head Group
+  const turretHead = new THREE.Group();
+  turretHead.position.y = 1.1;
+
+  // Hydraulic Neck Pivot
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 0.6, 8), baseMat);
+  neck.position.y = -0.15;
+  turretHead.add(neck);
+
+  // Main Armored Chassis
+  const chassisGeo = new THREE.BoxGeometry(1.1, 0.7, 1.3);
+  const chassisMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.8, roughness: 0.3 });
+  const chassis = new THREE.Mesh(chassisGeo, chassisMat);
+  chassis.position.y = 0.3;
+  turretHead.add(chassis);
+
+  // Glowing Armor Side Panels
+  const panelGeo = new THREE.BoxGeometry(1.16, 0.3, 1.0);
+  const panel = new THREE.Mesh(panelGeo, neonMat);
+  panel.position.y = 0.3;
+  turretHead.add(panel);
+
+  // 3. Twin Railgun Barrels
+  const barrelGeo = new THREE.CylinderGeometry(0.12, 0.14, 1.4, 8);
+  const barrelMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9 });
+
+  const leftBarrel = new THREE.Mesh(barrelGeo, barrelMat);
+  leftBarrel.rotation.x = Math.PI / 2;
+  leftBarrel.position.set(-0.32, 0.3, -0.9);
+  turretHead.add(leftBarrel);
+
+  const rightBarrel = new THREE.Mesh(barrelGeo, barrelMat);
+  rightBarrel.rotation.x = Math.PI / 2;
+  rightBarrel.position.set(0.32, 0.3, -0.9);
+  turretHead.add(rightBarrel);
+
+  // Muzzle Energy Tips
+  const tipGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.25, 8);
+  const leftTip = new THREE.Mesh(tipGeo, neonMat);
+  leftTip.rotation.x = Math.PI / 2;
+  leftTip.position.set(-0.32, 0.3, -1.65);
+  turretHead.add(leftTip);
+
+  const rightTip = new THREE.Mesh(tipGeo, neonMat);
+  rightTip.rotation.x = Math.PI / 2;
+  rightTip.position.set(0.32, 0.3, -1.65);
+  turretHead.add(rightTip);
+
+  // 4. Radar Dome
+  const radarGeo = new THREE.SphereGeometry(0.25, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+  const radar = new THREE.Mesh(radarGeo, neonMat);
+  radar.position.set(0, 0.65, 0.1);
+  turretHead.add(radar);
+
+  group.add(turretHead);
+  return { group: group, head: turretHead };
+}
+
 function tryBuildTower() {
   let currentCol = Math.max(0, Math.min(7, xToCol(playerX)));
   let currentRow = Math.max(1, Math.min(4, zToRow(playerZ)));
@@ -383,13 +459,11 @@ function tryBuildTower() {
   if (frontRow > 4 || grid[frontRow][currentCol] !== null || gold < 100) return;
   gold -= 100;
 
-  const tGeo = new THREE.BoxGeometry(1.6, 2.2, 1.6);
-  const tMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.8 });
-  const tMesh = new THREE.Mesh(tGeo, tMat);
-  tMesh.position.set(colToX(currentCol), 1.1, rowToZ(frontRow));
-  scene.add(tMesh);
+  const tObj = buildSciFiTurretTower();
+  tObj.group.position.set(colToX(currentCol), 0, rowToZ(frontRow));
+  scene.add(tObj.group);
 
-  const newTower = { col: currentCol, row: frontRow, lvl: 1, mesh: tMesh };
+  const newTower = { col: currentCol, row: frontRow, lvl: 1, mesh: tObj.group, head: tObj.head };
   towers.push(newTower);
   grid[frontRow][currentCol] = newTower;
   updateHUD();
@@ -475,16 +549,27 @@ function loop() {
   patrolSpawnTimer++;
   if (patrolSpawnTimer >= 3600) { spawnEnemy(true); patrolSpawnTimer = 0; }
 
-  // Tower shooting
+  // Tower tracking & shooting
+  towers.forEach(t => {
+    if (enemies.length > 0 && t.head) {
+      const target = enemies[0];
+      const dx = target.mesh.position.x - t.mesh.position.x;
+      const dz = target.mesh.position.z - t.mesh.position.z;
+      t.head.rotation.y = Math.atan2(dx, dz) + Math.PI;
+    } else if (t.head) {
+      t.head.rotation.y += 0.015; // Idle radar scan
+    }
+  });
+
   if (gameTick % 40 === 0 && enemies.length > 0) {
     towers.forEach(t => {
       const target = enemies[0];
-      const bGeo = new THREE.SphereGeometry(0.2);
+      const bGeo = new THREE.SphereGeometry(0.25);
       const bMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
       const bMesh = new THREE.Mesh(bGeo, bMat);
-      bMesh.position.copy(t.mesh.position).y += 1;
+      bMesh.position.copy(t.mesh.position).y += 1.4;
       scene.add(bMesh);
-      const dir = target.mesh.position.clone().sub(bMesh.position).normalize().multiplyScalar(1.0);
+      const dir = target.mesh.position.clone().sub(bMesh.position).normalize().multiplyScalar(1.2);
       bullets.push({ mesh: bMesh, dir: dir, dmg: t.lvl * 25 });
     });
   }
