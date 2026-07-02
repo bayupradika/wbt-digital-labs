@@ -32,20 +32,23 @@ let isSimulating1900 = false;
 
 // 3D Grid Parameters (8 Columns x 20 Rows)
 // Cell Size = 2.5 meters.
-// Col 0 to 7 -> X = (col - 3.5) * 2.5
-// Row 0 to 19 -> Z = -row * 2.5
-// Row 0: Back Forest border (behind safe zone)
-// Row 1..4: Player Safe Grid (Core Stone at Row 1, Col 3 & 4)
-// Row 5: Barricade Fence (Z = -12.5)
-// Row 6..17: Battlefield No Man's Land
-// Row 18..19: Enemy Spawn Horizon
 const GRID_COLS = 8;
 const GRID_ROWS = 20;
 const CELL_SIZE = 2.5;
 let grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
 
-let playerCol = 3;
-let playerRow = 3; // Safe zone Z = -7.5
+function colToX(col) { return (col - 3.5) * CELL_SIZE; }
+function rowToZ(row) { return -row * CELL_SIZE; }
+function xToCol(x) { return Math.round(x / CELL_SIZE + 3.5); }
+function zToRow(z) { return Math.round(-z / CELL_SIZE); }
+
+// Continuous Floating-Point Player Position
+let playerX = colToX(3.5);
+let playerZ = rowToZ(3);
+const CAMERA_HEIGHT = 3.2; // Raised higher so view is never blocked by fence!
+
+// Smooth WASD Key State
+const keysPressed = {};
 
 // Three.js Core Variables
 let scene, camera, renderer;
@@ -57,16 +60,13 @@ let enemies = [];
 let bullets = [];
 
 let cameraYaw = 0;
-let cameraPitch = 0;
+let cameraPitch = -0.15; // Slightly tilted downward to overview the battlefield
 let knifeStabAnim = 0;
 let pistolRecoilAnim = 0;
 
 let attackerSpawnTimer = 0;
 let patrolSpawnTimer = 0;
 let gameTick = 0;
-
-function colToX(col) { return (col - 3.5) * CELL_SIZE; }
-function rowToZ(row) { return -row * CELL_SIZE; }
 
 // Initialize Three.js 3D Scene
 function init3D() {
@@ -75,7 +75,8 @@ function init3D() {
   scene.fog = new THREE.FogExp2(0x020617, 0.022);
 
   camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 200);
-  camera.position.set(colToX(playerCol), 1.7, rowToZ(playerRow));
+  camera.position.set(playerX, CAMERA_HEIGHT, playerZ);
+  camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
   renderer.setSize(container.clientWidth, container.clientHeight);
@@ -91,7 +92,7 @@ function init3D() {
   moonLight.castShadow = true;
   scene.add(moonLight);
 
-  // 1. Build Ground Plane
+  // Ground Plane
   const groundGeo = new THREE.PlaneGeometry(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE);
   const groundMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
   const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -106,19 +107,17 @@ function init3D() {
   gridHelper.scale.set(GRID_COLS / GRID_ROWS, 1, 1);
   scene.add(gridHelper);
 
-  // 2. Build Left & Right Side Forests + Row 0 Back Forest
   buildDenseForest();
 
-  // 3. Build Core Stone Monolith (Row 1, Cols 3 & 4)
+  // Core Stone Monolith (Row 1, Cols 3 & 4)
   const stoneGeo = new THREE.CylinderGeometry(1.2, 1.4, 3.5, 8);
   const stoneMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.8 });
   stoneMesh = new THREE.Mesh(stoneGeo, stoneMat);
   stoneMesh.position.set((colToX(3) + colToX(4)) / 2, 1.75, rowToZ(1));
   scene.add(stoneMesh);
 
-  // Core Glowing Crystal inside monolith
   const crystalGeo = new THREE.OctahedronGeometry(0.8);
-  const crystalMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: false });
+  const crystalMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
   const crystal = new THREE.Mesh(crystalGeo, crystalMat);
   crystal.position.set(0, 0.5, 0);
   stoneMesh.add(crystal);
@@ -130,10 +129,7 @@ function init3D() {
   grid[1][3] = { type: 'stone', name: 'Core Stone' };
   grid[1][4] = { type: 'stone', name: 'Core Stone' };
 
-  // 4. Build Front Barricade Wall at Row 5
   buildBarricadeWall();
-
-  // 5. Build 3D Arms attached to FPS Camera
   buildFPSArms();
 }
 
@@ -156,14 +152,12 @@ function buildDenseForest() {
     scene.add(group);
   };
 
-  // Left & Right borders
   for (let r = 0; r < GRID_ROWS; r++) {
     addTree(colToX(0) - 2.5 - Math.random() * 2, rowToZ(r));
     addTree(colToX(0) - 5 - Math.random() * 2, rowToZ(r));
     addTree(colToX(7) + 2.5 + Math.random() * 2, rowToZ(r));
     addTree(colToX(7) + 5 + Math.random() * 2, rowToZ(r));
   }
-  // Back border Row 0
   for (let c = 0; c < GRID_COLS; c++) {
     addTree(colToX(c), rowToZ(0) + 2);
   }
@@ -202,7 +196,7 @@ function buildFPSArms() {
   const hMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
   const h = new THREE.Mesh(hGeo, hMat);
   knifeGroup.add(h);
-  knifeGroup.position.set(-0.35, -0.25, -0.6);
+  knifeGroup.position.set(-0.35, -0.3, -0.65);
   knifeGroup.rotation.z = 0.2;
   knifeGroup.rotation.x = 0.4;
   camera.add(knifeGroup);
@@ -218,7 +212,7 @@ function buildFPSArms() {
   grip.position.set(0, -0.12, 0.1);
   grip.rotation.x = 0.3;
   pistolGroup.add(grip);
-  pistolGroup.position.set(0.32, -0.22, -0.55);
+  pistolGroup.position.set(0.32, -0.25, -0.6);
   camera.add(pistolGroup);
 
   // Muzzle Flash
@@ -273,8 +267,8 @@ function startGame() {
   towers.forEach(t => scene.remove(t.mesh)); towers = [];
   grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
   grid[1][3] = { type: 'stone' }; grid[1][4] = { type: 'stone' };
-  playerCol = 3; playerRow = 3;
-  camera.position.set(colToX(playerCol), 1.7, rowToZ(playerRow));
+  playerX = colToX(3.5); playerZ = rowToZ(3);
+  camera.position.set(playerX, CAMERA_HEIGHT, playerZ);
   gameRunning = true;
   spawnEnemy(false);
   spawnEnemy(true);
@@ -306,8 +300,8 @@ canvas.addEventListener('mousemove', e => {
   const nx = (e.clientX - rect.left) / rect.width * 2 - 1;
   const ny = -(e.clientY - rect.top) / rect.height * 2 + 1;
 
-  cameraYaw = -nx * 0.8;
-  cameraPitch = ny * 0.3;
+  cameraYaw = -nx * 0.85;
+  cameraPitch = ny * 0.35 - 0.15; // Slightly angled down
   camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
 });
 
@@ -321,7 +315,7 @@ function fireFPSPistol() {
   muzzleFlashMesh.visible = true;
   setTimeout(() => { if (muzzleFlashMesh) muzzleFlashMesh.visible = false; }, 60);
 
-  const bulletGeo = new THREE.SphereGeometry(0.15);
+  const bulletGeo = new THREE.SphereGeometry(0.18);
   const bulletMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
   const bMesh = new THREE.Mesh(bulletGeo, bulletMat);
 
@@ -330,49 +324,80 @@ function fireFPSPistol() {
 
   bMesh.position.copy(camera.position).addScaledVector(dir, 0.8);
   scene.add(bMesh);
-  bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(1.2), dmg: pistolLvl * 30 });
+  bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(1.3), dmg: pistolLvl * 30 });
 }
 
+// Smooth Continuous WASD Keyboard Tracking
 window.addEventListener('keydown', e => {
+  keysPressed[e.key.toUpperCase()] = true;
   if (!gameRunning) return;
-  const key = e.key.toUpperCase();
-  let tc = playerCol; let tr = playerRow;
-
-  if (key === 'W' || key === 'ARROWUP') tr++; // Move forward toward enemies (Row increases in battlefield direction!)
-  else if (key === 'S' || key === 'ARROWDOWN') tr--; // Move back
-  else if (key === 'A' || key === 'ARROWLEFT') tc--;
-  else if (key === 'D' || key === 'ARROWRIGHT') tc++;
-  else if (key === 'T') { tryBuildTower(); return; }
-  else if (key === 'U') { tryProximityUpgrade(); return; }
-
-  // Player confined to safe grid Rows 1..4
-  if (tc >= 0 && tc < GRID_COLS && tr >= 1 && tr <= 4) {
-    if (grid[tr][tc] === null) {
-      playerCol = tc; playerRow = tr;
-      camera.position.set(colToX(playerCol), 1.7, rowToZ(playerRow));
-    }
-  }
+  const k = e.key.toUpperCase();
+  if (k === 'T') tryBuildTower();
+  if (k === 'U') tryProximityUpgrade();
 });
 
+window.addEventListener('keyup', e => {
+  keysPressed[e.key.toUpperCase()] = false;
+});
+
+function handleSmoothPlayerMovement() {
+  const moveSpeed = 0.12; // Continuous smooth movement per frame
+  let dx = 0;
+  let dz = 0;
+
+  if (keysPressed['W'] || keysPressed['ARROWUP']) dz -= moveSpeed;    // Forward toward battlefield
+  if (keysPressed['S'] || keysPressed['ARROWDOWN']) dz += moveSpeed;  // Backward toward core
+  if (keysPressed['A'] || keysPressed['ARROWLEFT']) dx -= moveSpeed;  // Left
+  if (keysPressed['D'] || keysPressed['ARROWRIGHT']) dx += moveSpeed; // Right
+
+  if (dx !== 0 || dz !== 0) {
+    let nextX = playerX + dx;
+    let nextZ = playerZ + dz;
+
+    // Bound inside Safe Zone (Cols 0..7 -> X = -8.75 to +8.75, Rows 1..4.5 -> Z = -2.0 to -11.0)
+    nextX = Math.max(colToX(0), Math.min(colToX(7), nextX));
+    nextZ = Math.max(rowToZ(4.5), Math.min(rowToZ(1), nextZ));
+
+    // Solid Collider Check vs Grid Objects
+    let targetCol = Math.max(0, Math.min(7, xToCol(nextX)));
+    let targetRow = Math.max(0, Math.min(19, zToRow(nextZ)));
+    
+    if (grid[targetRow][targetCol] === null) {
+      playerX = nextX;
+      playerZ = nextZ;
+    } else {
+      // Allow sliding along open axis if blocked diagonally
+      if (grid[zToRow(playerZ)][targetCol] === null) playerX = nextX;
+      if (grid[targetRow][xToCol(playerX)] === null) playerZ = nextZ;
+    }
+
+    camera.position.set(playerX, CAMERA_HEIGHT, playerZ);
+  }
+}
+
 function tryBuildTower() {
-  let frontRow = playerRow + 1; // Row toward fence
-  if (frontRow > 4 || grid[frontRow][playerCol] !== null || gold < 100) return;
+  let currentCol = Math.max(0, Math.min(7, xToCol(playerX)));
+  let currentRow = Math.max(1, Math.min(4, zToRow(playerZ)));
+  let frontRow = currentRow + 1;
+
+  if (frontRow > 4 || grid[frontRow][currentCol] !== null || gold < 100) return;
   gold -= 100;
 
   const tGeo = new THREE.BoxGeometry(1.6, 2.2, 1.6);
   const tMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.8 });
   const tMesh = new THREE.Mesh(tGeo, tMat);
-  tMesh.position.set(colToX(playerCol), 1.1, rowToZ(frontRow));
+  tMesh.position.set(colToX(currentCol), 1.1, rowToZ(frontRow));
   scene.add(tMesh);
 
-  const newTower = { col: playerCol, row: frontRow, lvl: 1, mesh: tMesh };
+  const newTower = { col: currentCol, row: frontRow, lvl: 1, mesh: tMesh };
   towers.push(newTower);
-  grid[frontRow][playerCol] = newTower;
+  grid[frontRow][currentCol] = newTower;
   updateHUD();
 }
 
 function tryProximityUpgrade() {
-  if (playerRow === 4 && fenceHp < fenceMaxHp * 2 && gold >= wallLvl * 40) {
+  let currentRow = zToRow(playerZ);
+  if (currentRow >= 4 && fenceHp < fenceMaxHp * 2 && gold >= wallLvl * 40) {
     gold -= wallLvl * 40; wallLvl++; fenceMaxHp += 60; fenceHp = fenceMaxHp; buildBarricadeWall();
   } else if (gold >= knifeLvl * 50) {
     gold -= knifeLvl * 50; knifeLvl++; pistolLvl++;
@@ -400,6 +425,8 @@ function spawnEnemy(isPatrol = false) {
 function loop() {
   if (!gameRunning) return;
   gameTick++;
+
+  handleSmoothPlayerMovement();
 
   attackerSpawnTimer++;
   if (attackerSpawnTimer >= 1200) { spawnEnemy(false); attackerSpawnTimer = 0; }
@@ -448,7 +475,6 @@ function loop() {
       e.mesh.position.x += e.vx;
       if (e.mesh.position.x < colToX(0) || e.mesh.position.x > colToX(7)) e.vx *= -1;
     } else {
-      // March toward fence (Row 5 -> Z = -12.5)
       if (e.mesh.position.z > rowToZ(5) || fenceHp <= 0) {
         e.mesh.position.z += e.speed;
       } else {
@@ -464,9 +490,9 @@ function loop() {
 
   // Animations
   if (pistolRecoilAnim > 0) {
-    pistolGroup.position.z = -0.45; pistolRecoilAnim--;
+    pistolGroup.position.z = -0.5; pistolRecoilAnim--;
   } else {
-    pistolGroup.position.z = -0.55;
+    pistolGroup.position.z = -0.6;
   }
 
   renderer.render(scene, camera);
