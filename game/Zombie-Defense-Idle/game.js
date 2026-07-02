@@ -1,8 +1,9 @@
+// Core Stone 3D FPS Engine using Three.js WebGL
+const container = document.getElementById('webgl-container');
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
 
 // Game Persistent State & Story Lore
-let gold = parseInt(localStorage.getItem('outpost_gold') || '300');
+let gold = parseInt(localStorage.getItem('outpost_gold') || '400');
 let gems = parseInt(localStorage.getItem('outpost_gems') || '50');
 let currentPhase = parseInt(localStorage.getItem('corestone_phase') || '1');
 let isLockedOut = localStorage.getItem('corestone_locked') === 'true';
@@ -20,96 +21,225 @@ let wallLvl = parseInt(localStorage.getItem('outpost_wall_lvl') || '1');
 let stoneLvl = parseInt(localStorage.getItem('outpost_stone_lvl') || '1');
 let survivorLvl = parseInt(localStorage.getItem('outpost_survivor_lvl') || '1');
 
-// Separated Health Pools: Fence HP & Core Stone HP
+// Separated Health Pools
 let fenceMaxHp = 100 + (wallLvl - 1) * 60;
 let fenceHp = fenceMaxHp;
 let stoneMaxHp = 200 + (stoneLvl - 1) * 100;
 let stoneHp = stoneMaxHp;
 
 let gameRunning = false;
-let animationId;
 let isSimulating1900 = false;
 
-// 8 Columns x 4 Rows Grid System behind front wall (y = 360 to 520)
+// 3D Grid Parameters (8 Columns x 20 Rows)
+// Cell Size = 2.5 meters.
+// Col 0 to 7 -> X = (col - 3.5) * 2.5
+// Row 0 to 19 -> Z = -row * 2.5
+// Row 0: Back Forest border (behind safe zone)
+// Row 1..4: Player Safe Grid (Core Stone at Row 1, Col 3 & 4)
+// Row 5: Barricade Fence (Z = -12.5)
+// Row 6..17: Battlefield No Man's Land
+// Row 18..19: Enemy Spawn Horizon
 const GRID_COLS = 8;
-const GRID_ROWS = 4;
+const GRID_ROWS = 20;
+const CELL_SIZE = 2.5;
 let grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
 
-// Player position in Grid (1x1 collider)
 let playerCol = 3;
-let playerRow = 2;
-let mouseX = 190;
-let mouseY = 200;
+let playerRow = 3; // Safe zone Z = -7.5
 
+// Three.js Core Variables
+let scene, camera, renderer;
+let fenceMeshes = [];
+let stoneMesh, coreLight;
+let knifeGroup, pistolGroup, muzzleFlashMesh;
 let towers = [];
-
-function initGrid() {
-  grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
-  grid[3][3] = { type: 'stone', name: 'Core Stone', invincible: false };
-  grid[3][4] = { type: 'stone', name: 'Core Stone', invincible: false };
-  towers.forEach(t => {
-    if (t.col >= 0 && t.col < GRID_COLS && t.row >= 0 && t.row < GRID_ROWS) {
-      grid[t.row][t.col] = t;
-    }
-  });
-}
-initGrid();
-
-// Entities & Combat VFX
 let enemies = [];
 let bullets = [];
-let particles = [];
-let floatingTexts = [];
 
-let autoShootTimer = 0;
+let cameraYaw = 0;
+let cameraPitch = 0;
+let knifeStabAnim = 0;
+let pistolRecoilAnim = 0;
+
 let attackerSpawnTimer = 0;
 let patrolSpawnTimer = 0;
 let gameTick = 0;
-let screenShake = 0;
-let knifeStabAnim = 0;
-let pistolRecoilAnim = 0;
-let muzzleFlash = 0;
 
+function colToX(col) { return (col - 3.5) * CELL_SIZE; }
+function rowToZ(row) { return -row * CELL_SIZE; }
+
+// Initialize Three.js 3D Scene
+function init3D() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x020617);
+  scene.fog = new THREE.FogExp2(0x020617, 0.022);
+
+  camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.1, 200);
+  camera.position.set(colToX(playerCol), 1.7, rowToZ(playerRow));
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0x334155, 1.2);
+  scene.add(ambient);
+
+  const moonLight = new THREE.DirectionalLight(0x38bdf8, 0.8);
+  moonLight.position.set(20, 40, 10);
+  moonLight.castShadow = true;
+  scene.add(moonLight);
+
+  // 1. Build Ground Plane
+  const groundGeo = new THREE.PlaneGeometry(GRID_COLS * CELL_SIZE, GRID_ROWS * CELL_SIZE);
+  const groundMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.set(0, 0, -GRID_ROWS * CELL_SIZE / 2 + CELL_SIZE / 2);
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // Grid Lines
+  const gridHelper = new THREE.GridHelper(GRID_ROWS * CELL_SIZE, GRID_ROWS, 0x1e293b, 0x1e293b);
+  gridHelper.position.set(0, 0.02, -GRID_ROWS * CELL_SIZE / 2 + CELL_SIZE / 2);
+  gridHelper.scale.set(GRID_COLS / GRID_ROWS, 1, 1);
+  scene.add(gridHelper);
+
+  // 2. Build Left & Right Side Forests + Row 0 Back Forest
+  buildDenseForest();
+
+  // 3. Build Core Stone Monolith (Row 1, Cols 3 & 4)
+  const stoneGeo = new THREE.CylinderGeometry(1.2, 1.4, 3.5, 8);
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.8 });
+  stoneMesh = new THREE.Mesh(stoneGeo, stoneMat);
+  stoneMesh.position.set((colToX(3) + colToX(4)) / 2, 1.75, rowToZ(1));
+  scene.add(stoneMesh);
+
+  // Core Glowing Crystal inside monolith
+  const crystalGeo = new THREE.OctahedronGeometry(0.8);
+  const crystalMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: false });
+  const crystal = new THREE.Mesh(crystalGeo, crystalMat);
+  crystal.position.set(0, 0.5, 0);
+  stoneMesh.add(crystal);
+
+  coreLight = new THREE.PointLight(0x38bdf8, 3, 18);
+  coreLight.position.set((colToX(3) + colToX(4)) / 2, 2.5, rowToZ(1));
+  scene.add(coreLight);
+
+  grid[1][3] = { type: 'stone', name: 'Core Stone' };
+  grid[1][4] = { type: 'stone', name: 'Core Stone' };
+
+  // 4. Build Front Barricade Wall at Row 5
+  buildBarricadeWall();
+
+  // 5. Build 3D Arms attached to FPS Camera
+  buildFPSArms();
+}
+
+function buildDenseForest() {
+  const treeGeo = new THREE.ConeGeometry(1.4, 4.5, 5);
+  const treeMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.8 });
+  const trunkGeo = new THREE.CylinderGeometry(0.3, 0.4, 1.5);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3e2723 });
+
+  const addTree = (x, z) => {
+    const group = new THREE.Group();
+    const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+    trunk.position.y = 0.75;
+    group.add(trunk);
+    const leaves = new THREE.Mesh(treeGeo, treeMat);
+    leaves.position.y = 3;
+    group.add(leaves);
+    group.position.set(x, 0, z);
+    group.scale.setScalar(0.7 + Math.random() * 0.6);
+    scene.add(group);
+  };
+
+  // Left & Right borders
+  for (let r = 0; r < GRID_ROWS; r++) {
+    addTree(colToX(0) - 2.5 - Math.random() * 2, rowToZ(r));
+    addTree(colToX(0) - 5 - Math.random() * 2, rowToZ(r));
+    addTree(colToX(7) + 2.5 + Math.random() * 2, rowToZ(r));
+    addTree(colToX(7) + 5 + Math.random() * 2, rowToZ(r));
+  }
+  // Back border Row 0
+  for (let c = 0; c < GRID_COLS; c++) {
+    addTree(colToX(c), rowToZ(0) + 2);
+  }
+}
+
+function buildBarricadeWall() {
+  fenceMeshes.forEach(m => scene.remove(m));
+  fenceMeshes = [];
+  if (fenceHp <= 0) return;
+
+  const logGeo = new THREE.CylinderGeometry(0.25, 0.28, 2.2, 6);
+  const logMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
+
+  for (let c = 0; c < GRID_COLS; c++) {
+    for (let i = -1; i <= 1; i += 0.7) {
+      const log = new THREE.Mesh(logGeo, logMat);
+      log.position.set(colToX(c) + i, 1.1, rowToZ(5));
+      log.castShadow = true;
+      scene.add(log);
+      fenceMeshes.push(log);
+    }
+  }
+}
+
+function buildFPSArms() {
+  scene.add(camera);
+
+  // Left Hand: Survival Knife
+  knifeGroup = new THREE.Group();
+  const bladeGeo = new THREE.BoxGeometry(0.06, 0.45, 0.04);
+  const bladeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.2 });
+  const blade = new THREE.Mesh(bladeGeo, bladeMat);
+  blade.position.y = 0.25;
+  knifeGroup.add(blade);
+  const hGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.2);
+  const hMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
+  const h = new THREE.Mesh(hGeo, hMat);
+  knifeGroup.add(h);
+  knifeGroup.position.set(-0.35, -0.25, -0.6);
+  knifeGroup.rotation.z = 0.2;
+  knifeGroup.rotation.x = 0.4;
+  camera.add(knifeGroup);
+
+  // Right Hand: Tactical Pistol
+  pistolGroup = new THREE.Group();
+  const barrelGeo = new THREE.BoxGeometry(0.08, 0.12, 0.4);
+  const gunMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.7, roughness: 0.3 });
+  const barrel = new THREE.Mesh(barrelGeo, gunMat);
+  pistolGroup.add(barrel);
+  const gripGeo = new THREE.BoxGeometry(0.07, 0.2, 0.1);
+  const grip = new THREE.Mesh(gripGeo, gunMat);
+  grip.position.set(0, -0.12, 0.1);
+  grip.rotation.x = 0.3;
+  pistolGroup.add(grip);
+  pistolGroup.position.set(0.32, -0.22, -0.55);
+  camera.add(pistolGroup);
+
+  // Muzzle Flash
+  const flashGeo = new THREE.SphereGeometry(0.12);
+  const flashMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+  muzzleFlashMesh = new THREE.Mesh(flashGeo, flashMat);
+  muzzleFlashMesh.position.set(0, 0, -0.3);
+  muzzleFlashMesh.visible = false;
+  pistolGroup.add(muzzleFlashMesh);
+}
+
+init3D();
 setInterval(updateClock, 1000);
 updateClock();
 updateHUD();
-
-if (isLockedOut) {
-  setTimeout(() => triggerCoreStoneStolen(), 300);
-}
 
 function updateClock() {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
   const clockEl = document.getElementById('clock-display');
   if (clockEl) clockEl.innerText = `🕒 WIB ${timeStr}`;
-
-  const isNightHorde = isSimulating1900 || now.getHours() === 19;
-  const statusEl = document.getElementById('horde-status');
-  if (statusEl) {
-    if (isNightHorde) {
-      statusEl.innerText = '🔥 JAM 19:00 WIB (Aktif)';
-      statusEl.style.color = '#ef4444';
-    } else {
-      statusEl.innerText = '🛡️ Patroli Siang';
-      statusEl.style.color = '#10b981';
-    }
-  }
-}
-
-function toggleSimulate1900() {
-  isSimulating1900 = !isSimulating1900;
-  const btn = document.getElementById('sim-horde-btn');
-  if (btn) {
-    btn.style.background = isSimulating1900 ? '#ef4444' : 'rgba(17,24,39,0.85)';
-    btn.style.color = 'white';
-    btn.innerHTML = `<i class="fa-solid fa-clock"></i> Tes Jam 19:00: ${isSimulating1900 ? 'AKTIF 🔥' : 'OFF'}`;
-  }
-  updateClock();
-  if (isSimulating1900 && gameRunning) {
-    spawnFloatingText(190, 240, '⚠️ JAM 19:00 WIB: GEROMBOLAN TIBA!', '#ef4444');
-    screenShake = 12;
-  }
 }
 
 function updateHUD() {
@@ -128,607 +258,223 @@ function updateHUD() {
   }
 
   const sHpEl = document.getElementById('stone-hp-display');
-  if (sHpEl) {
-    sHpEl.innerText = `${Math.max(0, Math.floor(stoneHp))} / ${stoneMaxHp}`;
-  }
-
-  const phaseNames = {
-    1: 'Fase 1: Geng',
-    2: 'Fase 2: Setengah Mutan',
-    3: 'Fase 3: Zombie Berpikir'
-  };
-  const pEl = document.getElementById('phase-display');
-  if (pEl) pEl.innerText = phaseNames[currentPhase] || `Fase ${currentPhase}`;
-
-  localStorage.setItem('outpost_gold', gold);
-  localStorage.setItem('outpost_gems', gems);
-  localStorage.setItem('outpost_knife_lvl', knifeLvl);
-  localStorage.setItem('outpost_pistol_lvl', pistolLvl);
-  localStorage.setItem('outpost_wall_lvl', wallLvl);
-  localStorage.setItem('outpost_stone_lvl', stoneLvl);
-  localStorage.setItem('outpost_survivor_lvl', survivorLvl);
-  localStorage.setItem('corestone_phase', currentPhase);
+  if (sHpEl) sHpEl.innerText = `${Math.max(0, Math.floor(stoneHp))} / ${stoneMaxHp}`;
 }
 
 function startGame() {
-  if (isLockedOut) {
-    triggerCoreStoneStolen();
-    return;
-  }
+  if (isLockedOut) { triggerCoreStoneStolen(); return; }
   document.getElementById('start-screen').classList.add('hidden');
   document.getElementById('lockout-screen').classList.add('hidden');
-  fenceMaxHp = 100 + (wallLvl - 1) * 60;
-  fenceHp = fenceMaxHp;
-  stoneMaxHp = 200 + (stoneLvl - 1) * 100;
-  stoneHp = stoneMaxHp;
-  enemies = [];
-  bullets = [];
-  particles = [];
-  floatingTexts = [];
-  towers = [];
-  playerCol = 3;
-  playerRow = 2;
-  initGrid();
+  fenceMaxHp = 100 + (wallLvl - 1) * 60; fenceHp = fenceMaxHp;
+  stoneMaxHp = 200 + (stoneLvl - 1) * 100; stoneHp = stoneMaxHp;
+  buildBarricadeWall();
+  enemies.forEach(e => scene.remove(e.mesh)); enemies = [];
+  bullets.forEach(b => scene.remove(b.mesh)); bullets = [];
+  towers.forEach(t => scene.remove(t.mesh)); towers = [];
+  grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
+  grid[1][3] = { type: 'stone' }; grid[1][4] = { type: 'stone' };
+  playerCol = 3; playerRow = 3;
+  camera.position.set(colToX(playerCol), 1.7, rowToZ(playerRow));
   gameRunning = true;
-  attackerSpawnTimer = 0;
-  patrolSpawnTimer = 0;
-  updateHUD();
   spawnEnemy(false);
   spawnEnemy(true);
-  cancelAnimationFrame(animationId);
   loop();
 }
 
 function triggerCoreStoneStolen() {
   gameRunning = false;
-  cancelAnimationFrame(animationId);
   isLockedOut = true;
   localStorage.setItem('corestone_locked', 'true');
-
   const penalties = { 1: 100, 2: 300, 3: 500 };
   const cost = penalties[currentPhase] || 100;
-
   document.getElementById('lockout-cost').innerText = `💎 ${cost} Permata`;
-  document.getElementById('lockout-desc').innerText = `Musuh berhasil meruntuhkan pagar dan merampas Tugu Batu Core Stone Fase ${currentPhase}! Anda memerlukan ${cost} Permata untuk menebusnya kembali.`;
-  
   document.getElementById('start-screen').classList.add('hidden');
   document.getElementById('lockout-screen').classList.remove('hidden');
 }
 
 function payRansom() {
-  const penalties = { 1: 100, 2: 300, 3: 500 };
-  const cost = penalties[currentPhase] || 100;
-  if (gems < cost) {
-    alert(`⚠️ Permata Anda tidak cukup (${gems}/${cost} 💎).\n\nSilakan klik tombol "MAINKAN MINI-GAME" untuk mendapatkan Permata gratis atau Topup!`);
-    return;
-  }
-  gems -= cost;
-  isLockedOut = false;
-  localStorage.setItem('corestone_locked', 'false');
-  updateHUD();
-  alert('🎉 TEBUSAN BERHASIL! Tugu Batu Core Stone telah dipulihkan.');
-  startGame();
+  const cost = (currentPhase === 1 ? 100 : (currentPhase === 2 ? 300 : 500));
+  if (gems < cost) { alert('⚠️ Permata tidak cukup!'); return; }
+  gems -= cost; isLockedOut = false; localStorage.setItem('corestone_locked', 'false');
+  updateHUD(); startGame();
 }
 
+// FPS Mouse Aim tracking
 canvas.addEventListener('mousemove', e => {
+  if (!gameRunning) return;
   const rect = canvas.getBoundingClientRect();
-  mouseX = e.clientX - rect.left;
-  mouseY = e.clientY - rect.top;
+  const nx = (e.clientX - rect.left) / rect.width * 2 - 1;
+  const ny = -(e.clientY - rect.top) / rect.height * 2 + 1;
+
+  cameraYaw = -nx * 0.8;
+  cameraPitch = ny * 0.3;
+  camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
 });
 
 canvas.addEventListener('mousedown', e => {
   if (!gameRunning) return;
-  const rect = canvas.getBoundingClientRect();
-  firePlayerPistol(e.clientX - rect.left, e.clientY - rect.top);
+  fireFPSPistol();
 });
 
-function firePlayerPistol(tx, ty) {
-  pistolRecoilAnim = 12;
-  muzzleFlash = 5;
-  screenShake = 2;
+function fireFPSPistol() {
+  pistolRecoilAnim = 10;
+  muzzleFlashMesh.visible = true;
+  setTimeout(() => { if (muzzleFlashMesh) muzzleFlashMesh.visible = false; }, 60);
 
-  let cellW = canvas.width / GRID_COLS;
-  let startX = playerCol * cellW + cellW / 2;
-  let startY = 360 + playerRow * 40 + 20;
+  const bulletGeo = new THREE.SphereGeometry(0.15);
+  const bulletMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+  const bMesh = new THREE.Mesh(bulletGeo, bulletMat);
 
-  let angle = Math.atan2(ty - startY, tx - startX);
-  bullets.push({
-    x: startX, y: startY,
-    vx: Math.cos(angle) * 18, vy: Math.sin(angle) * 18,
-    dmg: pistolLvl * 25
-  });
-  spawnParticle(startX, startY, '#fbbf24', 4);
+  const dir = new THREE.Vector3(0, 0, -1);
+  dir.applyQuaternion(camera.quaternion);
+
+  bMesh.position.copy(camera.position).addScaledVector(dir, 0.8);
+  scene.add(bMesh);
+  bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(1.2), dmg: pistolLvl * 30 });
 }
 
 window.addEventListener('keydown', e => {
   if (!gameRunning) return;
   const key = e.key.toUpperCase();
+  let tc = playerCol; let tr = playerRow;
 
-  let targetCol = playerCol;
-  let targetRow = playerRow;
+  if (key === 'W' || key === 'ARROWUP') tr++; // Move forward toward enemies (Row increases in battlefield direction!)
+  else if (key === 'S' || key === 'ARROWDOWN') tr--; // Move back
+  else if (key === 'A' || key === 'ARROWLEFT') tc--;
+  else if (key === 'D' || key === 'ARROWRIGHT') tc++;
+  else if (key === 'T') { tryBuildTower(); return; }
+  else if (key === 'U') { tryProximityUpgrade(); return; }
 
-  if (key === 'W' || key === 'ARROWUP') targetRow--;
-  else if (key === 'S' || key === 'ARROWDOWN') targetRow++;
-  else if (key === 'A' || key === 'ARROWLEFT') targetCol--;
-  else if (key === 'D' || key === 'ARROWRIGHT') targetCol++;
-  else if (key === 'T') {
-    tryBuildTower();
-    return;
-  } else if (key === 'U') {
-    tryProximityUpgrade();
-    return;
-  }
-
-  // Solid Collider Movement Check: Cannot enter occupied grid cells
-  if (targetCol !== playerCol || targetRow !== playerRow) {
-    if (targetCol >= 0 && targetCol < GRID_COLS && targetRow >= 0 && targetRow < GRID_ROWS) {
-      if (grid[targetRow][targetCol] === null) {
-        playerCol = targetCol;
-        playerRow = targetRow;
-      } else {
-        let obj = grid[targetRow][targetCol];
-        let cellW = canvas.width / GRID_COLS;
-        spawnFloatingText(targetCol * cellW + 20, 360 + targetRow * 40, `🧱 Objek Padat (${obj.name})`, '#fca5a5');
-      }
+  // Player confined to safe grid Rows 1..4
+  if (tc >= 0 && tc < GRID_COLS && tr >= 1 && tr <= 4) {
+    if (grid[tr][tc] === null) {
+      playerCol = tc; playerRow = tr;
+      camera.position.set(colToX(playerCol), 1.7, rowToZ(playerRow));
     }
   }
 });
 
 function tryBuildTower() {
-  let frontRow = playerRow - 1;
-  if (frontRow < 0) {
-    alert('⚠️ Tidak bisa membangun tower di depan pagar!');
-    return;
-  }
-  if (grid[frontRow][playerCol] !== null) {
-    alert('⚠️ Petak grid di depan Anda sudah terisi objek padat!');
-    return;
-  }
-  if (gold < 100) {
-    alert('⚠️ Koin Emas tidak cukup (Butuh: 100 🪙)');
-    openTopup();
-    return;
-  }
-
+  let frontRow = playerRow + 1; // Row toward fence
+  if (frontRow > 4 || grid[frontRow][playerCol] !== null || gold < 100) return;
   gold -= 100;
-  // Indestructible / Permanent Turret
-  let newTower = { type: 'tower', name: 'Tower Abadi', col: playerCol, row: frontRow, lvl: 1, invincible: true };
+
+  const tGeo = new THREE.BoxGeometry(1.6, 2.2, 1.6);
+  const tMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.8 });
+  const tMesh = new THREE.Mesh(tGeo, tMat);
+  tMesh.position.set(colToX(playerCol), 1.1, rowToZ(frontRow));
+  scene.add(tMesh);
+
+  const newTower = { col: playerCol, row: frontRow, lvl: 1, mesh: tMesh };
   towers.push(newTower);
   grid[frontRow][playerCol] = newTower;
   updateHUD();
-  let cellW = canvas.width / GRID_COLS;
-  spawnParticle(playerCol * cellW + cellW / 2, 360 + frontRow * 40 + 20, '#38bdf8', 12);
-  spawnFloatingText(playerCol * cellW + cellW / 2, 360 + frontRow * 40, '🤖 TOWER ABADI DIBANGUN!', '#38bdf8');
 }
 
 function tryProximityUpgrade() {
-  let upgradedAny = false;
-  let cellW = canvas.width / GRID_COLS;
-  let px = playerCol * cellW + cellW / 2;
-  let py = 360 + playerRow * 40 + 20;
-
-  // 1. Mepet Pagar Depan (playerRow === 0)
-  if (playerRow === 0 && fenceHp < fenceMaxHp * 2) {
-    let cost = wallLvl * 40;
-    if (gold >= cost) {
-      gold -= cost; wallLvl++; fenceMaxHp += 60; fenceHp = fenceMaxHp;
-      spawnFloatingText(px, py - 30, `🪵 PAGAR LV.${wallLvl}! (+HP)`, '#fbbf24');
-      upgradedAny = true;
-    } else {
-      openTopup(); return;
-    }
+  if (playerRow === 4 && fenceHp < fenceMaxHp * 2 && gold >= wallLvl * 40) {
+    gold -= wallLvl * 40; wallLvl++; fenceMaxHp += 60; fenceHp = fenceMaxHp; buildBarricadeWall();
+  } else if (gold >= knifeLvl * 50) {
+    gold -= knifeLvl * 50; knifeLvl++; pistolLvl++;
   }
-
-  // 2. Mepet Core Stone / Tower
-  for (let r = Math.max(0, playerRow - 1); r <= Math.min(GRID_ROWS - 1, playerRow + 1); r++) {
-    for (let c = Math.max(0, playerCol - 1); c <= Math.min(GRID_COLS - 1, playerCol + 1); c++) {
-      let obj = grid[r][c];
-      if (obj && obj.type === 'stone' && !upgradedAny) {
-        let cost = stoneLvl * 60;
-        if (gold >= cost) {
-          gold -= cost; stoneLvl++; stoneMaxHp += 100; stoneHp = stoneMaxHp;
-          spawnFloatingText(px, py - 30, `💠 CORE STONE LV.${stoneLvl}!`, '#38bdf8');
-          upgradedAny = true;
-        }
-      } else if (obj && obj.type === 'tower' && !upgradedAny) {
-        let cost = obj.lvl * 100;
-        if (gold >= cost) {
-          gold -= cost; obj.lvl++;
-          spawnFloatingText(c * cellW + 20, 360 + r * 40, `🤖 TOWER LV.${obj.lvl}! (+DMG)`, '#10b981');
-          upgradedAny = true;
-        }
-      }
-    }
-  }
-
-  // 3. Upgrade Karakter Sendiri
-  if (!upgradedAny) {
-    let cost = knifeLvl * 50;
-    if (gold >= cost) {
-      gold -= cost; knifeLvl++; pistolLvl++;
-      spawnFloatingText(px, py - 30, `🛠️ SENJATA KARAKTER LV.${knifeLvl}!`, '#fbbf24');
-      upgradedAny = true;
-    } else {
-      openTopup(); return;
-    }
-  }
-
   updateHUD();
 }
 
-function triggerKnifeMelee(targetEnemy) {
-  knifeStabAnim = 15;
-  let dmg = knifeLvl * 55;
-  targetEnemy.hp -= dmg;
-  spawnParticle(targetEnemy.x, targetEnemy.y, '#ef4444', 8);
-  spawnFloatingText(targetEnemy.x, targetEnemy.y - 15, `🗡️ -${dmg}`, '#ef4444');
-  if (targetEnemy.hp <= 0) killEnemy(targetEnemy);
-}
-
 function spawnEnemy(isPatrol = false) {
-  const now = new Date();
-  const isNightHorde = isSimulating1900 || now.getHours() === 19;
+  const spawnCol = Math.floor(Math.random() * GRID_COLS);
+  const spawnRow = isPatrol ? (12 + Math.floor(Math.random() * 4)) : 19;
+  const hp = (25 + survivorLvl * 15) * (currentPhase === 2 ? 1.8 : 1);
 
-  let baseHp = (25 + survivorLvl * 15) * (currentPhase === 2 ? 1.8 : (currentPhase === 3 ? 2.6 : 1));
-  let speed = 0.4 + Math.random() * 0.25;
-  let spawnX = 50 + Math.random() * 280;
+  const eGeo = new THREE.CylinderGeometry(0.5, 0.5, 2.4, 8);
+  const eMat = new THREE.MeshStandardMaterial({ color: isPatrol ? 0x06b6d4 : (currentPhase === 1 ? 0x38bdf8 : 0xc084fc) });
+  const eMesh = new THREE.Mesh(eGeo, eMat);
+  eMesh.position.set(colToX(spawnCol), 1.2, rowToZ(spawnRow));
+  scene.add(eMesh);
 
-  if (isPatrol) {
-    let patrolIcon = currentPhase === 1 ? '🔍' : (currentPhase === 2 ? '🧬' : '📡');
-    enemies.push({
-      name: `${patrolIcon} Patroli Pengintai`,
-      x: spawnX, y: 80 + Math.random() * 100,
-      vx: (Math.random() > 0.5 ? 1 : -1) * (0.5 + Math.random() * 0.5),
-      vy: (Math.random() > 0.5 ? 1 : -1) * (0.3 + Math.random() * 0.3),
-      hp: baseHp * 0.8, maxHp: baseHp * 0.8,
-      speed: 0,
-      size: 26,
-      reward: 35 * currentPhase,
-      color: '#06b6d4',
-      isPatrol: true
-    });
-    return;
-  }
-
-  if (Math.random() < 0.2 && isNightHorde) {
-    if (currentPhase === 1) {
-      enemies.push({ name: '🦹 BOS PEMIMPIN GENG', x: spawnX, y: 70, hp: baseHp * 4, maxHp: baseHp * 4, speed: speed * 0.6, size: 38, reward: 50, color: '#f59e0b', isBoss: true, isPatrol: false });
-    } else if (currentPhase === 2) {
-      enemies.push({ name: '🧪 ILMUWAN SETENGAH MUTAN', x: spawnX, y: 70, hp: baseHp * 5, maxHp: baseHp * 5, speed: speed * 0.7, size: 42, reward: 80, color: '#a855f7', isBoss: true, isPatrol: false });
-    } else {
-      enemies.push({ name: '🧟 ILMUWAN ZOMBIE BERPIKIR', x: spawnX, y: 70, hp: baseHp * 6, maxHp: baseHp * 6, speed: speed * 0.8, size: 45, reward: 120, color: '#10b981', isBoss: true, isPatrol: false });
-    }
-  } else {
-    let icon = currentPhase === 1 ? '🦹' : (currentPhase === 2 ? '🧪' : '🧟');
-    enemies.push({
-      name: `${icon} Pasukan Sindikat`,
-      x: spawnX, y: 70,
-      hp: baseHp, maxHp: baseHp,
-      speed: speed * (isNightHorde ? 1.3 : 1.0),
-      size: 28,
-      reward: 15 * currentPhase,
-      color: currentPhase === 1 ? '#38bdf8' : (currentPhase === 2 ? '#c084fc' : '#34d399'),
-      isPatrol: false
-    });
-  }
-}
-
-function killEnemy(enemy) {
-  const index = enemies.indexOf(enemy);
-  if (index !== -1) {
-    enemies.splice(index, 1);
-    gold += enemy.reward;
-    survivorLvl = Math.floor(gold / 150) + 1;
-    updateHUD();
-    spawnParticle(enemy.x, enemy.y, enemy.color, 15);
-    spawnFloatingText(enemy.x, enemy.y - 25, `+${enemy.reward}🪙`, '#fbbf24');
-
-    if (enemy.isBoss) {
-      if (currentPhase < 3) {
-        currentPhase++;
-        alert(`💥 BOS DIKALAHKAN!\n\nMemasuki Fase ${currentPhase}!\nIlmuwan Jahat mengambil alih pasukan musuh!`);
-      } else {
-        alert(`🏆 LUAR BIASA!\n\nIlmuwan Zombie Berpikir berhasil dipukul mundur!`);
-      }
-      updateHUD();
-    }
-  }
-}
-
-function spawnParticle(x, y, color, count = 6) {
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: x, y: y,
-      vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6 - 1,
-      size: 2 + Math.random() * 4,
-      color: color,
-      life: 20 + Math.random() * 15
-    });
-  }
-}
-
-function spawnFloatingText(x, y, text, color = '#ffffff') {
-  floatingTexts.push({ x: x, y: y, text: text, color: color, life: 35, vy: -1.5 });
+  enemies.push({
+    mesh: eMesh, hp: hp, maxHp: hp, speed: isPatrol ? 0 : 0.045,
+    row: spawnRow, isPatrol: isPatrol, vx: (Math.random() > 0.5 ? 0.03 : -0.03)
+  });
 }
 
 function loop() {
   if (!gameRunning) return;
   gameTick++;
 
-  ctx.save();
-  if (screenShake > 0) {
-    ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
-    screenShake--;
-  }
-
-  renderEnvironmentAndGrid();
-
   attackerSpawnTimer++;
-  if (attackerSpawnTimer >= 1200) {
-    spawnEnemy(false);
-    attackerSpawnTimer = 0;
-  }
-
+  if (attackerSpawnTimer >= 1200) { spawnEnemy(false); attackerSpawnTimer = 0; }
   patrolSpawnTimer++;
-  if (patrolSpawnTimer >= 3600) {
-    spawnEnemy(true);
-    patrolSpawnTimer = 0;
-  }
+  if (patrolSpawnTimer >= 3600) { spawnEnemy(true); patrolSpawnTimer = 0; }
 
-  autoShootTimer++;
-  if (autoShootTimer > 35) {
+  // Tower shooting
+  if (gameTick % 40 === 0 && enemies.length > 0) {
     towers.forEach(t => {
-      if (enemies.length > 0) {
-        let target = enemies[0];
-        let cellW = canvas.width / GRID_COLS;
-        let tx = t.col * cellW + cellW / 2;
-        let ty = 360 + t.row * 40 + 20;
-        bullets.push({ x: tx, y: ty, vx: (target.x - tx) * 0.09, vy: (target.y - ty) * 0.09, dmg: t.lvl * 20 });
-      }
+      const target = enemies[0];
+      const bGeo = new THREE.SphereGeometry(0.2);
+      const bMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      const bMesh = new THREE.Mesh(bGeo, bMat);
+      bMesh.position.copy(t.mesh.position).y += 1;
+      scene.add(bMesh);
+      const dir = target.mesh.position.clone().sub(bMesh.position).normalize().multiplyScalar(1.0);
+      bullets.push({ mesh: bMesh, dir: dir, dmg: t.lvl * 25 });
     });
-    autoShootTimer = 0;
   }
 
+  // Update bullets
   for (let i = bullets.length - 1; i >= 0; i--) {
     let b = bullets[i];
-    b.x += b.vx; b.y += b.vy;
-    ctx.fillStyle = '#fbbf24';
-    ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2); ctx.fill();
-    if (b.y < 70 || b.x < 0 || b.x > canvas.width || b.y > canvas.height) {
-      bullets.splice(i, 1); continue;
+    b.mesh.position.add(b.dir);
+    if (b.mesh.position.z < -60 || b.mesh.position.z > 10) {
+      scene.remove(b.mesh); bullets.splice(i, 1); continue;
     }
     for (let j = enemies.length - 1; j >= 0; j--) {
       let e = enemies[j];
-      if (Math.hypot(b.x - e.x, b.y - e.y) < e.size) {
+      if (b.mesh.position.distanceTo(e.mesh.position) < 1.4) {
         e.hp -= b.dmg;
-        bullets.splice(i, 1);
-        spawnParticle(b.x, b.y, '#fbbf24', 4);
-        spawnFloatingText(e.x, e.y - 15, `-${Math.floor(b.dmg)}`, '#fbbf24');
-        if (e.hp <= 0) killEnemy(e);
+        scene.remove(b.mesh); bullets.splice(i, 1);
+        if (e.hp <= 0) {
+          gold += 25 * currentPhase; updateHUD();
+          scene.remove(e.mesh); enemies.splice(j, 1);
+        }
         break;
       }
     }
   }
 
+  // Update enemies
   for (let i = enemies.length - 1; i >= 0; i--) {
     let e = enemies[i];
-    
     if (e.isPatrol) {
-      e.x += e.vx;
-      e.y += e.vy;
-      if (e.x < 35 || e.x > canvas.width - 35) e.vx *= -1;
-      if (e.y < 75 || e.y > 220) e.vy *= -1;
-      if (Math.random() < 0.02) {
-        e.vx = (Math.random() - 0.5) * 1.5;
-        e.vy = (Math.random() - 0.5) * 0.8;
-      }
+      e.mesh.position.x += e.vx;
+      if (e.mesh.position.x < colToX(0) || e.mesh.position.x > colToX(7)) e.vx *= -1;
     } else {
-      if (e.y < 350 || fenceHp <= 0) {
-        e.y += e.speed;
+      // March toward fence (Row 5 -> Z = -12.5)
+      if (e.mesh.position.z > rowToZ(5) || fenceHp <= 0) {
+        e.mesh.position.z += e.speed;
       } else {
-        e.y = 350;
-        fenceHp -= 0.25 * currentPhase;
-        screenShake = 1;
-        updateHUD();
-        if (fenceHp <= 0) {
-          spawnFloatingText(canvas.width / 2, 350, '💥 PAGAR DEPAN RUNTUH!', '#ef4444');
-          screenShake = 10;
-        }
+        fenceHp -= 0.1; updateHUD();
+        if (fenceHp <= 0) buildBarricadeWall();
+      }
+      if (e.mesh.position.z >= rowToZ(1)) {
+        stoneHp -= 0.3; updateHUD();
+        if (stoneHp <= 0) { triggerCoreStoneStolen(); return; }
       }
     }
-
-    let depthProgress = Math.max(0, Math.min(1, (e.y - 70) / 290));
-    let scale = 0.45 + depthProgress * 0.75;
-
-    ctx.save();
-    ctx.translate(e.x, e.y);
-    ctx.scale(scale, scale);
-
-    ctx.shadowColor = e.color; ctx.shadowBlur = 12;
-    ctx.fillStyle = e.color;
-    ctx.beginPath(); ctx.arc(0, 0, e.size / 2, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.font = '20px sans-serif';
-    ctx.fillText(e.name.slice(0, 2), -11, 7);
-
-    ctx.restore();
-
-    ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, 40, 5);
-    ctx.fillStyle = '#ef4444'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, Math.max(0, (e.hp / e.maxHp) * 40), 5);
-
-    if (!e.isPatrol && e.y >= 350 && playerRow === 0) {
-      let cellW = canvas.width / GRID_COLS;
-      let px = playerCol * cellW + cellW / 2;
-      if (Math.abs(px - e.x) < 65 && knifeStabAnim === 0 && gameTick % 20 === 0) {
-        triggerKnifeMelee(e);
-      }
-    }
-
-    // Enemies inside grid zone only attack Core Stone, Towers are invincible!
-    if (!e.isPatrol && e.y >= 460) {
-      stoneHp -= 0.4 * currentPhase;
-      screenShake = 2;
-      updateHUD();
-      if (stoneHp <= 0) { triggerCoreStoneStolen(); return; }
-    }
   }
 
-  for (let i = particles.length - 1; i >= 0; i--) {
-    let p = particles[i];
-    p.x += p.vx; p.y += p.vy; p.life--;
-    ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size);
-    if (p.life <= 0) particles.splice(i, 1);
-  }
-  for (let i = floatingTexts.length - 1; i >= 0; i--) {
-    let ft = floatingTexts[i];
-    ft.y += ft.vy; ft.life--;
-    ctx.font = 'bold 13px Outfit, sans-serif'; ctx.fillStyle = ft.color; ctx.fillText(ft.text, ft.x, ft.y);
-    if (ft.life <= 0) floatingTexts.splice(i, 1);
-  }
-
-  if (knifeStabAnim > 0) knifeStabAnim--;
-  if (pistolRecoilAnim > 0) pistolRecoilAnim--;
-  if (muzzleFlash > 0) muzzleFlash--;
-
-  ctx.restore();
-  animationId = requestAnimationFrame(loop);
-}
-
-function renderEnvironmentAndGrid() {
-  let skyGrad = ctx.createLinearGradient(0, 0, 0, 70);
-  skyGrad.addColorStop(0, '#020617'); skyGrad.addColorStop(1, '#1e1b4b');
-  ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, canvas.width, 70);
-
-  ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 70, canvas.width, 290);
-
-  if (fenceHp > 0) {
-    ctx.fillStyle = '#3e2723'; ctx.fillRect(0, 350, canvas.width, 10);
-    ctx.font = '18px sans-serif';
-    for (let x = 6; x < canvas.width; x += 30) {
-      ctx.fillText('🪵', x, 359);
-    }
+  // Animations
+  if (pistolRecoilAnim > 0) {
+    pistolGroup.position.z = -0.45; pistolRecoilAnim--;
   } else {
-    ctx.font = '14px sans-serif';
-    for (let x = 15; x < canvas.width; x += 55) {
-      ctx.fillText('💥🪵', x, 358);
-    }
+    pistolGroup.position.z = -0.55;
   }
 
-  let cellW = canvas.width / GRID_COLS;
-  let cellH = 40;
-  for (let r = 0; r < GRID_ROWS; r++) {
-    for (let c = 0; c < GRID_COLS; c++) {
-      let x = c * cellW;
-      let y = 360 + r * cellH;
-
-      ctx.strokeStyle = 'rgba(56,189,248,0.15)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x, y, cellW, cellH);
-
-      let obj = grid[r][c];
-      if (obj) {
-        if (obj.type === 'stone') {
-          ctx.fillStyle = '#1e293b';
-          ctx.fillRect(x + 2, y + 2, cellW - 4, cellH - 4);
-          if (c === 3) {
-            ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 15;
-            ctx.font = '28px sans-serif';
-            ctx.fillText('💠', x + 20, y + 30);
-            ctx.shadowBlur = 0;
-          }
-        } else if (obj.type === 'tower') {
-          ctx.fillStyle = '#1e3a8a';
-          ctx.fillRect(x + 4, y + 4, cellW - 8, cellH - 8);
-          ctx.font = '22px sans-serif';
-          ctx.fillText('🤖', x + 10, y + 28);
-          ctx.font = '9px sans-serif'; ctx.fillStyle = '#38bdf8';
-          ctx.fillText(`Lv.${obj.lvl}`, x + 10, y + 38);
-        }
-      }
-    }
-  }
-
-  let px = playerCol * cellW + cellW / 2;
-  let py = 360 + playerRow * cellH + cellH / 2;
-
-  ctx.fillStyle = 'rgba(251,191,36,0.2)';
-  ctx.fillRect(playerCol * cellW, 360 + playerRow * cellH, cellW, cellH);
-
-  let angle = Math.atan2(mouseY - py, mouseX - px);
-
-  ctx.save();
-  ctx.translate(px, py);
-  ctx.rotate(angle + Math.PI / 2);
-
-  ctx.fillStyle = '#38bdf8';
-  ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
-
-  let kOffset = knifeStabAnim > 0 ? -16 : 0;
-  ctx.font = '26px sans-serif';
-  ctx.fillText('🗡️', -25, -6 + kOffset);
-
-  let pOffset = pistolRecoilAnim > 0 ? 8 : 0;
-  ctx.fillText('🔫', 6, -6 + pOffset);
-  if (muzzleFlash > 0) {
-    ctx.font = '20px sans-serif';
-    ctx.fillText('💥', 6, -26);
-  }
-
-  ctx.restore();
-}
-
-let mgTimerInterval;
-function openMiniGame() { document.getElementById('minigame-modal').classList.add('active'); }
-function closeMiniGame() { clearInterval(mgTimerInterval); document.getElementById('minigame-modal').classList.remove('active'); }
-function startMiniGameRound() {
-  const area = document.getElementById('mg-area');
-  area.innerHTML = '';
-  let timeLeft = 15;
-  let score = 0;
-  document.getElementById('mg-timer').innerText = timeLeft;
-  document.getElementById('mg-score').innerText = score;
-  document.getElementById('mg-start-btn').disabled = true;
-
-  const spawnTarget = () => {
-    if (timeLeft <= 0) return;
-    const t = document.createElement('div');
-    t.className = 'mg-target';
-    t.innerHTML = '🎯';
-    t.style.left = Math.floor(Math.random() * 280) + 'px';
-    t.style.top = Math.floor(Math.random() * 160) + 'px';
-    t.onclick = () => {
-      score += 5; gems += 5;
-      document.getElementById('mg-score').innerText = score;
-      updateHUD();
-      t.remove();
-      spawnTarget();
-    };
-    area.appendChild(t);
-  };
-
-  spawnTarget(); spawnTarget();
-  mgTimerInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById('mg-timer').innerText = timeLeft;
-    if (timeLeft <= 0) {
-      clearInterval(mgTimerInterval);
-      area.innerHTML = `<div style="color:#fbbf24; padding-top:80px; font-weight:800;">Waktu Habis!<br>Total Hadiah: +${score} 💎</div>`;
-      document.getElementById('mg-start-btn').disabled = false;
-      updateHUD();
-    }
-  }, 1000);
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
 }
 
 function openTopup() { document.getElementById('topup-modal').classList.add('active'); }
 function closeTopup() { document.getElementById('topup-modal').classList.remove('active'); }
-function buyGems(itemName, price, amount) {
-  MidtransPay.checkout({
-    itemName: itemName, price: price,
-    onSuccess: function() {
-      gems += amount;
-      updateHUD();
-      closeTopup();
-      alert(`🎉 Topup Berhasil! +${amount} Gems ditambahkan.`);
-    }
-  });
+function buyGems(n, p, a) {
+  MidtransPay.checkout({ itemName: n, price: p, onSuccess: () => { gems += a; updateHUD(); closeTopup(); } });
 }

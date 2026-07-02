@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Core Stone: Survival Defense</title>
+  <title>Core Stone: Survival Defense 3D FPS</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="manifest" href="manifest.json">
@@ -12,7 +12,7 @@
     <!-- Top Bar: Clock & Currencies -->
     <div class="header">
       <div class="logo-box">
-        <div class="logo">CORE <span style="color: #38bdf8;">STONE</span></div>
+        <div class="logo">CORE <span style="color: #38bdf8;">STONE</span> <span style="font-size:11px; background:#2563eb; color:white; padding:2px 6px; border-radius:6px; font-weight:800;">3D FPS</span></div>
         <div class="clock-badge" id="clock-display">🕒 WIB 12:00:00</div>
       </div>
       <div class="currency-bar">
@@ -42,14 +42,15 @@
     <!-- Grid Controls & Keyboard Shortcut Guide -->
     <div class="controls-guide">
       <div class="cg-item"><b>[W,A,S,D]</b> Gerak Grid 8x4</div>
-      <div class="cg-item"><b>[Mouse]</b> Hadap & Tembak</div>
+      <div class="cg-item"><b>[Mouse]</b> Hadap FPS & Tembak</div>
       <div class="cg-item" style="color:#10b981;"><b>[T]</b> Bangun Tower (100🪙)</div>
       <div class="cg-item" style="color:#fbbf24;"><b>[U]</b> Upgrade Objek Mepet</div>
     </div>
 
-    <!-- 3D Portrait Canvas Viewport -->
-    <div class="canvas-container">
-      <canvas id="gameCanvas" width="380" height="540"></canvas>
+    <!-- 3D WebGL FPS Viewport Container -->
+    <div class="canvas-container" id="webgl-container">
+      <canvas id="gameCanvas"></canvas>
+      <div class="fps-crosshair">+</div>
       <div class="sim-toggle-box">
         <button class="sim-btn" id="sim-horde-btn" onclick="toggleSimulate1900()"><i class="fa-solid fa-clock"></i> Tes Jam 19:00</button>
       </div>
@@ -60,9 +61,9 @@
       <div class="hero-box">
         <img src="hero.png" alt="Core Stone Banner" style="width:100%; height:100%; object-fit:cover;">
       </div>
-      <h1>CORE <span style="color: #38bdf8;">STONE</span></h1>
-      <p class="desc-text">Pertahanan Grid 8x4 di sebalik pagar barikade!<br><br>🧱 <b>Collider Solid & Turret Abadi</b> : Setiap objek padat, Turret tidak pernah hancur!<br>⌨️ <b>W, A, S, D</b> : Gerak karakter grid 8x4<br>🖱️ <b>Arahkan Kursor & Klik</b> : Menghadap musuh & menembak<br>🏗️ <b>Tekan T</b> : Bangun Tower Abadi di depan karakter<br>⚡ <b>Mepet Objek + Tekan U</b> : Langsung Upgrade Tugu/Tower/Pagar tanpa kartu pop-up</p>
-      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> MASUK POS PERTAHANAN</button>
+      <h1>CORE <span style="color: #38bdf8;">STONE</span> <span style="font-size:18px; color:#fbbf24;">3D FPS</span></h1>
+      <p class="desc-text">Dunia 3D Sejati (WebGL / Three.js) dengan Peta Grid 8x20!<br><br>🌲 <b>Lingkungan Hutan 3D</b> : Sisi kiri-kanan & belakang dilingkupi hutan malam kabut<br>🎥 <b>Kamera FPS Sudut Pandang Pertama</b> : Melihat langsung kedua senjata di tangan & pagar di depan<br>⌨️ <b>W, A, S, D</b> : Gerak karakter di area grid 8x4 pos pertahanan<br>🏗️ <b>Tekan T</b> : Bangun Tower Abadi 3D di depan karakter<br>⚡ <b>Mepet Objek + Tekan U</b> : Langsung Upgrade Tugu/Tower/Pagar</p>
+      <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> MASUK DUNIA 3D FPS</button>
       <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>
 
@@ -117,6 +118,7 @@
       </div>
     </div>
   </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="../midtrans-pay.js"></script>
   <script src="game.js"></script>
 <script>

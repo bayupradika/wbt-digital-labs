@@ -22,10 +22,12 @@ body { background: #0b0f19; color: #f8fafc; min-height: 100vh; padding: 12px 6px
 .cg-item { display: flex; align-items: center; gap: 4px; }
 .cg-item b { color: #38bdf8; font-family: 'Outfit', sans-serif; }
 
-.canvas-container { position: relative; width: 100%; margin-bottom: 14px; }
-canvas { width: 100%; height: 540px; background: #05070d; border-radius: 16px; border: 2px solid rgba(56,189,248,0.25); display: block; cursor: crosshair; box-shadow: inset 0 0 30px rgba(0,0,0,0.9); }
+.canvas-container { position: relative; width: 100%; height: 540px; margin-bottom: 14px; border-radius: 16px; overflow: hidden; border: 2px solid rgba(56,189,248,0.25); box-shadow: inset 0 0 30px rgba(0,0,0,0.9); background: #020617; }
+canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
 
-.sim-toggle-box { position: absolute; top: 10px; right: 10px; }
+.fps-crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.6); font-size: 24px; font-weight: 300; pointer-events: none; }
+
+.sim-toggle-box { position: absolute; top: 10px; right: 10px; z-index: 10; }
 .sim-btn { background: rgba(17,24,39,0.85); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); color: #fbbf24; font-size: 11px; font-weight: 800; padding: 6px 10px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
 .sim-btn:hover { background: #fbbf24; color: #0f172a; }
 
