@@ -598,8 +598,6 @@ function spawnEnemy(isPatrol = false) {
   });
 }
 
-let isSimulating1900 = false;
-
 function loop() {
   if (!gameRunning) {
     if (camera && renderer && scene) {
