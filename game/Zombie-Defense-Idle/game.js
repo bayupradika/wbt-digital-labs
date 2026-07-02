@@ -337,7 +337,12 @@ canvas.addEventListener('mousemove', e => {
   }
 });
 
+let playerFireCooldown = 0;
+
 function fireFPSPistol() {
+  if (playerFireCooldown > 0) return; // Max attack speed: 2 bullets per second (30 ticks cooldown)
+  playerFireCooldown = 30;
+
   pistolRecoilAnim = 10;
   muzzleFlashMesh.visible = true;
   setTimeout(() => { if (muzzleFlashMesh) muzzleFlashMesh.visible = false; }, 60);
@@ -351,16 +356,18 @@ function fireFPSPistol() {
 
   bMesh.position.copy(camera.position).addScaledVector(dir, 0.8);
   scene.add(bMesh);
-  bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(1.3), dmg: pistolLvl * 30 });
+  bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(1.5), dmg: 10 }); // Fixed 10 damage per bullet
 }
 
-// Smooth Continuous WASD Keyboard Tracking
+// Smooth Continuous WASD & Shortcuts Tracking
 window.addEventListener('keydown', e => {
   keysPressed[e.key.toUpperCase()] = true;
   if (!gameRunning) return;
   const k = e.key.toUpperCase();
   if (k === 'T') tryBuildTower();
   if (k === 'U') tryProximityUpgrade();
+  if (k === 'I') toggleInventory();
+  if (e.key === 'Escape') closeInventory();
 });
 
 window.addEventListener('keyup', e => {
@@ -554,13 +561,24 @@ function buildFullHumanoidEnemy(isPatrol) {
   const rBoot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.2, 0.35), bootMat);
   rBoot.position.set(0.2, 0.1, 0.05); g.add(rBoot);
 
+  // 3D Floating HP Bar Above Head
+  const hpBarGroup = new THREE.Group();
+  hpBarGroup.position.y = 2.5;
+  const bgBar = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.14, 0.05), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+  hpBarGroup.add(bgBar);
+  const fillBar = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.1, 0.06), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
+  fillBar.position.z = 0.01;
+  hpBarGroup.add(fillBar);
+  g.add(hpBarGroup);
+  g.userData = { hpBarFill: fillBar, hpBarGroup: hpBarGroup };
+
   return g;
 }
 
 function spawnEnemy(isPatrol = false) {
   const spawnCol = Math.floor(Math.random() * GRID_COLS);
   const spawnRow = isPatrol ? (12 + Math.floor(Math.random() * 4)) : 19;
-  const hp = (25 + survivorLvl * 15) * (currentPhase === 2 ? 1.8 : 1);
+  const hp = 50; // Fixed 50 HP per enemy as specified
 
   const eMesh = buildFullHumanoidEnemy(isPatrol);
   eMesh.position.set(colToX(spawnCol), 0, rowToZ(spawnRow));
@@ -572,18 +590,34 @@ function spawnEnemy(isPatrol = false) {
   });
 }
 
+let isSimulating1900 = false;
+
 function loop() {
   if (!gameRunning) return;
   gameTick++;
 
+  if (playerFireCooldown > 0) playerFireCooldown--;
+
   handleSmoothPlayerMovement();
 
+  // Regular Spawn
   attackerSpawnTimer++;
   if (attackerSpawnTimer >= 1200) { spawnEnemy(false); attackerSpawnTimer = 0; }
   patrolSpawnTimer++;
   if (patrolSpawnTimer >= 3600) { spawnEnemy(true); patrolSpawnTimer = 0; }
 
-  // Tower tracking & shooting
+  // 1. Setiap 5 Menit (18000 ticks di 60 FPS) Muncul 10 Musuh Serentak
+  if (gameTick > 0 && gameTick % 18000 === 0) {
+    for (let w = 0; w < 10; w++) spawnEnemy(false);
+  }
+
+  // 2. Setiap Jam 19:00 Malam Muncul 1800 Musuh dalam 1 Jam (1 musuh per 2 detik / 120 ticks)
+  const nowHour = new Date().getHours();
+  if ((nowHour === 19 || isSimulating1900) && gameTick % 120 === 0) {
+    spawnEnemy(false);
+  }
+
+  // Tower tracking & shooting (3x lebih cepat dari user = setiap 10 ticks, kerusakan 8)
   towers.forEach(t => {
     if (enemies.length > 0 && t.head) {
       const target = enemies[0];
@@ -595,7 +629,7 @@ function loop() {
     }
   });
 
-  if (gameTick % 40 === 0 && enemies.length > 0) {
+  if (gameTick % 10 === 0 && enemies.length > 0) {
     towers.forEach(t => {
       const target = enemies[0];
       const bGeo = new THREE.SphereGeometry(0.25);
@@ -604,7 +638,7 @@ function loop() {
       bMesh.position.copy(t.mesh.position).y += 1.4;
       scene.add(bMesh);
       const dir = target.mesh.position.clone().sub(bMesh.position).normalize().multiplyScalar(1.2);
-      bullets.push({ mesh: bMesh, dir: dir, dmg: t.lvl * 25 });
+      bullets.push({ mesh: bMesh, dir: dir, dmg: 8 }); // Kerusakan turret 8 per bullet
     });
   }
 
@@ -629,9 +663,20 @@ function loop() {
     }
   }
 
-  // Update enemies
+  // Update enemies & Floating HP Bar LookAt
   for (let i = enemies.length - 1; i >= 0; i--) {
     let e = enemies[i];
+    
+    // Floating HP Bar dynamic update
+    if (e.mesh.userData && e.mesh.userData.hpBarGroup) {
+      e.mesh.userData.hpBarGroup.lookAt(camera.position);
+      const ratio = Math.max(0, e.hp / e.maxHp);
+      if (e.mesh.userData.hpBarFill) {
+        e.mesh.userData.hpBarFill.scale.x = ratio;
+        e.mesh.userData.hpBarFill.material.color.setHex(ratio > 0.5 ? 0x10b981 : (ratio > 0.2 ? 0xfbbf24 : 0xef4444));
+      }
+    }
+
     if (e.isPatrol) {
       e.mesh.position.x += e.vx;
       if (e.mesh.position.x < colToX(0) || e.mesh.position.x > colToX(7)) e.vx *= -1;
@@ -664,6 +709,34 @@ function openTopup() { document.getElementById('topup-modal').classList.add('act
 function closeTopup() { document.getElementById('topup-modal').classList.remove('active'); }
 function buyGems(n, p, a) {
   MidtransPay.checkout({ itemName: n, price: p, onSuccess: () => { gems += a; updateHUD(); closeTopup(); } });
+}
+
+function openInventory() {
+  if (document.pointerLockElement === canvas && document.exitPointerLock) document.exitPointerLock();
+  const modal = document.getElementById('inventory-modal');
+  if (modal) {
+    document.getElementById('inv-gold-val').innerText = gold.toLocaleString('id-ID');
+    document.getElementById('inv-gem-val').innerText = gems.toLocaleString('id-ID');
+    modal.classList.add('active');
+  }
+}
+
+function closeInventory() {
+  const modal = document.getElementById('inventory-modal');
+  if (modal) modal.classList.remove('active');
+}
+
+function toggleInventory() {
+  const modal = document.getElementById('inventory-modal');
+  if (modal && modal.classList.contains('active')) closeInventory();
+  else openInventory();
+}
+
+function toggleSimulate1900() {
+  isSimulating1900 = !isSimulating1900;
+  const btn = document.getElementById('sim-horde-btn');
+  if (btn) btn.innerHTML = isSimulating1900 ? '<i class="fa-solid fa-stop"></i> Stop Jam 19:00' : '<i class="fa-solid fa-clock"></i> Tes Jam 19:00';
+  if (isSimulating1900) alert('🌙 Simulasi Jam 19:00 Aktif! 1800 musuh akan menyerbu (muncul 1 musuh setiap 2 detik)!');
 }
 
 window.addEventListener('resize', () => {
