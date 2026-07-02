@@ -21,21 +21,21 @@
       </div>
     </div>
 
-    <!-- Stats HUD -->
+    <!-- Stats HUD (Separated Fence HP & Core Stone HP) -->
     <div class="stats-box">
       <div>
-        <div class="stat-lbl">💠 CORE STONE & PAGAR</div>
-        <div class="stat-val" style="color:#38bdf8;" id="hp-display">100 / 100</div>
+        <div class="stat-lbl">🪵 PAGAR DEPAN</div>
+        <div class="stat-val" style="color:#fbbf24;" id="fence-hp-display">100 / 100</div>
+      </div>
+      <div class="vert-divider"></div>
+      <div>
+        <div class="stat-lbl">💠 CORE STONE</div>
+        <div class="stat-val" style="color:#38bdf8;" id="stone-hp-display">200 / 200</div>
       </div>
       <div class="vert-divider"></div>
       <div>
         <div class="stat-lbl">📖 FASE CERITA</div>
-        <div class="stat-val" id="phase-display" style="color:#fbbf24; font-size:12px;">Fase 1: Pemimpin Geng</div>
-      </div>
-      <div class="vert-divider"></div>
-      <div>
-        <div class="stat-lbl">⚠️ STATUS 19:00 WIB</div>
-        <div class="stat-val" id="horde-status" style="color:#10b981; font-size:11px;">Patroli Siang</div>
+        <div class="stat-val" id="phase-display" style="color:#e2e8f0; font-size:11px;">Fase 1: Geng</div>
       </div>
     </div>
 
@@ -70,7 +70,7 @@
         <img src="hero.png" alt="Core Stone Banner" style="width:100%; height:100%; object-fit:cover;">
       </div>
       <h1>CORE <span style="color: #38bdf8;">STONE</span></h1>
-      <p class="desc-text">Pertahanan Grid 8x4 di sebalik pagar barikade!<br><br>⌨️ <b>W, A, S, D</b> : Gerak karakter (punya collider mandiri)<br>🖱️ <b>Arahkan Kursor & Klik</b> : Menghadap musuh & menembak<br>🏗️ <b>Tekan T</b> : Bangun Tower di depan karakter<br>⚡ <b>Mepet Objek + Tekan U</b> : Upgrade Tugu/Tower/Pagar</p>
+      <p class="desc-text">Pertahanan Grid 8x4 di sebalik pagar barikade!<br><br>🪵 <b>Pagar & Tugu Terpisah</b> : Musuh terhadang di pagar depan sampai pagar runtuh!<br>⌨️ <b>W, A, S, D</b> : Gerak karakter (punya collider mandiri)<br>🖱️ <b>Arahkan Kursor & Klik</b> : Menghadap musuh & menembak<br>🏗️ <b>Tekan T</b> : Bangun Tower di depan karakter<br>⚡ <b>Mepet Objek + Tekan U</b> : Upgrade Tugu/Tower/Pagar</p>
       <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> MASUK POS PERTAHANAN</button>
       <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>
@@ -80,7 +80,7 @@
       <div style="font-size: 60px; margin-bottom: 8px;">🔒💠</div>
       <h1 style="color: #ef4444; font-size:28px;">CORE STONE DICURI!</h1>
       <p style="color: #cbd5e1; font-size: 13px; line-height: 1.5; margin: 8px 0;" id="lockout-desc">
-        Pemimpin Geng berhasil merampas Tugu Batu Energi! Anda harus membayar tebusan Permata untuk menebusnya kembali.
+        Musuh berhasil meruntuhkan pagar dan merampas Tugu Batu Energi! Anda harus membayar tebusan Permata untuk menebusnya kembali.
       </p>
       <div style="background:#1f2937; padding:12px 20px; border-radius:14px; border:2px solid #ef4444; margin: 12px 0;">
         <div style="font-size:11px; color:#94a3b8;">BIAYA TEBUSAN RECOVERY TUGU:</div>
