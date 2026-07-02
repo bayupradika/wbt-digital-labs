@@ -37,11 +37,32 @@ let wallLvl = parseInt(localStorage.getItem('outpost_wall_lvl') || '1');
 let stoneLvl = parseInt(localStorage.getItem('outpost_stone_lvl') || '1');
 let survivorLvl = parseInt(localStorage.getItem('outpost_survivor_lvl') || '1');
 
-// Separated Health Pools with 25% exponential scaling per level
+// Separated Health Pools
 let fenceMaxHp = Math.floor(100 * Math.pow(1.25, wallLvl - 1));
 let fenceHp = fenceMaxHp;
-let stoneMaxHp = 200 + (stoneLvl - 1) * 100;
+let stoneMaxHp = 1000; // Core stone punya hp dasar 1000 dan tidak bisa di upgrade
 let stoneHp = stoneMaxHp;
+let playerMaxHp = 20; // Player punya hp 20
+let playerHp = playerMaxHp;
+
+const WEAPON_STATS = {
+  pistol: { name: 'Pistol FPS', type: 'ranged', ammoMax: 12, dmg: 10, speed: '0.5s (2/dtk)', reload: 0.2, range: 10, desc: 'Pistol taktis standar. Kapasitas 12 peluru, reload kilat 0,2 detik.' },
+  sniper: { name: 'Sniper Rifle', type: 'ranged', ammoMax: 1, dmg: 45, speed: '1.0s (1/dtk)', reload: 1.0, range: 14, desc: 'Senapan jarak jauh berpresisi tinggi. Kapasitas 1 peluru, reload 1 detik.' },
+  shotgun: { name: 'Shotgun Plasma', type: 'ranged', ammoMax: 2, dmg: 24, speed: '0.6s burst', reload: 0.6, range: 8, desc: 'Menembakkan 3 peluru menyebar sekaligus. Kapasitas 2 peluru, reload 0,6 detik.' },
+  ak47: { name: 'AK-47 Assault', type: 'ranged', ammoMax: 30, dmg: 14, speed: '0.2s (5/dtk)', reload: 1.2, range: 11, desc: 'Senapan serbu otomatis dengan kapasitas magazin 30 peluru.' },
+  bow: { name: 'Compound Bow', type: 'ranged', ammoMax: 1, dmg: 35, speed: '0.8s', reload: 0.5, range: 12, desc: 'Busur karbon senyap penetrasi tinggi. Kapasitas 1 panah.' },
+  knife: { name: 'Pisau Komando', type: 'melee', ammoMax: Infinity, dmg: 15, speed: '0.25s (4/dtk)', reload: 0, range: 2.8, desc: 'Pisau komando taktis jarak dekat tanpa amunisi.' },
+  blade: { name: 'Katana Plasma', type: 'melee', ammoMax: Infinity, dmg: 30, speed: '0.4s', reload: 0, range: 3.5, desc: 'Pedang panjang tebas armor musuh tanpa amunisi.' },
+  axe: { name: 'Kapak Titanium', type: 'melee', ammoMax: Infinity, dmg: 40, speed: '0.55s', reload: 0, range: 3.2, desc: 'Kapak perang titanium bertembakan berat.' },
+  hammer: { name: 'Palu Besi Gada', type: 'melee', ammoMax: Infinity, dmg: 50, speed: '0.7s', reload: 0, range: 3.5, desc: 'Palu godam penghancur kerangka musuh secara brutal.' }
+};
+
+const weaponsOrder = ['pistol', 'sniper', 'shotgun', 'ak47', 'bow', 'knife', 'blade', 'axe', 'hammer'];
+let selectedPreviewWeaponIdx = 0;
+let currentAmmo = 12;
+let maxAmmo = 12;
+let isReloading = false;
+let reloadTimer = 0;
 
 let gameRunning = false;
 let isSimulating1900 = false;
@@ -271,18 +292,21 @@ function buildFPSArms() {
 
   // Left Hand / Melee Group
   knifeGroup = new THREE.Group();
-  if (equippedMelee === 'sword') {
-    // Katana Plasma
-    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.8, 0.06), new THREE.MeshBasicMaterial({ color: 0xa855f7 }));
+  if (equippedMelee === 'blade' || equippedMelee === 'sword') {
+    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.85, 0.06), new THREE.MeshBasicMaterial({ color: 0xa855f7 }));
     blade.position.y = 0.45; knifeGroup.add(blade);
   } else if (equippedMelee === 'axe') {
-    // Kapak Titanium
-    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.6), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.65), new THREE.MeshStandardMaterial({ color: 0x475569 }));
     handle.position.y = 0.3; knifeGroup.add(handle);
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.25, 0.3), new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9 }));
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.28, 0.35), new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9 }));
     head.position.set(0, 0.5, 0.1); knifeGroup.add(head);
+  } else if (equippedMelee === 'hammer') {
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.7), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+    handle.position.y = 0.35; knifeGroup.add(handle);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.35), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 }));
+    head.position.set(0, 0.65, 0); knifeGroup.add(head);
   } else {
-    // Pisau Survival
+    // Pisau Komando
     const blade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.45, 0.04), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9 }));
     blade.position.y = 0.25; knifeGroup.add(blade);
   }
@@ -294,13 +318,21 @@ function buildFPSArms() {
   pistolGroup = new THREE.Group();
   const gunMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.7, roughness: 0.3 });
   if (equippedRanged === 'sniper') {
-    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.85), gunMat);
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.9), gunMat);
     pistolGroup.add(barrel);
-    const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.3), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
-    scope.rotation.x = Math.PI / 2; scope.position.set(0, 0.12, 0); pistolGroup.add(scope);
+    const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.35), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+    scope.rotation.x = Math.PI / 2; scope.position.set(0, 0.13, 0); pistolGroup.add(scope);
   } else if (equippedRanged === 'shotgun') {
-    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.14, 0.55), new THREE.MeshStandardMaterial({ color: 0xdc2626 }));
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.55), new THREE.MeshStandardMaterial({ color: 0xdc2626 }));
     pistolGroup.add(barrel);
+  } else if (equippedRanged === 'ak47') {
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.13, 0.65), new THREE.MeshStandardMaterial({ color: 0x4b5563 }));
+    pistolGroup.add(barrel);
+    const mag = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.12), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+    mag.position.set(0, -0.15, -0.05); mag.rotation.x = -0.3; pistolGroup.add(mag);
+  } else if (equippedRanged === 'bow') {
+    const bowBody = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.85), new THREE.MeshStandardMaterial({ color: 0x10b981 }));
+    bowBody.rotation.z = Math.PI / 2; pistolGroup.add(bowBody);
   } else {
     const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.4), gunMat);
     pistolGroup.add(barrel);
@@ -340,6 +372,26 @@ function updateHUD() {
   const gemEl = document.getElementById('gem-display');
   if (gemEl) gemEl.innerText = gems.toLocaleString('id-ID');
 
+  const pHpEl = document.getElementById('player-hp-display');
+  if (pHpEl) {
+    pHpEl.innerText = `${Math.ceil(Math.max(0, playerHp))} / ${playerMaxHp}`;
+    pHpEl.style.color = playerHp > 5 ? '#f43f5e' : '#ef4444';
+  }
+
+  const ammoEl = document.getElementById('ammo-display');
+  if (ammoEl) {
+    if (activeWeaponSlot === 2) {
+      ammoEl.innerText = '🗡️ MELEE';
+      ammoEl.style.color = '#10b981';
+    } else if (isReloading) {
+      ammoEl.innerText = `🔄 RELOAD (${(reloadTimer / 60).toFixed(1)}s)`;
+      ammoEl.style.color = '#f97316';
+    } else {
+      ammoEl.innerText = `${currentAmmo} / ${maxAmmo}`;
+      ammoEl.style.color = '#fde047';
+    }
+  }
+
   const fHpEl = document.getElementById('fence-hp-display');
   if (fHpEl) {
     if (fenceHp <= 0) {
@@ -355,28 +407,26 @@ function updateHUD() {
   if (sHpEl) sHpEl.innerText = `${Math.max(0, Math.floor(stoneHp))} / ${stoneMaxHp}`;
 
   // Populate Grid Inventory Cells [I]
-  const invG = document.getElementById('inv-grid-gold');
-  if (invG) invG.innerText = Math.floor(gold).toLocaleString('id-ID') + ' G';
-  const invGem = document.getElementById('inv-grid-gems');
-  if (invGem) invGem.innerText = gems.toLocaleString('id-ID');
   const invWood = document.getElementById('inv-grid-wood');
   if (invWood) invWood.innerText = woodCount.toLocaleString('id-ID');
-  const invTech = document.getElementById('inv-grid-tech');
-  if (invTech) invTech.innerText = techLabLvl > 0 ? `Level ${techLabLvl}` : 'Belum Ada';
-  const invWall = document.getElementById('inv-grid-wall');
-  if (invWall) invWall.innerText = `Level ${wallLvl}`;
-  const invBar = document.getElementById('inv-grid-barrack');
-  if (invBar) invBar.innerText = `Level ${barracksLvl}`;
 
   // Active Weapon Label
   const activeWep = document.getElementById('active-wep-lbl');
   if (activeWep) {
     if (activeWeaponSlot === 1) {
-      activeWep.innerText = equippedRanged === 'sniper' ? 'Sniper Rifle' : (equippedRanged === 'shotgun' ? 'Shotgun' : 'Pistol');
+      const w = WEAPON_STATS[equippedRanged];
+      activeWep.innerText = w ? w.name : 'Pistol';
     } else {
-      activeWep.innerText = equippedMelee === 'sword' ? 'Katana Plasma' : (equippedMelee === 'axe' ? 'Kapak Titanium' : 'Pisau Komando');
+      const w = WEAPON_STATS[equippedMelee];
+      activeWep.innerText = w ? w.name : 'Pisau';
     }
   }
+
+  // Update Equipment Modal Table Slot Texts
+  const eqS1 = document.getElementById('eq-slot-1-txt');
+  if (eqS1) eqS1.innerText = (WEAPON_STATS[equippedRanged] ? WEAPON_STATS[equippedRanged].name : equippedRanged);
+  const eqS2 = document.getElementById('eq-slot-2-txt');
+  if (eqS2) eqS2.innerText = (WEAPON_STATS[equippedMelee] ? WEAPON_STATS[equippedMelee].name : equippedMelee);
 }
 
 function startGame() {
@@ -483,9 +533,10 @@ function fireFPSPistol() {
 
   if (activeWeaponSlot === 2) {
     // Melee Attack
-    let dmg = 15, cd = 15, reach = 2.8;
-    if (equippedMelee === 'sword') { dmg = 30; cd = 24; reach = 3.5; }
-    else if (equippedMelee === 'axe') { dmg = 40; cd = 33; reach = 3.2; }
+    const st = WEAPON_STATS[equippedMelee] || WEAPON_STATS.knife;
+    let dmg = st.dmg || 15;
+    let cd = Math.floor((parseFloat(st.speed) || 0.25) * 60);
+    let reach = st.range || 2.8;
 
     playerFireCooldown = cd;
     if (knifeGroup) knifeGroup.rotation.z = -0.55;
@@ -506,9 +557,22 @@ function fireFPSPistol() {
   }
 
   // Ranged Attack
-  let dmg = 10, cd = 30, spdMult = 1.5;
-  if (equippedRanged === 'sniper') { dmg = 45; cd = 85; spdMult = 3.2; }
-  else if (equippedRanged === 'shotgun') { dmg = 24; cd = 50; spdMult = 1.4; }
+  if (isReloading) return;
+  if (currentAmmo <= 0) {
+    startReload();
+    return;
+  }
+
+  const st = WEAPON_STATS[equippedRanged] || WEAPON_STATS.pistol;
+  let dmg = st.dmg || 10;
+  let cd = Math.floor((parseFloat(st.speed) || 0.5) * 60);
+  let spdMult = equippedRanged === 'sniper' ? 3.2 : 1.5;
+
+  currentAmmo--;
+  updateHUD();
+  if (currentAmmo === 0) {
+    startReload();
+  }
 
   playerFireCooldown = cd;
   pistolRecoilAnim = 12;
@@ -521,7 +585,6 @@ function fireFPSPistol() {
   const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
 
   if (equippedRanged === 'shotgun') {
-    // Burst 3 pellets
     for (let s = -0.1; s <= 0.1; s += 0.1) {
       const bM = new THREE.Mesh(bulletGeo, bulletMat);
       const pelletDir = dir.clone().add(new THREE.Vector3(s + (Math.random()-0.5)*0.05, (Math.random()-0.5)*0.05, 0)).normalize();
@@ -537,9 +600,30 @@ function fireFPSPistol() {
   }
 }
 
+function startReload() {
+  if (isReloading || activeWeaponSlot !== 1) return;
+  const st = WEAPON_STATS[equippedRanged] || WEAPON_STATS.pistol;
+  isReloading = true;
+  reloadTimer = Math.floor((st.reload || 0.5) * 60);
+  updateHUD();
+}
+
 window.addEventListener('keydown', e => {
   keysPressed[e.key.toUpperCase()] = true;
   if (e.key === ' ' || e.code === 'Space') keysPressed['SPACE'] = true;
+
+  const eqM = document.getElementById('equipment-modal');
+  if (eqM && eqM.classList.contains('active')) {
+    if (e.key === 'ArrowLeft') { navigateWeapon(-1); e.preventDefault(); return; }
+    if (e.key === 'ArrowRight') { navigateWeapon(1); e.preventDefault(); return; }
+    if (e.key === 'Enter') { equipCurrentPreview(); e.preventDefault(); return; }
+    if (e.key.toUpperCase() === 'Q') {
+      const wTab = document.getElementById('tab-weapon-content');
+      switchETab(wTab && wTab.style.display !== 'none' ? 'equip' : 'weapon');
+      e.preventDefault(); return;
+    }
+    if (e.key === 'Escape') { closeEquipment(); return; }
+  }
 
   if (!gameRunning) return;
   if (e.key === ' ' || e.code === 'Space') {
@@ -554,6 +638,10 @@ window.addEventListener('keydown', e => {
     activeWeaponSlot = activeWeaponSlot === 1 ? 2 : 1;
     if (pistolGroup) pistolGroup.visible = (activeWeaponSlot === 1);
     if (knifeGroup) knifeGroup.visible = (activeWeaponSlot === 2);
+    if (activeWeaponSlot === 1 && !isReloading) {
+      const st = WEAPON_STATS[equippedRanged] || WEAPON_STATS.pistol;
+      if (currentAmmo <= 0) currentAmmo = st.ammoMax;
+    }
     updateHUD();
   }
   if (k === 'E') openEquipment();
@@ -611,13 +699,21 @@ function handleSmoothPlayerMovement() {
 
     nextX = Math.max(colToX(0), Math.min(colToX(7), nextX));
 
-    // Hapus aturan jam keluar pagar: pemain bebas melompat atau keluar ke area hutan (Baris 18)
     nextZ = Math.max(rowToZ(18), Math.min(rowToZ(1), nextZ));
+
+    // Pagar hanya dapat dilewati dengan melompat / menggunakan shortcut space
+    if (fenceHp > 0) {
+      const fenceZ = rowToZ(5);
+      const isCrossingFence = (playerZ > fenceZ && nextZ <= fenceZ) || (playerZ < fenceZ && nextZ >= fenceZ);
+      if (isCrossingFence && (!isJumping || playerY < 3.8)) {
+        nextZ = playerZ; // Tembok pagar tidak bisa dilewati tanpa melompat dengan space!
+      }
+    }
 
     let targetCol = Math.max(0, Math.min(7, xToCol(nextX)));
     let targetRow = Math.max(0, Math.min(19, zToRow(nextZ)));
     
-    // Saat melompat tinggi, lewati hambatan grid pagar
+    // Saat melompat tinggi, lewati hambatan grid
     if ((isJumping && playerY > 3.6) || grid[targetRow][targetCol] === null) {
       playerX = nextX;
       playerZ = nextZ;
@@ -750,7 +846,7 @@ function tryBuildTower() {
   tObj.group.position.set(colToX(currentCol), 0, rowToZ(frontRow));
   scene.add(tObj.group);
 
-  const newTower = { col: currentCol, row: frontRow, lvl: 1, mesh: tObj.group, head: tObj.head };
+  const newTower = { col: currentCol, row: frontRow, lvl: 1, hp: 50, mesh: tObj.group, head: tObj.head };
   towers.push(newTower);
   grid[frontRow][currentCol] = newTower;
   updateHUD();
@@ -1061,20 +1157,76 @@ function loop() {
       e.mesh.position.x += e.vx;
       if (e.mesh.position.x < colToX(0) || e.mesh.position.x > colToX(7)) e.vx *= -1;
     } else {
-      // Perbaikan Bug: Musuh hanya menyerang pagar jika sudah sampai di depan pagar (Z >= rowToZ(5.2))
-      if (e.mesh.position.z < rowToZ(5.2)) {
-        e.mesh.position.z += e.speed;
-      } else if (fenceHp > 0) {
-        fenceHp -= 0.08; updateHUD();
-        if (fenceHp <= 0) buildBarricadeWall();
-      } else {
-        e.mesh.position.z += e.speed;
-      }
+      // Penargetan dinamis ke 4 objek terdekat: Player, Pagar, Turret/Tech Lab, atau Core Stone
+      let dPlayer = e.mesh.position.distanceTo(camera.position);
+      let dFence = fenceHp > 0 ? Math.abs(e.mesh.position.z - rowToZ(5)) : Infinity;
+      let dStone = stoneHp > 0 ? e.mesh.position.distanceTo(stoneMesh.position) : Infinity;
+      let dBuild = Infinity;
+      let targetBuilding = null;
 
-      // Menyerang Core Stone jika sudah mencapai baris tugu (Z >= rowToZ(1.5))
-      if (e.mesh.position.z >= rowToZ(1.5)) {
-        stoneHp -= 0.25; updateHUD();
-        if (stoneHp <= 0) { triggerCoreStoneStolen(); return; }
+      towers.forEach(t => {
+        if ((t.hp || 50) > 0) {
+          let d = e.mesh.position.distanceTo(t.mesh.position);
+          if (d < dBuild) { dBuild = d; targetBuilding = t; }
+        }
+      });
+
+      let minD = Math.min(dPlayer, dFence, dBuild, dStone);
+
+      if (minD === dPlayer) {
+        // Menargetkan Player jika paling dekat
+        const dirP = new THREE.Vector3().subVectors(camera.position, e.mesh.position);
+        dirP.y = 0;
+        if (dirP.length() > 1.6) {
+          dirP.normalize();
+          e.mesh.position.addScaledVector(dirP, e.speed);
+        } else {
+          playerHp -= 0.05;
+          if (gameTick % 15 === 0) updateHUD();
+          if (playerHp <= 0) {
+            alert("⚠️ KARAKTER ANDA GUGUR DI SERANG MUSUH! Respawn darurat di dalam pos...");
+            playerHp = playerMaxHp;
+            playerX = colToX(3.5); playerZ = rowToZ(3);
+            camera.position.set(playerX, CAMERA_HEIGHT, playerZ);
+            updateHUD();
+          }
+        }
+      } else if (minD === dBuild && targetBuilding) {
+        // Menargetkan Bangunan Turret
+        const dirB = new THREE.Vector3().subVectors(targetBuilding.mesh.position, e.mesh.position);
+        dirB.y = 0;
+        if (dirB.length() > 1.8) {
+          dirB.normalize();
+          e.mesh.position.addScaledVector(dirB, e.speed);
+        } else {
+          targetBuilding.hp = (targetBuilding.hp || 50) - 0.08;
+          if (targetBuilding.hp <= 0) {
+            scene.remove(targetBuilding.mesh);
+            towers = towers.filter(tw => tw !== targetBuilding);
+            grid[targetBuilding.row][targetBuilding.col] = null;
+          }
+        }
+      } else if (minD === dFence) {
+        // Menargetkan Pagar
+        if (e.mesh.position.z < rowToZ(5.2)) {
+          e.mesh.position.z += e.speed;
+        } else {
+          fenceHp -= 0.08;
+          if (gameTick % 15 === 0) updateHUD();
+          if (fenceHp <= 0) buildBarricadeWall();
+        }
+      } else {
+        // Menargetkan Core Stone
+        const dirS = new THREE.Vector3().subVectors(stoneMesh.position, e.mesh.position);
+        dirS.y = 0;
+        if (dirS.length() > 2.0) {
+          dirS.normalize();
+          e.mesh.position.addScaledVector(dirS, e.speed);
+        } else {
+          stoneHp -= 0.25;
+          if (gameTick % 15 === 0) updateHUD();
+          if (stoneHp <= 0) { triggerCoreStoneStolen(); return; }
+        }
       }
     }
   }
@@ -1117,29 +1269,107 @@ function toggleInventory() {
   else openInventory();
 }
 
-// Modal Penyimpanan Senjata [E]
+// Modal Penyimpanan Senjata [E] & Navigasi
 function openEquipment() {
   if (document.pointerLockElement === canvas) document.exitPointerLock();
   updateHUD();
+  renderWeaponNav();
+  updateWeaponPreview();
+  switchETab('weapon');
   const modal = document.getElementById('equipment-modal');
   if (modal) modal.classList.add('active');
 }
+
 function closeEquipment() {
   const modal = document.getElementById('equipment-modal');
   if (modal) modal.classList.remove('active');
 }
-function selectWeapon(slotType, weaponName) {
-  if (slotType === 'ranged') {
-    equippedRanged = weaponName;
-    localStorage.setItem('outpost_eq_ranged', weaponName);
-    alert(`🔫 Senjata Jarak Jauh (Slot 1) berhasil diganti menjadi ${weaponName.toUpperCase()}!`);
+
+function renderWeaponNav() {
+  const navList = document.getElementById('weapon-nav-list');
+  if (!navList) return;
+  navList.innerHTML = '';
+  weaponsOrder.forEach((wKey, idx) => {
+    const st = WEAPON_STATS[wKey] || {};
+    const btn = document.createElement('button');
+    btn.className = 'btn-pc';
+    btn.style.padding = '8px 12px';
+    btn.style.fontSize = '12px';
+    btn.style.whiteSpace = 'nowrap';
+    btn.style.background = (idx === selectedPreviewWeaponIdx) ? '#3b82f6' : '#1e293b';
+    btn.style.border = (idx === selectedPreviewWeaponIdx) ? '2px solid #fbbf24' : '1px solid rgba(255,255,255,0.1)';
+    btn.innerText = st.name || wKey;
+    btn.onclick = () => {
+      selectedPreviewWeaponIdx = idx;
+      renderWeaponNav();
+      updateWeaponPreview();
+    };
+    navList.appendChild(btn);
+  });
+}
+
+function navigateWeapon(dir) {
+  selectedPreviewWeaponIdx = (selectedPreviewWeaponIdx + dir + weaponsOrder.length) % weaponsOrder.length;
+  renderWeaponNav();
+  updateWeaponPreview();
+}
+
+function updateWeaponPreview() {
+  const wKey = weaponsOrder[selectedPreviewWeaponIdx];
+  const st = WEAPON_STATS[wKey] || {};
+  const hdr = document.getElementById('preview-wep-header');
+  if (hdr) hdr.innerText = st.name || wKey;
+  const pA = document.getElementById('pv-ammo');
+  if (pA) pA.innerText = st.ammoMax === Infinity ? 'Melee (Tanpa Amunisi)' : `${st.ammoMax} Peluru`;
+  const pD = document.getElementById('pv-dmg');
+  if (pD) pD.innerText = `${st.dmg} HP / Tembakan`;
+  const pS = document.getElementById('pv-spd');
+  if (pS) pS.innerText = st.speed || '0.5s';
+  const pR = document.getElementById('pv-reload');
+  if (pR) pR.innerText = st.reload ? `${st.reload}s Otomatis` : 'N/A';
+  const pRg = document.getElementById('pv-range');
+  if (pRg) pRg.innerText = `${st.range} Grid`;
+  const pDsc = document.getElementById('pv-desc');
+  if (pDsc) pDsc.innerText = st.desc || '';
+}
+
+function equipCurrentPreview() {
+  const wKey = weaponsOrder[selectedPreviewWeaponIdx];
+  const st = WEAPON_STATS[wKey] || {};
+  if (st.type === 'ranged') {
+    equippedRanged = wKey;
+    localStorage.setItem('outpost_eq_ranged', wKey);
+    activeWeaponSlot = 1;
+    currentAmmo = st.ammoMax;
+    maxAmmo = st.ammoMax;
+    isReloading = false;
   } else {
-    equippedMelee = weaponName;
-    localStorage.setItem('outpost_eq_melee', weaponName);
-    alert(`🗡️ Senjata Melee (Slot 2) berhasil diganti menjadi ${weaponName.toUpperCase()}!`);
+    equippedMelee = wKey;
+    localStorage.setItem('outpost_eq_melee', wKey);
+    activeWeaponSlot = 2;
   }
   buildFPSArms();
   updateHUD();
+  renderWeaponNav();
+}
+
+function switchETab(tabName) {
+  const wTab = document.getElementById('tab-weapon-content');
+  const eTab = document.getElementById('tab-equipment-content');
+  const wBtn = document.getElementById('tab-btn-weapon');
+  const eBtn = document.getElementById('tab-btn-equip');
+  if (!wTab || !eTab) return;
+  if (tabName === 'weapon') {
+    wTab.style.display = 'block';
+    eTab.style.display = 'none';
+    if (wBtn) { wBtn.style.background = '#3b82f6'; wBtn.style.color = 'white'; wBtn.style.borderColor = 'white'; }
+    if (eBtn) { eBtn.style.background = '#1e293b'; eBtn.style.color = '#94a3b8'; eBtn.style.borderColor = 'rgba(255,255,255,0.2)'; }
+  } else {
+    wTab.style.display = 'none';
+    eTab.style.display = 'block';
+    if (eBtn) { eBtn.style.background = '#3b82f6'; eBtn.style.color = 'white'; eBtn.style.borderColor = 'white'; }
+    if (wBtn) { wBtn.style.background = '#1e293b'; wBtn.style.color = '#94a3b8'; wBtn.style.borderColor = 'rgba(255,255,255,0.2)'; }
+  }
 }
 
 // Modal Pusat Bangunan [B]
