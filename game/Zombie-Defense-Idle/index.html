@@ -280,27 +280,97 @@
           </div>
           <span style="background: #0f172a; color: #facc15; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px;">300 G + 10 🪵 + 10 🪨</span>
         </label>
+
+        <label style="display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 12px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="radio" name="build-select" value="lumberjack" style="width: 18px; height: 18px; accent-color: #10b981;">
+            <div>
+              <div style="font-weight: 800; font-size: 14px; color: #22c55e;">🪓 Barak Penebang Pohon</div>
+              <div style="font-size: 11px; color: #94a3b8;">NPC Penebang (Kapak) membuka 1 grid hutan baru tiap 30 detik (+5 🪵 & +3 ⚫).</div>
+            </div>
+          </div>
+          <span style="background: #0f172a; color: #22c55e; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px;">350 G + 15 🪵 + 5 🪨 + 10 ⚙️</span>
+        </label>
+
+        <label style="display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 12px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="radio" name="build-select" value="mine" style="width: 18px; height: 18px; accent-color: #10b981;">
+            <div>
+              <div style="font-weight: 800; font-size: 14px; color: #78716c;">⛏️ Fasilitas Tambang Mineral</div>
+              <div style="font-size: 11px; color: #94a3b8;">Tempat kerja NPC Penambang. Syarat: Barak Tukang Lv 1.</div>
+            </div>
+          </div>
+          <span style="background: #0f172a; color: #78716c; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px;">250 G + 15 🪵 + 15 🪨 + 5 ⚙️ + 10 🟤</span>
+        </label>
+
+        <label style="display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 12px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="radio" name="build-select" value="miner" style="width: 18px; height: 18px; accent-color: #10b981;">
+            <div>
+              <div style="font-weight: 800; font-size: 14px; color: #b45309;">⛏️ Barak Penambang Mineral</div>
+              <div style="font-size: 11px; color: #94a3b8;">NPC Penambang (Beliung) menambang 1 mineral/10 detik (45% Tanah, 30% Batu, 15% Besi, 10% Gold).</div>
+            </div>
+          </div>
+          <span style="background: #0f172a; color: #b45309; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px;">400 G + 20 🪵 + 15 🪨 + 15 ⚙️ + 10 🟤</span>
+        </label>
+
+        <label style="display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 12px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="radio" name="build-select" value="farm" style="width: 18px; height: 18px; accent-color: #10b981;">
+            <div>
+              <div style="font-weight: 800; font-size: 14px; color: #4ade80;">🌾 Lahan Pertanian Pos</div>
+              <div style="font-size: 11px; color: #94a3b8;">Meningkatkan Max HP Pemain +10 HP per level pertanian.</div>
+            </div>
+          </div>
+          <span style="background: #0f172a; color: #4ade80; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px;">200 G + 10 🪵 + 5 🪨 + 20 🟤</span>
+        </label>
+
+        <label style="display: flex; align-items: center; justify-content: space-between; background: #1e293b; padding: 12px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); cursor: pointer;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input type="radio" name="build-select" value="oilpump" style="width: 18px; height: 18px; accent-color: #10b981;">
+            <div>
+              <div style="font-weight: 800; font-size: 14px; color: #ef4444;">⛽ Pompa Minyak & Karet</div>
+              <div style="font-size: 11px; color: #94a3b8;">Menghasilkan 2 ⚫ Karet & 50 Gold otomatis setiap 15 detik. Syarat: Riset Lv 2 + Tukang Lv 1.</div>
+            </div>
+          </div>
+          <span style="background: #0f172a; color: #ef4444; font-weight: 800; font-size: 12px; padding: 6px 10px; border-radius: 8px;">500 G + 20 🪵 + 20 🪨 + 20 ⚙️ + 10 🟤 + 10 ⚫</span>
+        </label>
       </div>
 
       <button onclick="confirmBuildSelection()" class="btn-pc" style="width: 100%; padding: 14px; background: #10b981; color: white; font-size: 15px; font-weight: 800; border-radius: 14px; border: none; cursor: pointer; margin-bottom: 14px;"><i class="fa-solid fa-check-circle"></i> OKE, BANGUN SEKARANG INSTANT</button>
 
-      <div style="background: #0f172a; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-        <div style="font-weight: 800; font-size: 13px; color: #38bdf8; margin-bottom: 8px;"><i class="fa-solid fa-table"></i> Tabel Syarat & Hasil Peningkatan Bangunan</div>
-        <table style="width:100%; font-size:11px; color:#cbd5e1; border-collapse:collapse; text-align:left;">
+      <div style="background: #0f172a; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); max-height: 200px; overflow-y: auto;">
+        <div style="font-weight: 800; font-size: 13px; color: #38bdf8; margin-bottom: 8px;"><i class="fa-solid fa-table"></i> Tabel Syarat & Hasil Peningkatan (Biaya +50%/Lv, Manfaat +25%/Lv)</div>
+        <table style="width:100%; font-size:10px; color:#cbd5e1; border-collapse:collapse; text-align:left;">
           <tr style="border-bottom:1px solid rgba(255,255,255,0.1); color:#fbbf24;">
-            <th style="padding:4px;">Bangunan</th><th style="padding:4px;">Level</th><th style="padding:4px;">Biaya Upgrade</th><th style="padding:4px;">Syarat Peningkatan</th><th style="padding:4px;">Hasil / Manfaat</th>
+            <th style="padding:3px;">Bangunan</th><th style="padding:3px;">Lv</th><th style="padding:3px;">Biaya (+50%/Lv)</th><th style="padding:3px;">Syarat</th><th style="padding:3px;">Hasil (+25%/Lv)</th>
           </tr>
           <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-            <td style="padding:4px;">Pagar Kayu</td><td style="padding:4px;">Lv 2<br>Lv 3<br>Lv 4+</td><td style="padding:4px;">250 Gold<br>375 Gold<br>562+ Gold</td><td style="padding:4px;">Tanpa Syarat<br>Riset Teknologi Lv 1<br>Riset Lv 2 + Barak Lv 1</td><td style="padding:4px;">HP Pagar +25% tiap level (100 ➔ 125 ➔ 156 ➔ dst.)</td>
+            <td style="padding:3px;">Pagar</td><td>2-5+</td><td>250→375→562→843</td><td>Tanpa→Riset Lv1→Riset Lv2+Barak</td><td>HP +25%/Lv (100→125→156→195)</td>
           </tr>
           <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-            <td style="padding:4px;">Turret Railgun</td><td style="padding:4px;">Lv 2+</td><td style="padding:4px;">250 Gold (+50% tiap Lv)</td><td style="padding:4px;">Riset Teknologi Lv 1+</td><td style="padding:4px;">Kecepatan Tembak +25% & HP Turret meningkat</td>
+            <td style="padding:3px;">Turret</td><td>2+</td><td>250→375</td><td>Riset Lv 1+</td><td>Kec.Tembak +25% & HP Turret naik</td>
           </tr>
           <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
-            <td style="padding:4px;">Riset Teknologi</td><td style="padding:4px;">Lv 1<br>Lv 2</td><td style="padding:4px;">500 G + 10 🪵<br>750 G + 15 🪵</td><td style="padding:4px;">Tanpa Syarat<br>Kayu dari Hutan Luar</td><td style="padding:4px;">Membuka batas upgrade Pagar Lv 3 & Turret Lv 2+</td>
+            <td style="padding:3px;">Riset Tek.</td><td>1-2</td><td>500+10🪵 / 750+15🪵</td><td>Tanpa / Tukang Lv1</td><td>Unlock Pagar Lv3+ & Turret Lv2+</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:3px;">Barak Tukang</td><td>1+</td><td>300+10🪵+10🪨 (+50%)</td><td>Riset Lv1</td><td>NPC Tukang: kerja +10%/Lv</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:3px;">Barak Penebang</td><td>1+</td><td>350+15🪵+5🪨+10⚙️ (+50%)</td><td>Tukang Lv1</td><td>1 Grid/30s: kec +10%/Lv</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:3px;">Tambang</td><td>1</td><td>250+15🪵+15🪨+5⚙️+10🟤</td><td>Tukang Lv1</td><td>Area kerja NPC Penambang</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:3px;">Barak Penambang</td><td>1+</td><td>400+20🪵+15🪨+15⚙️+10🟤 (+50%)</td><td>Tukang+Tambang Lv1</td><td>1 mineral/10s: kec +10%/Lv</td>
+          </tr>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:3px;">Pertanian</td><td>1+</td><td>200+10🪵+5🪨+20🟤 (+50%)</td><td>Tukang Lv1</td><td>Max HP Pemain +10/Lv</td>
           </tr>
           <tr>
-            <td style="padding:4px;">Barak Tukang</td><td style="padding:4px;">Lv 1<br>Lv 2+</td><td style="padding:4px;">300 G + 10 🪵 + 10 🪨<br>450 G + 15 🪵 + 15 🪨</td><td style="padding:4px;">Kayu & Batu Alam</td><td style="padding:4px;">Memunculkan NPC Tukang bertopi biru memperbaiki HP pagar/turret otomatis</td>
+            <td style="padding:3px;">Pompa Minyak</td><td>1+</td><td>500+20🪵+20🪨+20⚙️+10🟤+10⚫</td><td>Riset Lv2+Tukang Lv1</td><td>2⚫+50G / 15 detik</td>
           </tr>
         </table>
       </div>

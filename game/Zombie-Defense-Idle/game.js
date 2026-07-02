@@ -39,6 +39,22 @@ let builderBarracksLvl = parseInt(localStorage.getItem('outpost_builder_barracks
 let techLabMesh = null;
 let builderBarracksMesh = null;
 let builderMesh = null;
+let lumberjackBarracksLvl = parseInt(localStorage.getItem('outpost_lumberjack_lvl') || '0');
+let minerBarracksLvl = parseInt(localStorage.getItem('outpost_miner_lvl') || '0');
+let mineLvl = parseInt(localStorage.getItem('outpost_mine_lvl') || '0');
+let farmLvl = parseInt(localStorage.getItem('outpost_farm_lvl') || '0');
+let oilPumpLvl = parseInt(localStorage.getItem('outpost_oilpump_lvl') || '0');
+let lumberjackBarracksMesh = null;
+let lumberjackMesh = null;
+let minerBarracksMesh = null;
+let minerMesh = null;
+let mineMesh = null;
+let farmMesh = null;
+let oilPumpMesh = null;
+let lumberjackTimer = 0;
+let minerTimer = 0;
+let oilPumpTimer = 0;
+let clearedGridCount = parseInt(localStorage.getItem('outpost_cleared_grids') || '0');
 let woodItems = [];
 let activeWeaponSlot = 1; // 1 = Ranged, 2 = Melee
 let equippedRanged = localStorage.getItem('outpost_eq_ranged') || 'pistol'; // pistol, sniper, shotgun
@@ -187,6 +203,11 @@ function init3D() {
   buildBarricadeWall();
   buildTechLabMesh();
   buildBuilderBarracksMesh();
+  buildLumberjackBarracksMesh();
+  buildMinerBarracksMesh();
+  buildMineMesh();
+  buildFarmMesh();
+  buildOilPumpMesh();
   buildFPSArms();
 }
 
@@ -394,6 +415,167 @@ function buildBuilderNPC() {
 
   builderMesh.add(builderHammerGroup);
   scene.add(builderMesh);
+}
+
+// === BARAK PENEBANG + NPC PENEBANG (Kapak) ===
+function buildLumberjackBarracksMesh() {
+  if (lumberjackBarracksMesh) scene.remove(lumberjackBarracksMesh);
+  lumberjackBarracksMesh = new THREE.Group();
+  lumberjackBarracksMesh.position.set(colToX(6), 0, rowToZ(2));
+  if (lumberjackBarracksLvl > 0) {
+    const base = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.2, 1.8), new THREE.MeshStandardMaterial({ color: 0x166534, roughness: 0.9 }));
+    base.position.y = 0.6; lumberjackBarracksMesh.add(base);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.5, 0.7, 4), new THREE.MeshStandardMaterial({ color: 0x15803d }));
+    roof.position.y = 1.55; roof.rotation.y = Math.PI / 4; lumberjackBarracksMesh.add(roof);
+    const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.35, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0x92400e }));
+    stump.position.set(-0.8, 0.2, 1.1); lumberjackBarracksMesh.add(stump);
+  } else {
+    const pad = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.1, 1.8), new THREE.MeshBasicMaterial({ color: 0x22c55e, wireframe: true }));
+    pad.position.y = 0.05; lumberjackBarracksMesh.add(pad);
+  }
+  scene.add(lumberjackBarracksMesh);
+  buildLumberjackNPC();
+}
+
+function buildLumberjackNPC() {
+  if (lumberjackMesh) scene.remove(lumberjackMesh);
+  if (lumberjackBarracksLvl === 0) return;
+  lumberjackMesh = new THREE.Group();
+  lumberjackMesh.position.set(colToX(6.5), 0, rowToZ(2.5));
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x451a03 });
+  const lB = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.3), bootMat); lB.position.set(-0.15, 0.1, 0); lumberjackMesh.add(lB);
+  const rB = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.3), bootMat); rB.position.set(0.15, 0.1, 0); lumberjackMesh.add(rB);
+  const pantMat = new THREE.MeshStandardMaterial({ color: 0x713f12 });
+  const lL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.5), pantMat); lL.position.set(-0.15, 0.45, 0); lumberjackMesh.add(lL);
+  const rL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.5), pantMat); rL.position.set(0.15, 0.45, 0); lumberjackMesh.add(rL);
+  const shirtMat = new THREE.MeshStandardMaterial({ color: 0x16a34a });
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), shirtMat); torso.position.set(0, 0.95, 0); lumberjackMesh.add(torso);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 12), new THREE.MeshStandardMaterial({ color: 0xfecca1 }));
+  head.position.set(0, 1.4, 0); lumberjackMesh.add(head);
+  const bandana = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.08, 12), new THREE.MeshStandardMaterial({ color: 0xdc2626 }));
+  bandana.position.set(0, 1.52, 0); lumberjackMesh.add(bandana);
+  const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.45, 0.12), shirtMat); lArm.position.set(-0.32, 0.95, 0); lumberjackMesh.add(lArm);
+  // Tangan Kanan: Kapak
+  const axeGrp = new THREE.Group(); axeGrp.position.set(0.32, 1.1, 0);
+  const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.45, 0.12), shirtMat); rArm.position.set(0, -0.2, 0); axeGrp.add(rArm);
+  const axeHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.55), new THREE.MeshStandardMaterial({ color: 0xa16207 }));
+  axeHandle.position.set(0, -0.3, 0.2); axeHandle.rotation.x = Math.PI / 3; axeGrp.add(axeHandle);
+  const axeHead = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.3), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9 }));
+  axeHead.position.set(0, -0.15, 0.45); axeGrp.add(axeHead);
+  lumberjackMesh.add(axeGrp);
+  scene.add(lumberjackMesh);
+}
+
+// === BARAK PENAMBANG + NPC PENAMBANG (Beliung) ===
+function buildMinerBarracksMesh() {
+  if (minerBarracksMesh) scene.remove(minerBarracksMesh);
+  minerBarracksMesh = new THREE.Group();
+  minerBarracksMesh.position.set(colToX(7), 0, rowToZ(3));
+  if (minerBarracksLvl > 0) {
+    const base = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.2, 1.8), new THREE.MeshStandardMaterial({ color: 0x44403c, roughness: 0.9 }));
+    base.position.y = 0.6; minerBarracksMesh.add(base);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.5, 0.7, 4), new THREE.MeshStandardMaterial({ color: 0x78716c }));
+    roof.position.y = 1.55; roof.rotation.y = Math.PI / 4; minerBarracksMesh.add(roof);
+  } else {
+    const pad = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.1, 1.8), new THREE.MeshBasicMaterial({ color: 0x78716c, wireframe: true }));
+    pad.position.y = 0.05; minerBarracksMesh.add(pad);
+  }
+  scene.add(minerBarracksMesh);
+  buildMinerNPC();
+}
+
+function buildMinerNPC() {
+  if (minerMesh) scene.remove(minerMesh);
+  if (minerBarracksLvl === 0 || mineLvl === 0) return;
+  minerMesh = new THREE.Group();
+  minerMesh.position.set(colToX(7), 0, rowToZ(3.6));
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x292524 });
+  const lB = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.3), bootMat); lB.position.set(-0.15, 0.1, 0); minerMesh.add(lB);
+  const rB = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.3), bootMat); rB.position.set(0.15, 0.1, 0); minerMesh.add(rB);
+  const pantMat = new THREE.MeshStandardMaterial({ color: 0x57534e });
+  const lL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.5), pantMat); lL.position.set(-0.15, 0.45, 0); minerMesh.add(lL);
+  const rL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.5), pantMat); rL.position.set(0.15, 0.45, 0); minerMesh.add(rL);
+  const shirtMat = new THREE.MeshStandardMaterial({ color: 0xb45309 });
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), shirtMat); torso.position.set(0, 0.95, 0); minerMesh.add(torso);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 12), new THREE.MeshStandardMaterial({ color: 0xfecca1 }));
+  head.position.set(0, 1.4, 0); minerMesh.add(head);
+  const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xeab308 }));
+  helmet.position.set(0, 1.52, 0); minerMesh.add(helmet);
+  const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.45, 0.12), shirtMat); lArm.position.set(-0.32, 0.95, 0); minerMesh.add(lArm);
+  // Tangan Kanan: Beliung/Pickaxe
+  const pickGrp = new THREE.Group(); pickGrp.position.set(0.32, 1.1, 0);
+  const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.45, 0.12), shirtMat); rArm.position.set(0, -0.2, 0); pickGrp.add(rArm);
+  const pickHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.55), new THREE.MeshStandardMaterial({ color: 0x78350f }));
+  pickHandle.position.set(0, -0.3, 0.2); pickHandle.rotation.x = Math.PI / 3; pickGrp.add(pickHandle);
+  const pickHead = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, 0.4), new THREE.MeshStandardMaterial({ color: 0x6b7280, metalness: 0.9 }));
+  pickHead.position.set(0, -0.12, 0.48); pickGrp.add(pickHead);
+  minerMesh.add(pickGrp);
+  scene.add(minerMesh);
+}
+
+// === FASILITAS TAMBANG MINERAL ===
+function buildMineMesh() {
+  if (mineMesh) scene.remove(mineMesh);
+  mineMesh = new THREE.Group();
+  mineMesh.position.set(colToX(1), 0, rowToZ(3));
+  if (mineLvl > 0) {
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.2, 1.8), new THREE.MeshStandardMaterial({ color: 0x57534e, wireframe: false, roughness: 0.9 }));
+    frame.position.y = 1.1; mineMesh.add(frame);
+    const hole = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.4, 0.3, 8), new THREE.MeshStandardMaterial({ color: 0x1c1917 }));
+    hole.position.set(0, 0.15, 0.8); mineMesh.add(hole);
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.0), new THREE.MeshStandardMaterial({ color: 0x78716c, metalness: 0.8 }));
+    rail.position.set(-0.2, 0.05, 0.8); mineMesh.add(rail);
+    const rail2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 2.0), new THREE.MeshStandardMaterial({ color: 0x78716c, metalness: 0.8 }));
+    rail2.position.set(0.2, 0.05, 0.8); mineMesh.add(rail2);
+  } else {
+    const pad = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 1.8), new THREE.MeshBasicMaterial({ color: 0x78716c, wireframe: true }));
+    pad.position.y = 0.05; mineMesh.add(pad);
+  }
+  scene.add(mineMesh);
+}
+
+// === LAHAN PERTANIAN ===
+function buildFarmMesh() {
+  if (farmMesh) scene.remove(farmMesh);
+  farmMesh = new THREE.Group();
+  farmMesh.position.set(colToX(0), 0, rowToZ(2));
+  if (farmLvl > 0) {
+    for (let r = 0; r < 3; r++) {
+      const row = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.15, 0.35), new THREE.MeshStandardMaterial({ color: 0x713f12 }));
+      row.position.set(0, 0.08, r * 0.5 - 0.5); farmMesh.add(row);
+      for (let c = -0.5; c <= 0.5; c += 0.35) {
+        const plant = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.35, 4), new THREE.MeshStandardMaterial({ color: 0x22c55e }));
+        plant.position.set(c, 0.35, r * 0.5 - 0.5); farmMesh.add(plant);
+      }
+    }
+    const fence = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 0.06), new THREE.MeshStandardMaterial({ color: 0xa16207 }));
+    fence.position.set(0, 0.3, -1.0); farmMesh.add(fence);
+  } else {
+    const pad = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 1.8), new THREE.MeshBasicMaterial({ color: 0x22c55e, wireframe: true }));
+    pad.position.y = 0.05; farmMesh.add(pad);
+  }
+  scene.add(farmMesh);
+}
+
+// === POMPA MINYAK & KARET ===
+function buildOilPumpMesh() {
+  if (oilPumpMesh) scene.remove(oilPumpMesh);
+  oilPumpMesh = new THREE.Group();
+  oilPumpMesh.position.set(colToX(0), 0, rowToZ(4));
+  if (oilPumpLvl > 0) {
+    const pumpBase = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.4, 0.8), new THREE.MeshStandardMaterial({ color: 0x1c1917 }));
+    pumpBase.position.y = 0.2; oilPumpMesh.add(pumpBase);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 1.8), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
+    arm.position.set(0, 1.2, 0.3); oilPumpMesh.add(arm);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.4), new THREE.MeshStandardMaterial({ color: 0x1f2937 }));
+    head.position.set(0, 1.2, -0.6); oilPumpMesh.add(head);
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.6, 0.15), new THREE.MeshStandardMaterial({ color: 0x374151 }));
+    post.position.set(0, 0.8, 0); oilPumpMesh.add(post);
+  } else {
+    const pad = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 1.4), new THREE.MeshBasicMaterial({ color: 0xef4444, wireframe: true }));
+    pad.position.y = 0.05; oilPumpMesh.add(pad);
+  }
+  scene.add(oilPumpMesh);
 }
 
 function buildFPSArms() {
@@ -1019,6 +1201,112 @@ function tryBuildBuilderBarracks() {
   alert(`🔨 Barak Tukang berhasil dibangun/ditingkatkan ke Level ${builderBarracksLvl}! NPC Tukang bertopi biru siap memperbaiki pos!`);
 }
 
+function tryBuildLumberjackBarracks() {
+  if (builderBarracksLvl < 1) { alert('⚠️ Syarat: Barak Tukang Level 1 harus dibangun terlebih dahulu!'); return; }
+  const cost = Math.floor(350 * Math.pow(1.5, lumberjackBarracksLvl));
+  const needWood = 15 + lumberjackBarracksLvl * 5;
+  const needStone = 5 + lumberjackBarracksLvl * 5;
+  const needIron = 10 + lumberjackBarracksLvl * 5;
+  if (woodCount < needWood || stoneCount < needStone || ironCount < needIron) {
+    alert(`⚠️ Bahan Kurang! Butuh ${needWood} 🪵, ${needStone} 🪨, ${needIron} ⚙️`); return;
+  }
+  if (!checkAndPayWithGemConversion(cost)) return;
+  woodCount -= needWood; stoneCount -= needStone; ironCount -= needIron;
+  lumberjackBarracksLvl++;
+  localStorage.setItem('outpost_lumberjack_lvl', lumberjackBarracksLvl);
+  localStorage.setItem('outpost_wood', woodCount);
+  localStorage.setItem('outpost_stone_res', stoneCount);
+  localStorage.setItem('outpost_iron', ironCount);
+  buildLumberjackBarracksMesh();
+  updateHUD();
+  alert(`🪓 Barak Penebang berhasil dibangun/ditingkatkan ke Level ${lumberjackBarracksLvl}! NPC Penebang mulai membuka hutan!`);
+}
+
+function tryBuildMinerBarracks() {
+  if (builderBarracksLvl < 1) { alert('⚠️ Syarat: Barak Tukang Level 1 harus dibangun terlebih dahulu!'); return; }
+  if (mineLvl < 1) { alert('⚠️ Syarat: Fasilitas Tambang Mineral harus dibangun terlebih dahulu!'); return; }
+  const cost = Math.floor(400 * Math.pow(1.5, minerBarracksLvl));
+  const needWood = 20 + minerBarracksLvl * 5;
+  const needStone = 15 + minerBarracksLvl * 5;
+  const needIron = 15 + minerBarracksLvl * 5;
+  const needSoil = 10 + minerBarracksLvl * 5;
+  if (woodCount < needWood || stoneCount < needStone || ironCount < needIron || soilCount < needSoil) {
+    alert(`⚠️ Bahan Kurang! Butuh ${needWood} 🪵, ${needStone} 🪨, ${needIron} ⚙️, ${needSoil} 🟤`); return;
+  }
+  if (!checkAndPayWithGemConversion(cost)) return;
+  woodCount -= needWood; stoneCount -= needStone; ironCount -= needIron; soilCount -= needSoil;
+  minerBarracksLvl++;
+  localStorage.setItem('outpost_miner_lvl', minerBarracksLvl);
+  localStorage.setItem('outpost_wood', woodCount);
+  localStorage.setItem('outpost_stone_res', stoneCount);
+  localStorage.setItem('outpost_iron', ironCount);
+  localStorage.setItem('outpost_soil', soilCount);
+  buildMinerBarracksMesh();
+  updateHUD();
+  alert(`⛏️ Barak Penambang berhasil dibangun/ditingkatkan ke Level ${minerBarracksLvl}! NPC Penambang mulai menambang mineral!`);
+}
+
+function tryBuildMine() {
+  if (builderBarracksLvl < 1) { alert('⚠️ Syarat: Barak Tukang Level 1 harus dibangun terlebih dahulu!'); return; }
+  const cost = Math.floor(250 * Math.pow(1.5, mineLvl));
+  if (woodCount < 15 || stoneCount < 15 || ironCount < 5 || soilCount < 10) {
+    alert('⚠️ Bahan Kurang! Butuh 15 🪵, 15 🪨, 5 ⚙️, 10 🟤'); return;
+  }
+  if (!checkAndPayWithGemConversion(cost)) return;
+  woodCount -= 15; stoneCount -= 15; ironCount -= 5; soilCount -= 10;
+  mineLvl++;
+  localStorage.setItem('outpost_mine_lvl', mineLvl);
+  localStorage.setItem('outpost_wood', woodCount);
+  localStorage.setItem('outpost_stone_res', stoneCount);
+  localStorage.setItem('outpost_iron', ironCount);
+  localStorage.setItem('outpost_soil', soilCount);
+  buildMineMesh();
+  buildMinerNPC(); // respawn miner if barracks exists
+  updateHUD();
+  alert(`⛏️ Fasilitas Tambang Mineral berhasil dibangun ke Level ${mineLvl}!`);
+}
+
+function tryBuildFarm() {
+  if (builderBarracksLvl < 1) { alert('⚠️ Syarat: Barak Tukang Level 1 harus dibangun terlebih dahulu!'); return; }
+  const cost = Math.floor(200 * Math.pow(1.5, farmLvl));
+  if (woodCount < 10 || stoneCount < 5 || soilCount < 20) {
+    alert('⚠️ Bahan Kurang! Butuh 10 🪵, 5 🪨, 20 🟤'); return;
+  }
+  if (!checkAndPayWithGemConversion(cost)) return;
+  woodCount -= 10; stoneCount -= 5; soilCount -= 20;
+  farmLvl++;
+  playerMaxHp += 10;
+  playerHp = Math.min(playerHp + 10, playerMaxHp);
+  localStorage.setItem('outpost_farm_lvl', farmLvl);
+  localStorage.setItem('outpost_wood', woodCount);
+  localStorage.setItem('outpost_stone_res', stoneCount);
+  localStorage.setItem('outpost_soil', soilCount);
+  buildFarmMesh();
+  updateHUD();
+  alert(`🌾 Lahan Pertanian berhasil dibangun ke Level ${farmLvl}! Max HP Pemain meningkat menjadi ${playerMaxHp}!`);
+}
+
+function tryBuildOilPump() {
+  if (techLabLvl < 2) { alert('⚠️ Syarat: Riset Teknologi Level 2 harus dibangun terlebih dahulu!'); return; }
+  if (builderBarracksLvl < 1) { alert('⚠️ Syarat: Barak Tukang Level 1 harus dibangun terlebih dahulu!'); return; }
+  const cost = Math.floor(500 * Math.pow(1.5, oilPumpLvl));
+  if (woodCount < 20 || stoneCount < 20 || ironCount < 20 || soilCount < 10 || rubberCount < 10) {
+    alert('⚠️ Bahan Kurang! Butuh 20 🪵, 20 🪨, 20 ⚙️, 10 🟤, 10 ⚫'); return;
+  }
+  if (!checkAndPayWithGemConversion(cost)) return;
+  woodCount -= 20; stoneCount -= 20; ironCount -= 20; soilCount -= 10; rubberCount -= 10;
+  oilPumpLvl++;
+  localStorage.setItem('outpost_oilpump_lvl', oilPumpLvl);
+  localStorage.setItem('outpost_wood', woodCount);
+  localStorage.setItem('outpost_stone_res', stoneCount);
+  localStorage.setItem('outpost_iron', ironCount);
+  localStorage.setItem('outpost_soil', soilCount);
+  localStorage.setItem('outpost_rubber', rubberCount);
+  buildOilPumpMesh();
+  updateHUD();
+  alert(`⛽ Pompa Minyak & Karet berhasil dibangun ke Level ${oilPumpLvl}! Menghasilkan 2 Karet & 50 Gold setiap 15 detik!`);
+}
+
 function tryProximityUpgrade() {
   // Raycast kursor penargetan dari kamera ke arah objek 1 grid di depan
   const raycaster = new THREE.Raycaster();
@@ -1210,6 +1498,76 @@ function loop() {
   }
 
   if (playerFireCooldown > 0) playerFireCooldown--;
+
+  // === RELOAD TIMER COUNTDOWN (FIX STUCK RELOAD) ===
+  if (isReloading && reloadTimer > 0) {
+    reloadTimer--;
+    if (gameTick % 6 === 0) updateHUD();
+    if (reloadTimer <= 0) {
+      const st = WEAPON_STATS[equippedRanged] || WEAPON_STATS.pistol;
+      currentAmmo = st.ammoMax || 12;
+      maxAmmo = currentAmmo;
+      isReloading = false;
+      reloadTimer = 0;
+      updateHUD();
+    }
+  }
+
+  // === NPC LUMBERJACK AI (Penebang Pohon) ===
+  if (lumberjackBarracksLvl > 0 && lumberjackMesh) {
+    const lumberjackSpeed = 1.0 + (lumberjackBarracksLvl - 1) * 0.1;
+    lumberjackTimer++;
+    const clearInterval = Math.floor(1800 / lumberjackSpeed); // 30s base at 60fps
+    if (lumberjackTimer >= clearInterval) {
+      lumberjackTimer = 0;
+      clearedGridCount++;
+      woodCount += 5;
+      rubberCount += 3;
+      localStorage.setItem('outpost_cleared_grids', clearedGridCount);
+      localStorage.setItem('outpost_wood', woodCount);
+      localStorage.setItem('outpost_rubber', rubberCount);
+      updateHUD();
+    }
+    // Animate lumberjack chopping
+    if (lumberjackMesh.children.length > 0) {
+      const lastChild = lumberjackMesh.children[lumberjackMesh.children.length - 1];
+      if (lastChild.isGroup) lastChild.rotation.z = Math.sin(gameTick * 0.12) * 0.5;
+    }
+  }
+
+  // === NPC MINER AI (Penambang Mineral) ===
+  if (minerBarracksLvl > 0 && mineLvl > 0 && minerMesh) {
+    const minerSpeed = 1.0 + (minerBarracksLvl - 1) * 0.1;
+    minerTimer++;
+    const mineInterval = Math.floor(600 / minerSpeed); // 10s base at 60fps
+    if (minerTimer >= mineInterval) {
+      minerTimer = 0;
+      const roll = Math.random();
+      if (roll < 0.45) { soilCount++; localStorage.setItem('outpost_soil', soilCount); }
+      else if (roll < 0.75) { stoneCount++; localStorage.setItem('outpost_stone_res', stoneCount); }
+      else if (roll < 0.90) { ironCount++; localStorage.setItem('outpost_iron', ironCount); }
+      else { gold += 1; localStorage.setItem('outpost_gold', Math.floor(gold)); }
+      updateHUD();
+    }
+    // Animate miner pickaxe
+    if (minerMesh.children.length > 0) {
+      const lastChild = minerMesh.children[minerMesh.children.length - 1];
+      if (lastChild.isGroup) lastChild.rotation.z = Math.sin(gameTick * 0.1) * 0.45;
+    }
+  }
+
+  // === OIL PUMP AUTO-PRODUCTION ===
+  if (oilPumpLvl > 0) {
+    oilPumpTimer++;
+    if (oilPumpTimer >= 900) { // 15 detik
+      oilPumpTimer = 0;
+      rubberCount += 2;
+      gold += 50;
+      localStorage.setItem('outpost_rubber', rubberCount);
+      localStorage.setItem('outpost_gold', Math.floor(gold));
+      updateHUD();
+    }
+  }
 
   handleSmoothPlayerMovement();
 
@@ -1566,6 +1924,16 @@ function confirmBuildSelection() {
     alert(`⛺ Barak Pertahanan Pasukan berhasil ditingkatkan ke Level ${barracksLvl}! Membuka batas upgrade Pagar pos!`);
   } else if (val === 'builder_barrack') {
     tryBuildBuilderBarracks();
+  } else if (val === 'lumberjack') {
+    tryBuildLumberjackBarracks();
+  } else if (val === 'miner') {
+    tryBuildMinerBarracks();
+  } else if (val === 'mine') {
+    tryBuildMine();
+  } else if (val === 'farm') {
+    tryBuildFarm();
+  } else if (val === 'oilpump') {
+    tryBuildOilPump();
   }
 }
 

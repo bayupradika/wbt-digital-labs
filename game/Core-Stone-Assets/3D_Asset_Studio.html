@@ -69,12 +69,15 @@
     <button class="btn-asset" onclick="loadAsset('preman4')"><i class="fa-solid fa-running"></i> Preman 4: Runner Gesit</button>
     <button class="btn-asset" onclick="loadAsset('preman5')"><i class="fa-solid fa-fire"></i> Preman 5: Bomber Molotov</button>
     
-    <div class="cat-lbl">Bangunan & NPC Tukang</div>
+    <div class="cat-lbl">Bangunan & NPC Pekerja</div>
     <button class="btn-asset" onclick="loadAsset('builder')"><i class="fa-solid fa-hammer"></i> NPC Tukang (Topi Biru & Palu)</button>
     <button class="btn-asset" onclick="loadAsset('builder_barrack')"><i class="fa-solid fa-campground"></i> Barak Tukang</button>
+    <button class="btn-asset" onclick="loadAsset('lumberjack')"><i class="fa-solid fa-tree"></i> NPC Penebang (Bandana Merah & Kapak)</button>
+    <button class="btn-asset" onclick="loadAsset('miner_npc')"><i class="fa-solid fa-helmet-safety"></i> NPC Penambang (Helm Kuning & Beliung)</button>
 
-    <div class="cat-lbl">Senjata, Tower & Amunisi</div>
+    <div class="cat-lbl">Senjata Lengkap (Semua Jenis)</div>
     <button class="btn-asset" onclick="loadAsset('weapons')"><i class="fa-solid fa-gun"></i> Pistol & Pisau Survival</button>
+    <button class="btn-asset" onclick="loadAsset('all_weapons')"><i class="fa-solid fa-crosshairs"></i> Semua Senjata (9 Jenis)</button>
     <button class="btn-asset" onclick="loadAsset('tower')"><i class="fa-solid fa-tower-broadcast"></i> Tower / Meriam Abadi</button>
     <button class="btn-asset" onclick="loadAsset('projectiles')"><i class="fa-solid fa-rocket"></i> Peluru Normal, Laser & Mortar</button>
   </div>
@@ -426,6 +429,74 @@
 
         const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.6), new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8 }));
         anvil.position.set(-0.9, 0.25, 1.5); currentGroup.add(anvil);
+
+      } else if (type === 'lumberjack') {
+        document.getElementById('asset-title').innerText = 'NPC Penebang Pohon (Bandana Merah & Kapak)';
+        document.getElementById('asset-desc').innerText = 'Karakter NPC yang keluar dari batas grid untuk menebang pohon di hutan belakang. Membuka 1 grid baru setiap 30 detik (+5 Kayu & +3 Karet). Selalu memegang kapak di tangan kanan.';
+        const bootMat = new THREE.MeshStandardMaterial({ color: 0x451a03 });
+        const lB = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.45), bootMat); lB.position.set(-0.25, 0.15, 0); currentGroup.add(lB);
+        const rB = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.45), bootMat); rB.position.set(0.25, 0.15, 0); currentGroup.add(rB);
+        const pantMat = new THREE.MeshStandardMaterial({ color: 0x713f12 });
+        const lL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8), pantMat); lL.position.set(-0.25, 0.7, 0); currentGroup.add(lL);
+        const rL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8), pantMat); rL.position.set(0.25, 0.7, 0); currentGroup.add(rL);
+        const shirtMat = new THREE.MeshStandardMaterial({ color: 0x16a34a });
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.9, 0.45), shirtMat); torso.position.set(0, 1.5, 0); currentGroup.add(torso);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshStandardMaterial({ color: 0xfecca1 })); head.position.set(0, 2.2, 0); currentGroup.add(head);
+        const bandana = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.12, 16), new THREE.MeshStandardMaterial({ color: 0xdc2626 })); bandana.position.set(0, 2.35, 0); currentGroup.add(bandana);
+        const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.18), shirtMat); lArm.position.set(-0.48, 1.5, 0); currentGroup.add(lArm);
+        const axeGrp = new THREE.Group(); axeGrp.position.set(0.48, 1.7, 0);
+        const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.18), shirtMat); rArm.position.set(0, -0.3, 0); axeGrp.add(rArm);
+        const axeH = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8), new THREE.MeshStandardMaterial({ color: 0xa16207 })); axeH.position.set(0, -0.45, 0.3); axeH.rotation.x = Math.PI/3; axeGrp.add(axeH);
+        const axeHead = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.3, 0.42), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9 })); axeHead.position.set(0, -0.22, 0.68); axeGrp.add(axeHead);
+        currentGroup.add(axeGrp);
+
+      } else if (type === 'miner_npc') {
+        document.getElementById('asset-title').innerText = 'NPC Penambang Mineral (Helm Kuning & Beliung)';
+        document.getElementById('asset-desc').innerText = 'Karakter NPC yang menambang di fasilitas tambang, menghasilkan 1 mineral setiap 10 detik (45% Tanah, 30% Batu, 15% Besi, 10% Gold). Selalu memegang beliung/pickaxe di tangan kanan.';
+        const bootMat = new THREE.MeshStandardMaterial({ color: 0x292524 });
+        const lB = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.45), bootMat); lB.position.set(-0.25, 0.15, 0); currentGroup.add(lB);
+        const rB = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.45), bootMat); rB.position.set(0.25, 0.15, 0); currentGroup.add(rB);
+        const pantMat = new THREE.MeshStandardMaterial({ color: 0x57534e });
+        const lL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8), pantMat); lL.position.set(-0.25, 0.7, 0); currentGroup.add(lL);
+        const rL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8), pantMat); rL.position.set(0.25, 0.7, 0); currentGroup.add(rL);
+        const shirtMat = new THREE.MeshStandardMaterial({ color: 0xb45309 });
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.9, 0.45), shirtMat); torso.position.set(0, 1.5, 0); currentGroup.add(torso);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshStandardMaterial({ color: 0xfecca1 })); head.position.set(0, 2.2, 0); currentGroup.add(head);
+        const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16, 0, Math.PI*2, 0, Math.PI/2), new THREE.MeshStandardMaterial({ color: 0xeab308 })); helmet.position.set(0, 2.35, 0); currentGroup.add(helmet);
+        const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.18), shirtMat); lArm.position.set(-0.48, 1.5, 0); currentGroup.add(lArm);
+        const pickGrp = new THREE.Group(); pickGrp.position.set(0.48, 1.7, 0);
+        const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.18), shirtMat); rArm.position.set(0, -0.3, 0); pickGrp.add(rArm);
+        const pickH = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8), new THREE.MeshStandardMaterial({ color: 0x78350f })); pickH.position.set(0, -0.45, 0.3); pickH.rotation.x = Math.PI/3; pickGrp.add(pickH);
+        const pickHead = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.55), new THREE.MeshStandardMaterial({ color: 0x6b7280, metalness: 0.9 })); pickHead.position.set(0, -0.18, 0.72); pickGrp.add(pickHead);
+        currentGroup.add(pickGrp);
+
+      } else if (type === 'all_weapons') {
+        document.getElementById('asset-title').innerText = 'Arsenal Senjata Lengkap (9 Jenis)';
+        document.getElementById('asset-desc').innerText = 'Semua senjata yang tersedia: Pistol, Sniper Rifle, Shotgun, AK-47, Compound Bow (Ranged) dan Pisau, Katana, Kapak, Palu Besi (Melee).';
+        const gunMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.7, roughness: 0.3 });
+        // 1. Pistol
+        const pistol = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.18, 0.55), gunMat); pistol.position.set(-3, 2, 0); currentGroup.add(pistol);
+        const pGrip = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.28, 0.12), gunMat); pGrip.position.set(-3, 1.8, 0.18); pGrip.rotation.x = 0.3; currentGroup.add(pGrip);
+        // 2. Sniper
+        const sniper = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 1.3), gunMat); sniper.position.set(-1.5, 2, 0); currentGroup.add(sniper);
+        const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.45), new THREE.MeshBasicMaterial({ color: 0x38bdf8 })); scope.rotation.x = Math.PI/2; scope.position.set(-1.5, 2.18, -0.1); currentGroup.add(scope);
+        // 3. Shotgun
+        const shotgun = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.75), new THREE.MeshStandardMaterial({ color: 0xdc2626 })); shotgun.position.set(0, 2, 0); currentGroup.add(shotgun);
+        // 4. AK-47
+        const ak = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.18, 0.9), new THREE.MeshStandardMaterial({ color: 0x4b5563 })); ak.position.set(1.5, 2, 0); currentGroup.add(ak);
+        const akMag = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.3, 0.16), new THREE.MeshStandardMaterial({ color: 0xd97706 })); akMag.position.set(1.5, 1.78, -0.08); akMag.rotation.x = -0.3; currentGroup.add(akMag);
+        // 5. Bow
+        const bow = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.1), new THREE.MeshStandardMaterial({ color: 0x10b981 })); bow.rotation.z = Math.PI/2; bow.position.set(3, 2, 0); currentGroup.add(bow);
+        // 6. Pisau
+        const knife = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.6, 0.05), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9 })); knife.position.set(-3, 0.5, 0); currentGroup.add(knife);
+        // 7. Katana
+        const katana = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.1, 0.08), new THREE.MeshBasicMaterial({ color: 0xa855f7 })); katana.position.set(-1.5, 0.7, 0); currentGroup.add(katana);
+        // 8. Kapak
+        const axeH = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.85), new THREE.MeshStandardMaterial({ color: 0x475569 })); axeH.position.set(0, 0.5, 0); currentGroup.add(axeH);
+        const axeHd = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.38, 0.48), new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9 })); axeHd.position.set(0, 0.85, 0.15); currentGroup.add(axeHd);
+        // 9. Palu Besi
+        const hamH = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.9), new THREE.MeshStandardMaterial({ color: 0x334155 })); hamH.position.set(1.5, 0.5, 0); currentGroup.add(hamH);
+        const hamHd = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.48), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 })); hamHd.position.set(1.5, 0.9, 0); currentGroup.add(hamHd);
       }
     }
 
