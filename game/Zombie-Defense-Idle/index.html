@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <!-- Stats HUD (Separated Fence HP & Core Stone HP) -->
+    <!-- Stats HUD -->
     <div class="stats-box">
       <div>
         <div class="stat-lbl">🪵 PAGAR DEPAN</div>
@@ -55,22 +55,13 @@
       </div>
     </div>
 
-    <!-- Hover Proximity Upgrade Prompt HUD -->
-    <div class="proximity-prompt hidden" id="prox-prompt">
-      <div class="prox-icon">⚡</div>
-      <div class="prox-text">
-        <b id="prox-title">Mepet Objek</b>
-        <span id="prox-hint">Tekan tombol <b>[U]</b> di keyboard untuk Upgrade!</span>
-      </div>
-    </div>
-
     <!-- Start Overlay -->
     <div class="overlay" id="start-screen">
       <div class="hero-box">
         <img src="hero.png" alt="Core Stone Banner" style="width:100%; height:100%; object-fit:cover;">
       </div>
       <h1>CORE <span style="color: #38bdf8;">STONE</span></h1>
-      <p class="desc-text">Pertahanan Grid 8x4 di sebalik pagar barikade!<br><br>🪵 <b>Pagar & Tugu Terpisah</b> : Musuh terhadang di pagar depan sampai pagar runtuh!<br>⌨️ <b>W, A, S, D</b> : Gerak karakter (punya collider mandiri)<br>🖱️ <b>Arahkan Kursor & Klik</b> : Menghadap musuh & menembak<br>🏗️ <b>Tekan T</b> : Bangun Tower di depan karakter<br>⚡ <b>Mepet Objek + Tekan U</b> : Upgrade Tugu/Tower/Pagar</p>
+      <p class="desc-text">Pertahanan Grid 8x4 di sebalik pagar barikade!<br><br>🧱 <b>Collider Solid & Turret Abadi</b> : Setiap objek padat, Turret tidak pernah hancur!<br>⌨️ <b>W, A, S, D</b> : Gerak karakter grid 8x4<br>🖱️ <b>Arahkan Kursor & Klik</b> : Menghadap musuh & menembak<br>🏗️ <b>Tekan T</b> : Bangun Tower Abadi di depan karakter<br>⚡ <b>Mepet Objek + Tekan U</b> : Langsung Upgrade Tugu/Tower/Pagar tanpa kartu pop-up</p>
       <button class="btn-primary" onclick="startGame()"><i class="fa-solid fa-crosshairs"></i> MASUK POS PERTAHANAN</button>
       <button class="btn-secondary" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS</button>
     </div>

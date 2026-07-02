@@ -45,8 +45,8 @@ let towers = [];
 
 function initGrid() {
   grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
-  grid[3][3] = { type: 'stone', name: 'Core Stone' };
-  grid[3][4] = { type: 'stone', name: 'Core Stone' };
+  grid[3][3] = { type: 'stone', name: 'Core Stone', invincible: false };
+  grid[3][4] = { type: 'stone', name: 'Core Stone', invincible: false };
   towers.forEach(t => {
     if (t.col >= 0 && t.col < GRID_COLS && t.row >= 0 && t.row < GRID_ROWS) {
       grid[t.row][t.col] = t;
@@ -62,8 +62,8 @@ let particles = [];
 let floatingTexts = [];
 
 let autoShootTimer = 0;
-let attackerSpawnTimer = 0; // 3 per minute = every 20s (1200 frames at 60fps)
-let patrolSpawnTimer = 0;   // 1 per minute = every 60s (3600 frames at 60fps)
+let attackerSpawnTimer = 0;
+let patrolSpawnTimer = 0;
 let gameTick = 0;
 let screenShake = 0;
 let knifeStabAnim = 0;
@@ -173,7 +173,6 @@ function startGame() {
   attackerSpawnTimer = 0;
   patrolSpawnTimer = 0;
   updateHUD();
-  // Spawn initial 1 attacker and 1 patrol right away on start
   spawnEnemy(false);
   spawnEnemy(true);
   cancelAnimationFrame(animationId);
@@ -260,16 +259,16 @@ window.addEventListener('keydown', e => {
     return;
   }
 
+  // Solid Collider Movement Check: Cannot enter occupied grid cells
   if (targetCol !== playerCol || targetRow !== playerRow) {
     if (targetCol >= 0 && targetCol < GRID_COLS && targetRow >= 0 && targetRow < GRID_ROWS) {
       if (grid[targetRow][targetCol] === null) {
         playerCol = targetCol;
         playerRow = targetRow;
-        checkProximityPrompt();
       } else {
         let obj = grid[targetRow][targetCol];
         let cellW = canvas.width / GRID_COLS;
-        spawnFloatingText(targetCol * cellW + 20, 360 + targetRow * 40, `🧱 Objek: ${obj.name || 'Menghalangi'}`, '#fca5a5');
+        spawnFloatingText(targetCol * cellW + 20, 360 + targetRow * 40, `🧱 Objek Padat (${obj.name})`, '#fca5a5');
       }
     }
   }
@@ -282,7 +281,7 @@ function tryBuildTower() {
     return;
   }
   if (grid[frontRow][playerCol] !== null) {
-    alert('⚠️ Petak grid di depan Anda sudah terisi objek!');
+    alert('⚠️ Petak grid di depan Anda sudah terisi objek padat!');
     return;
   }
   if (gold < 100) {
@@ -292,14 +291,14 @@ function tryBuildTower() {
   }
 
   gold -= 100;
-  let newTower = { type: 'tower', name: 'Tower Pertahanan', col: playerCol, row: frontRow, lvl: 1 };
+  // Indestructible / Permanent Turret
+  let newTower = { type: 'tower', name: 'Tower Abadi', col: playerCol, row: frontRow, lvl: 1, invincible: true };
   towers.push(newTower);
   grid[frontRow][playerCol] = newTower;
   updateHUD();
   let cellW = canvas.width / GRID_COLS;
   spawnParticle(playerCol * cellW + cellW / 2, 360 + frontRow * 40 + 20, '#38bdf8', 12);
-  spawnFloatingText(playerCol * cellW + cellW / 2, 360 + frontRow * 40, '🤖 TOWER DIBANGUN!', '#38bdf8');
-  checkProximityPrompt();
+  spawnFloatingText(playerCol * cellW + cellW / 2, 360 + frontRow * 40, '🤖 TOWER ABADI DIBANGUN!', '#38bdf8');
 }
 
 function tryProximityUpgrade() {
@@ -313,7 +312,7 @@ function tryProximityUpgrade() {
     let cost = wallLvl * 40;
     if (gold >= cost) {
       gold -= cost; wallLvl++; fenceMaxHp += 60; fenceHp = fenceMaxHp;
-      spawnFloatingText(px, py - 30, '🪵 PAGAR DEPAN DIPERKUAT!', '#fbbf24');
+      spawnFloatingText(px, py - 30, `🪵 PAGAR LV.${wallLvl}! (+HP)`, '#fbbf24');
       upgradedAny = true;
     } else {
       openTopup(); return;
@@ -328,14 +327,14 @@ function tryProximityUpgrade() {
         let cost = stoneLvl * 60;
         if (gold >= cost) {
           gold -= cost; stoneLvl++; stoneMaxHp += 100; stoneHp = stoneMaxHp;
-          spawnFloatingText(px, py - 30, '💠 ENERGI CORE STONE NAIK!', '#38bdf8');
+          spawnFloatingText(px, py - 30, `💠 CORE STONE LV.${stoneLvl}!`, '#38bdf8');
           upgradedAny = true;
         }
       } else if (obj && obj.type === 'tower' && !upgradedAny) {
         let cost = obj.lvl * 100;
         if (gold >= cost) {
           gold -= cost; obj.lvl++;
-          spawnFloatingText(c * cellW + 20, 360 + r * 40, `🤖 TOWER LV.${obj.lvl}!`, '#10b981');
+          spawnFloatingText(c * cellW + 20, 360 + r * 40, `🤖 TOWER LV.${obj.lvl}! (+DMG)`, '#10b981');
           upgradedAny = true;
         }
       }
@@ -347,7 +346,7 @@ function tryProximityUpgrade() {
     let cost = knifeLvl * 50;
     if (gold >= cost) {
       gold -= cost; knifeLvl++; pistolLvl++;
-      spawnFloatingText(px, py - 30, `🛠️ SENJATA LV.${knifeLvl}!`, '#fbbf24');
+      spawnFloatingText(px, py - 30, `🛠️ SENJATA KARAKTER LV.${knifeLvl}!`, '#fbbf24');
       upgradedAny = true;
     } else {
       openTopup(); return;
@@ -355,39 +354,6 @@ function tryProximityUpgrade() {
   }
 
   updateHUD();
-  checkProximityPrompt();
-}
-
-function checkProximityPrompt() {
-  const prompt = document.getElementById('prox-prompt');
-  const title = document.getElementById('prox-title');
-  if (!prompt || !title) return;
-
-  if (playerRow === 0) {
-    title.innerText = `Mepet Pagar Depan (Biaya: ${wallLvl * 40} 🪙)`;
-    prompt.classList.remove('hidden');
-    return;
-  }
-
-  for (let r = Math.max(0, playerRow - 1); r <= Math.min(GRID_ROWS - 1, playerRow + 1); r++) {
-    for (let c = Math.max(0, playerCol - 1); c <= Math.min(GRID_COLS - 1, playerCol + 1); c++) {
-      let obj = grid[r][c];
-      if (obj) {
-        if (obj.type === 'stone') {
-          title.innerText = `Mepet Core Stone (Biaya: ${stoneLvl * 60} 🪙)`;
-          prompt.classList.remove('hidden');
-          return;
-        } else if (obj.type === 'tower') {
-          title.innerText = `Mepet Tower Lv.${obj.lvl} (Biaya: ${obj.lvl * 100} 🪙)`;
-          prompt.classList.remove('hidden');
-          return;
-        }
-      }
-    }
-  }
-
-  title.innerText = `Senjata Karakter (Biaya: ${knifeLvl * 50} 🪙)`;
-  prompt.classList.remove('hidden');
 }
 
 function triggerKnifeMelee(targetEnemy) {
@@ -495,11 +461,8 @@ function loop() {
     screenShake--;
   }
 
-  // 1. Render Environment & Grid Zone
   renderEnvironmentAndGrid();
 
-  // 2. Strict Cadence: Exactly 3 attackers per minute (every 1200 frames at 60 FPS)
-  // and exactly 1 patrol unit per minute (every 3600 frames at 60 FPS), unchanged by phase
   attackerSpawnTimer++;
   if (attackerSpawnTimer >= 1200) {
     spawnEnemy(false);
@@ -512,7 +475,6 @@ function loop() {
     patrolSpawnTimer = 0;
   }
 
-  // 3. Automated Towers Shooting
   autoShootTimer++;
   if (autoShootTimer > 35) {
     towers.forEach(t => {
@@ -527,7 +489,6 @@ function loop() {
     autoShootTimer = 0;
   }
 
-  // 4. Update Bullets
   for (let i = bullets.length - 1; i >= 0; i--) {
     let b = bullets[i];
     b.x += b.vx; b.y += b.vy;
@@ -549,12 +510,10 @@ function loop() {
     }
   }
 
-  // 5. Update Enemies (Attackers vs Patrol Units)
   for (let i = enemies.length - 1; i >= 0; i--) {
     let e = enemies[i];
     
     if (e.isPatrol) {
-      // Patrol unit moves randomly in the background zone (y = 70 to 220) without approaching fence
       e.x += e.vx;
       e.y += e.vy;
       if (e.x < 35 || e.x > canvas.width - 35) e.vx *= -1;
@@ -564,11 +523,9 @@ function loop() {
         e.vy = (Math.random() - 0.5) * 0.8;
       }
     } else {
-      // Attacking unit marches down toward fence
       if (e.y < 350 || fenceHp <= 0) {
         e.y += e.speed;
       } else {
-        // Blocked at fence! Attack fence
         e.y = 350;
         fenceHp -= 0.25 * currentPhase;
         screenShake = 1;
@@ -599,7 +556,6 @@ function loop() {
     ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, 40, 5);
     ctx.fillStyle = '#ef4444'; ctx.fillRect(e.x - 20, e.y - (e.size * scale) / 2 - 12, Math.max(0, (e.hp / e.maxHp) * 40), 5);
 
-    // Melee attack when touching player row 0 near fence
     if (!e.isPatrol && e.y >= 350 && playerRow === 0) {
       let cellW = canvas.width / GRID_COLS;
       let px = playerCol * cellW + cellW / 2;
@@ -608,7 +564,7 @@ function loop() {
       }
     }
 
-    // If enemy reaches Core Stone at back row (y >= 460)
+    // Enemies inside grid zone only attack Core Stone, Towers are invincible!
     if (!e.isPatrol && e.y >= 460) {
       stoneHp -= 0.4 * currentPhase;
       screenShake = 2;
@@ -617,7 +573,6 @@ function loop() {
     }
   }
 
-  // 6. Update Particles & Texts
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
     p.x += p.vx; p.y += p.vy; p.life--;
@@ -646,7 +601,6 @@ function renderEnvironmentAndGrid() {
 
   ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 70, canvas.width, 290);
 
-  // Front Barricade Wall Boundary (y = 350 to 360)
   if (fenceHp > 0) {
     ctx.fillStyle = '#3e2723'; ctx.fillRect(0, 350, canvas.width, 10);
     ctx.font = '18px sans-serif';
@@ -660,7 +614,6 @@ function renderEnvironmentAndGrid() {
     }
   }
 
-  // 8x4 Grid Zone behind Front Wall (y = 360 to 520)
   let cellW = canvas.width / GRID_COLS;
   let cellH = 40;
   for (let r = 0; r < GRID_ROWS; r++) {
@@ -695,7 +648,6 @@ function renderEnvironmentAndGrid() {
     }
   }
 
-  // 3D Player Character
   let px = playerCol * cellW + cellW / 2;
   let py = 360 + playerRow * cellH + cellH / 2;
 
