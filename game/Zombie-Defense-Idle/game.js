@@ -8,16 +8,21 @@ let gems = parseInt(localStorage.getItem('outpost_gems') || '50');
 let currentPhase = parseInt(localStorage.getItem('corestone_phase') || '1');
 let isLockedOut = localStorage.getItem('corestone_locked') === 'true';
 
-if (!localStorage.getItem('outpost_init_v2')) {
+if (!localStorage.getItem('outpost_init_v3')) {
   gold = 100; // Starter gold pas 100 untuk bangun 1 turret
   gems = Math.max(gems, 50);
-  localStorage.setItem('outpost_init_v2', 'true');
+  localStorage.setItem('outpost_init_v3', 'true');
   localStorage.setItem('outpost_gold', '100');
   localStorage.setItem('outpost_gems', gems);
 }
 
 let techLabBuilt = localStorage.getItem('outpost_tech_lab') === 'true';
+let techLabLvl = parseInt(localStorage.getItem('outpost_tech_lvl') || (techLabBuilt ? '1' : '0'));
+let barracksLvl = parseInt(localStorage.getItem('outpost_barracks_lvl') || '0');
 let techLabMesh = null;
+let woodCount = parseInt(localStorage.getItem('outpost_wood') || '0');
+let woodItems = [];
+let activeWeaponSlot = 1; // 1 = Pistol (Ranged), 2 = Pisau (Melee)
 
 // Infinite Upgrade Levels
 let knifeLvl = parseInt(localStorage.getItem('outpost_knife_lvl') || '1');
@@ -26,8 +31,8 @@ let wallLvl = parseInt(localStorage.getItem('outpost_wall_lvl') || '1');
 let stoneLvl = parseInt(localStorage.getItem('outpost_stone_lvl') || '1');
 let survivorLvl = parseInt(localStorage.getItem('outpost_survivor_lvl') || '1');
 
-// Separated Health Pools
-let fenceMaxHp = 100 + (wallLvl - 1) * 60;
+// Separated Health Pools with 25% exponential scaling per level
+let fenceMaxHp = Math.floor(100 * Math.pow(1.25, wallLvl - 1));
 let fenceHp = fenceMaxHp;
 let stoneMaxHp = 200 + (stoneLvl - 1) * 100;
 let stoneHp = stoneMaxHp;
@@ -293,8 +298,12 @@ function updateClock() {
 }
 
 function updateHUD() {
-  document.getElementById('gold-display').innerText = gold.toLocaleString('id-ID');
-  document.getElementById('gem-display').innerText = gems.toLocaleString('id-ID');
+  const gEl = document.getElementById('gold-display');
+  if (gEl) gEl.innerText = Math.floor(gold).toLocaleString('id-ID');
+  const gemEl = document.getElementById('gem-display');
+  if (gemEl) gemEl.innerText = gems.toLocaleString('id-ID');
+  const wEl = document.getElementById('wood-display');
+  if (wEl) wEl.innerText = woodCount.toLocaleString('id-ID');
 
   const fHpEl = document.getElementById('fence-hp-display');
   if (fHpEl) {
@@ -309,6 +318,19 @@ function updateHUD() {
 
   const sHpEl = document.getElementById('stone-hp-display');
   if (sHpEl) sHpEl.innerText = `${Math.max(0, Math.floor(stoneHp))} / ${stoneMaxHp}`;
+
+  const invGold = document.getElementById('inv-gold-val');
+  if (invGold) invGold.innerText = Math.floor(gold).toLocaleString('id-ID');
+  const invWood = document.getElementById('inv-wood-val');
+  if (invWood) invWood.innerText = woodCount.toLocaleString('id-ID');
+  const invTech = document.getElementById('inv-tech-lbl');
+  if (invTech) invTech.innerText = techLabLvl > 0 ? `Level ${techLabLvl}` : 'Belum Dibangun';
+  const invWall = document.getElementById('inv-wall-lbl');
+  if (invWall) invWall.innerText = `Lv ${wallLvl}`;
+  const invBar = document.getElementById('inv-barrack-lbl');
+  if (invBar) invBar.innerText = `Lv ${barracksLvl}`;
+  const activeWep = document.getElementById('active-wep-lbl');
+  if (activeWep) activeWep.innerText = activeWeaponSlot === 1 ? 'Pistol' : 'Pisau';
 }
 
 function startGame() {
@@ -318,12 +340,13 @@ function startGame() {
   const lockoutEl = document.getElementById('lockout-screen');
   if (lockoutEl) lockoutEl.classList.add('hidden');
 
-  fenceMaxHp = 100 + (wallLvl - 1) * 60; fenceHp = fenceMaxHp;
+  fenceMaxHp = Math.floor(100 * Math.pow(1.25, wallLvl - 1)); fenceHp = fenceMaxHp;
   stoneMaxHp = 200 + (stoneLvl - 1) * 100; stoneHp = stoneMaxHp;
   buildBarricadeWall();
   enemies.forEach(e => scene.remove(e.mesh)); enemies = [];
   bullets.forEach(b => scene.remove(b.mesh)); bullets = [];
   towers.forEach(t => scene.remove(t.mesh)); towers = [];
+  woodItems.forEach(w => scene.remove(w.mesh)); woodItems = [];
   grid = Array(GRID_ROWS).fill(null).map(() => Array(GRID_COLS).fill(null));
   grid[1][3] = { type: 'stone' }; grid[1][4] = { type: 'stone' };
   playerX = colToX(3.5); playerZ = rowToZ(3);
@@ -403,11 +426,33 @@ canvas.addEventListener('mousemove', e => {
 let playerFireCooldown = 0;
 
 function fireFPSPistol() {
-  if (playerFireCooldown > 0) return; // Max attack speed: 2 bullets per second (30 ticks cooldown)
-  playerFireCooldown = 30;
+  if (playerFireCooldown > 0) return;
 
+  if (activeWeaponSlot === 2) {
+    // Melee Knife Attack (4 hits / sec -> cooldown 15)
+    playerFireCooldown = 15;
+    if (knifeGroup) knifeGroup.rotation.z = -0.5;
+    setTimeout(() => { if (knifeGroup) knifeGroup.rotation.z = 0.2; }, 100);
+
+    // Strike closest enemy within 2.8 meters
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      let e = enemies[i];
+      if (camera.position.distanceTo(e.mesh.position) < 2.8) {
+        e.hp -= 15;
+        if (e.hp <= 0) {
+          gold += 1; updateHUD();
+          scene.remove(e.mesh); enemies.splice(i, 1);
+        }
+        break;
+      }
+    }
+    return;
+  }
+
+  // Ranged Pistol Attack (Max 2 bullets / sec -> cooldown 30)
+  playerFireCooldown = 30;
   pistolRecoilAnim = 10;
-  muzzleFlashMesh.visible = true;
+  if (muzzleFlashMesh) muzzleFlashMesh.visible = true;
   setTimeout(() => { if (muzzleFlashMesh) muzzleFlashMesh.visible = false; }, 60);
 
   const bulletGeo = new THREE.SphereGeometry(0.18);
@@ -419,19 +464,25 @@ function fireFPSPistol() {
 
   bMesh.position.copy(camera.position).addScaledVector(dir, 0.8);
   scene.add(bMesh);
-  bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(1.5), dmg: 10 }); // Fixed 10 damage per bullet
+  bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(1.5), dmg: 10 });
 }
 
-// Smooth Continuous WASD & Shortcuts Tracking
 window.addEventListener('keydown', e => {
   keysPressed[e.key.toUpperCase()] = true;
   if (!gameRunning) return;
   const k = e.key.toUpperCase();
+  if (k === 'Q') {
+    activeWeaponSlot = activeWeaponSlot === 1 ? 2 : 1;
+    if (pistolGroup) pistolGroup.visible = (activeWeaponSlot === 1);
+    if (knifeGroup) knifeGroup.visible = (activeWeaponSlot === 2);
+    updateHUD();
+  }
+  if (k === 'E') openEquipment();
   if (k === 'T') tryBuildTower();
   if (k === 'R') tryBuildTechLab();
   if (k === 'U') tryProximityUpgrade();
   if (k === 'I') toggleInventory();
-  if (e.key === 'Escape') closeInventory();
+  if (e.key === 'Escape') { closeInventory(); closeEquipment(); }
 });
 
 window.addEventListener('keyup', e => {
@@ -452,18 +503,23 @@ function handleSmoothPlayerMovement() {
     const sinY = Math.sin(cameraYaw);
     const cosY = Math.cos(cameraYaw);
 
-    // Calculate movement vector relative to camera 360 facing angle
     let dx = -fwd * sinY + side * cosY;
     let dz = -fwd * cosY - side * sinY;
 
     let nextX = playerX + dx;
     let nextZ = playerZ + dz;
 
-    // Bound inside Safe Zone (Cols 0..7 -> X = -8.75 to +8.75, Rows 1..4.5 -> Z = -2.0 to -11.0)
     nextX = Math.max(colToX(0), Math.min(colToX(7), nextX));
-    nextZ = Math.max(rowToZ(4.5), Math.min(rowToZ(1), nextZ));
 
-    // Solid Collider Check vs Grid Objects
+    // Jendela waktu aman looting kayu: Menit ke 3-5 setiap iterasi 5 menit di luar jam 19:00
+    let nowH = new Date().getHours();
+    let isDangerHour = isSimulating1900 || (nowH === 19);
+    let minuteInCycle = Math.floor((gameTick % 18000) / 3600);
+    let canLootOutside = !isDangerHour && (minuteInCycle >= 3);
+
+    let minZLimit = canLootOutside ? rowToZ(17) : rowToZ(4.5);
+    nextZ = Math.max(minZLimit, Math.min(rowToZ(1), nextZ));
+
     let targetCol = Math.max(0, Math.min(7, xToCol(nextX)));
     let targetRow = Math.max(0, Math.min(19, zToRow(nextZ)));
     
@@ -471,7 +527,6 @@ function handleSmoothPlayerMovement() {
       playerX = nextX;
       playerZ = nextZ;
     } else {
-      // Allow sliding along open axis if blocked diagonally
       if (grid[zToRow(playerZ)][targetCol] === null) playerX = nextX;
       if (grid[targetRow][xToCol(playerX)] === null) playerZ = nextZ;
     }
@@ -558,7 +613,7 @@ function buildSciFiTurretTower() {
 
 function tryBuildTower() {
   if (towers.length >= 1) {
-    alert('⚠️ Batas Pembangunan: Anda hanya bisa membangun maksimal 1 Turret di Pos saat ini!');
+    alert('⚠️ Batas Pembangunan: Anda hanya bisa memiliki maksimal 1 Turret di Pos saat ini!');
     return;
   }
   if (gold < 100) {
@@ -566,11 +621,16 @@ function tryBuildTower() {
     return;
   }
 
-  let currentCol = Math.max(0, Math.min(7, xToCol(playerX)));
-  let currentRow = Math.max(1, Math.min(4, zToRow(playerZ)));
-  let frontRow = currentRow + 1;
+  let currentCol = xToCol(playerX);
+  if (currentCol < 3 || currentCol > 4) {
+    alert('⚠️ Posisi Tidak Sah: Turret hanya bisa dibangun di 1 titik tengah depan pos (Kolom 3 atau 4)!');
+    return;
+  }
 
-  if (frontRow > 4 || grid[frontRow][currentCol] !== null) return;
+  let currentRow = Math.max(1, Math.min(4, zToRow(playerZ)));
+  let frontRow = 4; // Tepat di baris pertahanan tengah
+
+  if (grid[frontRow][currentCol] !== null) return;
   gold -= 100;
 
   const tObj = buildSciFiTurretTower();
@@ -584,76 +644,109 @@ function tryBuildTower() {
 }
 
 function tryBuildTechLab() {
-  if (techLabBuilt) {
-    alert('✅ Bangunan Riset Teknologi sudah beroperasi!');
+  if (techLabBuilt && techLabLvl >= 2) {
+    alert('✅ Bangunan Riset Teknologi sudah mencapai Level Maksimal (Lv 2)!');
     return;
   }
-  if (gold < 150) {
-    alert('⚠️ Gold tidak cukup! Membangun Bangunan Riset Teknologi membutuhkan 150 Gold.');
+  if (gold < 500 || woodCount < 10) {
+    alert(`⚠️ Bahan Kurang! Membangun/Upgrade Riset Teknologi membutuhkan 500 Gold (Anda punya ${Math.floor(gold)}) dan 10 Kayu (Anda punya ${woodCount}).`);
     return;
   }
-  gold -= 150;
+  gold -= 500;
+  woodCount -= 10;
   techLabBuilt = true;
+  techLabLvl++;
   localStorage.setItem('outpost_tech_lab', 'true');
+  localStorage.setItem('outpost_tech_lvl', techLabLvl);
+  localStorage.setItem('outpost_wood', woodCount);
   buildTechLabMesh();
   updateHUD();
-  alert('🔬 Riset Teknologi berhasil dibangun! Sekarang Anda memenuhi syarat untuk meningkatkan Turret dan Pagar ke Level 2+!');
+  alert(`🔬 Riset Teknologi berhasil ditingkatkan ke Level ${techLabLvl}!`);
 }
 
 function tryProximityUpgrade() {
-  let currentRow = zToRow(playerZ);
-  let currentCol = xToCol(playerX);
+  // Raycast kursor penargetan dari kamera ke arah objek 1 grid di depan
+  const raycaster = new THREE.Raycaster();
+  const dir = new THREE.Vector3();
+  camera.getWorldDirection(dir);
+  raycaster.set(camera.position, dir);
 
-  // 1. Cek di dekat Bangunan Riset Teknologi (Kolom 2, Baris 1-2)
-  if (currentRow <= 2 && Math.abs(currentCol - 2) <= 1.5 && !techLabBuilt) {
-    tryBuildTechLab();
+  let targetHit = null;
+  let targetType = '';
+
+  // 1. Cek Turret
+  if (towers.length > 0) {
+    const hits = raycaster.intersectObject(towers[0].mesh, true);
+    if (hits.length > 0 && hits[0].distance < 4.5) {
+      targetHit = towers[0];
+      targetType = 'turret';
+    }
+  }
+
+  // 2. Cek Riset Teknologi
+  if (!targetHit && techLabMesh) {
+    const hits = raycaster.intersectObject(techLabMesh, true);
+    if (hits.length > 0 && hits[0].distance < 4.5) {
+      tryBuildTechLab();
+      return;
+    }
+  }
+
+  // 3. Cek Pagar Pertahanan
+  if (!targetHit) {
+    for (let log of fenceMeshes) {
+      const hits = raycaster.intersectObject(log);
+      if (hits.length > 0 && hits[0].distance < 4.5) {
+        targetType = 'fence';
+        break;
+      }
+    }
+  }
+
+  if (targetType === 'turret') {
+    let t = targetHit;
+    const turretCost = Math.floor(100 * Math.pow(1.5, t.lvl));
+    if (t.lvl >= 1 && techLabLvl < 1) {
+      alert('🔒 RISET TEKNOLOGI DIPERLUKAN!\nUpgrade Turret ke Level 2 membutuhkan Bangunan Riset Teknologi Level 1!');
+      return;
+    }
+    if (gold < turretCost) {
+      alert(`⚠️ Gold tidak cukup! Upgrade Turret ke Lv ${t.lvl + 1} membutuhkan ${turretCost} Gold.`);
+      return;
+    }
+    gold -= turretCost;
+    t.lvl++;
+    updateHUD();
+    alert(`🏗️ Turret berhasil ditingkatkan ke Level ${t.lvl}! Kerusakan naik 25% menjadi ${Math.floor(8 * Math.pow(1.25, t.lvl - 1))} per bulet!`);
     return;
   }
 
-  // 2. Cek di dekat Pagar (Baris 4-5)
-  if (currentRow >= 3.5) {
-    const wallCost = 250 * wallLvl;
-    if (wallLvl >= 1 && !techLabBuilt) {
-      alert('🔒 RISET TEKNOLOGI DIPERLUKAN!\nAnda harus membangun Bangunan Riset Teknologi (Tekan [R] dekat pos, 150 Gold) terlebih dahulu sebelum bisa meningkatkan Pagar ke Level ' + (wallLvl + 1) + '!');
+  if (targetType === 'fence') {
+    const wallCost = Math.floor(250 * Math.pow(1.5, wallLvl - 1));
+    if (wallLvl === 2 && techLabLvl < 1) {
+      alert('🔒 SYARAT UPGRADE PAGAR LV 3:\nMembutuhkan Bangunan Riset Teknologi Level 1!');
+      return;
+    }
+    if (wallLvl >= 3 && (techLabLvl < 2 || barracksLvl < 1)) {
+      alert('🔒 SYARAT UPGRADE PAGAR LV 4+:\nMembutuhkan Bangunan Riset Teknologi Level 2 dan Barak Level 1!');
       return;
     }
     if (gold < wallCost) {
-      alert('⚠️ Gold tidak cukup! Upgrade Pagar ke Lv ' + (wallLvl + 1) + ' membutuhkan ' + wallCost + ' Gold.');
+      alert(`⚠️ Gold tidak cukup! Upgrade Pagar ke Lv ${wallLvl + 1} membutuhkan ${wallCost} Gold.`);
       return;
     }
     gold -= wallCost;
     wallLvl++;
-    fenceMaxHp += 100;
+    fenceMaxHp = Math.floor(100 * Math.pow(1.25, wallLvl - 1));
     fenceHp = fenceMaxHp;
     buildBarricadeWall();
     localStorage.setItem('outpost_wall_lvl', wallLvl);
     updateHUD();
-    alert('🛡️ Pagar berhasil ditingkatkan ke Level ' + wallLvl + '!');
+    alert(`🛡️ Pagar berhasil ditingkatkan ke Level ${wallLvl}! Nyawa Pagar naik 25% menjadi ${fenceMaxHp} HP!`);
     return;
   }
 
-  // 3. Cek di dekat Turret
-  if (towers.length > 0) {
-    let t = towers[0];
-    if (Math.abs(currentRow - t.row) <= 1.5 && Math.abs(currentCol - t.col) <= 1.5) {
-      const turretCost = 250 * t.lvl;
-      if (t.lvl >= 1 && !techLabBuilt) {
-        alert('🔒 RISET TEKNOLOGI DIPERLUKAN!\nAnda harus membangun Bangunan Riset Teknologi (Tekan [R] dekat pos, 150 Gold) terlebih dahulu sebelum bisa meningkatkan Turret ke Level ' + (t.lvl + 1) + '!');
-        return;
-      }
-      if (gold < turretCost) {
-        alert('⚠️ Gold tidak cukup! Upgrade Turret ke Lv ' + (t.lvl + 1) + ' membutuhkan ' + turretCost + ' Gold.');
-        return;
-      }
-      gold -= turretCost;
-      t.lvl++;
-      updateHUD();
-      alert('🏗️ Turret berhasil ditingkatkan ke Level ' + t.lvl + '! Kerusakan kini ' + (t.lvl * 8) + ' per tembakan!');
-      return;
-    }
-  }
-
-  alert('💡 Petunjuk Upgrade:\n- Mepet ke Turret lalu tekan [U] untuk upgrade Turret (250 Gold x Lv).\n- Mepet ke Pagar lalu tekan [U] untuk upgrade Pagar (250 Gold x Lv).\n- Tekan [R] di dekat Kolom 2 untuk membangun Riset Teknologi (150 Gold).');
+  alert('💡 Petunjuk Upgrade Presisi:\nArahkan tanda kursor (+) tepat ke objek yang berada 1 grid di depan Anda (Turret, Pagar, atau Riset Teknologi) lalu tekan tombol [U]!');
 }
 
 function buildFullHumanoidEnemy(isPatrol) {
@@ -711,17 +804,29 @@ function buildFullHumanoidEnemy(isPatrol) {
   return g;
 }
 
+function spawnLootWood() {
+  const randRow = Math.floor(Math.random() * 11) + 7; // Baris 7 sampai 17 di luar pagar
+  const randCol = Math.floor(Math.random() * 8); // Kolom 0 sampai 7
+  const geo = new THREE.CylinderGeometry(0.25, 0.25, 0.9, 8);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xa16207, roughness: 0.9 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.z = Math.PI / 2;
+  mesh.position.set(colToX(randCol), 0.3, rowToZ(randRow));
+  scene.add(mesh);
+  woodItems.push({ mesh: mesh, col: randCol, row: randRow });
+}
+
 function spawnEnemy(isPatrol = false) {
   const spawnCol = Math.floor(Math.random() * GRID_COLS);
   const spawnRow = isPatrol ? (12 + Math.floor(Math.random() * 4)) : 19;
-  const hp = 50; // Fixed 50 HP per enemy as specified
+  const hp = 50; // Nyawa musuh tepat 50 HP
 
   const eMesh = buildFullHumanoidEnemy(isPatrol);
   eMesh.position.set(colToX(spawnCol), 0, rowToZ(spawnRow));
   scene.add(eMesh);
 
   enemies.push({
-    mesh: eMesh, hp: hp, maxHp: hp, speed: isPatrol ? 0 : 0.045,
+    mesh: eMesh, hp: hp, maxHp: hp, speed: isPatrol ? 0 : 0.032, // 18 detik perjalanan ke pagar
     row: spawnRow, isPatrol: isPatrol, vx: (Math.random() > 0.5 ? 0.03 : -0.03)
   });
 }
@@ -738,15 +843,38 @@ function loop() {
   }
   gameTick++;
 
+  // Pertumbuhan pasif 0.1 Gold / detik (+0.01 setiap 6 tick di 60 FPS)
+  if (gameTick % 6 === 0) {
+    gold += 0.01;
+    updateHUD();
+  }
+
   if (playerFireCooldown > 0) playerFireCooldown--;
 
   handleSmoothPlayerMovement();
+
+  // Cek Looting Kayu di posisi pemain
+  for (let i = woodItems.length - 1; i >= 0; i--) {
+    let w = woodItems[i];
+    if (Math.abs(xToCol(playerX) - w.col) <= 0.8 && Math.abs(zToRow(playerZ) - w.row) <= 0.8) {
+      woodCount++;
+      localStorage.setItem('outpost_wood', woodCount);
+      scene.remove(w.mesh);
+      woodItems.splice(i, 1);
+      updateHUD();
+    }
+  }
 
   // Regular Spawn
   attackerSpawnTimer++;
   if (attackerSpawnTimer >= 1200) { spawnEnemy(false); attackerSpawnTimer = 0; }
   patrolSpawnTimer++;
   if (patrolSpawnTimer >= 3600) { spawnEnemy(true); patrolSpawnTimer = 0; }
+
+  // Munculkan 1 Kayu setiap 1 menit (3600 tick)
+  if (gameTick > 0 && gameTick % 3600 === 0) {
+    spawnLootWood();
+  }
 
   // 1. Setiap 5 Menit (18000 ticks di 60 FPS) Muncul 10 Musuh Serentak
   if (gameTick > 0 && gameTick % 18000 === 0) {
@@ -759,7 +887,7 @@ function loop() {
     spawnEnemy(false);
   }
 
-  // Tower tracking & shooting (3x lebih cepat dari user = setiap 10 ticks, kerusakan 8)
+  // Tower tracking & shooting dengan peningkatan Atk Spd 25% per level
   towers.forEach(t => {
     if (enemies.length > 0 && t.head) {
       const target = enemies[0];
@@ -767,12 +895,11 @@ function loop() {
       const dz = target.mesh.position.z - t.mesh.position.z;
       t.head.rotation.y = Math.atan2(dx, dz) + Math.PI;
     } else if (t.head) {
-      t.head.rotation.y += 0.015; // Idle radar scan
+      t.head.rotation.y += 0.015;
     }
-  });
 
-  if (gameTick % 10 === 0 && enemies.length > 0) {
-    towers.forEach(t => {
+    const tCooldown = Math.max(2, Math.floor(10 / Math.pow(1.25, t.lvl - 1)));
+    if (gameTick % tCooldown === 0 && enemies.length > 0) {
       const target = enemies[0];
       const bGeo = new THREE.SphereGeometry(0.25);
       const bMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
@@ -780,9 +907,10 @@ function loop() {
       bMesh.position.copy(t.mesh.position).y += 1.4;
       scene.add(bMesh);
       const dir = target.mesh.position.clone().sub(bMesh.position).normalize().multiplyScalar(1.2);
-      bullets.push({ mesh: bMesh, dir: dir, dmg: 8 }); // Kerusakan turret 8 per bullet
-    });
-  }
+      const tDmg = Math.floor(8 * Math.pow(1.25, t.lvl - 1));
+      bullets.push({ mesh: bMesh, dir: dir, dmg: tDmg });
+    }
+  });
 
   // Update bullets
   for (let i = bullets.length - 1; i >= 0; i--) {
@@ -797,7 +925,8 @@ function loop() {
         e.hp -= b.dmg;
         scene.remove(b.mesh); bullets.splice(i, 1);
         if (e.hp <= 0) {
-          gold += 25 * currentPhase; updateHUD();
+          gold += 1; // Tepat 1 Gold per kill
+          updateHUD();
           scene.remove(e.mesh); enemies.splice(j, 1);
         }
         break;
@@ -809,7 +938,6 @@ function loop() {
   for (let i = enemies.length - 1; i >= 0; i--) {
     let e = enemies[i];
     
-    // Floating HP Bar dynamic update
     if (e.mesh.userData && e.mesh.userData.hpBarGroup) {
       e.mesh.userData.hpBarGroup.lookAt(camera.position);
       const ratio = Math.max(0, e.hp / e.maxHp);
@@ -823,14 +951,19 @@ function loop() {
       e.mesh.position.x += e.vx;
       if (e.mesh.position.x < colToX(0) || e.mesh.position.x > colToX(7)) e.vx *= -1;
     } else {
-      if (e.mesh.position.z > rowToZ(5) || fenceHp <= 0) {
+      // Perbaikan Bug: Musuh hanya menyerang pagar jika sudah sampai di depan pagar (Z >= rowToZ(5.2))
+      if (e.mesh.position.z < rowToZ(5.2)) {
         e.mesh.position.z += e.speed;
-      } else {
-        fenceHp -= 0.1; updateHUD();
+      } else if (fenceHp > 0) {
+        fenceHp -= 0.08; updateHUD();
         if (fenceHp <= 0) buildBarricadeWall();
+      } else {
+        e.mesh.position.z += e.speed;
       }
-      if (e.mesh.position.z >= rowToZ(1)) {
-        stoneHp -= 0.3; updateHUD();
+
+      // Menyerang Core Stone jika sudah mencapai baris tugu (Z >= rowToZ(1.5))
+      if (e.mesh.position.z >= rowToZ(1.5)) {
+        stoneHp -= 0.25; updateHUD();
         if (stoneHp <= 0) { triggerCoreStoneStolen(); return; }
       }
     }
@@ -838,9 +971,10 @@ function loop() {
 
   // Animations
   if (pistolRecoilAnim > 0) {
-    pistolGroup.position.z = -0.5; pistolRecoilAnim--;
+    if (pistolGroup) pistolGroup.position.z = -0.5;
+    pistolRecoilAnim--;
   } else {
-    pistolGroup.position.z = -0.6;
+    if (pistolGroup) pistolGroup.position.z = -0.6;
   }
 
   renderer.render(scene, camera);
