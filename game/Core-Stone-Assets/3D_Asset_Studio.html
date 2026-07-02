@@ -69,6 +69,10 @@
     <button class="btn-asset" onclick="loadAsset('preman4')"><i class="fa-solid fa-running"></i> Preman 4: Runner Gesit</button>
     <button class="btn-asset" onclick="loadAsset('preman5')"><i class="fa-solid fa-fire"></i> Preman 5: Bomber Molotov</button>
     
+    <div class="cat-lbl">Bangunan & NPC Tukang</div>
+    <button class="btn-asset" onclick="loadAsset('builder')"><i class="fa-solid fa-hammer"></i> NPC Tukang (Topi Biru & Palu)</button>
+    <button class="btn-asset" onclick="loadAsset('builder_barrack')"><i class="fa-solid fa-campground"></i> Barak Tukang</button>
+
     <div class="cat-lbl">Senjata, Tower & Amunisi</div>
     <button class="btn-asset" onclick="loadAsset('weapons')"><i class="fa-solid fa-gun"></i> Pistol & Pisau Survival</button>
     <button class="btn-asset" onclick="loadAsset('tower')"><i class="fa-solid fa-tower-broadcast"></i> Tower / Meriam Abadi</button>
@@ -357,6 +361,71 @@
         laser.position.set(0, 1.2, 0); laser.rotation.z = Math.PI/2; currentGroup.add(laser);
         const mortar = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.2, 0.7), new THREE.MeshStandardMaterial({color: 0xef4444}));
         mortar.position.set(1.2, 1.2, 0); currentGroup.add(mortar);
+      } else if (type === 'builder') {
+        document.getElementById('asset-title').innerText = 'NPC Tukang Bangunan (Topi Biru & Palu)';
+        document.getElementById('asset-desc').innerText = 'Karakter NPC yang bertugas memperbaiki pagar & bangunan pertahanan secara otomatis. Memegang palu di tangan kanan, mengenakan topi biru, kemeja kuning, celana biru, dan sepatu hitam.';
+        
+        // Sepatu Hitam
+        const bootMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
+        const lBoot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.45), bootMat);
+        lBoot.position.set(-0.25, 0.15, 0.05); currentGroup.add(lBoot);
+        const rBoot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.45), bootMat);
+        rBoot.position.set(0.25, 0.15, 0.05); currentGroup.add(rBoot);
+
+        // Celana Biru
+        const pantMat = new THREE.MeshStandardMaterial({ color: 0x1d4ed8 });
+        const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8), pantMat);
+        lLeg.position.set(-0.25, 0.7, 0); currentGroup.add(lLeg);
+        const rLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.8), pantMat);
+        rLeg.position.set(0.25, 0.7, 0); currentGroup.add(rLeg);
+
+        // Kemeja Kuning / Putih
+        const shirtMat = new THREE.MeshStandardMaterial({ color: 0xfef08a });
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.9, 0.45), shirtMat);
+        torso.position.set(0, 1.5, 0); currentGroup.add(torso);
+
+        // Kepala
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshStandardMaterial({ color: 0xfecca1 }));
+        head.position.set(0, 2.2, 0); currentGroup.add(head);
+
+        // Topi Biru (Blue Hardhat)
+        const hatBase = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.12, 16), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
+        hatBase.position.set(0, 2.4, 0); currentGroup.add(hatBase);
+        const hatTop = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16, 0, Math.PI*2, 0, Math.PI/2), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
+        hatTop.position.set(0, 2.4, 0); currentGroup.add(hatTop);
+
+        // Tangan Kiri
+        const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.18), shirtMat);
+        lArm.position.set(-0.48, 1.5, 0); currentGroup.add(lArm);
+
+        // Tangan Kanan Selalu Memegang Palu
+        const hammerGrp = new THREE.Group();
+        hammerGrp.position.set(0.48, 1.7, 0);
+        const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.7, 0.18), shirtMat);
+        rArm.position.set(0, -0.3, 0); hammerGrp.add(rArm);
+
+        const hammerHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8), new THREE.MeshStandardMaterial({ color: 0xa16207 }));
+        hammerHandle.position.set(0, -0.45, 0.3); hammerHandle.rotation.x = Math.PI / 3; hammerGrp.add(hammerHandle);
+        const hammerHead = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.42), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.9 }));
+        hammerHead.position.set(0, -0.22, 0.68); hammerGrp.add(hammerHead);
+        currentGroup.add(hammerGrp);
+
+      } else if (type === 'builder_barrack') {
+        document.getElementById('asset-title').innerText = 'Barak Tukang Bangunan (Workshop Cabin)';
+        document.getElementById('asset-desc').innerText = 'Struktur bengkel kayu dan besi tempat Tukang tinggal dan menyimpan peralatan konstruksi.';
+        
+        const baseGeo = new THREE.BoxGeometry(2.6, 1.6, 2.4);
+        const baseMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.9 });
+        const base = new THREE.Mesh(baseGeo, baseMat);
+        base.position.y = 0.8; currentGroup.add(base);
+
+        const roofGeo = new THREE.ConeGeometry(2.1, 1.0, 4);
+        const roofMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.4 });
+        const roof = new THREE.Mesh(roofGeo, roofMat);
+        roof.position.y = 2.1; roof.rotation.y = Math.PI / 4; currentGroup.add(roof);
+
+        const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.6), new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8 }));
+        anvil.position.set(-0.9, 0.25, 1.5); currentGroup.add(anvil);
       }
     }
 

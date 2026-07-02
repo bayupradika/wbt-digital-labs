@@ -3,24 +3,42 @@ const container = document.getElementById('webgl-container');
 const canvas = document.getElementById('gameCanvas');
 
 // Game Persistent State & Story Lore
-let gold = parseInt(localStorage.getItem('outpost_gold') || '400');
-let gems = parseInt(localStorage.getItem('outpost_gems') || '50');
+let gold = parseInt(localStorage.getItem('outpost_gold') || '50000');
+let gems = parseInt(localStorage.getItem('outpost_gems') || '1000');
 let currentPhase = parseInt(localStorage.getItem('corestone_phase') || '1');
 let isLockedOut = localStorage.getItem('corestone_locked') === 'true';
 
-if (!localStorage.getItem('outpost_init_v3')) {
-  gold = 100; // Starter gold pas 100 untuk bangun 1 turret
-  gems = Math.max(gems, 50);
-  localStorage.setItem('outpost_init_v3', 'true');
-  localStorage.setItem('outpost_gold', '100');
-  localStorage.setItem('outpost_gems', gems);
+let woodCount = parseInt(localStorage.getItem('outpost_wood') || '500');
+let stoneCount = parseInt(localStorage.getItem('outpost_stone_res') || '500');
+let ironCount = parseInt(localStorage.getItem('outpost_iron') || '500');
+let soilCount = parseInt(localStorage.getItem('outpost_soil') || '500');
+let rubberCount = parseInt(localStorage.getItem('outpost_rubber') || '500');
+
+if (!localStorage.getItem('outpost_init_v5')) {
+  gold = 50000;
+  gems = 1000;
+  woodCount = 500;
+  stoneCount = 500;
+  ironCount = 500;
+  soilCount = 500;
+  rubberCount = 500;
+  localStorage.setItem('outpost_init_v5', 'true');
+  localStorage.setItem('outpost_gold', '50000');
+  localStorage.setItem('outpost_gems', '1000');
+  localStorage.setItem('outpost_wood', '500');
+  localStorage.setItem('outpost_stone_res', '500');
+  localStorage.setItem('outpost_iron', '500');
+  localStorage.setItem('outpost_soil', '500');
+  localStorage.setItem('outpost_rubber', '500');
 }
 
 let techLabBuilt = localStorage.getItem('outpost_tech_lab') === 'true';
 let techLabLvl = parseInt(localStorage.getItem('outpost_tech_lvl') || (techLabBuilt ? '1' : '0'));
 let barracksLvl = parseInt(localStorage.getItem('outpost_barracks_lvl') || '0');
+let builderBarracksLvl = parseInt(localStorage.getItem('outpost_builder_barracks_lvl') || '0');
 let techLabMesh = null;
-let woodCount = parseInt(localStorage.getItem('outpost_wood') || '0');
+let builderBarracksMesh = null;
+let builderMesh = null;
 let woodItems = [];
 let activeWeaponSlot = 1; // 1 = Ranged, 2 = Melee
 let equippedRanged = localStorage.getItem('outpost_eq_ranged') || 'pistol'; // pistol, sniper, shotgun
@@ -168,6 +186,7 @@ function init3D() {
 
   buildBarricadeWall();
   buildTechLabMesh();
+  buildBuilderBarracksMesh();
   buildFPSArms();
 }
 
@@ -286,66 +305,165 @@ function buildTechLabMesh() {
   grid[1][2] = { type: 'tech_lab', built: techLabBuilt };
 }
 
+let builderHammerGroup = null;
+function buildBuilderBarracksMesh() {
+  if (builderBarracksMesh) scene.remove(builderBarracksMesh);
+  builderBarracksMesh = new THREE.Group();
+  const posX = colToX(5);
+  const posZ = rowToZ(1);
+  builderBarracksMesh.position.set(posX, 0, posZ);
+
+  if (builderBarracksLvl === 0) {
+    const padGeo = new THREE.BoxGeometry(2.2, 0.1, 2.2);
+    const padMat = new THREE.MeshBasicMaterial({ color: 0xfacc15, wireframe: true });
+    const pad = new THREE.Mesh(padGeo, padMat);
+    pad.position.y = 0.05;
+    builderBarracksMesh.add(pad);
+  } else {
+    // 1. Foundation Workshop Base
+    const baseGeo = new THREE.BoxGeometry(2.2, 1.4, 2.0);
+    const baseMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.9 });
+    const base = new THREE.Mesh(baseGeo, baseMat);
+    base.position.y = 0.7; builderBarracksMesh.add(base);
+
+    // 2. Yellow Workshop Roof
+    const roofGeo = new THREE.ConeGeometry(1.7, 0.8, 4);
+    const roofMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.4 });
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = 1.8; roof.rotation.y = Math.PI / 4; builderBarracksMesh.add(roof);
+
+    // 3. Workshop Anvil Table
+    const anvil = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.4, 0.5), new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.8 }));
+    anvil.position.set(-0.7, 0.2, 1.2); builderBarracksMesh.add(anvil);
+  }
+  scene.add(builderBarracksMesh);
+  grid[1][5] = { type: 'builder_barrack', lvl: builderBarracksLvl };
+  buildBuilderNPC();
+}
+
+function buildBuilderNPC() {
+  if (builderMesh) scene.remove(builderMesh);
+  if (builderBarracksLvl === 0) return;
+
+  builderMesh = new THREE.Group();
+  builderMesh.position.set(colToX(4.8), 0, rowToZ(1.6));
+
+  // Sepatu Hitam
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
+  const lBoot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.3), bootMat);
+  lBoot.position.set(-0.15, 0.1, 0.05); builderMesh.add(lBoot);
+  const rBoot = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.3), bootMat);
+  rBoot.position.set(0.15, 0.1, 0.05); builderMesh.add(rBoot);
+
+  // Celana Biru
+  const pantMat = new THREE.MeshStandardMaterial({ color: 0x1d4ed8 });
+  const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.5), pantMat);
+  lLeg.position.set(-0.15, 0.45, 0); builderMesh.add(lLeg);
+  const rLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.5), pantMat);
+  rLeg.position.set(0.15, 0.45, 0); builderMesh.add(rLeg);
+
+  // Kemeja Kuning / Putih
+  const shirtMat = new THREE.MeshStandardMaterial({ color: 0xfef08a });
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.3), shirtMat);
+  torso.position.set(0, 0.95, 0); builderMesh.add(torso);
+
+  // Kepala
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 12), new THREE.MeshStandardMaterial({ color: 0xfecca1 }));
+  head.position.set(0, 1.4, 0); builderMesh.add(head);
+
+  // Topi Biru (Blue Hardhat)
+  const hatBase = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.08, 12), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
+  hatBase.position.set(0, 1.55, 0); builderMesh.add(hatBase);
+  const hatTop = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12, 0, Math.PI*2, 0, Math.PI/2), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
+  hatTop.position.set(0, 1.55, 0); builderMesh.add(hatTop);
+
+  // Tangan Kiri
+  const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.45, 0.12), shirtMat);
+  lArm.position.set(-0.32, 0.95, 0); builderMesh.add(lArm);
+
+  // Tangan Kanan Selalu Memegang Palu
+  builderHammerGroup = new THREE.Group();
+  builderHammerGroup.position.set(0.32, 1.1, 0);
+  const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.45, 0.12), shirtMat);
+  rArm.position.set(0, -0.2, 0); builderHammerGroup.add(rArm);
+
+  const hammerHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.55), new THREE.MeshStandardMaterial({ color: 0xa16207 }));
+  hammerHandle.position.set(0, -0.3, 0.2); hammerHandle.rotation.x = Math.PI / 3; builderHammerGroup.add(hammerHandle);
+  const hammerHead = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.12, 0.28), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.9 }));
+  hammerHead.position.set(0, -0.15, 0.45); builderHammerGroup.add(hammerHead);
+
+  builderMesh.add(builderHammerGroup);
+  scene.add(builderMesh);
+}
+
 function buildFPSArms() {
   if (knifeGroup) camera.remove(knifeGroup);
   if (pistolGroup) camera.remove(pistolGroup);
 
-  // Left Hand / Melee Group
+  const armMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.8 }); // Tangan karakter
+
+  // Melee Group (Diposisikan jelas di kanan bawah kamera saat aktif)
   knifeGroup = new THREE.Group();
+  const meleeArm = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 0.35), armMat);
+  meleeArm.position.set(0.05, -0.15, 0.15); knifeGroup.add(meleeArm);
+
   if (equippedMelee === 'blade' || equippedMelee === 'sword') {
     const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.85, 0.06), new THREE.MeshBasicMaterial({ color: 0xa855f7 }));
-    blade.position.y = 0.45; knifeGroup.add(blade);
+    blade.position.set(0, 0.4, -0.1); knifeGroup.add(blade);
   } else if (equippedMelee === 'axe') {
     const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.65), new THREE.MeshStandardMaterial({ color: 0x475569 }));
-    handle.position.y = 0.3; knifeGroup.add(handle);
+    handle.position.set(0, 0.3, -0.1); knifeGroup.add(handle);
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.28, 0.35), new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9 }));
-    head.position.set(0, 0.5, 0.1); knifeGroup.add(head);
+    head.position.set(0, 0.55, -0.05); knifeGroup.add(head);
   } else if (equippedMelee === 'hammer') {
     const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.7), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-    handle.position.y = 0.35; knifeGroup.add(handle);
+    handle.position.set(0, 0.35, -0.1); knifeGroup.add(handle);
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.35), new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8 }));
-    head.position.set(0, 0.65, 0); knifeGroup.add(head);
+    head.position.set(0, 0.65, -0.1); knifeGroup.add(head);
   } else {
     // Pisau Komando
     const blade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.45, 0.04), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9 }));
-    blade.position.y = 0.25; knifeGroup.add(blade);
+    blade.position.set(0, 0.25, -0.1); knifeGroup.add(blade);
   }
-  knifeGroup.position.set(-0.35, -0.3, -0.65);
-  knifeGroup.rotation.z = 0.2; knifeGroup.rotation.x = 0.4;
+  knifeGroup.position.set(0.28, -0.22, -0.55);
+  knifeGroup.rotation.set(0.3, -0.1, 0.1);
   camera.add(knifeGroup);
 
-  // Right Hand / Ranged Group
+  // Ranged Group (Diposisikan jelas di kanan bawah kamera saat aktif)
   pistolGroup = new THREE.Group();
+  const rangedArm = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 0.35), armMat);
+  rangedArm.position.set(0.05, -0.15, 0.15); pistolGroup.add(rangedArm);
+
   const gunMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.7, roughness: 0.3 });
   if (equippedRanged === 'sniper') {
-    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.9), gunMat);
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.14, 0.95), gunMat);
     pistolGroup.add(barrel);
     const scope = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.35), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
-    scope.rotation.x = Math.PI / 2; scope.position.set(0, 0.13, 0); pistolGroup.add(scope);
+    scope.rotation.x = Math.PI / 2; scope.position.set(0, 0.13, -0.05); pistolGroup.add(scope);
   } else if (equippedRanged === 'shotgun') {
-    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.55), new THREE.MeshStandardMaterial({ color: 0xdc2626 }));
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.58), new THREE.MeshStandardMaterial({ color: 0xdc2626 }));
     pistolGroup.add(barrel);
   } else if (equippedRanged === 'ak47') {
-    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.13, 0.65), new THREE.MeshStandardMaterial({ color: 0x4b5563 }));
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.13, 0.68), new THREE.MeshStandardMaterial({ color: 0x4b5563 }));
     pistolGroup.add(barrel);
-    const mag = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.12), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
-    mag.position.set(0, -0.15, -0.05); mag.rotation.x = -0.3; pistolGroup.add(mag);
+    const mag = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.12), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+    mag.position.set(0, -0.16, -0.05); mag.rotation.x = -0.3; pistolGroup.add(mag);
   } else if (equippedRanged === 'bow') {
-    const bowBody = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.85), new THREE.MeshStandardMaterial({ color: 0x10b981 }));
+    const bowBody = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.9), new THREE.MeshStandardMaterial({ color: 0x10b981 }));
     bowBody.rotation.z = Math.PI / 2; pistolGroup.add(bowBody);
   } else {
-    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.4), gunMat);
+    const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.45), gunMat);
     pistolGroup.add(barrel);
   }
   const grip = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.2, 0.1), gunMat);
   grip.position.set(0, -0.12, 0.1); grip.rotation.x = 0.3; pistolGroup.add(grip);
-  pistolGroup.position.set(0.32, -0.25, -0.6);
+  pistolGroup.position.set(0.28, -0.22, -0.55);
   camera.add(pistolGroup);
 
   const flashGeo = new THREE.SphereGeometry(0.14);
   const flashMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
   muzzleFlashMesh = new THREE.Mesh(flashGeo, flashMat);
-  muzzleFlashMesh.position.set(0, 0, -0.4);
+  muzzleFlashMesh.position.set(0, 0, -0.45);
   muzzleFlashMesh.visible = false;
   pistolGroup.add(muzzleFlashMesh);
 
@@ -409,6 +527,14 @@ function updateHUD() {
   // Populate Grid Inventory Cells [I]
   const invWood = document.getElementById('inv-grid-wood');
   if (invWood) invWood.innerText = woodCount.toLocaleString('id-ID');
+  const invStone = document.getElementById('inv-grid-stone');
+  if (invStone) invStone.innerText = stoneCount.toLocaleString('id-ID');
+  const invIron = document.getElementById('inv-grid-iron');
+  if (invIron) invIron.innerText = ironCount.toLocaleString('id-ID');
+  const invSoil = document.getElementById('inv-grid-soil');
+  if (invSoil) invSoil.innerText = soilCount.toLocaleString('id-ID');
+  const invRub = document.getElementById('inv-grid-rubber');
+  if (invRub) invRub.innerText = rubberCount.toLocaleString('id-ID');
 
   // Active Weapon Label
   const activeWep = document.getElementById('active-wep-lbl');
@@ -874,6 +1000,25 @@ function tryBuildTechLab() {
   alert(`🔬 Riset Teknologi Quantum berhasil dibangun/ditingkatkan ke Level ${techLabLvl}!`);
 }
 
+function tryBuildBuilderBarracks() {
+  const cost = Math.floor(300 * Math.pow(1.5, builderBarracksLvl));
+  if (woodCount < 10 || stoneCount < 10) {
+    alert(`⚠️ Bahan Kurang! Membangun/Upgrade Barak Tukang membutuhkan 10 Kayu & 10 Batu (Anda punya ${woodCount} 🪵 dan ${stoneCount} 🪨).`);
+    return;
+  }
+  if (!checkAndPayWithGemConversion(cost)) return;
+
+  woodCount -= 10;
+  stoneCount -= 10;
+  builderBarracksLvl++;
+  localStorage.setItem('outpost_builder_barracks_lvl', builderBarracksLvl);
+  localStorage.setItem('outpost_wood', woodCount);
+  localStorage.setItem('outpost_stone_res', stoneCount);
+  buildBuilderBarracksMesh();
+  updateHUD();
+  alert(`🔨 Barak Tukang berhasil dibangun/ditingkatkan ke Level ${builderBarracksLvl}! NPC Tukang bertopi biru siap memperbaiki pos!`);
+}
+
 function tryProximityUpgrade() {
   // Raycast kursor penargetan dari kamera ke arah objek 1 grid di depan
   const raycaster = new THREE.Raycaster();
@@ -1048,6 +1193,15 @@ function loop() {
   gameTick++;
 
   if (techLabRadarRing) techLabRadarRing.rotation.z += 0.04;
+  if (builderHammerGroup) {
+    builderHammerGroup.rotation.z = Math.sin(gameTick * 0.15) * 0.4;
+    if (gameTick % 30 === 0 && builderBarracksLvl > 0) {
+      if (fenceHp < fenceMaxHp) {
+        fenceHp = Math.min(fenceMaxHp, fenceHp + 0.5 * builderBarracksLvl);
+        updateHUD();
+      }
+    }
+  }
 
   // Pertumbuhan pasif 0.1 Gold / detik (+0.01 setiap 6 tick di 60 FPS)
   if (gameTick % 6 === 0) {
@@ -1410,6 +1564,8 @@ function confirmBuildSelection() {
     localStorage.setItem('outpost_wood', woodCount);
     updateHUD();
     alert(`⛺ Barak Pertahanan Pasukan berhasil ditingkatkan ke Level ${barracksLvl}! Membuka batas upgrade Pagar pos!`);
+  } else if (val === 'builder_barrack') {
+    tryBuildBuilderBarracks();
   }
 }
 
