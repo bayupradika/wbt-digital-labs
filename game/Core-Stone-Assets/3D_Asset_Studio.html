@@ -2,35 +2,36 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Core Stone: 3D Asset Studio & Modular Previewer</title>
+  <title>Core Stone: 3D Asset Studio & Modular Wardrobe</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; user-select:none; }
     body { background: #0b0f19; color: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
     
-    /* Sidebar Navigation */
-    .sidebar { width: 320px; background: #111827; border-right: 2px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; padding: 20px; z-index: 10; }
-    .logo { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; }
+    .sidebar { width: 340px; background: #111827; border-right: 2px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; padding: 20px; z-index: 10; overflow-y: auto; }
+    .logo { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
     
+    .gender-box { display: flex; gap: 8px; margin-bottom: 14px; background: #1f2937; padding: 6px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    .btn-gender { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; color: #94a3b8; font-weight: 800; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+    .btn-gender.active { background: #38bdf8; color: #0f172a; box-shadow: 0 4px 12px rgba(56,189,248,0.4); }
+
     .cat-lbl { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin: 12px 0 6px; }
     .btn-asset { background: #1f2937; border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0; padding: 12px 14px; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; transition: all 0.2s; text-align: left; }
     .btn-asset:hover, .btn-asset.active { background: #2563eb; color: white; border-color: #38bdf8; transform: translateX(4px); }
     .btn-asset i { font-size: 16px; width: 22px; text-align: center; }
     
-    /* Modular Customization Options Panel */
-    .modular-panel { background: #1f2937; border-radius: 14px; padding: 14px; margin-top: auto; border: 1px solid rgba(255,255,255,0.1); }
-    .modular-panel h4 { font-family: 'Outfit', sans-serif; font-size: 14px; color: #fbbf24; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .modular-panel { background: #1f2937; border-radius: 14px; padding: 14px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
+    .modular-panel h4 { font-family: 'Outfit', sans-serif; font-size: 13px; color: #fbbf24; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
     .mod-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 12px; font-weight: 600; }
     .mod-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #38bdf8; cursor: pointer; }
     
-    /* 3D Viewport */
     .viewport { flex: 1; position: relative; background: #020617; display: flex; align-items: center; justify-content: center; }
     canvas { width: 100%; height: 100%; display: block; }
     
-    .info-hud { position: absolute; top: 20px; left: 24px; background: rgba(17,24,39,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); padding: 16px 20px; border-radius: 16px; pointer-events: none; max-width: 420px; }
-    .info-hud h2 { font-family: 'Outfit', sans-serif; font-size: 24px; color: #38bdf8; }
-    .info-hud p { font-size: 13px; color: #94a3b8; margin-top: 6px; line-height: 1.5; }
+    .info-hud { position: absolute; top: 20px; left: 24px; background: rgba(17,24,39,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); padding: 16px 20px; border-radius: 16px; pointer-events: none; max-width: 440px; }
+    .info-hud h2 { font-family: 'Outfit', sans-serif; font-size: 22px; color: #38bdf8; }
+    .info-hud p { font-size: 12px; color: #94a3b8; margin-top: 6px; line-height: 1.5; }
     
     .export-bar { position: absolute; bottom: 24px; right: 24px; display: flex; gap: 10px; }
     .btn-export { padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; border: none; background: linear-gradient(135deg, #10b981, #059669); color: white; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 20px -5px rgba(16,185,129,0.5); transition: all 0.2s; }
@@ -40,13 +41,28 @@
 </head>
 <body>
   <div class="sidebar">
-    <div class="logo">CORE STONE <span style="font-size:11px; color:#fbbf24;">ASSET STUDIO</span></div>
+    <div class="logo">CORE STONE <span style="font-size:11px; color:#fbbf24;">3D STUDIO</span></div>
     
+    <div class="cat-lbl">Pilihan Gender Karakter Utama</div>
+    <div class="gender-box">
+      <button class="btn-gender active" id="btn-male" onclick="setGender('male')"><i class="fa-solid fa-mars"></i> Laki-Laki</button>
+      <button class="btn-gender" id="btn-female" onclick="setGender('female')"><i class="fa-solid fa-venus"></i> Perempuan</button>
+    </div>
+
     <div class="cat-lbl">Karakter Utama & Bos</div>
-    <button class="btn-asset active" onclick="loadAsset('player')"><i class="fa-solid fa-user-shield"></i> 1. Karakter Utama Poly (Modular)</button>
-    <button class="btn-asset" onclick="loadAsset('boss')"><i class="fa-solid fa-skull-crossbones"></i> 2. Karakter Jahat Utama (Polosan)</button>
+    <button class="btn-asset active" id="btn-player" onclick="loadAsset('player')"><i class="fa-solid fa-user-shield"></i> 1. Karakter Utama Base & Kostum</button>
+    <button class="btn-asset" id="btn-boss" onclick="loadAsset('boss')"><i class="fa-solid fa-skull-crossbones"></i> 2. Karakter Jahat (Full Set Geng)</button>
     
-    <div class="cat-lbl">Anggota Geng Preman (4-5 Karakter)</div>
+    <div class="modular-panel" id="modular-controls">
+      <h4><i class="fa-solid fa-shirt"></i> Custom Wardrobe Terpisah</h4>
+      <div style="font-size:10px; color:#94a3b8; margin-bottom:8px;">Base karakter polos (seperti gambar unggahan). Centang untuk memasang pakaian:</div>
+      <div class="mod-row"><span>🧢 Topi / Helm Taktis</span> <input type="checkbox" id="mod-hat" checked onchange="toggleModular()"></div>
+      <div class="mod-row"><span>🦺 Baju Taktis / Rompi</span> <input type="checkbox" id="mod-shirt" checked onchange="toggleModular()"></div>
+      <div class="mod-row"><span>👖 Celana Kargo Militer</span> <input type="checkbox" id="mod-pants" checked onchange="toggleModular()"></div>
+      <div class="mod-row"><span>🥾 Sepatu Boots Militer</span> <input type="checkbox" id="mod-shoes" checked onchange="toggleModular()"></div>
+    </div>
+
+    <div class="cat-lbl" style="margin-top:14px;">Anggota Geng Preman (5 Karakter)</div>
     <button class="btn-asset" onclick="loadAsset('preman1')"><i class="fa-solid fa-user-ninja"></i> Preman 1: Brawler Pemukul</button>
     <button class="btn-asset" onclick="loadAsset('preman2')"><i class="fa-solid fa-mask"></i> Preman 2: Punk Mohawk</button>
     <button class="btn-asset" onclick="loadAsset('preman3')"><i class="fa-solid fa-user-slash"></i> Preman 3: Enforcer Raksasa</button>
@@ -57,20 +73,12 @@
     <button class="btn-asset" onclick="loadAsset('weapons')"><i class="fa-solid fa-gun"></i> Pistol & Pisau Survival</button>
     <button class="btn-asset" onclick="loadAsset('tower')"><i class="fa-solid fa-tower-broadcast"></i> Tower / Meriam Abadi</button>
     <button class="btn-asset" onclick="loadAsset('projectiles')"><i class="fa-solid fa-rocket"></i> Peluru Normal, Laser & Mortar</button>
-    
-    <div class="modular-panel" id="modular-controls">
-      <h4><i class="fa-solid fa-sliders"></i> Kostum Terpisah (Modular Player)</h4>
-      <div class="mod-row"><span>👕 Topi / Helm Taktis</span> <input type="checkbox" id="mod-hat" checked onchange="toggleModular()"></div>
-      <div class="mod-row"><span>🦺 Baju Armor / Rompi</span> <input type="checkbox" id="mod-shirt" checked onchange="toggleModular()"></div>
-      <div class="mod-row"><span>👖 Celana Kargo Taktis</span> <input type="checkbox" id="mod-pants" checked onchange="toggleModular()"></div>
-      <div class="mod-row"><span>🥾 Sepatu Boots Militer</span> <input type="checkbox" id="mod-shoes" checked onchange="toggleModular()"></div>
-    </div>
   </div>
 
   <div class="viewport" id="viewport">
     <div class="info-hud">
-      <h2 id="asset-title">Karakter Utama Low-Poly</h2>
-      <p id="asset-desc">Karakter utama bergaya Low-Poly lengkap dengan part kostum modular terpisah (Topi, Baju, Celana, Sepatu) yang dapat dicopot-pasang.</p>
+      <h2 id="asset-title">Karakter Utama Laki-Laki (Base Proportional)</h2>
+      <p id="asset-desc">Model dasar tubuh atletis bergaya kartun/poly (tanpa pakaian, hanya pakaian dalam biru). Anda dapat mencentang kotak di panel kiri untuk mengenakan part kostum modular (Baju, Celana, Sepatu, Topi).</p>
     </div>
     
     <div class="export-bar">
@@ -85,6 +93,8 @@
     let scene, camera, renderer;
     let currentGroup = new THREE.Group();
     let modParts = {};
+    let currentGender = 'male';
+    let currentAssetType = 'player';
 
     function init() {
       scene = new THREE.Scene();
@@ -92,7 +102,7 @@
 
       camera = new THREE.PerspectiveCamera(45, viewport.clientWidth / viewport.clientHeight, 0.1, 100);
       camera.position.set(0, 2.5, 6.5);
-      camera.lookAt(0, 1, 0);
+      camera.lookAt(0, 1.3, 0);
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(viewport.clientWidth, viewport.clientHeight);
@@ -100,9 +110,9 @@
       renderer.shadowMap.enabled = true;
       viewport.appendChild(renderer.domElement);
 
-      const amb = new THREE.AmbientLight(0xffffff, 0.7);
+      const amb = new THREE.AmbientLight(0xffffff, 0.8);
       scene.add(amb);
-      const dir = new THREE.DirectionalLight(0x38bdf8, 1.2);
+      const dir = new THREE.DirectionalLight(0xffffff, 1.1);
       dir.position.set(5, 10, 7);
       scene.add(dir);
 
@@ -116,7 +126,14 @@
 
     function resetCam() {
       camera.position.set(0, 2.5, 6.5);
-      camera.lookAt(0, 1, 0);
+      camera.lookAt(0, 1.3, 0);
+    }
+
+    function setGender(gender) {
+      currentGender = gender;
+      document.getElementById('btn-male').classList.toggle('active', gender === 'male');
+      document.getElementById('btn-female').classList.toggle('active', gender === 'female');
+      if (currentAssetType === 'player') loadAsset('player');
     }
 
     function clearGroup() {
@@ -134,50 +151,118 @@
     }
 
     function loadAsset(type) {
+      currentAssetType = type;
       clearGroup();
       document.querySelectorAll('.btn-asset').forEach(b => b.classList.remove('active'));
       document.getElementById('modular-controls').style.display = type === 'player' ? 'block' : 'none';
 
       if (type === 'player') {
-        document.getElementById('asset-title').innerText = '1. Karakter Utama Poly (Modular)';
-        document.getElementById('asset-desc').innerText = 'Karakter Prajurit RPG dengan part kostum (Baju, Celana, Sepatu, Topi) yang terpisah secara modular.';
+        document.getElementById('btn-player').classList.add('active');
+        const gLabel = currentGender === 'male' ? 'Laki-Laki' : 'Perempuan';
+        document.getElementById('asset-title').innerText = `1. Karakter Utama ${gLabel} (Base Proportional & Modular)`;
+        document.getElementById('asset-desc').innerText = `Model dasar tubuh 3D bergaya kartun/poly persis seperti referensi gambar Anda (tanpa pakaian, hanya pakaian dalam biru). Anda dapat mencopot/memasang part pakaian modular di kiri.`;
         
-        // Base Body (Skin)
-        const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshStandardMaterial({color: 0xfcb08c}));
-        head.position.y = 1.75; currentGroup.add(head);
-        
+        const skinMat = new THREE.MeshStandardMaterial({color: 0xfcb08c, roughness: 0.5});
+        const underMat = new THREE.MeshStandardMaterial({color: 0x0284c7}); // Blue undergarment
+
+        if (currentGender === 'male') {
+          // Muscular Male Base Anatomy
+          const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.38, 0.7, 8), skinMat);
+          chest.position.y = 1.45; currentGroup.add(chest);
+          const waist = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.35, 8), underMat);
+          waist.position.y = 0.95; currentGroup.add(waist);
+          
+          // Head & Beard/Hair
+          const head = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.45, 0.38), skinMat);
+          head.position.y = 1.95; currentGroup.add(head);
+          const hair = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.15, 0.42), new THREE.MeshStandardMaterial({color: 0x3e2723}));
+          hair.position.set(0, 2.2, -0.02); currentGroup.add(hair);
+          const beard = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.18, 0.4), new THREE.MeshStandardMaterial({color: 0x3e2723}));
+          beard.position.set(0, 1.82, 0.02); currentGroup.add(beard);
+
+          // Muscular Arms & Legs Base
+          const lArm = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.7, 6), skinMat);
+          lArm.position.set(-0.58, 1.4, 0); lArm.rotation.z = 0.15; currentGroup.add(lArm);
+          const rArm = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.7, 6), skinMat);
+          rArm.position.set(0.58, 1.4, 0); rArm.rotation.z = -0.15; currentGroup.add(rArm);
+          const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.11, 0.75, 6), skinMat);
+          lLeg.position.set(-0.2, 0.4, 0); currentGroup.add(lLeg);
+          const rLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.11, 0.75, 6), skinMat);
+          rLeg.position.set(0.2, 0.4, 0); currentGroup.add(rLeg);
+
+        } else {
+          // Slender Athletic Female Base Anatomy
+          const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.28, 0.6, 8), skinMat);
+          chest.position.y = 1.4; currentGroup.add(chest);
+          const bra = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 0.3), underMat);
+          bra.position.set(0, 1.45, 0.1); currentGroup.add(bra);
+          const waist = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.34, 0.35, 8), underMat);
+          waist.position.y = 0.95; currentGroup.add(waist);
+
+          // Head & Stylish Hair
+          const head = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.42, 0.34), skinMat);
+          head.position.y = 1.9; currentGroup.add(head);
+          const hair = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.45), new THREE.MeshStandardMaterial({color: 0x4e3629}));
+          hair.position.set(0.05, 2.05, -0.05); currentGroup.add(hair);
+
+          // Slender Arms & Legs Base
+          const lArm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.65, 6), skinMat);
+          lArm.position.set(-0.48, 1.35, 0); lArm.rotation.z = 0.15; currentGroup.add(lArm);
+          const rArm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.65, 6), skinMat);
+          rArm.position.set(0.48, 1.35, 0); rArm.rotation.z = -0.15; currentGroup.add(rArm);
+          const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.09, 0.75, 6), skinMat);
+          lLeg.position.set(-0.18, 0.4, 0); currentGroup.add(lLeg);
+          const rLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.09, 0.75, 6), skinMat);
+          rLeg.position.set(0.18, 0.4, 0); currentGroup.add(rLeg);
+        }
+
+        // Modular Custom Clothing Overlay Parts (Separate Assets)
         // Modular Hat
-        modParts.hat = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.2, 0.55), new THREE.MeshStandardMaterial({color: 0x1e293b}));
-        modParts.hat.position.set(0, 2.05, 0); currentGroup.add(modParts.hat);
+        modParts.hat = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.25, 8), new THREE.MeshStandardMaterial({color: 0x1e293b}));
+        modParts.hat.position.set(0, currentGender === 'male' ? 2.25 : 2.15, 0); currentGroup.add(modParts.hat);
 
-        // Modular Shirt
-        modParts.shirt = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.8, 0.4), new THREE.MeshStandardMaterial({color: 0x2563eb}));
-        modParts.shirt.position.set(0, 1.1, 0); currentGroup.add(modParts.shirt);
+        // Modular Shirt / Vest overlay
+        modParts.shirt = new THREE.Mesh(new THREE.CylinderGeometry(currentGender === 'male' ? 0.52 : 0.42, 0.4, 0.65, 8), new THREE.MeshStandardMaterial({color: 0x334155}));
+        modParts.shirt.position.y = 1.42; currentGroup.add(modParts.shirt);
 
-        // Modular Pants
+        // Modular Pants overlay
         modParts.pants = new THREE.Group();
-        const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.6, 0.28), new THREE.MeshStandardMaterial({color: 0x334155}));
-        lLeg.position.set(-0.18, 0.4, 0); modParts.pants.add(lLeg);
-        const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.6, 0.28), new THREE.MeshStandardMaterial({color: 0x334155}));
-        rLeg.position.set(0.18, 0.4, 0); modParts.pants.add(rLeg);
+        const lP = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.14, 0.7, 6), new THREE.MeshStandardMaterial({color: 0x1e293b}));
+        lP.position.set(currentGender === 'male' ? -0.2 : -0.18, 0.45, 0); modParts.pants.add(lP);
+        const rP = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.14, 0.7, 6), new THREE.MeshStandardMaterial({color: 0x1e293b}));
+        rP.position.set(currentGender === 'male' ? 0.2 : 0.18, 0.45, 0); modParts.pants.add(rP);
         currentGroup.add(modParts.pants);
 
-        // Modular Shoes
+        // Modular Shoes overlay
         modParts.shoes = new THREE.Group();
-        const lShoe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.38), new THREE.MeshStandardMaterial({color: 0x0f172a}));
-        lShoe.position.set(-0.18, 0.1, 0.04); modParts.shoes.add(lShoe);
-        const rShoe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.38), new THREE.MeshStandardMaterial({color: 0x0f172a}));
-        rShoe.position.set(0.18, 0.1, 0.04); modParts.shoes.add(rShoe);
+        const lS = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.32), new THREE.MeshStandardMaterial({color: 0x0f172a}));
+        lS.position.set(currentGender === 'male' ? -0.2 : -0.18, 0.09, 0.04); modParts.shoes.add(lS);
+        const rS = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.32), new THREE.MeshStandardMaterial({color: 0x0f172a}));
+        rS.position.set(currentGender === 'male' ? 0.2 : 0.18, 0.09, 0.04); modParts.shoes.add(rS);
         currentGroup.add(modParts.shoes);
+
         toggleModular();
 
       } else if (type === 'boss') {
-        document.getElementById('asset-title').innerText = '2. Karakter Jahat Utama (Polosan)';
-        document.getElementById('asset-desc').innerText = 'Desain bos pemimpin geng tanpa kostum modular (menonjolkan struktur otot & aura intimidasi).';
-        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.0, 0.55), new THREE.MeshStandardMaterial({color: 0x7f1d1d}));
-        torso.position.y = 1.3; currentGroup.add(torso);
-        const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshStandardMaterial({color: 0xfca5a5}));
-        head.position.y = 2.1; currentGroup.add(head);
+        document.getElementById('btn-boss').classList.add('active');
+        document.getElementById('asset-title').innerText = '2. Karakter Jahat Utama (Full Set Pakaian Pemimpin Geng)';
+        document.getElementById('asset-desc').innerText = 'Karakter bos tidak bisa dicustom pakaian, sudah full set menggunakan jas/jaket kulit geng, celana dark, sepatu boots, dan topi mafia sesuai style pemimpin geng.';
+        
+        // Full Set Boss Outfit
+        const coat = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.1, 0.5), new THREE.MeshStandardMaterial({color: 0x450a0a}));
+        coat.position.y = 1.35; currentGroup.add(coat);
+        const collar = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.2, 0.55), new THREE.MeshStandardMaterial({color: 0xfbbf24}));
+        collar.position.y = 1.85; currentGroup.add(collar);
+        
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.55, 0.5), new THREE.MeshStandardMaterial({color: 0xfca5a5}));
+        head.position.y = 2.15; currentGroup.add(head);
+        const fedora = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.65, 0.25, 8), new THREE.MeshStandardMaterial({color: 0x111827}));
+        fedora.position.y = 2.45; currentGroup.add(fedora);
+
+        const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.8, 0.3), new THREE.MeshStandardMaterial({color: 0x18181b}));
+        lLeg.position.set(-0.24, 0.4, 0); currentGroup.add(lLeg);
+        const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.8, 0.3), new THREE.MeshStandardMaterial({color: 0x18181b}));
+        rLeg.position.set(0.24, 0.4, 0); currentGroup.add(rLeg);
 
       } else if (type.startsWith('preman')) {
         const pNames = {
