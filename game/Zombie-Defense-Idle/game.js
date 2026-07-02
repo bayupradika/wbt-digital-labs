@@ -430,8 +430,16 @@ let isMouseDragging = false;
 let prevMouseX = 0;
 let prevMouseY = 0;
 
+function isAnyModalActive() {
+  const modals = ['inventory-modal', 'equipment-modal', 'building-modal', 'topup-modal'];
+  return modals.some(id => {
+    const el = document.getElementById(id);
+    return el && el.classList.contains('active');
+  });
+}
+
 canvas.addEventListener('mousedown', e => {
-  if (!gameRunning) return;
+  if (!gameRunning || isAnyModalActive()) return;
   isMouseDragging = true;
   prevMouseX = e.clientX;
   prevMouseY = e.clientY;
@@ -443,8 +451,8 @@ canvas.addEventListener('mousedown', e => {
 
 window.addEventListener('mouseup', () => { isMouseDragging = false; });
 
-canvas.addEventListener('mousemove', e => {
-  if (!gameRunning) return;
+window.addEventListener('mousemove', e => {
+  if (!gameRunning || isAnyModalActive()) return;
   let moveX = 0;
   let moveY = 0;
 
@@ -457,14 +465,13 @@ canvas.addEventListener('mousemove', e => {
     prevMouseX = e.clientX;
     prevMouseY = e.clientY;
   } else {
-    moveX = e.movementX || 0;
-    moveY = e.movementY || 0;
+    return; // Abaikan pergerakan tanpa pointer lock jika tidak ditarik (drag)
   }
 
   if (moveX !== 0 || moveY !== 0) {
     cameraYaw -= moveX * 0.0035;
     cameraPitch -= moveY * 0.0035;
-    cameraPitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, cameraPitch));
+    cameraPitch = Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, cameraPitch));
     camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
   }
 });
@@ -574,14 +581,23 @@ function handleSmoothPlayerMovement() {
     playerY = CAMERA_HEIGHT;
   }
 
+  if (keysPressed['ARROWLEFT']) {
+    cameraYaw += 0.04;
+    camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
+  }
+  if (keysPressed['ARROWRIGHT']) {
+    cameraYaw -= 0.04;
+    camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
+  }
+
   const moveSpeed = 0.12;
   let fwd = 0;
   let side = 0;
 
   if (keysPressed['W'] || keysPressed['ARROWUP']) fwd += moveSpeed;
   if (keysPressed['S'] || keysPressed['ARROWDOWN']) fwd -= moveSpeed;
-  if (keysPressed['A'] || keysPressed['ARROWLEFT']) side -= moveSpeed;
-  if (keysPressed['D'] || keysPressed['ARROWRIGHT']) side += moveSpeed;
+  if (keysPressed['A']) side -= moveSpeed;
+  if (keysPressed['D']) side += moveSpeed;
 
   if (fwd !== 0 || side !== 0) {
     const sinY = Math.sin(cameraYaw);
@@ -595,19 +611,13 @@ function handleSmoothPlayerMovement() {
 
     nextX = Math.max(colToX(0), Math.min(colToX(7), nextX));
 
-    // Bisa melintasi pagar saat melompat atau saat waktu aman looting
-    let nowH = new Date().getHours();
-    let isDangerHour = isSimulating1900 || (nowH === 19);
-    let minuteInCycle = Math.floor((gameTick % 18000) / 3600);
-    let canLootOutside = !isDangerHour && (minuteInCycle >= 3);
-
-    let minZLimit = (isJumping || canLootOutside) ? rowToZ(17) : rowToZ(4.5);
-    nextZ = Math.max(minZLimit, Math.min(rowToZ(1), nextZ));
+    // Hapus aturan jam keluar pagar: pemain bebas melompat atau keluar ke area hutan (Baris 18)
+    nextZ = Math.max(rowToZ(18), Math.min(rowToZ(1), nextZ));
 
     let targetCol = Math.max(0, Math.min(7, xToCol(nextX)));
     let targetRow = Math.max(0, Math.min(19, zToRow(nextZ)));
     
-    // Saat melompat tinggi, lewati hambatan grid
+    // Saat melompat tinggi, lewati hambatan grid pagar
     if ((isJumping && playerY > 3.6) || grid[targetRow][targetCol] === null) {
       playerX = nextX;
       playerZ = nextZ;
