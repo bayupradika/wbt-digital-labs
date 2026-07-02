@@ -631,3 +631,11 @@ function closeTopup() { document.getElementById('topup-modal').classList.remove(
 function buyGems(n, p, a) {
   MidtransPay.checkout({ itemName: n, price: p, onSuccess: () => { gems += a; updateHUD(); closeTopup(); } });
 }
+
+window.addEventListener('resize', () => {
+  if (camera && renderer && container) {
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  }
+});
