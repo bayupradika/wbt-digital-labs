@@ -293,21 +293,52 @@ function payRansom() {
   updateHUD(); startGame();
 }
 
-// FPS Mouse Aim tracking
-canvas.addEventListener('mousemove', e => {
-  if (!gameRunning) return;
-  const rect = canvas.getBoundingClientRect();
-  const nx = (e.clientX - rect.left) / rect.width * 2 - 1;
-  const ny = -(e.clientY - rect.top) / rect.height * 2 + 1;
-
-  cameraYaw = -nx * 0.85;
-  cameraPitch = ny * 0.35 - 0.15; // Slightly angled down
-  camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
-});
+// FPS 360-Degree Look Around & Pointer Lock Tracking
+let isMouseDragging = false;
+let prevMouseX = 0;
+let prevMouseY = 0;
 
 canvas.addEventListener('mousedown', e => {
   if (!gameRunning) return;
+  isMouseDragging = true;
+  prevMouseX = e.clientX;
+  prevMouseY = e.clientY;
+  if (document.pointerLockElement !== canvas && canvas.requestPointerLock) {
+    canvas.requestPointerLock();
+  }
   fireFPSPistol();
+});
+
+window.addEventListener('mouseup', () => { isMouseDragging = false; });
+
+canvas.addEventListener('mousemove', e => {
+  if (!gameRunning) return;
+  let moveX = 0;
+  let moveY = 0;
+
+  if (document.pointerLockElement === canvas) {
+    moveX = e.movementX || 0;
+    moveY = e.movementY || 0;
+  } else if (isMouseDragging) {
+    moveX = e.clientX - prevMouseX;
+    moveY = e.clientY - prevMouseY;
+    prevMouseX = e.clientX;
+    prevMouseY = e.clientY;
+  } else {
+    // Free 360-degree look around by moving cursor toward canvas boundaries
+    const rect = canvas.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width * 2 - 1;
+    const ny = -(e.clientY - rect.top) / rect.height * 2 + 1;
+    cameraYaw = -nx * Math.PI; // Full 180 degrees left + right = 360 deg look around
+    cameraPitch = ny * 0.55;
+    camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
+    return;
+  }
+
+  cameraYaw -= moveX * 0.0035;
+  cameraPitch -= moveY * 0.0035;
+  cameraPitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, cameraPitch));
+  camera.rotation.set(cameraPitch, cameraYaw, 0, 'YXZ');
 });
 
 function fireFPSPistol() {
@@ -341,16 +372,23 @@ window.addEventListener('keyup', e => {
 });
 
 function handleSmoothPlayerMovement() {
-  const moveSpeed = 0.12; // Continuous smooth movement per frame
-  let dx = 0;
-  let dz = 0;
+  const moveSpeed = 0.12;
+  let fwd = 0;
+  let side = 0;
 
-  if (keysPressed['W'] || keysPressed['ARROWUP']) dz -= moveSpeed;    // Forward toward battlefield
-  if (keysPressed['S'] || keysPressed['ARROWDOWN']) dz += moveSpeed;  // Backward toward core
-  if (keysPressed['A'] || keysPressed['ARROWLEFT']) dx -= moveSpeed;  // Left
-  if (keysPressed['D'] || keysPressed['ARROWRIGHT']) dx += moveSpeed; // Right
+  if (keysPressed['W'] || keysPressed['ARROWUP']) fwd += moveSpeed;
+  if (keysPressed['S'] || keysPressed['ARROWDOWN']) fwd -= moveSpeed;
+  if (keysPressed['A'] || keysPressed['ARROWLEFT']) side -= moveSpeed;
+  if (keysPressed['D'] || keysPressed['ARROWRIGHT']) side += moveSpeed;
 
-  if (dx !== 0 || dz !== 0) {
+  if (fwd !== 0 || side !== 0) {
+    const sinY = Math.sin(cameraYaw);
+    const cosY = Math.cos(cameraYaw);
+
+    // Calculate movement vector relative to camera 360 facing angle
+    let dx = -fwd * sinY + side * cosY;
+    let dz = -fwd * cosY - side * sinY;
+
     let nextX = playerX + dx;
     let nextZ = playerZ + dz;
 
