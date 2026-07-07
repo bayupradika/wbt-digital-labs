@@ -9,10 +9,10 @@ const PRODUK_MAYAR_CONFIG = {
   },
   'AI-Image-Captioner': {
     nama: 'AI Image Captioner Pro',
-    hargaOriginal: 'Rp 30.000',
-    hargaPro: 'Rp 15.000',
-    linkMayar: 'https://mayar.id/pl/ai-captioner-pro',
-    fitur: ['Generate Caption Tanpa Batasan Harian', 'Ekspor Format YOLO / COCO / Pascal VOC', 'Dukungan Model AI Kecepatan Tinggi']
+    hargaOriginal: 'Rp 25.000',
+    hargaPro: 'Rp 10.000',
+    linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-image-captioner-pro-unlimited-lifetime-edition',
+    fitur: ['Melepas Batas Penggunaan Harian Jadi Unlimited (0/3 Limit Dihapus)', 'Dukungan Penuh Model AI Vision Kecepatan Tinggi', 'Sekali Bayar untuk Akses Selamanya (Lifetime Pro)']
   },
   'Background-Eraser-AI': {
     nama: 'Background Eraser AI Pro',
@@ -91,7 +91,27 @@ const MidtransPay = {
     }
   },
 
+  resetAllPro: function() {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('pro') || key.includes('vip') || key.includes('limit') || key.includes('model_loaded') || key.includes('usage') || key.includes('count') || key.includes('unlocked') || key.includes('license_key') || key.includes('tier_limit') || key.includes('resizer_') || key.includes('rename_') || key.includes('exif_'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+    this.updateUsageUI();
+    alert('🔄 Berhasil! Seluruh status PRO, kuota harian, dan lisensi pada SEMUA Tools & Game telah di-reset ke awal (Mode Gratis / Belum Pro).');
+  },
+
   showUpgradeModal: function() {
+    if (this.isPro()) {
+      const confirmReset = confirm('👑 Anda saat ini dalam status PRO (Unlimited).\n\nApakah Anda ingin MERESET status PRO ini (dan seluruh tools lainnya) kembali ke mode Gratis / Belum Pro untuk pengujian ulang?');
+      if (confirmReset) {
+        this.resetAllPro();
+      }
+      return;
+    }
     const config = this.getToolConfig();
     let modal = document.getElementById('midtrans-ai-modal');
     if (!modal) {
@@ -131,35 +151,34 @@ const MidtransPay = {
     const modal = document.getElementById('midtrans-ai-modal');
     if (modal) {
       modal.innerHTML = `
-        <div style="background:#0f172a;border:2px solid #10b981;border-radius:24px;padding:30px;max-width:450px;width:100%;color:white;text-align:center;box-shadow:0 25px 50px -12px rgba(16,185,129,0.5);position:relative;">
+        <div style="background:#0f172a;border:2px solid #38bdf8;border-radius:24px;padding:30px;max-width:450px;width:100%;color:white;text-align:center;box-shadow:0 25px 50px -12px rgba(56,189,248,0.5);position:relative;">
           <button onclick="document.getElementById('midtrans-ai-modal').remove()" style="position:absolute;top:15px;right:20px;background:none;border:none;color:#94a3b8;font-size:26px;cursor:pointer;">&times;</button>
-          <div style="font-size:50px;color:#10b981;margin-bottom:15px;"><i class="fa-solid fa-qrcode"></i></div>
-          <h2 style="font-family:'Outfit',sans-serif;font-size:24px;margin-bottom:10px;">Lanjutkan ke Pembayaran</h2>
-          <p style="color:#94a3b8;font-size:14px;margin-bottom:20px;">Silakan klik tombol di bawah untuk membayar <b>${config.nama}</b> seharga <b style="color:#fbbf24;">${config.hargaPro}</b> via Mayar.id / QRIS.</p>
+          <div style="font-size:50px;color:#38bdf8;margin-bottom:15px;"><i class="fa-solid fa-spinner fa-spin"></i></div>
+          <h2 style="font-family:'Outfit',sans-serif;font-size:22px;margin-bottom:10px;">Menunggu Pembayaran Mayar...</h2>
+          <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin-bottom:20px;">Silakan selesaikan pembayaran sebesar <b style="color:#fbbf24;">${config.hargaPro}</b> via QRIS / E-Wallet di halaman resmi Mayar.id.</p>
           
-          <a href="${config.linkMayar}" target="_blank" style="display:block;width:100%;padding:14px;border-radius:14px;background:#10b981;color:#0f172a;font-weight:800;font-size:16px;text-decoration:none;margin-bottom:12px;box-shadow:0 10px 20px -5px rgba(16,185,129,0.5);">
+          <div style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:16px;border-radius:14px;margin-bottom:20px;font-size:13px;color:#cbd5e1;text-align:left;line-height:1.5;">
+            <i class="fa-solid fa-circle-info" style="color:#60a5fa;"></i> <b>Aktivasi Otomatis:</b> Setelah pembayaran di Mayar selesai & berstatus LUNAS, Anda tidak perlu lagi menginput kode lisensi apa pun! Klik tombol di bawah setelah membayar.
+          </div>
+
+          <a href="${config.linkMayar}" target="_blank" style="display:block;width:100%;padding:14px;border-radius:14px;background:#3b82f6;color:white;font-weight:800;font-size:15px;text-decoration:none;margin-bottom:12px;box-shadow:0 10px 20px -5px rgba(59,130,246,0.5);">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Halaman Mayar.id / QRIS
           </a>
 
-          <div style="border-top:1px dashed #334155;padding-top:15px;margin-top:15px;">
-            <p style="font-size:12px;color:#cbd5e1;margin-bottom:10px;">Sudah membayar & menerima Kode Lisensi via WhatsApp?</p>
-            <input id="mayar-voucher-code" type="text" placeholder="Masukkan Kode Lisensi (cth: CITRA-PRO-VIP)" style="width:100%;padding:12px;border-radius:10px;background:#1e293b;border:1px solid #475569;color:white;text-align:center;font-weight:700;margin-bottom:10px;text-transform:uppercase;">
-            <button onclick="MidtransPay.verifyVoucher()" style="width:100%;padding:12px;border-radius:10px;background:#3b82f6;color:white;font-weight:700;border:none;cursor:pointer;">
-              <i class="fa-solid fa-key"></i> Klaim & Aktifkan Pro
-            </button>
-          </div>
+          <button onclick="MidtransPay.checkPaymentStatus()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-weight:800;font-size:15px;border:none;cursor:pointer;box-shadow:0 10px 20px -5px rgba(16,185,129,0.5);">
+            <i class="fa-solid fa-check-double"></i> Saya Sudah Membayar (Aktifkan Pro)
+          </button>
         </div>
       `;
+      window.open(config.linkMayar, '_blank');
     }
   },
 
-  verifyVoucher: function() {
-    const codeEl = document.getElementById('mayar-voucher-code');
-    const code = codeEl ? codeEl.value.trim().toUpperCase() : '';
-    if (code === 'CITRA-PRO-VIP' || code === 'MAYAR-PRO' || code === 'WBT-PRO-2026' || code.length >= 6) {
+  checkPaymentStatus: function() {
+    const config = this.getToolConfig();
+    const confirmed = confirm(`Apakah Anda sudah menyelesaikan pembayaran untuk ${config.nama} di halaman resmi Mayar.id hingga berstatus LUNAS / SUCCESS?\n\nKlik [OK] jika sudah lunas untuk mengaktifkan fitur PRO Unlimited selamanya.`);
+    if (confirmed) {
       this.completeUpgrade();
-    } else {
-      alert('⚠️ Kode Lisensi tidak valid atau belum lengkap. Masukkan kode yang dikirim oleh sistem Mayar ke WhatsApp Anda.');
     }
   },
 
@@ -169,10 +188,24 @@ const MidtransPay = {
     if (modal) modal.remove();
     this.updateUsageUI();
     const config = this.getToolConfig();
-    alert(`🎉 Upgrade PRO untuk ${config.nama} Berhasil diaktifkan!`);
+    alert(`🎉 Selamat! Upgrade PRO untuk ${config.nama} berhasil diaktifkan. Batas kuota harian telah dihapus menjadi UNLIMITED!`);
   }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   MidtransPay.updateUsageUI();
+  
+  // Deteksi otomatis jika Mayar mengalihkan kembali setelah pembayaran sukses (Redirect URL)
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('status') === 'success' || params.get('status') === 'paid' || params.get('payment') === 'success' || params.get('paid') === 'true' || params.get('transaction_status') === 'settlement') {
+    localStorage.setItem('ai_pro_' + MidtransPay.getToolKey(), 'true');
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    setTimeout(() => {
+      MidtransPay.updateUsageUI();
+      const config = MidtransPay.getToolConfig();
+      alert(`🎉 Selamat! Pembayaran Anda via Mayar.id berhasil terverifikasi. Fitur PRO Unlimited untuk ${config.nama} telah terbuka selamanya!`);
+    }, 500);
+  }
 });

@@ -78,9 +78,6 @@
     <button class="btn-asset" onclick="loadAsset('miner_barrack')"><i class="fa-solid fa-mountain-sun"></i> Barak Penambang (Stone Lodge)</button>
     <button class="btn-asset" onclick="loadAsset('fence')"><i class="fa-solid fa-shield-halved"></i> Pagar Barikade Kayu Besi (2x2 Grid)</button>
     <button class="btn-asset" onclick="loadAsset('tech_lab')"><i class="fa-solid fa-atom"></i> Riset Teknologi Quantum Dome</button>
-    <button class="btn-asset" onclick="loadAsset('mine_facility')"><i class="fa-solid fa-pickaxe"></i> Fasilitas Tambang Mineral</button>
-    <button class="btn-asset" onclick="loadAsset('farm')"><i class="fa-solid fa-wheat-awn"></i> Lahan Pertanian Pos</button>
-    <button class="btn-asset" onclick="loadAsset('oilpump')"><i class="fa-solid fa-gas-pump"></i> Pompa Minyak & Karet</button>
 
     <div class="cat-lbl">Senjata Lengkap (Semua Jenis)</div>
     <button class="btn-asset" onclick="loadAsset('weapons')"><i class="fa-solid fa-gun"></i> Pistol & Pisau Survival</button>
@@ -542,45 +539,6 @@
         ring.rotation.x = Math.PI/2; ring.position.y = 1.2; currentGroup.add(ring);
         const core = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
         core.position.set(0, 2.6, 0); currentGroup.add(core);
-
-      } else if (type === 'mine_facility') {
-        document.getElementById('asset-title').innerText = 'Fasilitas Tambang Mineral Utama';
-        document.getElementById('asset-desc').innerText = 'Pusat ekstraksi tambang mineral berfondasi batu, struktur derek kerekan kayu besi, dan rel kereta tambang.';
-        const base = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.8, 4.0), new THREE.MeshStandardMaterial({ color: 0x44403c }));
-        base.position.y = 0.4; currentGroup.add(base);
-        const d1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.0, 0.3), new THREE.MeshStandardMaterial({ color: 0x78350f }));
-        d1.position.set(-1.2, 1.9, -1.2); currentGroup.add(d1);
-        const d2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.0, 0.3), new THREE.MeshStandardMaterial({ color: 0x78350f }));
-        d2.position.set(1.2, 1.9, -1.2); currentGroup.add(d2);
-        const cross = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.35, 0.35), new THREE.MeshStandardMaterial({ color: 0x57534e }));
-        cross.position.set(0, 3.2, -1.2); currentGroup.add(cross);
-        const cart = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 1.6), new THREE.MeshStandardMaterial({ color: 0x92400e, metalness: 0.6 }));
-        cart.position.set(0, 1.0, 0.5); currentGroup.add(cart);
-
-      } else if (type === 'farm') {
-        document.getElementById('asset-title').innerText = 'Lahan Pertanian Pos Bio-Greenhouse';
-        document.getElementById('asset-desc').innerText = 'Fasilitas penanaman bahan baku dan gandum organik berpagar kayu dengan kubah kaca transparan untuk pasokan ransum HP pasukan.';
-        const soil = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.4, 4.0), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
-        soil.position.y = 0.2; currentGroup.add(soil);
-        const cropMat = new THREE.MeshStandardMaterial({ color: 0x22c55e });
-        for(let rx = -1.3; rx <= 1.3; rx += 0.8) {
-          for(let rz = -1.3; rz <= 1.3; rz += 0.8) {
-            const crop = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.1, 0.7, 6), cropMat);
-            crop.position.set(rx, 0.6, rz); currentGroup.add(crop);
-          }
-        }
-
-      } else if (type === 'oilpump') {
-        document.getElementById('asset-title').innerText = 'Pompa Minyak & Karet (Pumpjack Industri)';
-        document.getElementById('asset-desc').innerText = 'Mesin pompa angguk besi otomatis yang mengebor lapisan tanah dalam untuk menghasilkan Karet hitam & Gold setiap 15 detik.';
-        const base = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.6, 2.0), new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 }));
-        base.position.y = 0.3; currentGroup.add(base);
-        const tower = new THREE.Mesh(new THREE.BoxGeometry(0.5, 2.2, 0.5), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
-        tower.position.set(0, 1.6, 0); currentGroup.add(tower);
-        const arm = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.35, 0.35), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
-        arm.position.set(0.4, 2.8, 0); arm.rotation.z = 0.2; currentGroup.add(arm);
-        const head = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.8, 12), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
-        head.position.set(-1.1, 2.4, 0); currentGroup.add(head);
 
       } else if (type === 'all_weapons') {
         document.getElementById('asset-title').innerText = 'Arsenal Senjata Lengkap (9 Jenis)';
