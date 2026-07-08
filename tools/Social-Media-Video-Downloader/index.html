@@ -449,7 +449,7 @@
     </a>
     <div style="display: flex; gap: 12px; align-items: center;">
       <div id="usage-badge" class="badge-status">
-        <i class="fa-solid fa-chart-pie"></i> Kuota Harian: 0 / 5 Video
+        <i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: 5 / 5 Video
       </div>
       <button onclick="MidtransPay.showUpgradeModal()" class="btn-upgrade">
         <i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 10.000)
@@ -587,7 +587,8 @@
         badge.style.color = '#fbbf24';
       } else {
         const count = MidtransPay.getUsageCount();
-        badge.innerHTML = `<i class="fa-solid fa-chart-pie"></i> Kuota Harian: ${count} / 5 Video`;
+        const left = Math.max(0, 5 - count);
+        badge.innerHTML = `<i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: <b>${left} / 5</b> Video`;
       }
     }
 
