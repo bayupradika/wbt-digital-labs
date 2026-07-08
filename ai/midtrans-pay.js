@@ -158,27 +158,15 @@ const MidtransPay = {
           <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin-bottom:20px;">Silakan selesaikan pembayaran sebesar <b style="color:#fbbf24;">${config.hargaPro}</b> via QRIS / E-Wallet di halaman resmi Mayar.id.</p>
           
           <div style="background:#1e293b;border:1px solid rgba(255,255,255,0.1);padding:16px;border-radius:14px;margin-bottom:20px;font-size:13px;color:#cbd5e1;text-align:left;line-height:1.5;">
-            <i class="fa-solid fa-circle-info" style="color:#60a5fa;"></i> <b>Aktivasi Otomatis:</b> Setelah pembayaran di Mayar selesai & berstatus LUNAS, Anda tidak perlu lagi menginput kode lisensi apa pun! Klik tombol di bawah setelah membayar.
+            <i class="fa-solid fa-circle-info" style="color:#60a5fa;"></i> <b>Aktivasi Otomatis:</b> Setelah pembayaran di Mayar selesai & berstatus LUNAS, sistem Mayar akan otomatis mengalihkan Anda kembali ke halaman ini dan fitur PRO akan langsung terbuka secara otomatis tanpa perlu klik tombol apa pun!
           </div>
 
-          <a href="${config.linkMayar}" target="_blank" style="display:block;width:100%;padding:14px;border-radius:14px;background:#3b82f6;color:white;font-weight:800;font-size:15px;text-decoration:none;margin-bottom:12px;box-shadow:0 10px 20px -5px rgba(59,130,246,0.5);">
+          <a href="${config.linkMayar}" target="_blank" style="display:block;width:100%;padding:16px;border-radius:14px;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;font-weight:800;font-size:16px;text-decoration:none;box-shadow:0 10px 20px -5px rgba(59,130,246,0.5);">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Halaman Mayar.id / QRIS
           </a>
-
-          <button onclick="MidtransPay.checkPaymentStatus()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;font-weight:800;font-size:15px;border:none;cursor:pointer;box-shadow:0 10px 20px -5px rgba(16,185,129,0.5);">
-            <i class="fa-solid fa-check-double"></i> Saya Sudah Membayar (Aktifkan Pro)
-          </button>
         </div>
       `;
       window.open(config.linkMayar, '_blank');
-    }
-  },
-
-  checkPaymentStatus: function() {
-    const config = this.getToolConfig();
-    const confirmed = confirm(`Apakah Anda sudah menyelesaikan pembayaran untuk ${config.nama} di halaman resmi Mayar.id hingga berstatus LUNAS / SUCCESS?\n\nKlik [OK] jika sudah lunas untuk mengaktifkan fitur PRO Unlimited selamanya.`);
-    if (confirmed) {
-      this.completeUpgrade();
     }
   },
 
