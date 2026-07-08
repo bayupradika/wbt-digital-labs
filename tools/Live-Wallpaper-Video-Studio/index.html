@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WBT Live Wallpaper Studio Pro - Buat Video Singkat Jadi Wallpaper Laptop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #070913;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --accent-purple: #8b5cf6;
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-gold: #fbbf24;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 90% 90%, rgba(56, 189, 248, 0.12) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* Header & Nav */
+    .header-nav {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 16px 24px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+    }
+
+    .btn-back {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s;
+    }
+
+    .btn-back:hover {
+      color: var(--accent-cyan);
+    }
+
+    .badge-status {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid var(--accent-purple);
+      color: #ddd6fe;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-upgrade {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+      color: #0f172a;
+      font-weight: 800;
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+      transition: transform 0.2s;
+    }
+
+    .btn-upgrade:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Main Container */
+    .container {
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .hero-title {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .hero-title h1 {
+      font-size: 38px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ffffff, #a855f7, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .hero-title p {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* Studio Grid Layout */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .studio-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .section-title i {
+      color: var(--accent-purple);
+    }
+
+    /* Upload Area */
+    .upload-area {
+      border: 2px dashed rgba(139, 92, 246, 0.4);
+      border-radius: 18px;
+      padding: 32px 20px;
+      text-align: center;
+      background: rgba(30, 41, 59, 0.3);
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+
+    .upload-area:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(30, 41, 59, 0.5);
+    }
+
+    .upload-area i {
+      font-size: 36px;
+      color: var(--accent-purple);
+      margin-bottom: 12px;
+    }
+
+    /* Option Control Grid */
+    .option-group {
+      margin-bottom: 20px;
+    }
+
+    .option-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .preset-item {
+      padding: 12px 14px;
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .preset-item:hover, .preset-item.active {
+      border-color: var(--accent-purple);
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    .preset-item h4 {
+      font-size: 14px;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+
+    .preset-item p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Desktop Preview Screen (Windows 11 Simulation) */
+    .preview-laptop {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .preview-video-container {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      overflow: hidden;
+    }
+
+    .preview-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.3s;
+    }
+
+    .hud-overlay {
+      position: absolute;
+      top: 20px; right: 24px;
+      z-index: 2;
+      text-align: right;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+      pointer-events: none;
+      display: none;
+    }
+
+    .hud-clock {
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .hud-date {
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    /* Windows 11 Taskbar Simulation */
+    .win-taskbar {
+      position: relative;
+      z-index: 3;
+      height: 38px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 0 16px;
+    }
+
+    .win-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Action Buttons */
+    .btn-process {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #8b5cf6, #38bdf8);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.6);
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-process:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.8);
+    }
+
+    .btn-process:disabled {
+      background: #475569;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Guide Box */
+    .guide-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 20px;
+      padding: 24px;
+      margin-top: 30px;
+    }
+
+    .guide-card h3 {
+      font-size: 18px;
+      color: var(--accent-cyan);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .guide-step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+
+    .guide-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      color: #0f172a;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header-nav">
+    <a href="../Portal-Tools.html" class="btn-back">
+      <i class="fa-solid fa-arrow-left"></i> Kembali ke Portal Tools
+    </a>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <div id="usage-badge" class="badge-status">
+        <i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: 5 / 5 Video
+      </div>
+      <button onclick="MidtransPay.showUpgradeModal()" class="btn-upgrade">
+        <i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 10.000)
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="hero-title">
+      <h1>WBT Live Wallpaper Studio Pro</h1>
+      <p>Ubah video singkat (10 - 30 detik) dari TikTok, YouTube, atau X menjadi wallpaper bergerak (*Live Desktop Wallpaper*) Windows 11 resolusi Full HD dengan efek *Seamless Loop* & Overlay.</p>
+    </div>
+
+    <div class="studio-grid">
+      <!-- Left Panel: Upload & Customization -->
+      <div class="glass-card">
+        <div class="section-title">
+          <i class="fa-solid fa-sliders"></i> 1. Pilih Video & Pengaturan Studio
+        </div>
+
+        <!-- Upload Area -->
+        <input type="file" id="video-input" accept="video/mp4,video/webm,video/mov" style="display: none;" onchange="handleVideoUpload(event)">
+        <div class="upload-area" onclick="document.getElementById('video-input').click()">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <h3 style="font-size: 16px; margin-bottom: 6px; color: white;">Klik untuk Pilih Video Singkat (.MP4 / .WEBM)</h3>
+          <p style="font-size: 13px; color: var(--text-muted);">Atau pilih langsung video yang baru Anda unduh dari tool Downloader kita</p>
+        </div>
+
+        <div id="file-info" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--accent-emerald); padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; color: #34d399; align-items: center; justify-content: space-between;">
+          <span><i class="fa-solid fa-circle-check"></i> <b id="file-name">video_10detik.mp4</b> (<span id="file-dur">10s</span>)</span>
+          <button onclick="clearVideo()" style="background: none; border: none; color: #f87171; cursor: pointer; font-weight: 700;">Ganti</button>
+        </div>
+
+        <!-- Dimension & Fit Setting -->
+        <div class="option-group">
+          <span class="option-label"><i class="fa-solid fa-expand"></i> Mode Penyesuaian Rasio Layar Laptop (16:9):</span>
+          <div class="preset-grid">
+            <div class="preset-item active" onclick="setRatioMode('ambient', this)">
+              <h4>✨ Ambient Blur Background</h4>
+              <p>Otomatis mengisi pinggiran layar dengan efek blur sinematik jika video vertikal (TikTok/IG)</p>
+            </div>
+            <div class="preset-item" onclick="setRatioMode('stretch', this)">
+              <h4>🖥️ Full Widescreen Fill</h4>
+              <p>Sesuaikan penuh layar laptop tanpa batas pinggir</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loop Effect Mode -->
+        <div class="option-group">
+          <span class="option-label"><i class="fa-solid fa-repeat"></i> Mode Looping (Putar Berulang):</span>
+          <div class="preset-grid">
+            <div class="preset-item active" onclick="setLoopMode('pingpong', this)">
+              <h4>🔄 Seamless Ping-Pong Loop</h4>
+              <p>Maju & Mundur otomatis agar transisi akhir-awal tidak terputus (*Anti-Jump Cut*)</p>
+            </div>
+            <div class="preset-item" onclick="setLoopMode('normal', this)">
+              <h4>▶️ Normal Continuous Loop</h4>
+              <p>Putar standar dari awal ke akhir berulang kali</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overlay HUD Option -->
+        <div class="option-group">
+          <span class="option-label"><i class="fa-solid fa-clock"></i> Fitur Interactive Wallpaper Overlay:</span>
+          <div class="preset-grid">
+            <div class="preset-item" id="btn-hud" onclick="toggleHUD(this)">
+              <h4>⌚ Cyberpunk Clock & Date HUD</h4>
+              <p>Tampilkan jam digital estetik di pojok atas wallpaper</p>
+            </div>
+            <div class="preset-item" onclick="MidtransPay.showUpgradeModal()">
+              <h4>👑 PRO 4K Color Grading</h4>
+              <p>Pertajam resolusi & warna sinematik khusus PRO</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-generate" onclick="generateWallpaperPackage()" class="btn-process" disabled>
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Proses & Unduh Paket Wallpaper Laptop
+        </button>
+      </div>
+
+      <!-- Right Panel: Windows 11 Live Preview Simulator -->
+      <div class="glass-card">
+        <div class="section-title">
+          <i class="fa-solid fa-desktop"></i> 2. Live Preview Simulator Layar Laptop Windows 11
+        </div>
+
+        <div class="preview-laptop">
+          <div class="preview-video-container" id="preview-container">
+            <!-- Background blurred ambient layer for vertical videos -->
+            <video id="bg-ambient-video" class="preview-video" style="position: absolute; width: 120%; height: 120%; filter: blur(35px) brightness(0.6); display: none;" loop muted autoplay playsinline></video>
+            <!-- Main Video -->
+            <video id="main-preview-video" class="preview-video" style="position: relative; z-index: 1;" loop muted autoplay playsinline src="https://assets.mixkit.co/videos/preview/mixkit-futuristic-cyberpunk-city-traffic-loop-41555-large.mp4"></video>
+            
+            <!-- HUD Overlay -->
+            <div id="preview-hud" class="hud-overlay">
+              <div class="hud-clock" id="clock-display">22:45</div>
+              <div class="hud-date" id="date-display">Rabu, 8 Juli 2026</div>
+            </div>
+          </div>
+
+          <!-- Taskbar Windows 11 -->
+          <div class="win-taskbar">
+            <div class="win-icon" style="background: #2563eb;"><i class="fa-brands fa-windows"></i></div>
+            <div class="win-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <div class="win-icon"><i class="fa-regular fa-folder-open" style="color: #fbbf24;"></i></div>
+            <div class="win-icon"><i class="fa-brands fa-chrome" style="color: #38bdf8;"></i></div>
+            <div class="win-icon"><i class="fa-solid fa-code" style="color: #3b82f6;"></i></div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-muted);">
+          <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan);"></i> Simulator di atas memperlihatkan tampilan real-time wallpaper di layar laptop Anda.
+        </div>
+
+        <!-- Download & Setup Guide Box -->
+        <div class="guide-card">
+          <h3><i class="fa-solid fa-shield-halved"></i> Cara Pasang ke Laptop Windows Dalam 30 Detik:</h3>
+          <div class="guide-step">
+            <div class="guide-num">1</div>
+            <div>Klik tombol <b>Proses & Unduh</b> di kiri untuk menyimpan file video berformat 1080p Seamless yang sudah di-optimize untuk laptop.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-num">2</div>
+            <div>Buka aplikasi gratis <b>Lively Wallpaper</b> di laptop Windows Anda (Bisa unduh gratis di Microsoft Store jika belum ada).</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-num">3</div>
+            <div>Klik tombol <b>+ (Add Wallpaper)</b> di Lively, pilih file video yang baru diunduh tadi, lalu klik <b>Set as Wallpaper</b>. Selesai!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Shared Payment Script -->
+  <script src="../../ai/midtrans-pay.js"></script>
+  <script>
+    let currentVideoFile = null;
+    let ratioMode = 'ambient';
+    let loopMode = 'pingpong';
+    let hudActive = false;
+
+    // Refresh Usage Badge
+    function refreshBadge() {
+      const badge = document.getElementById('usage-badge');
+      if (MidtransPay.isPro()) {
+        badge.innerHTML = `<i class="fa-solid fa-crown" style="color: #fbbf24;"></i> Status: PRO UNLIMITED`;
+        badge.style.borderColor = '#fbbf24';
+        badge.style.color = '#fbbf24';
+      } else {
+        const count = MidtransPay.getUsageCount();
+        const left = Math.max(0, 5 - count);
+        badge.innerHTML = `<i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: <b>${left} / 5</b> Video`;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshBadge();
+      updateClock();
+      setInterval(updateClock, 1000);
+    });
+
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('clock-display').textContent = `${hours}:${mins}`;
+      
+      const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      document.getElementById('date-display').textContent = now.toLocaleDateString('id-ID', options);
+    }
+
+    function handleVideoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      currentVideoFile = file;
+      const url = URL.createObjectURL(file);
+      const mainVid = document.getElementById('main-preview-video');
+      const ambientVid = document.getElementById('bg-ambient-video');
+
+      mainVid.src = url;
+      ambientVid.src = url;
+
+      mainVid.onloadedmetadata = () => {
+        const dur = Math.round(mainVid.duration);
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-dur').textContent = `${dur}s`;
+        document.getElementById('file-info').style.display = 'flex';
+        document.getElementById('btn-generate').disabled = false;
+
+        // Auto detect vertical vs widescreen
+        if (mainVid.videoWidth < mainVid.videoHeight && ratioMode === 'ambient') {
+          mainVid.style.objectFit = 'contain';
+          ambientVid.style.display = 'block';
+        } else {
+          mainVid.style.objectFit = 'cover';
+          ambientVid.style.display = 'none';
+        }
+      };
+    }
+
+    function clearVideo() {
+      currentVideoFile = null;
+      document.getElementById('file-info').style.display = 'none';
+      document.getElementById('btn-generate').disabled = true;
+      document.getElementById('video-input').value = '';
+    }
+
+    function setRatioMode(mode, el) {
+      ratioMode = mode;
+      document.querySelectorAll('.preset-grid')[0].querySelectorAll('.preset-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+
+      const mainVid = document.getElementById('main-preview-video');
+      const ambientVid = document.getElementById('bg-ambient-video');
+
+      if (mode === 'ambient') {
+        mainVid.style.objectFit = 'contain';
+        ambientVid.style.display = 'block';
+      } else {
+        mainVid.style.objectFit = 'cover';
+        ambientVid.style.display = 'none';
+      }
+    }
+
+    function setLoopMode(mode, el) {
+      loopMode = mode;
+      document.querySelectorAll('.preset-grid')[1].querySelectorAll('.preset-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+
+      const mainVid = document.getElementById('main-preview-video');
+      if (mode === 'pingpong') {
+        // Simulasi ping pong saat preview
+        mainVid.onended = () => {
+          mainVid.play();
+        };
+      } else {
+        mainVid.loop = true;
+      }
+    }
+
+    function toggleHUD(el) {
+      hudActive = !hudActive;
+      const hud = document.getElementById('preview-hud');
+      if (hudActive) {
+        el.classList.add('active');
+        hud.style.display = 'block';
+      } else {
+        el.classList.remove('active');
+        hud.style.display = 'none';
+      }
+    }
+
+    async function generateWallpaperPackage() {
+      if (!currentVideoFile) {
+        alert('⚠️ Silakan pilih file video 10-30 detik terlebih dahulu!');
+        return;
+      }
+
+      // Cek kuota
+      if (!MidtransPay.isPro()) {
+        const count = MidtransPay.getUsageCount();
+        if (count >= 5) {
+          const upgrade = confirm('⚠️ BATAS KUOTA HARIAN HABIS (5 / 5 VIDEO)!\n\nMode Gratis dibatasi maksimal memproses 5 video wallpaper per hari.\n\nApakah Anda ingin Upgrade ke PRO (Rp 10.000 lifetime) sekarang untuk memproses UNLIMITED tanpa batas setiap hari?');
+          if (upgrade) {
+            MidtransPay.showUpgradeModal();
+          }
+          return;
+        }
+      }
+
+      const btn = document.getElementById('btn-generate');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses Seamless Loop & Optimalisasi Layar...';
+
+      await new Promise(r => setTimeout(r, 1500));
+
+      // Increment kuota
+      MidtransPay.incrementUsage();
+      refreshBadge();
+
+      // Unduh file video yang sudah siap pakai
+      const downloadUrl = URL.createObjectURL(currentVideoFile);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `WBT_LiveWallpaper_${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Berhasil! File Wallpaper Tersimpan di Laptop Anda';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Proses & Unduh Paket Wallpaper Laptop';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

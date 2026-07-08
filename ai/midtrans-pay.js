@@ -1,5 +1,12 @@
 // Shared Payment Gateway Router & Simulator for AI Tools Suite (Per-Tool Individual Pricing & Mayar Links)
 const PRODUK_MAYAR_CONFIG = {
+  'Live-Wallpaper-Video-Studio': {
+    nama: 'Live Wallpaper Video Studio Pro',
+    hargaOriginal: 'Rp 25.000',
+    hargaPro: 'Rp 10.000',
+    linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-image-captioner-pro-unlimited-lifetime-edition',
+    fitur: ['Melepas Batas Quota Harian Jadi Unlimited (0/5 Limit Dihapus)', 'Eksport Wallpaper Resolusi Tertinggi Full HD & 4K Widescreen', 'Akses Penuh Fitur Seamless Ping-Pong Loop & Cyberpunk HUD Clock']
+  },
   'Social-Media-Video-Downloader': {
     nama: 'Social Media Video Downloader Pro',
     hargaOriginal: 'Rp 25.000',
