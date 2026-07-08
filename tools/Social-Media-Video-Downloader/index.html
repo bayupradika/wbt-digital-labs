@@ -449,7 +449,7 @@
     </a>
     <div style="display: flex; gap: 12px; align-items: center;">
       <div id="usage-badge" class="badge-status">
-        <i class="fa-solid fa-chart-pie"></i> Kuota Harian: 0 / 3 Video
+        <i class="fa-solid fa-chart-pie"></i> Kuota Harian: 0 / 5 Video
       </div>
       <button onclick="MidtransPay.showUpgradeModal()" class="btn-upgrade">
         <i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 10.000)
@@ -562,7 +562,7 @@
     <div class="rules-banner">
       <div class="rules-item">
         <i class="fa-solid fa-shield-halved"></i>
-        <span><b>Batas Gratis:</b> Maksimal 3 Video / Hari</span>
+        <span><b>Batas Gratis:</b> Maksimal 5 Video / Hari</span>
       </div>
       <div class="rules-item">
         <i class="fa-solid fa-hourglass-half"></i>
@@ -587,7 +587,7 @@
         badge.style.color = '#fbbf24';
       } else {
         const count = MidtransPay.getUsageCount();
-        badge.innerHTML = `<i class="fa-solid fa-chart-pie"></i> Kuota Harian: ${count} / 3 Video`;
+        badge.innerHTML = `<i class="fa-solid fa-chart-pie"></i> Kuota Harian: ${count} / 5 Video`;
       }
     }
 
@@ -619,11 +619,11 @@
         return;
       }
 
-      // 1. Cek Kuota Harian (Maksimal 3 Video / Hari jika belum Pro)
+      // 1. Cek Kuota Harian (Maksimal 5 Video / Hari jika belum Pro)
       if (!MidtransPay.isPro()) {
         const count = MidtransPay.getUsageCount();
-        if (count >= 3) {
-          const upgrade = confirm('⚠️ BATAS KUOTA HARIAN HABIS (3 / 3 VIDEO)!\n\nMode Gratis dibatasi maksimal mengunduh 3 video per hari.\n\nApakah Anda ingin Upgrade ke PRO (Rp 10.000 lifetime) sekarang untuk mendownload UNLIMITED tanpa batas setiap hari?');
+        if (count >= 5) {
+          const upgrade = confirm('⚠️ BATAS KUOTA HARIAN HABIS (5 / 5 VIDEO)!\n\nMode Gratis dibatasi maksimal mengunduh 5 video per hari.\n\nApakah Anda ingin Upgrade ke PRO (Rp 10.000 lifetime) sekarang untuk mendownload UNLIMITED tanpa batas setiap hari?');
           if (upgrade) {
             MidtransPay.showUpgradeModal();
           }

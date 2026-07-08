@@ -5,7 +5,7 @@ const PRODUK_MAYAR_CONFIG = {
     hargaOriginal: 'Rp 25.000',
     hargaPro: 'Rp 10.000',
     linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-image-captioner-pro-unlimited-lifetime-edition',
-    fitur: ['Melepas Batas Quota Harian Jadi Unlimited (0/3 Limit Dihapus)', 'Melepas Batas Durasi Video Jadi Unlimited (> 1 Jam Bebas Download)', 'Download Video Full HD 1080p & 4K Kecepatan Tinggi Tanpa Iklan']
+    fitur: ['Melepas Batas Quota Harian Jadi Unlimited (0/5 Limit Dihapus)', 'Melepas Batas Durasi Video Jadi Unlimited (> 1 Jam Bebas Download)', 'Download Video Full HD 1080p & 4K Kecepatan Tinggi Tanpa Iklan']
   },
   'Dataset-Labeling-Tool': {
     nama: 'CitraLabeling Studio Pro',
@@ -19,7 +19,7 @@ const PRODUK_MAYAR_CONFIG = {
     hargaOriginal: 'Rp 25.000',
     hargaPro: 'Rp 10.000',
     linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-image-captioner-pro-unlimited-lifetime-edition',
-    fitur: ['Melepas Batas Penggunaan Harian Jadi Unlimited (0/3 Limit Dihapus)', 'Dukungan Penuh Model AI Vision Kecepatan Tinggi', 'Sekali Bayar untuk Akses Selamanya (Lifetime Pro)']
+    fitur: ['Melepas Batas Penggunaan Harian Jadi Unlimited (0/5 Limit Dihapus)', 'Dukungan Penuh Model AI Vision Kecepatan Tinggi', 'Sekali Bayar untuk Akses Selamanya (Lifetime Pro)']
   },
   'Background-Eraser-AI': {
     nama: 'Background Eraser AI Pro',
@@ -62,6 +62,14 @@ const MidtransPay = {
   getUsageCount: function() {
     const key = this.getToolKey();
     const today = new Date().toDateString();
+    // Otomatis reset kuota saat ini ke 0 untuk semua pengguna (Auto-Reset Quota)
+    const resetVersion = 'v5_quota_reset_5x_limit_2026_07_08';
+    if (localStorage.getItem('ai_quota_reset_ver_' + key) !== resetVersion) {
+      localStorage.setItem('ai_quota_reset_ver_' + key, resetVersion);
+      localStorage.setItem('ai_date_' + key, today);
+      localStorage.setItem('ai_count_' + key, '0');
+      return 0;
+    }
     const lastDate = localStorage.getItem('ai_date_' + key);
     if (lastDate !== today) {
       localStorage.setItem('ai_date_' + key, today);
@@ -74,12 +82,19 @@ const MidtransPay = {
   incrementUsage: function() {
     if (this.isPro()) return true;
     let count = this.getUsageCount();
-    if (count >= 3) {
+    if (count >= 5) {
       this.showUpgradeModal();
       return false;
     }
     count++;
     localStorage.setItem('ai_count_' + this.getToolKey(), count.toString());
+    this.updateUsageUI();
+    return true;
+  },
+
+  resetCurrentQuota: function() {
+    const key = this.getToolKey();
+    localStorage.setItem('ai_count_' + key, '0');
     this.updateUsageUI();
     return true;
   },
@@ -93,8 +108,8 @@ const MidtransPay = {
       badge.style.borderColor = '#fbbf24';
       badge.style.color = '#fbbf24';
     } else {
-      const left = Math.max(0, 3 - this.getUsageCount());
-      badge.innerHTML = `<i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Hari Ini: <b>${left}/3</b> Gratis`;
+      const left = Math.max(0, 5 - this.getUsageCount());
+      badge.innerHTML = `<i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Hari Ini: <b>${left}/5</b> Gratis`;
     }
   },
 
