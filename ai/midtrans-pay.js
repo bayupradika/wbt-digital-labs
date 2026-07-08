@@ -1,5 +1,12 @@
 // Shared Payment Gateway Router & Simulator for AI Tools Suite (Per-Tool Individual Pricing & Mayar Links)
 const PRODUK_MAYAR_CONFIG = {
+  'Social-Media-Video-Downloader': {
+    nama: 'Social Media Video Downloader Pro',
+    hargaOriginal: 'Rp 25.000',
+    hargaPro: 'Rp 10.000',
+    linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-image-captioner-pro-unlimited-lifetime-edition',
+    fitur: ['Melepas Batas Quota Harian Jadi Unlimited (0/3 Limit Dihapus)', 'Melepas Batas Durasi Video Jadi Unlimited (> 1 Jam Bebas Download)', 'Download Video Full HD 1080p & 4K Kecepatan Tinggi Tanpa Iklan']
+  },
   'Dataset-Labeling-Tool': {
     nama: 'CitraLabeling Studio Pro',
     hargaOriginal: 'Rp 40.000',
