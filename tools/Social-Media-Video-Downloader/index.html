@@ -663,16 +663,36 @@
       try {
         if (urlInput.includes('x.com') || urlInput.includes('twitter.com')) {
           platformName = 'X (Twitter) Video';
-          const cleanPath = urlInput.replace('https://x.com/', '').replace('https://twitter.com/', '').replace('http://x.com/', '').replace('http://twitter.com/', '').split('?')[0];
-          const apiUrl = `https://api.fxtwitter.com/${cleanPath}`;
-          const res = await fetch(apiUrl);
+          let cleanPath = urlInput.replace('https://x.com/', '').replace('https://twitter.com/', '').replace('http://x.com/', '').replace('http://twitter.com/', '').split('?')[0];
+          // Hapus /video/1, /video/2, /photo/1 dari akhir URL agar API fxtwitter tidak error 404
+          cleanPath = cleanPath.replace(/\/video\/[0-9]+$/, '').replace(/\/photo\/[0-9]+$/, '').replace(/\/$/, '');
+          
+          let apiUrl = `https://api.fxtwitter.com/${cleanPath}`;
+          let res = await fetch(apiUrl);
+          if (!res.ok) {
+            apiUrl = `https://api.vxtwitter.com/${cleanPath}`;
+            res = await fetch(apiUrl);
+          }
           if (res.ok) {
             const data = await res.json();
-            if (data && data.tweet) {
-              videoTitle = data.tweet.text ? data.tweet.text.substring(0, 65) + '...' : 'Video X (Twitter)';
-              if (data.tweet.media && data.tweet.media.videos && data.tweet.media.videos.length > 0) {
-                const vidObj = data.tweet.media.videos[0];
+            const tweetData = data.tweet || data;
+            if (tweetData) {
+              videoTitle = tweetData.text ? tweetData.text.substring(0, 65) + '...' : 'Video X (Twitter)';
+              if (tweetData.media && tweetData.media.videos && tweetData.media.videos.length > 0) {
+                const vidObj = tweetData.media.videos[0];
                 exactSeconds = vidObj.duration || 13;
+                estimatedMinutes = parseFloat((exactSeconds / 60).toFixed(2));
+                directDownloadUrl = vidObj.url;
+                if (vidObj.thumbnail_url) thumbUrl = vidObj.thumbnail_url;
+              } else if (tweetData.media && tweetData.media.all && tweetData.media.all.length > 0) {
+                const vidObj = tweetData.media.all[0];
+                exactSeconds = vidObj.duration || 13;
+                estimatedMinutes = parseFloat((exactSeconds / 60).toFixed(2));
+                directDownloadUrl = vidObj.url;
+                if (vidObj.thumbnail_url) thumbUrl = vidObj.thumbnail_url;
+              } else if (tweetData.media_extended && tweetData.media_extended.length > 0) {
+                const vidObj = tweetData.media_extended[0];
+                exactSeconds = vidObj.duration_millis ? vidObj.duration_millis / 1000 : 13;
                 estimatedMinutes = parseFloat((exactSeconds / 60).toFixed(2));
                 directDownloadUrl = vidObj.url;
                 if (vidObj.thumbnail_url) thumbUrl = vidObj.thumbnail_url;
@@ -731,9 +751,9 @@
         estimatedMinutes = 0.25;
       }
 
-      // Jika directDownloadUrl tidak langsung didapat dari API, gunakan Cobalt Universal Mirror atau tautan asli
+      // Jika directDownloadUrl tidak didapat dari API direct, gunakan Cobalt Universal Downloader (Bebas Iklan & Anti-Blokir Indonesia)
       if (!directDownloadUrl) {
-        directDownloadUrl = `https://savefrom.net/#url=${encodeURIComponent(urlInput)}`;
+        directDownloadUrl = `https://cobalt.tools/#url=${encodeURIComponent(urlInput)}`;
       }
 
       // Simpan data ekstraksi ke state window agar bisa dipakai saat klik simpan
