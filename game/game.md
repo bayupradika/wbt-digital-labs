@@ -1,7 +1,7 @@
 # game
 
 - [[Cube-Escape-Dash]]
-- [[Zombie-Defense-Idle]]
+- [[Core-Stone-Defense]]
 - [[Merge-Kingdom]]
 - [[Space-Survivor-Roguelike]]
 - [[Neon-Drift-Racer]]

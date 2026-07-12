@@ -1,4 +1,4 @@
-﻿{
+{
     "icons":  [
                   {
                       "type":  "image/png",
@@ -14,8 +14,8 @@
     "description":  "Game Arcade Offline Resmi dari WBT Digital Labs",
     "background_color":  "#090d16",
     "theme_color":  "#14b8a6",
-    "name":  "WBT Zombie Defense Idle",
+    "name":  "WBT Core Stone: Infinity Defense 3D",
     "start_url":  "./index.html",
     "display":  "standalone",
-    "short_name":  "Zombie Defense Idle"
+    "short_name":  "Core Stone Defense"
 }

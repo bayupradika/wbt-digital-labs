@@ -40,7 +40,7 @@ Game HTML5 offline berkinerja tinggi untuk PC & Android lengkap dengan sistem to
 - **Shadow Ninja Jump**: Platformer vertikal menembus menara ninja.
 - **Space Survivor**: Action shooter penghancur gelombang meteor kosmik.
 - **Tower Builder 3D**: Stacking arcade pembangun menara pencakar langit.
-- **Zombie Defense Idle**: Tower defense pertahanan bunker dari serangan zombie.
+- **Core Stone: Infinity Defense 3D**: 3D FPS & Isometric Base-Building dengan pertahanan monolit dari invasi musuh tanpa batas (endless progression).
 
 ---
 © 2026 **WBT Technologies Corp**. All rights reserved.

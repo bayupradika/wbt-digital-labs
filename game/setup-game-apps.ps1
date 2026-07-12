@@ -8,7 +8,7 @@ $games = @(
     @{ id="Shadow-Ninja-Jump"; name="Shadow Ninja Jump"; icon="NINJA"; color="#6366f1" },
     @{ id="Space-Survivor-Roguelike"; name="Space Survivor Roguelike"; icon="SPACE"; color="#38bdf8" },
     @{ id="Tower-Builder-3D"; name="Tower Builder 3D"; icon="TOWER"; color="#ec4899" },
-    @{ id="Zombie-Defense-Idle"; name="Zombie Defense Idle"; icon="ZOMBIE"; color="#14b8a6" }
+    @{ id="Core-Stone-Defense"; name="Core Stone Defense"; icon="CORE"; color="#10b981" }
 )
 
 $swTemplate = @'

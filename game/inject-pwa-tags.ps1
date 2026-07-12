@@ -1,7 +1,7 @@
 $games = @(
     "Color-Block-Master", "Cube-Escape-Dash", "Merge-Kingdom",
     "Mini-Farming-Life", "Neon-Drift-Racer", "Pixel-Dungeon-Quest",
-    "Shadow-Ninja-Jump", "Space-Survivor-Roguelike", "Tower-Builder-3D", "Zombie-Defense-Idle"
+    "Shadow-Ninja-Jump", "Space-Survivor-Roguelike", "Tower-Builder-3D", "Core-Stone-Defense"
 )
 
 $pwaScript = @'
