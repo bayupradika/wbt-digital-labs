@@ -25,7 +25,7 @@ const PRODUK_MAYAR_CONFIG = {
     nama: 'AI Image Captioner Pro',
     hargaOriginal: 'Rp 25.000',
     hargaPro: 'Rp 10.000',
-    linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-image-captioner-pro-unlimited-lifetime-edition',
+    linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-captioner-pro',
     fitur: ['Melepas Batas Penggunaan Harian Jadi Unlimited (0/5 Limit Dihapus)', 'Dukungan Penuh Model AI Vision Kecepatan Tinggi', 'Sekali Bayar untuk Akses Selamanya (Lifetime Pro)']
   },
   'Background-Eraser-AI': {
