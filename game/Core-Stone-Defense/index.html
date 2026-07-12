@@ -104,12 +104,12 @@
       <div class="controls-bar" style="flex-wrap: wrap;">
         <div class="ctrl-tag"><kbd>W A S D</kbd> Gerak 360°</div>
         <div class="ctrl-tag" style="color:#38bdf8;"><kbd>SPASI</kbd> Lompat Pagar</div>
-        <div class="ctrl-tag" style="color:#fbbf24;"><kbd>Q</kbd> Ganti (<span id="active-wep-lbl">Pistol</span>)</div>
         <div class="ctrl-tag" style="color:#10b981;"><kbd>B</kbd> Menu Bangunan</div>
         <div class="ctrl-tag" style="color:#a855f7;"><kbd>U</kbd> Upgrade Kursor (+)</div>
         <div class="ctrl-tag" style="color:#e2e8f0;"><kbd>E</kbd> Gudang Senjata</div>
         <div class="ctrl-tag" style="color:#ef4444;"><kbd>X</kbd> Lempar Granat</div>
         <div class="ctrl-tag" style="color:#fbbf24;"><kbd>I</kbd> Tas Grid Bahan</div>
+        <div class="ctrl-tag" style="color:#38bdf8;"><kbd>Q</kbd> Pindahkan Bangunan / Ganti Senjata</div>
       </div>
 
       <div class="controls-bar" style="gap: 8px;">
@@ -138,31 +138,32 @@
   </div>
 
   <!-- Ransom Lockout Overlay -->
-  <div class="pc-menu-overlay hidden" id="lockout-screen">
-    <div class="pc-menu-box" style="border-color: #ef4444;">
-      <div style="font-size: 60px; margin-bottom: 8px;">🔒💠</div>
-      <div class="pc-menu-title" style="background: #ef4444; -webkit-background-clip: text;">CORE STONE DICURI!</div>
-      <p style="color: #cbd5e1; font-size: 13px; line-height: 1.6; margin: 16px 0;">
-        Musuh meruntuhkan pagar pertahanan. Bayar tebusan Permata untuk memulihkan Tugu Batu Energi!
+  <div class="pc-menu-overlay" id="lockout-screen" style="display:none; background:rgba(15,23,42,0.95); z-index:99999;">
+    <div class="pc-menu-box" style="border-color:#ef4444;">
+      <div class="pc-menu-title" style="color:#ef4444;">⚠️ MARKAS DIREBUT ZOMBIE</div>
+      <div class="pc-menu-sub" style="color:#fca5a5;">PERTANAHAN ANDA TELAH HANCUR TOTAL</div>
+      <p style="color:#cbd5e1; font-size:14px; line-height:1.6; margin-bottom:24px;">
+        Gerombolan zombie telah menghancurkan Core Stone Monolith dan menguasai seluruh fasilitas markas Anda. Anda harus membayar tebusan untuk merebut kembali markas dan melanjutkan pertempuran.
       </p>
-      <div style="background:#1f2937; padding:16px; border-radius:16px; border:2px solid #ef4444; margin: 16px 0;">
-        <div style="font-size:11px; color:#94a3b8;">BIAYA TEBUSAN RECOVERY:</div>
-        <b id="lockout-cost" style="color:#ef4444; font-size:28px;">💎 100 Permata</b>
+      <div style="background:#1e293b; padding:16px; border-radius:12px; margin-bottom:24px; border:1px solid rgba(239,68,68,0.3);">
+        <div style="font-size:12px; color:#94a3b8;">TEBUSAN REBUT MARKAS</div>
+        <div style="font-size:28px; font-weight:800; color:#facc15; margin:4px 0;">10 💎 Gems</div>
+        <div style="font-size:11px; color:#64748b;">*Memulihkan HP Core Stone 100% dan membersihkan zombie di area markas.</div>
       </div>
       <div class="pc-menu-buttons">
-        <button class="btn-pc primary" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="payRansom()"><i class="fa-solid fa-unlock"></i> BAYAR TEBUSAN & REBUT TUGU</button>
-        <button class="btn-pc" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOPUP GEMS CEPAT</button>
+        <button class="btn-pc primary" style="background:#ef4444; border-color:#dc2626;" onclick="payRansomGems()"><i class="fa-solid fa-unlock-keyhole"></i> BAYAR TEBUSAN (10 GEMS)</button>
+        <button class="btn-pc" onclick="openTopupFromLockout()"><i class="fa-solid fa-gem"></i> TOKO PERMATA (BELI GEMS)</button>
       </div>
     </div>
   </div>
 
   <!-- Inventory Modal [I] -->
   <div class="modal" id="inventory-modal">
-    <div class="modal-content" style="max-width: 520px;">
+    <div class="modal-content" style="max-width: 650px;">
       <button onclick="closeInventory()" class="close-btn">&times;</button>
       <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 6px;"><i class="fa-solid fa-briefcase" style="color: #fbbf24;"></i> Inventory Tas Bahan [I]</h2>
-      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">Menyimpan seluruh bahan mineral dan material konstruksi untuk pertahanan pos.</p>
-      <div style="background:#0f172a; border-left:4px solid #38bdf8; padding:10px 12px; border-radius:8px; font-size:12px; color:#cbd5e1; margin-bottom:16px;"><b>💡 KONTROL AKTIVASI NPC:</b> Berdiri 1 tile di sebelah <b>Barak Tukang</b> atau <b>Barak Penebang</b> sambil mengarahkan kursor ke baraknya, lalu tekan tombol <b style="color:#fde047;">[I]</b> untuk Mengaktifkan/Menonaktifkan NPC (Jika dinonaktifkan saat bekerja, progress otomatis direset ke 0 & NPC kembali ke Barak).</div>
+      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">Berikut adalah daftar seluruh material konstruksi yang Anda miliki di markas saat ini:</p>
+      <div style="background:#0f172a; border-left:4px solid #38bdf8; padding:10px 12px; border-radius:8px; font-size:12px; color:#cbd5e1; margin-bottom:16px;"><b>💡 KONTROL AKTIVASI NPC & RELOKASI BANGUNAN:</b> Berdiri 1 tile di sebelah <b>Barak Tukang</b> atau <b>Barak Penebang</b> sambil mengarahkan kursor ke baraknya, lalu tekan tombol <b style="color:#fde047;">[I]</b> untuk Mengaktifkan/Menonaktifkan NPC. Untuk memindahkan posisi bangunan (selain pagar), berdiri 1 tile di sebelah bangunan, arahkan kursor lalu tekan shortcut <b style="color:#38bdf8;">[Q]</b>, kemudian klik kanan untuk meletakkan bangunan yang sedang dipindahkan.</div>
       
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 4px;">
         <!-- Slot 1: Kayu -->

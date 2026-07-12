@@ -212,6 +212,53 @@ function getBuildingPos(bType) {
   return pos;
 }
 
+let isRelocatingBuilding = false;
+let relocatingTargetMesh = null;
+let relocatingTowerObj = null;
+
+function startBuildingRelocation(bType, targetMesh, towerObj = null) {
+  if (isRelocatingBuilding || placingBuildingType) return;
+  isRelocatingBuilding = true;
+  relocatingTargetMesh = targetMesh;
+  relocatingTowerObj = towerObj;
+  if (targetMesh) targetMesh.visible = false;
+  startBuildingPlacement(bType);
+  if (typeof createFloatingText === 'function' && targetMesh) {
+    createFloatingText("🏗️ Memindahkan Bangunan! Klik Kanan (atau Kiri) untuk meletakkan.", targetMesh.position.x, 3.5, targetMesh.position.z, '#38bdf8');
+  }
+}
+
+function finishBuildingRelocation(success) {
+  if (!isRelocatingBuilding) return;
+  const bType = placingBuildingType;
+  if (success && placingHologramMesh && placingHologramMesh.isValidPlacement) {
+    BUILDING_POSITIONS[bType] = { x: placingHologramMesh.position.x, z: placingHologramMesh.position.z };
+    localStorage.setItem('outpost_building_positions', JSON.stringify(BUILDING_POSITIONS));
+
+    if (bType === 'turret' && towers.length > 0) {
+      const targetTower = relocatingTowerObj || towers[0];
+      if (targetTower.row !== undefined && targetTower.col !== undefined && grid[targetTower.row]) {
+        grid[targetTower.row][targetTower.col] = 0;
+      }
+      const newCol = Math.round(xToCol(BUILDING_POSITIONS['turret'].x));
+      const newRow = Math.round(zToRow(BUILDING_POSITIONS['turret'].z));
+      targetTower.col = newCol; targetTower.row = newRow;
+      if (grid[newRow]) grid[newRow][newCol] = targetTower;
+      if (targetTower.mesh) targetTower.mesh.position.set(BUILDING_POSITIONS['turret'].x, 0, BUILDING_POSITIONS['turret'].z);
+    } else if (relocatingTargetMesh) {
+      relocatingTargetMesh.position.set(BUILDING_POSITIONS[bType].x, 0, BUILDING_POSITIONS[bType].z);
+    }
+    if (typeof createFloatingText === 'function') {
+      createFloatingText("✅ Bangunan berhasil dipindahkan!", BUILDING_POSITIONS[bType].x, 3.5, BUILDING_POSITIONS[bType].z, '#22c55e');
+    }
+  }
+  if (relocatingTargetMesh) relocatingTargetMesh.visible = true;
+  isRelocatingBuilding = false;
+  relocatingTargetMesh = null;
+  relocatingTowerObj = null;
+  cancelBuildingPlacement();
+}
+
 let placingBuildingType = null;
 let placingHologramMesh = null;
 
@@ -970,6 +1017,12 @@ function startBuildingPlacement(bType) {
 }
 
 function cancelBuildingPlacement() {
+  if (isRelocatingBuilding && relocatingTargetMesh) {
+    relocatingTargetMesh.visible = true;
+  }
+  isRelocatingBuilding = false;
+  relocatingTargetMesh = null;
+  relocatingTowerObj = null;
   placingBuildingType = null;
   if (placingHologramMesh) placingHologramMesh.visible = false;
   const banner = document.getElementById('placement-banner');
@@ -979,6 +1032,16 @@ function cancelBuildingPlacement() {
 canvas.addEventListener('mousedown', e => {
   if (!gameRunning || isAnyModalActive()) return;
   if (placingBuildingType && placingHologramMesh && placingHologramMesh.visible) {
+    if (isRelocatingBuilding) {
+      if (e.button === 2 || e.button === 0) { // Klik Kanan (atau Kiri) untuk meletakkan bangunan yang sedang dipindahkan
+        if (!placingHologramMesh.isValidPlacement) {
+          alert("⚠️ Area ini bertumpuk dengan bangunan/objek lain atau di luar batas pertahanan! Pilih area kosong 4 grid (2x2).");
+          return;
+        }
+        finishBuildingRelocation(true);
+      }
+      return;
+    }
     if (e.button === 0) { // Left Click
       if (!placingHologramMesh.isValidPlacement) {
         alert("⚠️ Area ini bertumpuk dengan bangunan/objek lain atau di luar batas pertahanan! Pilih area kosong 4 grid (2x2).");
@@ -1270,15 +1333,16 @@ function throwGrenade() {
   });
 }
 
-function toggleBuilderActiveState() {
+function toggleBuilderActiveState(forceState = null, silent = false) {
   if (builderBarracksLvl <= 0) return;
-  isBuilderActive = !isBuilderActive;
+  if (forceState !== null) isBuilderActive = forceState;
+  else isBuilderActive = !isBuilderActive;
   localStorage.setItem('outpost_builder_active', isBuilderActive ? 'true' : 'false');
   if (isBuilderActive) {
-    alert("🛠️ NPC TUKANG DIAKTIFKAN!\n\nTukang mulai memeriksa Rencana Kerja [B] dan mendatangi lokasi pembangunan/peningkatan.");
+    if (!silent) alert("🛠️ NPC TUKANG DIAKTIFKAN!\n\nTukang mulai memeriksa Rencana Kerja [B] dan mendatangi lokasi pembangunan/peningkatan.");
     builderIdleTimer = 0;
   } else {
-    alert("🛑 NPC TUKANG DINONAKTIFKAN!\n\nTukang langsung berhenti bekerja, seluruh progress konstruksi saat ini DIRESET menjadi 0, dan Tukang kembali ke Barak Tukang.");
+    if (!silent) alert("🛑 NPC TUKANG DINONAKTIFKAN!\n\nTukang langsung berhenti bekerja, seluruh progress konstruksi saat ini DIRESET menjadi 0, dan Tukang kembali ke Barak Tukang.");
     if (builderTarget) {
       if (typeof hideFloatingBuildProgress === 'function') hideFloatingBuildProgress();
       builderTarget = null;
@@ -1327,6 +1391,37 @@ window.addEventListener('keydown', e => {
 
   const k = e.key.toUpperCase();
   if (k === 'Q' || k === '1' || k === '2') {
+    if (k === 'Q') {
+      let handledRelocation = false;
+      if (camera && !isRelocatingBuilding) {
+        const rc = new THREE.Raycaster();
+        rc.setFromCamera({ x: 0, y: 0 }, camera);
+        const candidateBuildings = [
+          { type: 'builder_barrack', mesh: builderBarracksMesh, lvl: builderBarracksLvl },
+          { type: 'lumberjack', mesh: lumberjackBarracksMesh, lvl: lumberjackBarracksLvl },
+          { type: 'miner', mesh: minerBarracksMesh, lvl: minerBarracksLvl },
+          { type: 'tech', mesh: techLabMesh, lvl: techLabLvl },
+          { type: 'weapon_crate', mesh: weaponCrateMesh, lvl: weaponCrateLvl },
+          { type: 'stone', mesh: stoneMesh, lvl: stoneLvl }
+        ];
+        for (let t of towers) {
+          if (t.mesh) candidateBuildings.push({ type: 'turret', mesh: t.mesh, lvl: t.lvl, towerObj: t });
+        }
+        for (let cand of candidateBuildings) {
+          if (cand.mesh && cand.lvl > 0 && cand.mesh.visible) {
+            const hits = rc.intersectObject(cand.mesh, true);
+            const dist = Math.hypot(playerX - cand.mesh.position.x, playerZ - cand.mesh.position.z);
+            if (hits.length > 0 && dist <= 5.0) {
+              startBuildingRelocation(cand.type, cand.mesh, cand.towerObj);
+              handledRelocation = true;
+              break;
+            }
+          }
+        }
+      }
+      if (handledRelocation) return;
+    }
+
     if (k === '1') activeWeaponSlot = 1;
     else if (k === '2') activeWeaponSlot = 2;
     else activeWeaponSlot = activeWeaponSlot === 1 ? 2 : 1;
@@ -1381,7 +1476,11 @@ window.addEventListener('keydown', e => {
     }
     if (!handledNPC) toggleInventory();
   }
-  if (e.key === 'Escape') { cancelBuildingPlacement(); closeInventory(); closeEquipment(); closeBuildingMenu(); }
+  if (e.key === 'Escape') {
+    if (isRelocatingBuilding) finishBuildingRelocation(false);
+    else cancelBuildingPlacement();
+    closeInventory(); closeEquipment(); closeBuildingMenu();
+  }
 });
 
 window.addEventListener('keyup', e => {
@@ -2088,10 +2187,12 @@ function updateBuildingPlacement() {
     let isValid = true;
     if (targetZ < rowToZ(FENCE_ROW - 2) || targetX < colToX(3) || targetX > colToX(14)) isValid = false;
     for (let key in BUILDING_POSITIONS) {
+      if (isRelocatingBuilding && key === placingBuildingType) continue;
       const p = BUILDING_POSITIONS[key];
       if (p && Math.hypot(targetX - p.x, targetZ - p.z) < 3.8) { isValid = false; break; }
     }
     for (let t of towers) {
+      if (isRelocatingBuilding && placingBuildingType === 'turret' && t === relocatingTowerObj) continue;
       if (t.mesh && Math.hypot(targetX - t.mesh.position.x, targetZ - t.mesh.position.z) < 3.8) { isValid = false; break; }
     }
     for (let t of forestTrees) {
@@ -2171,8 +2272,21 @@ function loop() {
         const plan = getBuilderPlanList();
         const affordable = plan.bisaDikerjakan.filter(item => item.canAfford);
         if (affordable.length > 0) {
-          builderTarget = affordable[0];
-          builderTarget.timer = 0;
+          if (affordable[0].manualOnly) {
+            const nextAuto = affordable.find(item => !item.manualOnly);
+            if (nextAuto) {
+              builderTarget = nextAuto;
+              builderTarget.timer = 0;
+            } else {
+              toggleBuilderActiveState(false, true);
+              if (typeof createFloatingText === 'function' && builderMesh) {
+                createFloatingText("🛑 Tukang selesai! Kembali ke Barak (Barak Tukang & Core Stone harus manual oleh Player)", builderMesh.position.x, 3.5, builderMesh.position.z, '#fbbf24');
+              }
+            }
+          } else {
+            builderTarget = affordable[0];
+            builderTarget.timer = 0;
+          }
         }
       }
 
@@ -2872,7 +2986,8 @@ function getBuilderPlanList() {
         lvl: nextLvl, cost, canAfford: gold >= cost && canAffordCheck(nextLvl),
         isNew, estSec: baseSec,
         x: targetX, z: targetZ,
-        execute: executeFunc
+        execute: executeFunc,
+        manualOnly: type === 'builder_barrack' || type === 'stone'
       });
     } else {
       let missingReq = "";
@@ -2947,9 +3062,10 @@ function openBuilderPlanModal() {
     plan.bisaDikerjakan.forEach((item, idx) => {
       const statusBg = item.canAfford ? '#10b981' : '#f59e0b';
       const statusTxt = item.canAfford ? 'Siap Bangun' : 'Bahan/Gold Kurang';
+      const manualBadge = item.manualOnly ? `<span style="background:#a855f7; color:white; font-size:11px; padding:2px 6px; border-radius:4px; margin-left:6px;">🧑‍🔧 Hanya Manual Player [U]</span>` : `<span style="background:#0369a1; color:white; font-size:11px; padding:2px 6px; border-radius:4px; margin-left:6px;">🤖 Auto Tukang</span>`;
       html += `<div style="background:#0f172a; padding:10px 14px; border-radius:8px; border-left:4px solid ${statusBg}; display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <div style="font-weight:600; color:#e2e8f0;">${idx + 1}. ${item.name}</div>
+          <div style="font-weight:600; color:#e2e8f0;">${idx + 1}. ${item.name} ${manualBadge}</div>
           <div style="font-size:11px; color:#94a3b8;">Status: <span style="color:${statusBg}; font-weight:700;">${statusTxt}</span> | ⏱️ Durasi: <b style="color:#38bdf8;">${formatDuration(item.estSec || 5)}</b></div>
         </div>
         <span style="background:#1e293b; color:#fbbf24; font-weight:800; padding:6px 10px; border-radius:6px; font-size:12px;">${item.cost.toLocaleString('id-ID')} Gold</span>
