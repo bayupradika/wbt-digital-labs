@@ -4,39 +4,33 @@ const canvas = document.getElementById('gameCanvas');
 
 // Konfigurasi Mode Game
 const GAME_CONFIG = {
-  TESTING_MODE: true, // Reset perkembangan setiap kali game dibuka untuk testing
+  TESTING_MODE: false, // Set false agar progress yang didapat dari mengalahkan musuh tersimpan di localStorage
   CLOUD_SAVE_READY: false // Siap untuk integrasi Akun Guest / Tautan Google Login saat publish
 };
 
-if (GAME_CONFIG.TESTING_MODE) {
+if (GAME_CONFIG.TESTING_MODE || !localStorage.getItem('outpost_init_v7_reset_economy')) {
   Object.keys(localStorage).forEach(key => {
     if (key.startsWith('outpost_') || key.startsWith('corestone_')) {
       localStorage.removeItem(key);
     }
   });
+  localStorage.setItem('outpost_init_v7_reset_economy', 'true');
 }
 
-// Game Persistent State & Story Lore
-let gold = parseInt(localStorage.getItem('outpost_gold') || '1000000');
-let gems = parseInt(localStorage.getItem('outpost_gems') || '10000');
+// Game Persistent State & Story Lore (Material awal untuk pertama kali login: 500 Gold, 10 Kayu, 10 Batu, dll)
+let gold = parseInt(localStorage.getItem('outpost_gold') || '500');
+let gems = parseInt(localStorage.getItem('outpost_gems') || '10');
 let currentPhase = parseInt(localStorage.getItem('corestone_phase') || '1');
 let isLockedOut = localStorage.getItem('corestone_locked') === 'true';
 
-let woodCount = parseInt(localStorage.getItem('outpost_wood') || '1500');
-let stoneCount = parseInt(localStorage.getItem('outpost_stone_res') || '1500');
-let ironCount = parseInt(localStorage.getItem('outpost_iron') || '1500');
-let soilCount = parseInt(localStorage.getItem('outpost_soil') || '1500');
-let rubberCount = parseInt(localStorage.getItem('outpost_rubber') || '1500');
+let woodCount = parseInt(localStorage.getItem('outpost_wood') || '10');
+let stoneCount = parseInt(localStorage.getItem('outpost_stone_res') || '10');
+let ironCount = parseInt(localStorage.getItem('outpost_iron') || '10');
+let soilCount = parseInt(localStorage.getItem('outpost_soil') || '10');
+let rubberCount = parseInt(localStorage.getItem('outpost_rubber') || '10');
 
-if (!localStorage.getItem('outpost_init_v6_mega')) {
-  gold = Math.max(gold, 1000000);
-  gems = Math.max(gems, 10000);
-  woodCount = Math.max(woodCount, 1500);
-  stoneCount = Math.max(stoneCount, 1500);
-  ironCount = Math.max(ironCount, 1500);
-  soilCount = Math.max(soilCount, 1500);
-  rubberCount = Math.max(rubberCount, 1500);
-  localStorage.setItem('outpost_init_v6_mega', 'true');
+if (!localStorage.getItem('outpost_initial_resources_v7_saved')) {
+  localStorage.setItem('outpost_initial_resources_v7_saved', 'true');
   localStorage.setItem('outpost_gold', gold);
   localStorage.setItem('outpost_gems', gems);
   localStorage.setItem('outpost_wood', woodCount);
@@ -1056,6 +1050,69 @@ window.addEventListener('mousemove', e => {
 
 let playerFireCooldown = 0;
 
+function showFloatingLootText(text, objX, objY, objZ, colorHex = '#fde047') {
+  if (!camera) return;
+  const vec = new THREE.Vector3(objX, objY, objZ);
+  vec.project(camera);
+  if (vec.z > 1.0) return;
+  const x = (vec.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-(vec.y * 0.5) + 0.5) * window.innerHeight;
+
+  const el = document.createElement('div');
+  el.className = 'floating-loot-popup';
+  el.innerHTML = text;
+  el.style.position = 'fixed';
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  el.style.transform = 'translate(-50%, -50%)';
+  el.style.color = colorHex;
+  el.style.fontWeight = '800';
+  el.style.fontSize = '15px';
+  el.style.textShadow = '0 2px 8px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.8)';
+  el.style.pointerEvents = 'none';
+  el.style.zIndex = '99999';
+  el.style.transition = 'all 1.4s cubic-bezier(0.16, 1, 0.3, 1)';
+  el.style.opacity = '1';
+
+  document.body.appendChild(el);
+  requestAnimationFrame(() => {
+    el.style.top = (y - 70) + 'px';
+    el.style.opacity = '0';
+  });
+  setTimeout(() => {
+    if (el.parentNode) el.parentNode.removeChild(el);
+  }, 1450);
+}
+
+function rewardEnemyKill(e) {
+  const earnedGold = 15 + Math.floor(Math.random() * 11);
+  gold += earnedGold;
+
+  const earnedWood = 2 + Math.floor(Math.random() * 4);
+  const earnedStone = 2 + Math.floor(Math.random() * 4);
+  const earnedIron = 1 + Math.floor(Math.random() * 3);
+  const earnedSoil = 1 + Math.floor(Math.random() * 3);
+  const earnedRubber = 1 + Math.floor(Math.random() * 2);
+
+  woodCount += earnedWood;
+  stoneCount += earnedStone;
+  ironCount += earnedIron;
+  soilCount += earnedSoil;
+  rubberCount += earnedRubber;
+
+  localStorage.setItem('outpost_gold', Math.floor(gold));
+  localStorage.setItem('outpost_wood', woodCount);
+  localStorage.setItem('outpost_stone_res', stoneCount);
+  localStorage.setItem('outpost_iron', ironCount);
+  localStorage.setItem('outpost_soil', soilCount);
+  localStorage.setItem('outpost_rubber', rubberCount);
+
+  if (e && e.mesh) {
+    showFloatingLootText(`+${earnedGold} Gold | +${earnedWood}🪵 +${earnedStone}🪨 +${earnedIron}⚙️`, e.mesh.position.x, 2.2, e.mesh.position.z, '#fbbf24');
+  }
+  updateHUD();
+}
+
 function fireFPSPistol() {
   if (playerFireCooldown > 0) return;
 
@@ -1075,7 +1132,7 @@ function fireFPSPistol() {
       if (camera.position.distanceTo(e.mesh.position) < reach) {
         e.hp -= dmg;
         if (e.hp <= 0) {
-          gold += 1; updateHUD();
+          rewardEnemyKill(e);
           scene.remove(e.mesh); enemies.splice(i, 1);
         }
         break;
@@ -1163,8 +1220,7 @@ function triggerAoEExplosion(pos, radius, dmg, colorHex = 0xff4500) {
     if (dist <= radius) {
       e.hp -= dmg;
       if (e.hp <= 0) {
-        gold += 1;
-        updateHUD();
+        rewardEnemyKill(e);
         scene.remove(e.mesh);
         enemies.splice(j, 1);
       }
@@ -2407,8 +2463,7 @@ function loop() {
           e.hp -= b.dmg;
           scene.remove(b.mesh); bullets.splice(i, 1);
           if (e.hp <= 0) {
-            gold += 1; // Tepat 1 Gold per kill
-            updateHUD();
+            rewardEnemyKill(e);
             scene.remove(e.mesh); enemies.splice(j, 1);
           }
         }
