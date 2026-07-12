@@ -56,10 +56,12 @@ let builderBarracksMesh = null;
 let weaponCrateMesh = null;
 let weaponCrateHoloGun = null;
 let builderMesh = null;
+let isBuilderActive = localStorage.getItem('outpost_builder_active') === 'true';
 let lumberjackBarracksLvl = parseInt(localStorage.getItem('outpost_lumberjack_lvl') || '0');
 let minerBarracksLvl = parseInt(localStorage.getItem('outpost_miner_lvl') || '0');
 let lumberjackBarracksMesh = null;
 let lumberjackMesh = null;
+let isLumberjackActive = localStorage.getItem('outpost_lumberjack_active') === 'true';
 let minerBarracksMesh = null;
 let minerMesh = null;
 let lumberjackTimer = 0;
@@ -1212,6 +1214,36 @@ function throwGrenade() {
   });
 }
 
+function toggleBuilderActiveState() {
+  if (builderBarracksLvl <= 0) return;
+  isBuilderActive = !isBuilderActive;
+  localStorage.setItem('outpost_builder_active', isBuilderActive ? 'true' : 'false');
+  if (isBuilderActive) {
+    alert("🛠️ NPC TUKANG DIAKTIFKAN!\n\nTukang mulai memeriksa Rencana Kerja [B] dan mendatangi lokasi pembangunan/peningkatan.");
+    builderIdleTimer = 0;
+  } else {
+    alert("🛑 NPC TUKANG DINONAKTIFKAN!\n\nTukang langsung berhenti bekerja, seluruh progress konstruksi saat ini DIRESET menjadi 0, dan Tukang kembali ke Barak Tukang.");
+    if (builderTarget) {
+      if (typeof hideFloatingBuildProgress === 'function') hideFloatingBuildProgress();
+      builderTarget = null;
+    }
+  }
+}
+
+function toggleLumberjackActiveState() {
+  if (lumberjackBarracksLvl <= 0) return;
+  isLumberjackActive = !isLumberjackActive;
+  localStorage.setItem('outpost_lumberjack_active', isLumberjackActive ? 'true' : 'false');
+  if (isLumberjackActive) {
+    alert("🪓 NPC PENEBANG DIAKTIFKAN!\n\nPenebang mulai menuju hutan untuk menebang pohon.");
+  } else {
+    alert("🛑 NPC PENEBANG DINONAKTIFKAN!\n\nPenebang langsung berhenti bekerja, progress penebangan saat ini DIRESET menjadi 0, dan Penebang kembali ke Barak Penebang.");
+    if (lumberjackTarget) {
+      lumberjackTarget = null;
+    }
+  }
+}
+
 window.addEventListener('keydown', e => {
   keysPressed[e.key.toUpperCase()] = true;
   if (e.key === ' ' || e.code === 'Space') keysPressed['SPACE'] = true;
@@ -1269,7 +1301,30 @@ window.addEventListener('keydown', e => {
   }
   if (k === 'T') tryBuildTower();
   if (k === 'U') tryProximityUpgrade();
-  if (k === 'I') toggleInventory();
+  if (k === 'I') {
+    let handledNPC = false;
+    if (builderBarracksMesh && camera) {
+      const rc = new THREE.Raycaster();
+      rc.setFromCamera({ x: 0, y: 0 }, camera);
+      const hits = rc.intersectObject(builderBarracksMesh, true);
+      const distToBuilder = Math.hypot(playerX - builderBarracksMesh.position.x, playerZ - builderBarracksMesh.position.z);
+      if (hits.length > 0 && distToBuilder <= 4.5) {
+        toggleBuilderActiveState();
+        handledNPC = true;
+      }
+    }
+    if (!handledNPC && lumberjackBarracksMesh && camera) {
+      const rc = new THREE.Raycaster();
+      rc.setFromCamera({ x: 0, y: 0 }, camera);
+      const hits = rc.intersectObject(lumberjackBarracksMesh, true);
+      const distToLumberjack = Math.hypot(playerX - lumberjackBarracksMesh.position.x, playerZ - lumberjackBarracksMesh.position.z);
+      if (hits.length > 0 && distToLumberjack <= 4.5) {
+        toggleLumberjackActiveState();
+        handledNPC = true;
+      }
+    }
+    if (!handledNPC) toggleInventory();
+  }
   if (e.key === 'Escape') { cancelBuildingPlacement(); closeInventory(); closeEquipment(); closeBuildingMenu(); }
 });
 
@@ -1566,13 +1621,23 @@ function tryBuildBuilderBarracks(isNPC = false) {
   woodCount -= 10;
   stoneCount -= 10;
   builderBarracksLvl++;
-  if (builderBarracksLvl === 1) builderIdleTimer = 300; // Diam 5 detik saat baru dibangun
+  if (builderBarracksLvl === 1) {
+    builderIdleTimer = 300;
+    isBuilderActive = false;
+    localStorage.setItem('outpost_builder_active', 'false');
+  }
   localStorage.setItem('outpost_builder_barracks_lvl', builderBarracksLvl);
   localStorage.setItem('outpost_wood', woodCount);
   localStorage.setItem('outpost_stone_res', stoneCount);
   buildBuilderBarracksMesh();
   updateHUD();
-  if (!isNPC) alert(`🔨 Barak Tukang berhasil dibangun/ditingkatkan ke Level ${builderBarracksLvl}!`);
+  if (!isNPC) {
+    if (builderBarracksLvl === 1) {
+      alert(`🔨 Barak Tukang berhasil dibangun ke Level 1!\n\n💡 INFO PENTING:\nTukang saat ini dalam posisi STANDBY (Nonaktif di Barak).\nUntuk mengaktifkannya bekerja, berdiri 1 tile di sebelah Barak Tukang, arahkan kursor penargetan ke arah barak, lalu tekan tombol [I]!`);
+    } else {
+      alert(`🔨 Barak Tukang berhasil ditingkatkan ke Level ${builderBarracksLvl}!`);
+    }
+  }
 }
 
 function tryBuildLumberjackBarracks(isNPC = false) {
@@ -1593,13 +1658,23 @@ function tryBuildLumberjackBarracks(isNPC = false) {
   if (!checkAndPayWithGemConversion(cost, isNPC)) return;
   woodCount -= needWood; stoneCount -= needStone; ironCount -= needIron;
   lumberjackBarracksLvl++;
+  if (lumberjackBarracksLvl === 1) {
+    isLumberjackActive = false;
+    localStorage.setItem('outpost_lumberjack_active', 'false');
+  }
   localStorage.setItem('outpost_lumberjack_lvl', lumberjackBarracksLvl);
   localStorage.setItem('outpost_wood', woodCount);
   localStorage.setItem('outpost_stone_res', stoneCount);
   localStorage.setItem('outpost_iron', ironCount);
   buildLumberjackBarracksMesh();
   updateHUD();
-  if (!isNPC) alert(`🪓 Barak Penebang berhasil dibangun/ditingkatkan ke Level ${lumberjackBarracksLvl}!`);
+  if (!isNPC) {
+    if (lumberjackBarracksLvl === 1) {
+      alert(`🪓 Barak Penebang berhasil dibangun ke Level 1!\n\n💡 INFO PENTING:\nPenebang saat ini dalam posisi STANDBY (Nonaktif di Barak).\nUntuk mengaktifkannya menebang pohon, berdiri 1 tile di sebelah Barak Penebang, arahkan kursor penargetan ke arah barak, lalu tekan tombol [I]!`);
+    } else {
+      alert(`🪓 Barak Penebang berhasil ditingkatkan ke Level ${lumberjackBarracksLvl}!`);
+    }
+  }
 }
 
 function tryBuildMinerBarracks(isNPC = false) {
@@ -2001,7 +2076,34 @@ function loop() {
       updateHUD();
     }
 
-    if (builderIdleTimer > 0) {
+    if (!isBuilderActive) {
+      if (builderTarget) {
+        builderTarget = null;
+        if (typeof hideFloatingBuildProgress === 'function') hideFloatingBuildProgress();
+      }
+      const bPos = getBuildingPos('builder_barrack');
+      if (bPos) {
+        const targetX = bPos.x - 0.6;
+        const targetZ = bPos.z + 1.2;
+        const dx = targetX - builderMesh.position.x;
+        const dz = targetZ - builderMesh.position.z;
+        const dist = Math.hypot(dx, dz);
+        if (dist > 0.3) {
+          const moveSpeed = 0.06 * builderSpeed;
+          builderMesh.position.x += (dx / dist) * moveSpeed;
+          builderMesh.position.z += (dz / dist) * moveSpeed;
+          builderMesh.rotation.y = Math.atan2(dx, dz);
+          if (builderMesh.children[1]) builderMesh.children[1].rotation.x = Math.sin(gameTick * 0.2) * 0.4;
+          if (builderMesh.children[2]) builderMesh.children[2].rotation.x = -Math.sin(gameTick * 0.2) * 0.4;
+        } else {
+          builderMesh.rotation.y = 0;
+          if (builderHammerGroup) builderHammerGroup.rotation.z = Math.sin(gameTick * 0.05) * 0.1;
+          if (builderMesh.children[1]) builderMesh.children[1].rotation.x = 0;
+          if (builderMesh.children[2]) builderMesh.children[2].rotation.x = 0;
+        }
+      }
+      if (typeof hideFloatingBuildProgress === 'function') hideFloatingBuildProgress();
+    } else if (builderIdleTimer > 0) {
       builderIdleTimer--;
       if (builderHammerGroup) builderHammerGroup.rotation.z = Math.sin(gameTick * 0.05) * 0.1;
       if (builderMesh.children[1]) builderMesh.children[1].rotation.x = 0;
@@ -2085,7 +2187,31 @@ function loop() {
   if (lumberjackBarracksLvl > 0 && lumberjackMesh) {
     const lumberjackSpeed = 1.0 + (lumberjackBarracksLvl - 1) * 0.1;
 
-    if (!lumberjackTarget) {
+    if (!isLumberjackActive) {
+      if (lumberjackTarget) {
+        lumberjackTarget = null;
+      }
+      const bPos = getBuildingPos('lumberjack');
+      if (bPos) {
+        const targetX = bPos.x - 0.6;
+        const targetZ = bPos.z + 1.2;
+        const dx = targetX - lumberjackMesh.position.x;
+        const dz = targetZ - lumberjackMesh.position.z;
+        const dist = Math.hypot(dx, dz);
+        if (dist > 0.3) {
+          const moveSpeed = 0.05 * lumberjackSpeed;
+          lumberjackMesh.position.x += (dx / dist) * moveSpeed;
+          lumberjackMesh.position.z += (dz / dist) * moveSpeed;
+          lumberjackMesh.rotation.y = Math.atan2(dx, dz);
+          if (lumberjackMesh.children[1]) lumberjackMesh.children[1].rotation.x = Math.sin(gameTick * 0.2) * 0.4;
+          if (lumberjackMesh.children[2]) lumberjackMesh.children[2].rotation.x = -Math.sin(gameTick * 0.2) * 0.4;
+        } else {
+          lumberjackMesh.rotation.y = 0;
+          if (lumberjackMesh.children[1]) lumberjackMesh.children[1].rotation.x = 0;
+          if (lumberjackMesh.children[2]) lumberjackMesh.children[2].rotation.x = 0;
+        }
+      }
+    } else if (!lumberjackTarget) {
       let nearestTree = null;
       let minD = Infinity;
       for (let t of forestTrees) {
@@ -2754,7 +2880,11 @@ function openBuilderPlanModal() {
   const content = document.getElementById('builder-plan-content');
   const plan = getBuilderPlanList();
   
-  let html = `<div style="font-weight:800; color:#10b981; font-size:15px; margin-bottom:8px;">=Bisa Dikerjakan (Diurutkan Termurah)=</div>`;
+  const statusBadgeBg = isBuilderActive ? '#10b981' : '#ef4444';
+  const statusBadgeTxt = isBuilderActive ? '🛠️ STATUS TUKANG: AKTIF (Sedang Bekerja dari Daftar)' : '🛑 STATUS TUKANG: NONAKTIF / STANDBY DI BARAK (Berdiri 1 tile di samping barak ini & Tekan [I] untuk Mengaktifkan)';
+  let html = `<div style="background:${statusBadgeBg}22; border:1px solid ${statusBadgeBg}; color:${statusBadgeBg}; padding:10px 14px; border-radius:8px; font-weight:700; font-size:13px; margin-bottom:14px; text-align:center;">${statusBadgeTxt}</div>`;
+
+  html += `<div style="font-weight:800; color:#10b981; font-size:15px; margin-bottom:8px;">=Bisa Dikerjakan (Diurutkan Termurah)=</div>`;
   if (plan.bisaDikerjakan.length === 0) {
     html += `<div style="background:#0f172a; padding:10px; border-radius:8px; margin-bottom:16px; color:#64748b; font-style:italic;">Tidak ada tugas yang bisa dikerjakan saat ini (semua membutuhkan prasyarat).</div>`;
   } else {

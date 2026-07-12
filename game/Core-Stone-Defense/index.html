@@ -115,7 +115,7 @@
       <div class="controls-bar" style="gap: 8px;">
         <button class="btn-pc" style="padding: 8px 14px; font-size: 12px; width: auto; background:#10b981; color:white;" onclick="openBuildingMenu()"><i class="fa-solid fa-gavel"></i> [B] BANGUNAN</button>
         <button class="btn-pc" style="padding: 8px 14px; font-size: 12px; width: auto; background:#3b82f6; color:white;" onclick="openEquipment()"><i class="fa-solid fa-gun"></i> [E] SENJATA</button>
-        <button class="btn-pc" style="padding: 8px 16px; font-size: 12px; width: auto; background:#2563eb; color:white;" onclick="openInventory()"><i class="fa-solid fa-briefcase"></i> [I] TAS BAHAN</button>
+        <button class="btn-pc" style="padding: 8px 16px; font-size: 12px; width: auto; background:#2563eb; color:white;" onclick="openInventory()"><i class="fa-solid fa-briefcase"></i> [I] TAS / KONTROL NPC</button>
       </div>
     </div>
   </div>
@@ -161,7 +161,8 @@
     <div class="modal-content" style="max-width: 520px;">
       <button onclick="closeInventory()" class="close-btn">&times;</button>
       <h2 style="font-family: 'Outfit', sans-serif; margin-bottom: 6px;"><i class="fa-solid fa-briefcase" style="color: #fbbf24;"></i> Inventory Tas Bahan [I]</h2>
-      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 18px;">Menyimpan seluruh bahan mineral dan material konstruksi untuk pertahanan pos.</p>
+      <p style="color: #94a3b8; font-size: 13px; margin-bottom: 12px;">Menyimpan seluruh bahan mineral dan material konstruksi untuk pertahanan pos.</p>
+      <div style="background:#0f172a; border-left:4px solid #38bdf8; padding:10px 12px; border-radius:8px; font-size:12px; color:#cbd5e1; margin-bottom:16px;"><b>💡 KONTROL AKTIVASI NPC:</b> Berdiri 1 tile di sebelah <b>Barak Tukang</b> atau <b>Barak Penebang</b> sambil mengarahkan kursor ke baraknya, lalu tekan tombol <b style="color:#fde047;">[I]</b> untuk Mengaktifkan/Menonaktifkan NPC (Jika dinonaktifkan saat bekerja, progress otomatis direset ke 0 & NPC kembali ke Barak).</div>
       
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 4px;">
         <!-- Slot 1: Kayu -->
