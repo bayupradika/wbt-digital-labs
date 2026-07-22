@@ -6,6 +6,8 @@
   <title>Core Stone 3D FPS - Standalone PC Desktop Game</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
 </head>
 <body>
 
@@ -110,12 +112,14 @@
         <div class="ctrl-tag" style="color:#ef4444;"><kbd>X</kbd> Lempar Granat</div>
         <div class="ctrl-tag" style="color:#fbbf24;"><kbd>I</kbd> Tas Grid Bahan</div>
         <div class="ctrl-tag" style="color:#38bdf8;"><kbd>Q</kbd> Pindahkan Bangunan / Ganti Senjata</div>
+        <div class="ctrl-tag" style="color:#c084fc;"><kbd>V</kbd> Kamera 1st / 3rd Person</div>
       </div>
 
       <div class="controls-bar" style="gap: 8px;">
         <button class="btn-pc" style="padding: 8px 14px; font-size: 12px; width: auto; background:#10b981; color:white;" onclick="openBuildingMenu()"><i class="fa-solid fa-gavel"></i> [B] BANGUNAN</button>
         <button class="btn-pc" style="padding: 8px 14px; font-size: 12px; width: auto; background:#3b82f6; color:white;" onclick="openEquipment()"><i class="fa-solid fa-gun"></i> [E] SENJATA</button>
         <button class="btn-pc" style="padding: 8px 16px; font-size: 12px; width: auto; background:#2563eb; color:white;" onclick="openInventory()"><i class="fa-solid fa-briefcase"></i> [I] TAS / KONTROL NPC</button>
+        <button class="btn-pc" id="camera-view-btn" style="padding: 8px 14px; font-size: 12px; width: auto; background:#8b5cf6; color:white;" onclick="toggleCameraView()"><i class="fa-solid fa-camera"></i> [V] KAMERA: 1ST PERSON</button>
       </div>
     </div>
   </div>
@@ -130,6 +134,7 @@
       </p>
       <div class="pc-menu-buttons">
         <button class="btn-pc primary" onclick="startGame()"><i class="fa-solid fa-play"></i> MULAI PERTEMPURAN</button>
+        <button class="btn-pc" onclick="window.open('../Core-Stone-Assets/3D_Assets_Studio.html', '_blank')"><i class="fa-solid fa-cube" style="color:#c084fc;"></i> BUKA 3D ASSETS STUDIO</button>
         <button class="btn-pc" onclick="openInventory()"><i class="fa-solid fa-briefcase"></i> INVENTORY & SENJATA</button>
         <button class="btn-pc" onclick="openTopup()"><i class="fa-solid fa-gem"></i> TOKO PERMATA (TOPUP)</button>
         <button class="btn-pc" onclick="closeApp()"><i class="fa-solid fa-power-off" style="color:#ef4444;"></i> KELUAR GAME</button>
@@ -413,6 +418,9 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://unpkg.com/meshoptimizer@0.18.1/meshopt_decoder.js"></script>
   <script src="../midtrans-pay.js"></script>
   <script src="game.js"></script>
   <script>

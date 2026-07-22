@@ -45,6 +45,8 @@ let techLabBuilt = localStorage.getItem('outpost_tech_lab') === 'true';
 let techLabLvl = parseInt(localStorage.getItem('outpost_tech_lvl') || (techLabBuilt ? '1' : '0'));
 let builderBarracksLvl = parseInt(localStorage.getItem('outpost_builder_barracks_lvl') || '0');
 let weaponCrateLvl = parseInt(localStorage.getItem('outpost_weapon_crate_lvl') || '0');
+let turretBuilt = localStorage.getItem('outpost_turret_built') === 'true';
+let turretSavedLvl = parseInt(localStorage.getItem('outpost_turret_lvl') || (turretBuilt ? '1' : '0'));
 let techLabMesh = null;
 let builderBarracksMesh = null;
 let weaponCrateMesh = null;
@@ -87,17 +89,17 @@ let playerMaxHp = 20; // Player punya hp 20
 let playerHp = playerMaxHp;
 
 const WEAPON_STATS = {
-  pistol: { name: 'Pistol FPS', type: 'ranged', ammoMax: 12, dmg: 10, speed: '0.5s (2/dtk)', reload: 0.2, range: 8, desc: 'Pistol taktis standar. Kapasitas 12 peluru, reload kilat 0,2 detik.' },
-  shotgun: { name: 'Shotgun Plasma', type: 'ranged', ammoMax: 2, dmg: 24, speed: '0.6s burst', reload: 0.6, range: 6, desc: 'Menembakkan 3 peluru menyebar sekaligus. Kapasitas 2 peluru, reload 0,6 detik.' },
-  sniper: { name: 'Sniper Rifle', type: 'ranged', ammoMax: 1, dmg: 45, speed: '1.0s (1/dtk)', reload: 1.0, range: 15, desc: 'Senapan jarak jauh berpresisi tinggi. Kapasitas 1 peluru, reload 1 detik.' },
-  ak47: { name: 'AK-47 Assault', type: 'ranged', ammoMax: 30, dmg: 14, speed: '0.2s (5/dtk)', reload: 1.2, range: 12, desc: 'Senapan serbu otomatis dengan kapasitas magazin 30 peluru.' },
-  bow: { name: 'Compound Bow', type: 'ranged', ammoMax: 1, dmg: 35, speed: '0.8s', reload: 0.5, range: 10, desc: 'Busur karbon senyap penetrasi tinggi. Kapasitas 1 panah.' },
-  rudal: { name: 'Rudal RPG-7', type: 'ranged', ammoMax: 1, dmg: 30, speed: '1.5s', reload: 1.5, range: 12, desc: 'Peluncur roket anti-tank. Menembakkan roket ledakan area 3x3 grid (9 tile). Kapasitas 1 roket.' },
-  knife: { name: 'Pisau Komando', type: 'melee', ammoMax: Infinity, dmg: 15, speed: '0.25s (4/dtk)', reload: 0, range: 2.8, desc: 'Pisau komando taktis jarak dekat tanpa amunisi.' },
-  axe: { name: 'Kapak Titanium', type: 'melee', ammoMax: Infinity, dmg: 40, speed: '0.55s', reload: 0, range: 3.2, desc: 'Kapak perang titanium bertembakan berat.' },
-  blade: { name: 'Katana Plasma', type: 'melee', ammoMax: Infinity, dmg: 30, speed: '0.4s', reload: 0, range: 3.5, desc: 'Pedang panjang tebas armor musuh tanpa amunisi.' },
-  hammer: { name: 'Palu Besi Gada', type: 'melee', ammoMax: Infinity, dmg: 50, speed: '0.7s', reload: 0, range: 3.5, desc: 'Palu godam penghancur kerangka musuh secara brutal.' },
-  scythe: { name: 'Sabit Plasma Malaikat', type: 'melee', ammoMax: Infinity, dmg: 65, speed: '0.6s', reload: 0, range: 3.6, desc: 'Sabit laser mematikan penebas massal. Tanpa amunisi.' }
+  pistol: { name: 'Pistol FPS', type: 'ranged', ammoMax: 12, dmg: 10, speed: '0.5s (2/dtk)', reload: 0.2, range: 13.6, desc: 'Pistol taktis standar. Kapasitas 12 peluru, reload kilat 0,2 detik.' },
+  shotgun: { name: 'Shotgun Plasma', type: 'ranged', ammoMax: 2, dmg: 24, speed: '0.6s burst', reload: 0.6, range: 10.2, desc: 'Menembakkan 3 peluru menyebar sekaligus. Kapasitas 2 peluru, reload 0,6 detik.' },
+  sniper: { name: 'Sniper Rifle', type: 'ranged', ammoMax: 1, dmg: 45, speed: '1.0s (1/dtk)', reload: 1.0, range: 25.5, desc: 'Senapan jarak jauh berpresisi tinggi. Kapasitas 1 peluru, reload 1 detik.' },
+  ak47: { name: 'AK-47 Assault', type: 'ranged', ammoMax: 30, dmg: 14, speed: '0.2s (5/dtk)', reload: 1.2, range: 20.4, desc: 'Senapan serbu otomatis dengan kapasitas magazin 30 peluru.' },
+  bow: { name: 'Compound Bow', type: 'ranged', ammoMax: 1, dmg: 35, speed: '0.8s', reload: 0.5, range: 17.0, desc: 'Busur karbon senyap penetrasi tinggi. Kapasitas 1 panah.' },
+  rudal: { name: 'Rudal RPG-7', type: 'ranged', ammoMax: 1, dmg: 30, speed: '1.5s', reload: 1.5, range: 20.4, desc: 'Peluncur roket anti-tank. Menembakkan roket ledakan area 3x3 grid (9 tile). Kapasitas 1 roket.' },
+  knife: { name: 'Pisau Komando', type: 'melee', ammoMax: Infinity, dmg: 15, speed: '0.25s (4/dtk)', reload: 0, range: 2.0, desc: 'Pisau komando taktis jarak dekat 1 tile tanpa amunisi.' },
+  axe: { name: 'Kapak Titanium', type: 'melee', ammoMax: Infinity, dmg: 40, speed: '0.55s', reload: 0, range: 3.0, desc: 'Kapak perang titanium bertembakan berat.' },
+  blade: { name: 'Katana Plasma', type: 'melee', ammoMax: Infinity, dmg: 30, speed: '0.4s', reload: 0, range: 4.0, desc: 'Pedang panjang tebas armor musuh jarak 2 tile tanpa amunisi.' },
+  hammer: { name: 'Palu Besi Gada', type: 'melee', ammoMax: Infinity, dmg: 50, speed: '0.7s', reload: 0, range: 4.0, desc: 'Palu godam penghancur kerangka musuh jarak 2 tile secara brutal.' },
+  scythe: { name: 'Sabit Plasma Malaikat', type: 'melee', ammoMax: Infinity, dmg: 65, speed: '0.6s', reload: 0, range: 4.0, desc: 'Sabit laser mematikan penebas massal jarak 2 tile. Tanpa amunisi.' }
 };
 
 const weaponsOrder = ['pistol', 'shotgun', 'sniper', 'ak47', 'rudal', 'bow', 'knife', 'axe', 'blade', 'hammer', 'scythe'];
@@ -190,7 +192,7 @@ function findEmptyDefensePosition(buildingType, assignedSpots = []) {
 
 function isBuildingBuilt(bType) {
   if (bType === 'stone' || bType === 'wall') return true;
-  if (bType === 'turret') return towers.length > 0;
+  if (bType === 'turret') return towers.length > 0 || turretBuilt || turretSavedLvl > 0;
   if (bType === 'tech') return techLabLvl > 0;
   if (bType === 'builder_barrack') return builderBarracksLvl > 0;
   if (bType === 'lumberjack') return lumberjackBarracksLvl > 0;
@@ -235,16 +237,33 @@ function finishBuildingRelocation(success) {
     BUILDING_POSITIONS[bType] = { x: placingHologramMesh.position.x, z: placingHologramMesh.position.z };
     localStorage.setItem('outpost_building_positions', JSON.stringify(BUILDING_POSITIONS));
 
-    if (bType === 'turret' && towers.length > 0) {
-      const targetTower = relocatingTowerObj || towers[0];
-      if (targetTower.row !== undefined && targetTower.col !== undefined && grid[targetTower.row]) {
-        grid[targetTower.row][targetTower.col] = 0;
+    if (bType === 'turret') {
+      turretBuilt = true;
+      localStorage.setItem('outpost_turret_built', 'true');
+      if (towers.length > 0) {
+        const targetTower = relocatingTowerObj || towers[0];
+        if (targetTower.row !== undefined && targetTower.col !== undefined && grid[targetTower.row]) {
+          grid[targetTower.row][targetTower.col] = 0;
+        }
+        const newCol = Math.round(xToCol(BUILDING_POSITIONS['turret'].x));
+        const newRow = Math.round(zToRow(BUILDING_POSITIONS['turret'].z));
+        targetTower.col = newCol; targetTower.row = newRow;
+        if (grid[newRow]) grid[newRow][newCol] = targetTower;
+        if (targetTower.mesh) targetTower.mesh.position.set(BUILDING_POSITIONS['turret'].x, 0, BUILDING_POSITIONS['turret'].z);
+        localStorage.setItem('outpost_turret_lvl', targetTower.lvl);
+      } else {
+        const newCol = Math.round(xToCol(BUILDING_POSITIONS['turret'].x));
+        const newRow = Math.round(zToRow(BUILDING_POSITIONS['turret'].z));
+        const tObj = buildSciFiTurretTower();
+        tObj.group.position.set(BUILDING_POSITIONS['turret'].x, 0, BUILDING_POSITIONS['turret'].z);
+        scene.add(tObj.group);
+        const lvl = turretSavedLvl > 0 ? turretSavedLvl : 1;
+        const newTower = { col: newCol, row: newRow, lvl: lvl, hp: 50 * lvl, mesh: tObj.group, head: tObj.head };
+        towers.push(newTower);
+        if (grid[newRow]) grid[newRow][newCol] = newTower;
+        turretSavedLvl = lvl;
+        localStorage.setItem('outpost_turret_lvl', lvl);
       }
-      const newCol = Math.round(xToCol(BUILDING_POSITIONS['turret'].x));
-      const newRow = Math.round(zToRow(BUILDING_POSITIONS['turret'].z));
-      targetTower.col = newCol; targetTower.row = newRow;
-      if (grid[newRow]) grid[newRow][newCol] = targetTower;
-      if (targetTower.mesh) targetTower.mesh.position.set(BUILDING_POSITIONS['turret'].x, 0, BUILDING_POSITIONS['turret'].z);
     } else if (relocatingTargetMesh) {
       relocatingTargetMesh.position.set(BUILDING_POSITIONS[bType].x, 0, BUILDING_POSITIONS[bType].z);
     }
@@ -294,6 +313,11 @@ let bobTime = 0;
 let builderSpeed = 1.0;
 let gameTick = 0;
 let floatingProgressEl = null;
+let playerCharacterModel = null;
+let playerBones = {};
+let playerInitialRot = {};
+let isFirstPerson = true;
+let isAttackingMelee = false;
 
 function init3D() {
   scene = new THREE.Scene();
@@ -377,8 +401,161 @@ function init3D() {
   buildBuilderBarracksMesh();
   buildLumberjackBarracksMesh();
   buildMinerBarracksMesh();
+  restoreSavedTurretTower();
   buildFPSArms();
+  loadPlayerCharacterModel();
 }
+
+function restoreSavedTurretTower() {
+  if (turretBuilt || turretSavedLvl > 0) {
+    let pos = BUILDING_POSITIONS['turret'];
+    if (!pos) {
+      pos = getBuildingPos('turret');
+      BUILDING_POSITIONS['turret'] = pos;
+      localStorage.setItem('outpost_building_positions', JSON.stringify(BUILDING_POSITIONS));
+    }
+    const col = Math.round(xToCol(pos.x));
+    const row = Math.round(zToRow(pos.z));
+    const tObj = buildSciFiTurretTower();
+    tObj.group.position.set(pos.x, 0, pos.z);
+    scene.add(tObj.group);
+    
+    const lvl = turretSavedLvl > 0 ? turretSavedLvl : 1;
+    const newTower = { col: col, row: row, lvl: lvl, hp: 50 * lvl, mesh: tObj.group, head: tObj.head };
+    towers.push(newTower);
+    if (grid[row]) grid[row][col] = newTower;
+    turretBuilt = true;
+    turretSavedLvl = lvl;
+  }
+}
+
+function buildTripoProceduralFallback() {
+  const g = new THREE.Group();
+  const skinMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.6 });
+  const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
+  const vestMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 });
+
+  const spine = new THREE.Group(); spine.position.y = 1.0; g.add(spine);
+  const chest = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.65, 0.32), vestMat);
+  chest.position.y = 0.32; spine.add(chest);
+  const belt = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.12, 0.34), new THREE.MeshStandardMaterial({ color: 0x3b82f6 }));
+  belt.position.y = 0.04; spine.add(belt);
+
+  const headGroup = new THREE.Group(); headGroup.position.set(0, 0.68, 0); spine.add(headGroup);
+  headGroup.add(new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.38, 0.36), skinMat));
+  const hair = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.12, 0.38), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+  hair.position.y = 0.18; headGroup.add(hair);
+
+  const lArmGroup = new THREE.Group(); lArmGroup.position.set(-0.35, 0.6, 0); spine.add(lArmGroup);
+  lArmGroup.name = 'L_Upperarm';
+  const lArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.65, 0.16), skinMat); lArmMesh.position.y = -0.3; lArmGroup.add(lArmMesh);
+
+  const rArmGroup = new THREE.Group(); rArmGroup.position.set(0.35, 0.6, 0); spine.add(rArmGroup);
+  rArmGroup.name = 'R_Upperarm';
+  const rArmMesh = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.65, 0.16), skinMat); rArmMesh.position.y = -0.3; rArmGroup.add(rArmMesh);
+
+  const lThigh = new THREE.Group(); lThigh.position.set(-0.16, 1.0, 0); g.add(lThigh);
+  lThigh.name = 'L_Thigh';
+  const lLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.95, 0.18), pantsMat); lLegMesh.position.y = -0.45; lThigh.add(lLegMesh);
+
+  const rThigh = new THREE.Group(); rThigh.position.set(0.16, 1.0, 0); g.add(rThigh);
+  rThigh.name = 'R_Thigh';
+  const rLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.95, 0.18), pantsMat); rLegMesh.position.y = -0.45; rThigh.add(rLegMesh);
+
+  g.name = 'TripoFallback';
+  spine.name = 'Spine01';
+  headGroup.name = 'Head';
+
+  return g;
+}
+
+function loadPlayerCharacterModel() {
+  // 1. natif pasang model Tripo semi-realistis procedural terlebih dahulu
+  playerCharacterModel = buildTripoProceduralFallback();
+  playerCharacterModel.position.set(playerX, 0, playerZ);
+  scene.add(playerCharacterModel);
+
+  const bNamesFallback = ['L_Thigh', 'R_Thigh', 'L_Upperarm', 'R_Upperarm', 'Spine01', 'Head'];
+  bNamesFallback.forEach((name) => {
+    const bone = playerCharacterModel.getObjectByName(name);
+    if (bone) {
+      playerBones[name] = bone;
+      playerInitialRot[name] = bone.rotation.clone();
+    }
+  });
+  updateCharacterVisibility();
+
+  // 2. muat file GLB Tripo jika tersedia di browser / folder local
+  if (typeof THREE.GLTFLoader === 'undefined') return;
+  const loader = new THREE.GLTFLoader();
+  if (typeof MeshoptDecoder !== 'undefined' && loader.setMeshoptDecoder) {
+    loader.setMeshoptDecoder(MeshoptDecoder);
+  }
+  loader.load('assets/models/player_tripo.glb', (gltf) => {
+    if (playerCharacterModel) scene.remove(playerCharacterModel);
+    playerCharacterModel = gltf.scene;
+    playerCharacterModel.traverse((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    const box = new THREE.Box3().setFromObject(playerCharacterModel);
+    const height = box.max.y - box.min.y;
+    if (height > 0.001) {
+      const targetScale = 1.78 / height;
+      playerCharacterModel.scale.set(targetScale, targetScale, targetScale);
+    }
+    const boxAfter = new THREE.Box3().setFromObject(playerCharacterModel);
+    playerCharacterModel.userData.baseOffsetY = -boxAfter.min.y;
+
+    const boneNames = [
+      'L_Thigh', 'R_Thigh', 'L_Calf', 'R_Calf', 'L_Foot', 'R_Foot',
+      'L_Upperarm', 'R_Upperarm', 'L_Forearm', 'R_Forearm', 'L_Hand', 'R_Hand',
+      'Spine01', 'Spine02', 'Waist', 'Pelvis', 'NeckTwist01', 'Head'
+    ];
+    boneNames.forEach((name) => {
+      const bone = playerCharacterModel.getObjectByName(name);
+      if (bone) {
+        playerBones[name] = bone;
+        playerInitialRot[name] = bone.rotation.clone();
+      }
+    });
+
+    playerCharacterModel.position.set(playerX, playerCharacterModel.userData.baseOffsetY || 0, playerZ);
+    scene.add(playerCharacterModel);
+    updateCharacterVisibility();
+  }, undefined, (err) => {
+    console.log('Menggunakan model Tripo semi-realistis prosedural:', err);
+  });
+}
+
+function toggleCameraView() {
+  isFirstPerson = !isFirstPerson;
+  updateCharacterVisibility();
+  const camBtn = document.getElementById('camera-view-btn');
+  if (camBtn) {
+    camBtn.innerHTML = isFirstPerson ? '<i class="fa-solid fa-camera"></i> [V] KAMERA: 1ST PERSON' : '<i class="fa-solid fa-user"></i> [V] KAMERA: 3RD PERSON';
+    camBtn.style.background = isFirstPerson ? '#8b5cf6' : '#ec4899';
+  }
+}
+
+function updateCharacterVisibility() {
+  if (!playerCharacterModel) return;
+  const head = playerBones['Head'];
+  if (isFirstPerson) {
+    playerCharacterModel.visible = false;
+    if (pistolGroup) pistolGroup.visible = (activeWeaponSlot === 1 && !isSniperScoped);
+    if (knifeGroup) knifeGroup.visible = (activeWeaponSlot === 2);
+  } else {
+    if (head) head.visible = true;
+    playerCharacterModel.visible = true;
+    if (pistolGroup) pistolGroup.visible = false;
+    if (knifeGroup) knifeGroup.visible = false;
+  }
+}
+
 
 let forestTrees = [];
 let builderTarget = null;
@@ -1151,27 +1328,10 @@ function rewardEnemyKill(e) {
   const earnedGold = 15 + Math.floor(Math.random() * 11);
   gold += earnedGold;
 
-  const earnedWood = 2 + Math.floor(Math.random() * 4);
-  const earnedStone = 2 + Math.floor(Math.random() * 4);
-  const earnedIron = 1 + Math.floor(Math.random() * 3);
-  const earnedSoil = 1 + Math.floor(Math.random() * 3);
-  const earnedRubber = 1 + Math.floor(Math.random() * 2);
-
-  woodCount += earnedWood;
-  stoneCount += earnedStone;
-  ironCount += earnedIron;
-  soilCount += earnedSoil;
-  rubberCount += earnedRubber;
-
   localStorage.setItem('outpost_gold', Math.floor(gold));
-  localStorage.setItem('outpost_wood', woodCount);
-  localStorage.setItem('outpost_stone_res', stoneCount);
-  localStorage.setItem('outpost_iron', ironCount);
-  localStorage.setItem('outpost_soil', soilCount);
-  localStorage.setItem('outpost_rubber', rubberCount);
 
   if (e && e.mesh) {
-    showFloatingLootText(`+${earnedGold} Gold | +${earnedWood}🪵 +${earnedStone}🪨 +${earnedIron}⚙️`, e.mesh.position.x, 2.2, e.mesh.position.z, '#fbbf24');
+    showFloatingLootText(`+${earnedGold} Gold 🪙`, e.mesh.position.x, 2.2, e.mesh.position.z, '#fbbf24');
   }
   updateHUD();
 }
@@ -1187,6 +1347,8 @@ function fireFPSPistol() {
     let reach = st.range || 2.8;
 
     playerFireCooldown = cd;
+    isAttackingMelee = true;
+    setTimeout(() => { isAttackingMelee = false; }, 250);
     if (knifeGroup) knifeGroup.rotation.z = -0.55;
     setTimeout(() => { if (knifeGroup) knifeGroup.rotation.z = 0.2; }, 120);
 
@@ -1239,13 +1401,13 @@ function fireFPSPistol() {
       const pelletDir = dir.clone().add(new THREE.Vector3(s + (Math.random()-0.5)*0.05, (Math.random()-0.5)*0.05, 0)).normalize();
       bM.position.copy(camera.position).addScaledVector(pelletDir, 0.8);
       scene.add(bM);
-      bullets.push({ mesh: bM, dir: pelletDir.multiplyScalar(spdMult), dmg: dmg / 3, startPos: camera.position.clone(), maxDist: maxDistUnits });
+      bullets.push({ mesh: bM, dir: pelletDir.multiplyScalar(spdMult), dmg: dmg / 3, startPos: camera.position.clone(), maxDist: maxDistUnits, isPlayerBullet: true });
     }
   } else {
     const bMesh = new THREE.Mesh(bulletGeo, bulletMat);
     bMesh.position.copy(camera.position).addScaledVector(dir, 0.8);
     scene.add(bMesh);
-    bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(spdMult), dmg: dmg, startPos: camera.position.clone(), maxDist: maxDistUnits, isRudal: equippedRanged === 'rudal' });
+    bullets.push({ mesh: bMesh, dir: dir.clone().multiplyScalar(spdMult), dmg: dmg, startPos: camera.position.clone(), maxDist: maxDistUnits, isRudal: equippedRanged === 'rudal', isPlayerBullet: true });
   }
 }
 
@@ -1578,7 +1740,55 @@ function handleSmoothPlayerMovement() {
     }
   }
 
-  camera.position.set(playerX, playerY, playerZ);
+  if (playerCharacterModel) {
+    playerCharacterModel.position.set(playerX, (playerCharacterModel.userData.baseOffsetY || 0) + (playerY - CAMERA_HEIGHT), playerZ);
+    let targetRotY = cameraYaw + Math.PI;
+    if (moveBackward && !moveForward) {
+      if (moveLeft && !moveRight) targetRotY = cameraYaw + Math.PI * 0.25;
+      else if (moveRight && !moveLeft) targetRotY = cameraYaw - Math.PI * 0.25;
+      else targetRotY = cameraYaw; // Mundur menghadap kamera (terlihat wajah saat mundur ke base)
+    } else if (moveForward && !moveBackward) {
+      if (moveLeft && !moveRight) targetRotY = cameraYaw + Math.PI * 0.75;
+      else if (moveRight && !moveLeft) targetRotY = cameraYaw + Math.PI * 1.25;
+      else targetRotY = cameraYaw + Math.PI; // Maju menghadap depan (terlihat punggung)
+    } else if (moveLeft && !moveRight) {
+      targetRotY = cameraYaw + Math.PI * 0.5;
+    } else if (moveRight && !moveLeft) {
+      targetRotY = cameraYaw - Math.PI * 0.5;
+    }
+    playerCharacterModel.rotation.y = targetRotY;
+
+    let state = 'idle';
+    if (activeWeaponSlot === 2 && isAttackingMelee) {
+      state = 'knife';
+    } else if (moveForward || moveBackward || moveLeft || moveRight) {
+      state = keysPressed['SHIFT'] ? 'run' : 'walk';
+    } else if (activeWeaponSlot === 1) {
+      state = 'rifle';
+    } else if (activeWeaponSlot === 2) {
+      state = 'knife';
+    }
+
+    if (typeof applyCharacterSkeletalAnimation === 'function') {
+      applyCharacterSkeletalAnimation(playerCharacterModel, playerBones, playerInitialRot, state, gameTick, null, null);
+    }
+  }
+
+  if (isFirstPerson) {
+    camera.position.set(playerX, playerY, playerZ);
+    if (pistolGroup) pistolGroup.visible = (activeWeaponSlot === 1 && !isSniperScoped);
+    if (knifeGroup) knifeGroup.visible = (activeWeaponSlot === 2);
+  } else {
+    const dist = 3.5;
+    const heightOffset = 0.5;
+    camera.position.set(
+      playerX + Math.sin(cameraYaw) * dist,
+      playerY + heightOffset,
+      playerZ + Math.cos(cameraYaw) * dist
+    );
+    if (pistolGroup) pistolGroup.visible = false;
+    if (knifeGroup) knifeGroup.visible = false;
+  }
 }
 
 function buildSciFiTurretTower() {
@@ -1719,6 +1929,14 @@ function tryBuildTowerAt(x, z) {
   const newTower = { col: col, row: row, lvl: 1, hp: 50, mesh: tObj.group, head: tObj.head };
   towers.push(newTower);
   if (grid[row]) grid[row][col] = newTower;
+  
+  turretBuilt = true;
+  turretSavedLvl = 1;
+  BUILDING_POSITIONS['turret'] = { x: x, z: z };
+  localStorage.setItem('outpost_building_positions', JSON.stringify(BUILDING_POSITIONS));
+  localStorage.setItem('outpost_turret_built', 'true');
+  localStorage.setItem('outpost_turret_lvl', '1');
+  
   updateHUD();
   alert('🚀 Turret Railgun Level 1 berhasil dibangun di Tile Kolom ' + col + '!');
 }
@@ -2020,44 +2238,65 @@ function tryProximityUpgrade() {
 
 function buildFullHumanoidEnemy(isPatrol) {
   const g = new THREE.Group();
-  const skinMat = new THREE.MeshStandardMaterial({color: 0xfed7aa, roughness: 0.5});
-  const shirtColor = isPatrol ? 0x06b6d4 : (currentPhase === 1 ? 0xd97706 : 0xdc2626);
-  const shirtMat = new THREE.MeshStandardMaterial({color: shirtColor, roughness: 0.6});
-  const pantsMat = new THREE.MeshStandardMaterial({color: 0x1e293b, roughness: 0.7});
-  const bootMat = new THREE.MeshStandardMaterial({color: 0x0f172a, roughness: 0.8});
+  const skinColor = isPatrol ? 0x991b1b : 0x15803d;
+  const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.6 });
+  const ragColor = isPatrol ? 0x1e1b4b : 0x1e293b;
+  const ragMat = new THREE.MeshStandardMaterial({ color: ragColor, roughness: 0.7 });
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
 
-  // Torso
-  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.38, 0.75, 8), shirtMat);
-  torso.position.y = 1.35; g.add(torso);
+  // Articulated Spine/Torso group for Tripo kinematics
+  const spine = new THREE.Group();
+  spine.position.y = isPatrol ? 1.05 : 1.0;
+  g.add(spine);
 
-  // Head & Hair
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.44, 0.38), skinMat);
-  head.position.y = 1.9; g.add(head);
-  const hair = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.18, 0.44), new THREE.MeshStandardMaterial({color: 0x3e2723}));
-  hair.position.set(0, 2.14, -0.02); g.add(hair);
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(isPatrol ? 0.6 : 0.56, isPatrol ? 0.7 : 0.65, isPatrol ? 0.36 : 0.32), skinMat);
+  torso.position.y = 0.34;
+  if (!isPatrol) torso.rotation.x = 0.18; // Leaning forward predatory stance for creeper
+  spine.add(torso);
 
-  // Left Arm + Hand
-  const lSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.4, 6), shirtMat);
-  lSleeve.position.set(-0.55, 1.5, 0); lSleeve.rotation.z = 0.2; g.add(lSleeve);
-  const lForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.4, 6), skinMat);
-  lForearm.position.set(-0.65, 1.15, 0); lForearm.rotation.z = 0.2; g.add(lForearm);
+  if (isPatrol) {
+    const coreSpikes = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.32, 0.38), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+    coreSpikes.position.y = 0.35;
+    spine.add(coreSpikes);
+  } else {
+    const ribs = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.28, 0.33), new THREE.MeshStandardMaterial({ color: 0x7f1d1d }));
+    ribs.position.y = 0.35;
+    spine.add(ribs);
+  }
 
-  // Right Arm + Hand
-  const rSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.12, 0.4, 6), shirtMat);
-  rSleeve.position.set(0.55, 1.5, 0); rSleeve.rotation.z = -0.2; g.add(rSleeve);
-  const rForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.4, 6), skinMat);
-  rForearm.position.set(0.65, 1.15, 0); rForearm.rotation.z = -0.2; g.add(rForearm);
+  // Head & Features
+  const headGroup = new THREE.Group();
+  headGroup.position.set(0, 0.7, isPatrol ? 0 : 0.08);
+  spine.add(headGroup);
+  const headMesh = new THREE.Mesh(new THREE.BoxGeometry(isPatrol ? 0.42 : 0.38, isPatrol ? 0.42 : 0.4, isPatrol ? 0.42 : 0.38), skinMat);
+  headMesh.position.y = 0.2;
+  headGroup.add(headMesh);
 
-  // Left & Right Legs + Boots
-  const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.75, 6), pantsMat);
-  lLeg.position.set(-0.2, 0.5, 0); g.add(lLeg);
-  const lBoot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.2, 0.35), bootMat);
-  lBoot.position.set(-0.2, 0.1, 0.05); g.add(lBoot);
+  const eyeColor = isPatrol ? 0xfbbf24 : 0xef4444;
+  const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.06), new THREE.MeshBasicMaterial({ color: eyeColor }));
+  eyeL.position.set(-0.1, 0.24, 0.2);
+  headGroup.add(eyeL);
+  const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.06), new THREE.MeshBasicMaterial({ color: eyeColor }));
+  eyeR.position.set(0.1, 0.24, 0.2);
+  headGroup.add(eyeR);
 
-  const rLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.75, 6), pantsMat);
-  rLeg.position.set(0.2, 0.5, 0); g.add(rLeg);
-  const rBoot = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.2, 0.35), bootMat);
-  rBoot.position.set(0.2, 0.1, 0.05); g.add(rBoot);
+  if (isPatrol) {
+    const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.3, 4), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+    hornL.rotation.x = 0.5; hornL.position.set(-0.15, 0.32, 0.15); headGroup.add(hornL);
+    const hornR = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.3, 4), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+    hornR.rotation.x = 0.5; hornR.position.set(0.15, 0.32, 0.15); headGroup.add(hornR);
+  }
+
+  // Limbs
+  const lArm = new THREE.Group(); lArm.position.set(isPatrol ? -0.38 : -0.35, 0.58, 0); spine.add(lArm);
+  lArm.add(new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.65, 0.15), skinMat));
+  const rArm = new THREE.Group(); rArm.position.set(isPatrol ? 0.38 : 0.35, 0.58, 0); spine.add(rArm);
+  rArm.add(new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.65, 0.15), skinMat));
+
+  const lLeg = new THREE.Group(); lLeg.position.set(-0.18, isPatrol ? 1.05 : 1.0, 0); g.add(lLeg);
+  lLeg.add(new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.95, 0.18), ragMat));
+  const rLeg = new THREE.Group(); rLeg.position.set(0.18, isPatrol ? 1.05 : 1.0, 0); g.add(rLeg);
+  rLeg.add(new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.95, 0.18), ragMat));
 
   // 3D Floating HP Bar Above Head
   const hpBarGroup = new THREE.Group();
@@ -2068,7 +2307,7 @@ function buildFullHumanoidEnemy(isPatrol) {
   fillBar.position.z = 0.01;
   hpBarGroup.add(fillBar);
   g.add(hpBarGroup);
-  g.userData = { hpBarFill: fillBar, hpBarGroup: hpBarGroup };
+  g.userData = { hpBarFill: fillBar, hpBarGroup: hpBarGroup, spine: spine, head: headGroup, lArm: lArm, rArm: rArm, lLeg: lLeg, rLeg: rLeg };
 
   return g;
 }
@@ -2122,7 +2361,11 @@ function executeAutoUpgradeTower() {
   if (gold < turretCost) return;
   gold -= turretCost;
   t.lvl++;
+  turretBuilt = true;
+  turretSavedLvl = t.lvl;
   localStorage.setItem('outpost_gold', Math.floor(gold));
+  localStorage.setItem('outpost_turret_built', 'true');
+  localStorage.setItem('outpost_turret_lvl', t.lvl);
   updateHUD();
 }
 
@@ -2515,11 +2758,11 @@ function loop() {
     spawnEnemy(false);
   }
 
-  // Tower tracking & shooting dengan peningkatan Atk Spd 25% per level
+  // Tower tracking & shooting dengan peningkatan Atk Spd 25% per level & Jarak +70%
   towers.forEach(t => {
     let nearestEnemy = null;
     let minD = Infinity;
-    const maxTurretDist = 12 * CELL_SIZE; // 12 tile = 24.0 units dari posisi turet
+    const maxTurretDist = 20.4 * CELL_SIZE; // 20.4 tile (~40.8 units) dari posisi turet (+70%)
     for (let e of enemies) {
       let d = t.mesh.position.distanceTo(e.mesh.position);
       if (d < minD && d <= maxTurretDist) { minD = d; nearestEnemy = e; }
@@ -2538,22 +2781,34 @@ function loop() {
       const bGeo = new THREE.SphereGeometry(0.25);
       const bMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
       const bMesh = new THREE.Mesh(bGeo, bMat);
-      bMesh.position.copy(t.mesh.position).y += 1.4;
+      
+      const angle = t.head ? t.head.rotation.y : 0;
+      // Posisi spawn proyektil tepat di ujung pipa laras railgun (Y=3.6) jauh di atas pagar
+      bMesh.position.set(
+        t.mesh.position.x + Math.sin(angle) * 1.6,
+        3.6,
+        t.mesh.position.z + Math.cos(angle) * 1.6
+      );
       scene.add(bMesh);
-      const targetPos = nearestEnemy.mesh.position.clone().add(new THREE.Vector3(0, 1.0, 0));
-      const dir = targetPos.sub(bMesh.position).normalize().multiplyScalar(2.0);
+      const targetPos = nearestEnemy.mesh.position.clone().add(new THREE.Vector3(0, 0.8, 0));
+      const dir = targetPos.sub(bMesh.position).normalize().multiplyScalar(1.8);
       const tDmg = Math.floor(8 * Math.pow(1.25, t.lvl - 1));
-      bullets.push({ mesh: bMesh, dir: dir, dmg: tDmg, startPos: bMesh.position.clone(), maxDist: maxTurretDist });
+      bullets.push({ mesh: bMesh, dir: dir, dmg: tDmg, startPos: bMesh.position.clone(), maxDist: maxTurretDist, isTurret: true });
     }
   });
 
-  // Update bullets
+  // Update bullets (termasuk efek gravitasi peluru manual dan turet)
   for (let i = bullets.length - 1; i >= 0; i--) {
     let b = bullets[i];
     b.mesh.position.add(b.dir);
     if (b.isGrenade) {
       b.dir.y -= 0.015; // Efek gravitasi melengkung untuk lemparan granat
+    } else if (b.isPlayerBullet) {
+      b.dir.y -= 0.016; // Efek gravitasi melengkung untuk peluru senjata manual
+    } else if (b.isTurret) {
+      b.dir.y -= 0.010; // Efek gravitasi melengkung dari atas pipa turet menuju musuh
     }
+
     if ((b.startPos && b.maxDist && b.mesh.position.distanceTo(b.startPos) > b.maxDist) || b.mesh.position.y <= 0) {
       if (b.isRudal) triggerAoEExplosion(b.mesh.position, 3.0, b.dmg, 0xff4500);
       else if (b.isGrenade) triggerAoEExplosion(b.mesh.position, 2.0, b.dmg, 0xfbbf24);
@@ -2574,7 +2829,12 @@ function loop() {
           triggerAoEExplosion(b.mesh.position, 2.0, b.dmg, 0xfbbf24);
           scene.remove(b.mesh); bullets.splice(i, 1);
         } else {
-          e.hp -= b.dmg;
+          let finalDmg = b.dmg;
+          if (b.mesh.position.y >= e.mesh.position.y + 1.2) {
+            finalDmg *= 2; // 2x lipat kerusakan jika mengenai kepala musuh
+            showFloatingLootText('💥 HEADSHOT x2!', e.mesh.position.x, e.mesh.position.y + 2.0, e.mesh.position.z, '#ef4444');
+          }
+          e.hp -= finalDmg;
           scene.remove(b.mesh); bullets.splice(i, 1);
           if (e.hp <= 0) {
             rewardEnemyKill(e);
@@ -2628,65 +2888,109 @@ function loop() {
       let minD = Math.min(dPlayer, dFence, dBuild, dStone);
 
       if (minD === dPlayer) {
-        // Menargetkan Player jika paling dekat
         const dirP = new THREE.Vector3().subVectors(camera.position, e.mesh.position);
         dirP.y = 0;
-        if (dirP.length() > 1.6) {
+        if (dirP.length() > 2.0) { // Jarak serangan 1 tile (= 2.0 units)
           dirP.normalize();
           e.mesh.position.addScaledVector(dirP, e.speed);
+          e.attackState = 'idle'; e.attackTimer = 0;
         } else {
-          playerHp -= 0.05;
-          if (gameTick % 15 === 0) updateHUD();
-          if (playerHp <= 0) {
-            alert("⚠️ KARAKTER ANDA GUGUR DI SERANG MUSUH! Respawn darurat di dalam pos...");
-            playerHp = playerMaxHp;
-            playerX = colToX(19.5); playerZ = rowToZ(5);
-            camera.position.set(playerX, CAMERA_HEIGHT, playerZ);
-            updateHUD();
+          if (!e.attackState || e.attackState === 'idle') {
+            e.attackState = 'windup'; e.attackTimer = 90; // Aktivasi serangan 1.5 detik (90 ticks)
+          } else if (e.attackState === 'windup') {
+            e.attackTimer--;
+            if (e.attackTimer <= 0) {
+              playerHp -= 3.0;
+              updateHUD();
+              if (playerHp <= 0) {
+                alert("⚠️ KARAKTER ANDA GUGUR DI SERANG MUSUH! Respawn darurat di dalam pos...");
+                playerHp = playerMaxHp;
+                playerX = colToX(19.5); playerZ = rowToZ(5);
+                camera.position.set(playerX, CAMERA_HEIGHT, playerZ);
+                updateHUD();
+              }
+              e.attackState = 'cooldown'; e.attackTimer = 54; // Jeda tiap serangan 0.90 detik (54 ticks)
+            }
+          } else if (e.attackState === 'cooldown') {
+            e.attackTimer--;
+            if (e.attackTimer <= 0) { e.attackState = 'windup'; e.attackTimer = 90; }
           }
         }
       } else if (minD === dBuild && targetBuilding) {
-        // Menargetkan Bangunan Turret
         const dirB = new THREE.Vector3().subVectors(targetBuilding.mesh.position, e.mesh.position);
         dirB.y = 0;
-        if (dirB.length() > 1.8) {
+        if (dirB.length() > 2.0) { // Jarak serangan 1 tile (= 2.0 units)
           dirB.normalize();
           e.mesh.position.addScaledVector(dirB, e.speed);
+          e.attackState = 'idle'; e.attackTimer = 0;
         } else {
-          targetBuilding.hp = (targetBuilding.hp || 50) - 0.08;
-          if (targetBuilding.hp <= 0) {
-            scene.remove(targetBuilding.mesh);
-            towers = towers.filter(tw => tw !== targetBuilding);
-            grid[targetBuilding.row][targetBuilding.col] = null;
+          if (!e.attackState || e.attackState === 'idle') {
+            e.attackState = 'windup'; e.attackTimer = 90;
+          } else if (e.attackState === 'windup') {
+            e.attackTimer--;
+            if (e.attackTimer <= 0) {
+              targetBuilding.hp = (targetBuilding.hp || 50) - 5.0;
+              if (targetBuilding.hp <= 0) {
+                scene.remove(targetBuilding.mesh);
+                towers = towers.filter(tw => tw !== targetBuilding);
+                grid[targetBuilding.row][targetBuilding.col] = null;
+              }
+              e.attackState = 'cooldown'; e.attackTimer = 54;
+            }
+          } else if (e.attackState === 'cooldown') {
+            e.attackTimer--;
+            if (e.attackTimer <= 0) { e.attackState = 'windup'; e.attackTimer = 90; }
           }
         }
       } else if (minD === dFence && targetFence) {
-        // Menargetkan Segmen Pagar tertentu
         const dirF = new THREE.Vector3().subVectors(targetFence.mesh.position, e.mesh.position);
         dirF.y = 0;
-        if (dirF.length() > 2.0) {
+        if (dirF.length() > 2.0) { // Jarak serangan 1 tile (= 2.0 units)
           dirF.normalize();
           e.mesh.position.addScaledVector(dirF, e.speed);
+          e.attackState = 'idle'; e.attackTimer = 0;
         } else {
-          targetFence.hp -= 0.12;
-          if (gameTick % 15 === 0) updateHUD();
-          if (targetFence.hp <= 0) {
-            if (targetFence.mesh) scene.remove(targetFence.mesh);
-            targetFence.mesh = null;
-            updateHUD();
+          if (!e.attackState || e.attackState === 'idle') {
+            e.attackState = 'windup'; e.attackTimer = 90;
+          } else if (e.attackState === 'windup') {
+            e.attackTimer--;
+            if (e.attackTimer <= 0) {
+              targetFence.hp -= 6.0;
+              updateHUD();
+              if (targetFence.hp <= 0) {
+                if (targetFence.mesh) scene.remove(targetFence.mesh);
+                targetFence.mesh = null;
+                updateHUD();
+              }
+              e.attackState = 'cooldown'; e.attackTimer = 54;
+            }
+          } else if (e.attackState === 'cooldown') {
+            e.attackTimer--;
+            if (e.attackTimer <= 0) { e.attackState = 'windup'; e.attackTimer = 90; }
           }
         }
       } else {
-        // Menargetkan Core Stone
         const dirS = new THREE.Vector3().subVectors(stoneMesh.position, e.mesh.position);
         dirS.y = 0;
-        if (dirS.length() > 2.0) {
+        if (dirS.length() > 2.0) { // Jarak serangan 1 tile (= 2.0 units)
           dirS.normalize();
           e.mesh.position.addScaledVector(dirS, e.speed);
+          e.attackState = 'idle'; e.attackTimer = 0;
         } else {
-          stoneHp -= 0.25;
-          if (gameTick % 15 === 0) updateHUD();
-          if (stoneHp <= 0) { triggerCoreStoneStolen(); return; }
+          if (!e.attackState || e.attackState === 'idle') {
+            e.attackState = 'windup'; e.attackTimer = 90;
+          } else if (e.attackState === 'windup') {
+            e.attackTimer--;
+            if (e.attackTimer <= 0) {
+              stoneHp -= 15.0;
+              updateHUD();
+              if (stoneHp <= 0) { triggerCoreStoneStolen(); return; }
+              e.attackState = 'cooldown'; e.attackTimer = 54;
+            }
+          } else if (e.attackState === 'cooldown') {
+            e.attackTimer--;
+            if (e.attackTimer <= 0) { e.attackState = 'windup'; e.attackTimer = 90; }
+          }
         }
       }
     }
@@ -3019,6 +3323,10 @@ function getBuilderPlanList() {
         towers.push(newTower); if (grid[row]) grid[row][col] = newTower;
         BUILDING_POSITIONS['turret'] = { x: pos.x, z: pos.z };
         localStorage.setItem('outpost_building_positions', JSON.stringify(BUILDING_POSITIONS));
+        turretBuilt = true;
+        turretSavedLvl = 1;
+        localStorage.setItem('outpost_turret_built', 'true');
+        localStorage.setItem('outpost_turret_lvl', '1');
         updateHUD();
       }
     } else executeAutoUpgradeTower();

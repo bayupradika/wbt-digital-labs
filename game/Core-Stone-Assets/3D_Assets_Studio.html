@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Core Stone: 3D Assets Studio & Wardrobe Customizer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; user-select:none; }
+    body { background: #0b0f19; color: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
+    
+    .sidebar { width: 390px; background: #111827; border-right: 2px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; padding: 20px; z-index: 10; overflow-y: auto; }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    
+    .logo { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+    .logo-sub { font-size: 11px; color: #94a3b8; margin-bottom: 16px; font-weight: 600; }
+
+    .cat-lbl { font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin: 16px 0 8px; letter-spacing: 0.8px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(56,189,248,0.2); padding-bottom: 6px; }
+    .btn-asset { background: #1f2937; border: 1px solid rgba(255,255,255,0.08); color: #cbd5e1; padding: 10px 14px; border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; transition: all 0.2s; text-align: left; }
+    .btn-asset:hover, .btn-asset.active { background: linear-gradient(90deg, #38bdf8, #0284c7); color: #0f172a; border-color: #38bdf8; transform: translateX(4px); box-shadow: 0 4px 12px rgba(56,189,248,0.3); font-weight: 800; }
+    .btn-asset i { font-size: 15px; width: 22px; text-align: center; }
+    
+    .anim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+    .btn-anim { background: #1e293b; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; padding: 8px; border-radius: 8px; font-weight: 700; font-size: 11px; cursor: pointer; transition: 0.2s; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-anim:hover, .btn-anim.active { background: #c084fc; color: #0f172a; border-color: #c084fc; font-weight: 800; }
+
+    .wardrobe-box { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
+    .btn-outfit { background: rgba(15,23,42,0.8); border: 1px solid rgba(168,85,247,0.3); color: #e2e8f0; padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+    .btn-outfit:hover, .btn-outfit.active { background: rgba(168,85,247,0.3); border-color: #c084fc; color: #fff; transform: scale(1.02); }
+
+    .color-picker-box { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .color-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); cursor: pointer; transition: 0.2s; }
+    .color-dot:hover { transform: scale(1.2); border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+    .viewport { flex: 1; position: relative; background: radial-gradient(circle at center, #1e293b 0%, #020617 100%); display: flex; align-items: center; justify-content: center; }
+    canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    canvas:active { cursor: grabbing; }
+    
+    .info-hud { position: absolute; top: 20px; left: 24px; background: rgba(15,23,42,0.92); backdrop-filter: blur(12px); border: 1px solid rgba(168,85,247,0.4); padding: 20px 24px; border-radius: 20px; pointer-events: none; max-width: 480px; box-shadow: 0 25px 50px rgba(0,0,0,0.7); }
+    .info-hud h2 { font-family: 'Outfit', sans-serif; font-size: 22px; color: #c084fc; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+    .info-hud p { font-size: 13px; color: #e2e8f0; line-height: 1.6; }
+    .info-hud .specs { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 12px; }
+    .info-hud .specs span { background: rgba(30,41,59,0.8); padding: 4px 8px; border-radius: 6px; color: #38bdf8; font-weight: 700; }
+
+    .loader-badge { position: absolute; background: rgba(15,23,42,0.95); border: 1px solid #38bdf8; padding: 12px 24px; border-radius: 16px; color: #38bdf8; font-size: 14px; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+    .customizer-panel { background: rgba(30,41,59,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; margin-top: 8px; }
+  </style>
+
+    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">CORE STONE 3D</div>
+    <div class="logo-sub">TRIPO3D ANATOMY & WARDROBE STUDIO</div>
+    
+    <!-- 1. Player & Kustomisasi -->
+    <div class="cat-lbl"><i class="fa-solid fa-user-astronaut"></i> 1. Player (High-Poly GLB & Tripo Anatomy)</div>
+    <button class="btn-asset" style="background: linear-gradient(135deg, #7c3aed, #2563eb); border: 1px solid #38bdf8; font-weight: bold;" onclick="document.getElementById('local-glb-picker').click()"><i class="fa-solid fa-folder-open"></i> 📁 Pilih File GLB Lokal (player.glb)</button>
+    <button class="btn-asset active" id="btn-asset-tripo_male" onclick="switchModel('tripo_male')"><i class="fa-solid fa-mars"></i> Player Laki-laki (High-Poly GLB Asli)</button>
+    <button class="btn-asset" id="btn-asset-tripo_female" onclick="switchModel('tripo_female')"><i class="fa-solid fa-venus"></i> Player Perempuan (Tripo Female Anatomy)</button>
+    
+    <div class="customizer-panel" id="wardrobe-customizer">
+      <div style="font-size: 11px; font-weight: 800; color: #c084fc; margin-bottom: 6px;"><i class="fa-solid fa-shirt"></i> ASSET PAKAIAN & ARMOR (OUTFITS):</div>
+      <div class="wardrobe-box">
+        <button class="btn-outfit active" id="btn-outfit-tactical" onclick="setPlayerOutfit('tactical')"><i class="fa-solid fa-shield-halved"></i> 1. Spec-Ops Tactical Kevlar</button>
+        <button class="btn-outfit" id="btn-outfit-cyber" onclick="setPlayerOutfit('cyber')"><i class="fa-solid fa-bolt"></i> 2. Cyber-Ninja Plasma Suit</button>
+        <button class="btn-outfit" id="btn-outfit-commander" onclick="setPlayerOutfit('commander')"><i class="fa-solid fa-star"></i> 3. Commander Gold Trench Coat</button>
+        <button class="btn-outfit" id="btn-outfit-recon" onclick="setPlayerOutfit('recon')"><i class="fa-solid fa-binoculars"></i> 4. Recon Field Jacket</button>
+      </div>
+    </div>
+
+    <div class="customizer-panel" id="glb-transform-customizer" style="margin-top: 8px;">
+      <div style="font-size: 11px; font-weight: 800; color: #38bdf8; margin-bottom: 6px;"><i class="fa-solid fa-sliders"></i> KUSTOMISASI MODEL 3D (`player.glb`):</div>
+      <div style="font-size: 11px; color: #cbd5e1; margin-bottom: 4px;">Skala Model: <span id="val-scale">100%</span></div>
+      <input type="range" id="slider-scale" min="0.2" max="3.0" step="0.05" value="1.0" oninput="adjustCustomGLBTransform()" style="width:100%; margin-bottom:6px;">
+      
+      <div style="font-size: 11px; color: #cbd5e1; margin-bottom: 4px;">Tinggi (Y Offset): <span id="val-y">0.0m</span></div>
+      <input type="range" id="slider-y" min="-1.5" max="2.0" step="0.05" value="0.0" oninput="adjustCustomGLBTransform()" style="width:100%; margin-bottom:6px;">
+      
+      <div style="font-size: 11px; color: #cbd5e1; margin-bottom: 4px;">Rotasi Arah: <span id="val-rot">0°</span></div>
+      <input type="range" id="slider-rot" min="0" max="360" step="5" value="0" oninput="adjustCustomGLBTransform()" style="width:100%;">
+    </div>
+
+    <!-- 2. Karakter Musuh & Boss (Tripo Anatomy) -->
+    <div class="cat-lbl"><i class="fa-solid fa-skull"></i> 2. Karakter Musuh (Tripo Semi-Realistic)</div>
+    <button class="btn-asset" id="btn-asset-enemy_regular" onclick="switchModel('enemy_regular')"><i class="fa-solid fa-biohazard"></i> Zombie Reguler (Creeper Tripo)</button>
+    <button class="btn-asset" id="btn-asset-enemy_patrol" onclick="switchModel('enemy_patrol')"><i class="fa-solid fa-running"></i> Musuh Patroli Aggro (Plasma Runner)</button>
+    <button class="btn-asset" id="btn-asset-enemy_boss" onclick="switchModel('enemy_boss')"><i class="fa-solid fa-dragon"></i> Musuh Boss Elite Titan (Colossus 2x)</button>
+
+    <!-- 3. Katalog 11 Senjata -->
+    <div class="cat-lbl"><i class="fa-solid fa-gun"></i> 3. Katalog 11 Senjata (Weapons Arsenal)</div>
+    <button class="btn-asset" id="btn-asset-pistol" onclick="switchModel('pistol')"><i class="fa-solid fa-crosshairs"></i> Pistol FPS Taktis</button>
+    <button class="btn-asset" id="btn-asset-shotgun" onclick="switchModel('shotgun')"><i class="fa-solid fa-burst"></i> Shotgun Plasma</button>
+    <button class="btn-asset" id="btn-asset-sniper" onclick="switchModel('sniper')"><i class="fa-solid fa-bullseye"></i> Sniper Rifle Presisi</button>
+    <button class="btn-asset" id="btn-asset-ak47" onclick="switchModel('ak47')"><i class="fa-solid fa-fire"></i> AK-47 Assault Rifle</button>
+    <button class="btn-asset" id="btn-asset-bow" onclick="switchModel('bow')"><i class="fa-solid fa-bow-arrow"></i> Compound Bow Karbon</button>
+    <button class="btn-asset" id="btn-asset-rudal" onclick="switchModel('rudal')"><i class="fa-solid fa-rocket"></i> Rudal RPG-7 Anti-Tank</button>
+    <button class="btn-asset" id="btn-asset-knife" onclick="switchModel('knife')"><i class="fa-solid fa-khanda"></i> Pisau Komando (Melee 1 Tile)</button>
+    <button class="btn-asset" id="btn-asset-axe" onclick="switchModel('axe')"><i class="fa-solid fa-gavel"></i> Kapak Titanium</button>
+    <button class="btn-asset" id="btn-asset-blade" onclick="switchModel('blade')"><i class="fa-solid fa-wand-magic-sparkles"></i> Katana Plasma (Melee 2 Tile)</button>
+    <button class="btn-asset" id="btn-asset-hammer" onclick="switchModel('hammer')"><i class="fa-solid fa-hammer"></i> Palu Besi Gada (Godam)</button>
+    <button class="btn-asset" id="btn-asset-scythe" onclick="switchModel('scythe')"><i class="fa-solid fa-sickle"></i> Sabit Plasma Malaikat</button>
+
+    <!-- 4. NPC & Pekerja -->
+    <div class="cat-lbl"><i class="fa-solid fa-hard-hat"></i> 4. NPC & Pekerja Pos Outpost</div>
+    <button class="btn-asset" id="btn-asset-npc_builder" onclick="switchModel('npc_builder')"><i class="fa-solid fa-person-digging"></i> NPC Tukang Bangunan</button>
+    <button class="btn-asset" id="btn-asset-npc_lumberjack" onclick="switchModel('npc_lumberjack')"><i class="fa-solid fa-tree"></i> NPC Penebang Kayu</button>
+    <button class="btn-asset" id="btn-asset-npc_miner" onclick="switchModel('npc_miner')"><i class="fa-solid fa-gem"></i> NPC Penambang Mineral</button>
+
+    <!-- 5. Bangunan & Pagar -->
+    <div class="cat-lbl"><i class="fa-solid fa-building-shield"></i> 5. Bangunan & Pertahanan Pos</div>
+    <button class="btn-asset" id="btn-asset-turret" onclick="switchModel('turret')"><i class="fa-solid fa-tower-broadcast"></i> Menara Turret Railgun</button>
+    <button class="btn-asset" id="btn-asset-barracks" onclick="switchModel('barracks')"><i class="fa-solid fa-warehouse"></i> Barak Tukang Modular</button>
+    <button class="btn-asset" id="btn-asset-stone" onclick="switchModel('stone')"><i class="fa-solid fa-diamond"></i> Core Stone Crystal Inti</button>
+    <button class="btn-asset" id="btn-asset-fence" onclick="switchModel('fence')"><i class="fa-solid fa-shield-halved"></i> Pagar Perimeter Sci-Fi</button>
+
+    <!-- Kinematika & Tes Animasi -->
+    <div class="cat-lbl"><i class="fa-solid fa-play"></i> Tes Kinematika & Animasi Studio</div>
+    <div class="anim-grid">
+      <button class="btn-anim active" id="btn-anim-idle" onclick="setStudioAnim('idle')"><i class="fa-solid fa-user"></i> IDLE STANDBY</button>
+      <button class="btn-anim" id="btn-anim-walk" onclick="setStudioAnim('walk')"><i class="fa-solid fa-person-walking"></i> BERJALAN</button>
+      <button class="btn-anim" id="btn-anim-run" onclick="setStudioAnim('run')"><i class="fa-solid fa-person-running"></i> BERLARI</button>
+    </div>
+    <div class="cat-lbl" style="margin-top: 10px;"><i class="fa-solid fa-hand-fist"></i> Tes Animasi Pegang Senjata (Hand Socket)</div>
+    <div class="anim-grid">
+      <button class="btn-anim" id="btn-wield-none" onclick="setWieldWeapon('none')"><i class="fa-solid fa-hand"></i> LEPAS SENJATA</button>
+      <button class="btn-anim active" id="btn-wield-knife" onclick="setWieldWeapon('knife')"><i class="fa-solid fa-khanda"></i> PEGANG PISAU</button>
+      <button class="btn-anim" id="btn-wield-ak47" onclick="setWieldWeapon('ak47')"><i class="fa-solid fa-fire"></i> PEGANG AK-47</button>
+      <button class="btn-anim" id="btn-wield-katana" onclick="setWieldWeapon('katana')"><i class="fa-solid fa-wand-magic-sparkles"></i> KATANA PLASMA</button>
+    </div>
+
+    <div style="margin-top: 20px; padding: 12px; background: rgba(30,41,59,0.5); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: #cbd5e1; line-height: 1.6;">
+      <b style="color: #38bdf8;"><i class="fa-solid fa-mouse"></i> Kontrol Kamera Studio:</b><br>
+      • <b style="color: #f8fafc;">Tarik Kiri (Drag):</b> Putar Kamera 360°<br>
+      • <b style="color: #f8fafc;">Scroll Wheel:</b> Zoom In / Out<br>
+      • <b style="color: #f8fafc;">Tarik Kanan:</b> Geser Posisi (Pan)
+    </div>
+  </div>
+
+  <div class="viewport">
+    <div class="info-hud" id="info-hud">
+      <h2>🧑‍🚀 Player Laki-laki (Tripo Anatomy)</h2>
+      <p>Karakter semi-realistis ber-rigging berdasarkan referensi Tripo3D (bb1388b7...). Dilengkapi sistem wardrobe pakaian, kinematika gerak 1st/3rd Person, dan fisika senjata.</p>
+      <div class="specs"><span>Tipe: Male Player</span><span>Anatomy: Semi-Realistic Tripo</span><span>Wardrobe: Spec-Ops Tactical</span></div>
+    </div>
+    <div class="loader-badge" id="loader-badge" style="display:none;">⏳ Memuat Model Tripo 3D...</div>
+    <canvas id="studio-canvas"></canvas>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://unpkg.com/meshoptimizer@0.18.1/meshopt_decoder.js"></script>
+  <script src="player_model_data.js"></script>
+  <input type="file" id="local-glb-picker" accept=".glb,.gltf" style="display:none;" onchange="handleLocalGLBSelect(event)">
+  <script>
+    let scene, camera, renderer, controls;
+    let models = {};
+    let currentModelType = 'tripo_male';
+    let studioAnimState = 'idle';
+    let studioClock = 0;
+    
+    // Skeleton rigs for kinematics
+    let rigs = { tripo_male: {}, tripo_female: {}, enemy_regular: {}, enemy_patrol: {}, enemy_boss: {} };
+    let initialRots = {};
+    
+    // Wardrobe outfits storage
+    let currentOutfit = 'tactical';
+    let outfitMeshes = { tripo_male: {}, tripo_female: {} };
+
+    window.addEventListener('DOMContentLoaded', initStudio);
+
+    function initStudio() {
+      const canvas = document.getElementById('studio-canvas');
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0f172a);
+      scene.fog = new THREE.FogExp2(0x0f172a, 0.035);
+
+      camera = new THREE.PerspectiveCamera(38, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+      camera.position.set(0, 1.6, 4.2);
+      camera.lookAt(0, 0.9, 0);
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+
+      controls = new THREE.OrbitControls(camera, canvas);
+      controls.target.set(0, 0.9, 0);
+      controls.minDistance = 1.0;
+      controls.maxDistance = 12.0;
+      controls.maxPolarAngle = Math.PI / 2 + 0.05;
+      controls.update();
+
+      // Lights
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x1e293b, 1.4);
+      scene.add(hemi);
+      const dir = new THREE.DirectionalLight(0xffffff, 1.8);
+      dir.position.set(5, 8, 6);
+      dir.castShadow = true;
+      scene.add(dir);
+      const rim1 = new THREE.PointLight(0xc084fc, 3.0, 10);
+      rim1.position.set(-3, 2.5, -2);
+      scene.add(rim1);
+      const rim2 = new THREE.PointLight(0x38bdf8, 3.0, 10);
+      rim2.position.set(3, 1.5, 2);
+      scene.add(rim2);
+
+      // Platform
+      const grid = new THREE.PolarGridHelper(3.5, 24, 8, 64, 0xc084fc, 0x38bdf8);
+      grid.position.y = 0.01;
+      scene.add(grid);
+      const disc = new THREE.Mesh(new THREE.CylinderGeometry(2.3, 2.4, 0.06, 32), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.8 }));
+      disc.position.y = -0.03;
+      scene.add(disc);
+
+      // Build All Categories
+      buildTripoMaleAnatomy();
+      buildTripoFemaleAnatomy();
+      buildTripoEnemies();
+      buildAllWeapons();
+      buildAllNPCs();
+      buildAllBuildings();
+
+      requestAnimationFrame(animateLoop);
+      window.addEventListener('resize', onResize);
+    }
+
+    // Local GLB Picker and Drag-And-Drop handler to bypass file:// CORS blocks
+    function handleLocalGLBSelect(event) {
+      const file = event.target.files ? event.target.files[0] : null;
+      if (!file) return;
+      readAndParseGLBFile(file);
+    }
+
+    function readAndParseGLBFile(file) {
+      const badge = document.getElementById('loader-badge');
+      if (badge) { badge.style.display = 'block'; badge.innerText = '⏳ Memuat ' + file.name + '...'; }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const buffer = e.target.result;
+        const loader = new THREE.GLTFLoader();
+        if (typeof MeshoptDecoder !== 'undefined' && loader.setMeshoptDecoder) loader.setMeshoptDecoder(MeshoptDecoder);
+        loader.parse(buffer, '', (gltf) => {
+          processLoadedGLB(gltf, 'tripo_male');
+          if (badge) badge.style.display = 'none';
+        }, (err) => {
+          if (badge) { badge.style.display = 'block'; badge.innerText = '❌ Gagal memuat GLB: ' + err; }
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Setup drag and drop for canvas/viewport
+    window.addEventListener('dragover', (e) => e.preventDefault());
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        readAndParseGLBFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    function processLoadedGLB(gltf, targetKey) {
+      const badge = document.getElementById('loader-badge');
+      if (badge) badge.style.display = 'none';
+      const tripo = gltf.scene;
+      const box = new THREE.Box3().setFromObject(tripo);
+      const height = box.max.y - box.min.y;
+      if (height > 0.001) {
+        const sc = 1.78 / height;
+        tripo.scale.set(sc, sc, sc);
+      }
+      const box2 = new THREE.Box3().setFromObject(tripo);
+      tripo.position.y = -box2.min.y;
+      
+      if (models[targetKey]) scene.remove(models[targetKey]);
+      models[targetKey] = tripo;
+      scene.add(tripo);
+      
+      // Attach non-destructive kinematic pivot wrapper and weapon socket
+      const spineWrapper = new THREE.Group(); tripo.add(spineWrapper);
+      const headWrapper = new THREE.Group(); headWrapper.position.set(0, 1.5, 0); tripo.add(headWrapper);
+      const lArmWrapper = new THREE.Group(); lArmWrapper.position.set(-0.35, 1.3, 0); tripo.add(lArmWrapper);
+      const rArmWrapper = new THREE.Group(); rArmWrapper.position.set(0.35, 1.3, 0); tripo.add(rArmWrapper);
+      const lThighWrapper = new THREE.Group(); lThighWrapper.position.set(-0.16, 0.9, 0); tripo.add(lThighWrapper);
+      const rThighWrapper = new THREE.Group(); rThighWrapper.position.set(0.16, 0.9, 0); tripo.add(rThighWrapper);
+
+      rigs[targetKey] = { Spine01: spineWrapper, Head: headWrapper, L_Upperarm: lArmWrapper, R_Upperarm: rArmWrapper, L_Thigh: lThighWrapper, R_Thigh: rThighWrapper };
+      const bNames = ['L_Thigh', 'R_Thigh', 'L_Calf', 'R_Calf', 'L_Upperarm', 'R_Upperarm', 'L_Forearm', 'R_Forearm', 'L_Hand', 'R_Hand', 'Spine01', 'Head'];
+      bNames.forEach(n => {
+        const b = tripo.getObjectByName(n);
+        if (b) { rigs[targetKey][n] = b; initialRots['male_' + n] = b.rotation.clone(); }
+      });
+      for (const [k, obj] of Object.entries(rigs[targetKey])) initialRots['male_' + k] = obj.rotation.clone();
+
+      buildWardrobeForCharacter(tripo, headWrapper, targetKey);
+      tripo.userData.baseScale = tripo.scale.x;
+      tripo.userData.baseY = tripo.position.y;
+      if (currentModelType === targetKey) switchModel(targetKey);
+    }
+
+    function adjustCustomGLBTransform() {
+      const activeModel = models[currentModelType];
+      if (!activeModel) return;
+
+      const scaleVal = parseFloat(document.getElementById('slider-scale').value);
+      const yVal = parseFloat(document.getElementById('slider-y').value);
+      const rotVal = parseFloat(document.getElementById('slider-rot').value);
+
+      document.getElementById('val-scale').innerText = Math.round(scaleVal * 100) + '%';
+      document.getElementById('val-y').innerText = yVal + 'm';
+      document.getElementById('val-rot').innerText = rotVal + '°';
+
+      const baseSc = activeModel.userData.baseScale || 1.0;
+      const baseY = activeModel.userData.baseY || 0.0;
+
+      activeModel.scale.set(baseSc * scaleVal, baseSc * scaleVal, baseSc * scaleVal);
+      activeModel.position.y = baseY + yVal;
+      activeModel.rotation.y = THREE.MathUtils.degToRad(rotVal);
+    }
+
+    // --- CATEGORY 1: PLAYER MALE & FEMALE WITH WARDROBE OUTFITS ---
+    function buildTripoMaleAnatomy() {
+      // Empty container first -> NO LOW POLY BOXES
+      const holder = new THREE.Group();
+      models['tripo_male'] = holder;
+      scene.add(holder);
+
+      const badge = document.getElementById('loader-badge');
+      if (badge) { badge.style.display = 'block'; badge.innerText = '⏳ Memuat High-Poly Model Asli dari player_model.glb...'; }
+
+      const loader = new THREE.GLTFLoader();
+      if (typeof MeshoptDecoder !== 'undefined' && loader.setMeshoptDecoder) loader.setMeshoptDecoder(MeshoptDecoder);
+      
+      // 1. Check if base64 script bypass is available
+      if (typeof window.PLAYER_GLB_BASE64 !== 'undefined' && window.PLAYER_GLB_BASE64) {
+        loader.load(window.PLAYER_GLB_BASE64, (gltf) => {
+          processLoadedGLB(gltf, 'tripo_male');
+        }, undefined, (err) => {
+          tryLocalFetchOrShowPrompt();
+        });
+      } else {
+        tryLocalFetchOrShowPrompt();
+      }
+
+      function tryLocalFetchOrShowPrompt() {
+        loader.load('player.glb', (gltf) => {
+          processLoadedGLB(gltf, 'tripo_male');
+        }, undefined, (err) => {
+          loader.load('player_model.glb', (gltf2) => {
+            processLoadedGLB(gltf2, 'tripo_male');
+          }, undefined, (err2) => {
+            loader.load('../Core-Stone-Defense/assets/models/player_tripo.glb', (gltf3) => {
+              processLoadedGLB(gltf3, 'tripo_male');
+            }, undefined, (err3) => {
+              if (badge) {
+                badge.style.display = 'block';
+                badge.innerHTML = '⚠️ Browser memblokir muat file lokal via file://.<br>Klik tombol <b>[📁 Pilih File GLB Lokal (player.glb)]</b> di menu kiri atau seret (Drag & Drop) file <b>player.glb</b> langsung ke layar ini!';
+              }
+            });
+          });
+        });
+      }
+    }
+
+    function buildTripoFemaleAnatomy() {
+      // High fidelity Female anatomy based on Tripo proportions (slender waist, athletic female curve, ponytail)
+      const g = new THREE.Group();
+      const skinMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.6 });
+      const pantsMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
+      
+      const spine = new THREE.Group();
+      spine.position.y = 1.05; g.add(spine);
+      
+      // Slender waist & contoured chest
+      const waist = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.3, 0.26), pantsMat);
+      waist.position.y = 0.15; spine.add(waist);
+      const chest = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.35, 0.28), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+      chest.position.y = 0.45; spine.add(chest);
+
+      const headGroup = new THREE.Group();
+      headGroup.position.set(0, 0.68, 0); spine.add(headGroup);
+      const headMesh = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.35, 0.32), skinMat);
+      headMesh.position.y = 0.18; headGroup.add(headMesh);
+      const femaleHair = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.15, 0.36), new THREE.MeshStandardMaterial({ color: 0x854d0e }));
+      femaleHair.position.y = 0.34; headGroup.add(femaleHair);
+      const ponytail = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.45, 8), new THREE.MeshStandardMaterial({ color: 0x854d0e }));
+      ponytail.rotation.x = -0.4; ponytail.position.set(0, 0.2, -0.25); headGroup.add(ponytail);
+
+      // Arms (slender athletic)
+      const lArmGroup = new THREE.Group(); lArmGroup.position.set(-0.32, 0.55, 0); spine.add(lArmGroup);
+      const lUpperArm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.34, 0.14), skinMat); lUpperArm.position.y = -0.16; lArmGroup.add(lUpperArm);
+      const rArmGroup = new THREE.Group(); rArmGroup.position.set(0.32, 0.55, 0); spine.add(rArmGroup);
+      const rUpperArm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.34, 0.14), skinMat); rUpperArm.position.y = -0.16; rArmGroup.add(rUpperArm);
+
+      // Legs
+      const lThigh = new THREE.Group(); lThigh.position.set(-0.15, 1.05, 0); g.add(lThigh);
+      const lLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.5, 0.18), pantsMat); lLegMesh.position.y = -0.25; lThigh.add(lLegMesh);
+      const lCalf = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, 0.16), pantsMat); lCalf.position.y = -0.76; lThigh.add(lCalf);
+
+      const rThigh = new THREE.Group(); rThigh.position.set(0.15, 1.05, 0); g.add(rThigh);
+      const rLegMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.5, 0.18), pantsMat); rLegMesh.position.y = -0.25; rThigh.add(rLegMesh);
+      const rCalf = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, 0.16), pantsMat); rCalf.position.y = -0.76; rThigh.add(rCalf);
+
+      rigs.tripo_female = { Spine01: spine, Head: headGroup, L_Upperarm: lArmGroup, R_Upperarm: rArmGroup, L_Thigh: lThigh, R_Thigh: rThigh };
+      for (const [k, obj] of Object.entries(rigs.tripo_female)) initialRots['female_' + k] = obj.rotation.clone();
+
+      // Build 4 Wardrobe Outfits on Female
+      buildWardrobeForCharacter(spine, headGroup, 'tripo_female');
+
+      models['tripo_female'] = g;
+      g.visible = false;
+      scene.add(g);
+    }
+
+    function buildWardrobeForCharacter(spineGroup, headGroup, targetKey) {
+      outfitMeshes[targetKey] = {};
+
+      // Outfit 1: Spec-Ops Tactical Kevlar
+      const tacGroup = new THREE.Group();
+      const tacVest = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.6, 0.35), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 }));
+      tacVest.position.y = 0.36; tacGroup.add(tacVest);
+      const tacBelt = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.14, 0.37), new THREE.MeshStandardMaterial({ color: 0x3b82f6 }));
+      tacBelt.position.y = 0.08; tacGroup.add(tacBelt);
+      const tacVisor = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.12, 0.4), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+      tacVisor.position.set(0, 0.18, 0.02); headGroup.add(tacVisor);
+      tacGroup.add(tacVisor);
+      spineGroup.add(tacGroup);
+      outfitMeshes[targetKey]['tactical'] = tacGroup;
+
+      // Outfit 2: Cyber-Ninja Plasma Suit
+      const cybGroup = new THREE.Group();
+      const cybSuit = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.62, 0.33), new THREE.MeshStandardMaterial({ color: 0x1e1b4b }));
+      cybSuit.position.y = 0.35; cybGroup.add(cybSuit);
+      const cybGlow = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 0.35), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
+      cybGlow.position.y = 0.4; cybGroup.add(cybGlow);
+      cybGroup.visible = false;
+      spineGroup.add(cybGroup);
+      outfitMeshes[targetKey]['cyber'] = cybGroup;
+
+      // Outfit 3: Commander Gold Trench Coat
+      const comGroup = new THREE.Group();
+      const comCoat = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.36), new THREE.MeshStandardMaterial({ color: 0x78350f }));
+      comCoat.position.y = 0.35; comGroup.add(comCoat);
+      const comEpauletL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.2), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+      comEpauletL.position.set(-0.35, 0.68, 0); comGroup.add(comEpauletL);
+      const comEpauletR = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.2), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+      comEpauletR.position.set(0.35, 0.68, 0); comGroup.add(comEpauletR);
+      comGroup.visible = false;
+      spineGroup.add(comGroup);
+      outfitMeshes[targetKey]['commander'] = comGroup;
+
+      // Outfit 4: Recon Field Jacket
+      const recGroup = new THREE.Group();
+      const recJacket = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.65, 0.34), new THREE.MeshStandardMaterial({ color: 0x365314 }));
+      recJacket.position.y = 0.35; recGroup.add(recJacket);
+      const recPockets = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.36), new THREE.MeshStandardMaterial({ color: 0x1a2e05 }));
+      recPockets.position.y = 0.25; recGroup.add(recPockets);
+      recGroup.visible = false;
+      spineGroup.add(recGroup);
+      outfitMeshes[targetKey]['recon'] = recGroup;
+    }
+
+    function setPlayerOutfit(outfitKey) {
+      currentOutfit = outfitKey;
+      document.querySelectorAll('.btn-outfit').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('btn-outfit-' + outfitKey);
+      if (btn) btn.classList.add('active');
+
+      ['tripo_male', 'tripo_female'].forEach(tk => {
+        if (outfitMeshes[tk]) {
+          for (const [k, grp] of Object.entries(outfitMeshes[tk])) grp.visible = (k === outfitKey);
+        }
+      });
+    }
+
+    // --- CATEGORY 2: TRIPO SEMI-REALISTIC ENEMIES & BOSS ---
+    function buildTripoEnemies() {
+      // 1. Regular Zombie (Tripo Semi-Realistic Anatomy)
+      const reg = new THREE.Group();
+      const zSkin = new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.8 });
+      const zRags = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+      
+      const rSpine = new THREE.Group(); rSpine.position.y = 1.0; reg.add(rSpine);
+      const rTorso = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.65, 0.32), zSkin);
+      rTorso.position.y = 0.32; rTorso.rotation.x = 0.2; rSpine.add(rTorso); // Leaning forward predatory
+      const rRibs = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.3, 0.33), new THREE.MeshStandardMaterial({ color: 0x7f1d1d }));
+      rRibs.position.y = 0.35; rSpine.add(rRibs);
+
+      const rHead = new THREE.Group(); rHead.position.set(0, 0.68, 0.1); rSpine.add(rHead);
+      const rHeadMesh = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.4, 0.38), zSkin);
+      rHeadMesh.position.y = 0.2; rHead.add(rHeadMesh);
+      const rEyeL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.06), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+      rEyeL.position.set(-0.1, 0.25, 0.2); rHead.add(rEyeL);
+      const rEyeR = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.06), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+      rEyeR.position.set(0.1, 0.25, 0.2); rHead.add(rEyeR);
+
+      const rLArm = new THREE.Group(); rLArm.position.set(-0.35, 0.55, 0); rSpine.add(rLArm);
+      rLArm.add(new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.65, 0.15), zSkin));
+      const rRArm = new THREE.Group(); rRArm.position.set(0.35, 0.55, 0); rSpine.add(rRArm);
+      rRArm.add(new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.65, 0.15), zSkin));
+
+      const rLThigh = new THREE.Group(); rLThigh.position.set(-0.16, 1.0, 0); reg.add(rLThigh);
+      rLThigh.add(new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.95, 0.18), zRags));
+      const rRThigh = new THREE.Group(); rRThigh.position.set(0.16, 1.0, 0); reg.add(rRThigh);
+      rRThigh.add(new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.95, 0.18), zRags));
+
+      rigs.enemy_regular = { Spine01: rSpine, Head: rHead, L_Upperarm: rLArm, R_Upperarm: rRArm, L_Thigh: rLThigh, R_Thigh: rRThigh };
+      for (const [k, obj] of Object.entries(rigs.enemy_regular)) initialRots['enreg_' + k] = obj.rotation.clone();
+      models['enemy_regular'] = reg; reg.visible = false; scene.add(reg);
+
+      // 2. Patrol Aggro Runner (Tripo Anatomy)
+      const pat = new THREE.Group();
+      const pSkin = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.5 });
+      const pSpikeMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+      
+      const pSpine = new THREE.Group(); pSpine.position.y = 1.05; pat.add(pSpine);
+      const pTorso = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.36), pSkin);
+      pTorso.position.y = 0.35; pSpine.add(pTorso);
+      const pCore = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.38), pSpikeMat);
+      pCore.position.y = 0.35; pSpine.add(pCore);
+
+      const pHead = new THREE.Group(); pHead.position.set(0, 0.72, 0); pSpine.add(pHead);
+      pHead.add(new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.42), pSkin));
+      const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.3, 4), pSpikeMat);
+      hornL.rotation.x = 0.5; hornL.position.set(-0.15, 0.3, 0.15); pHead.add(hornL);
+      const hornR = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.3, 4), pSpikeMat);
+      hornR.rotation.x = 0.5; hornR.position.set(0.15, 0.3, 0.15); pHead.add(hornR);
+
+      const pLArm = new THREE.Group(); pLArm.position.set(-0.38, 0.6, 0); pSpine.add(pLArm);
+      pLArm.add(new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.7, 0.16), pSkin));
+      const pRArm = new THREE.Group(); pRArm.position.set(0.38, 0.6, 0); pSpine.add(pRArm);
+      pRArm.add(new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.7, 0.16), pSkin));
+
+      const pLThigh = new THREE.Group(); pLThigh.position.set(-0.18, 1.05, 0); pat.add(pLThigh);
+      pLThigh.add(new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.0, 0.2), pSkin));
+      const pRThigh = new THREE.Group(); pRThigh.position.set(0.18, 1.05, 0); pat.add(pRThigh);
+      pRThigh.add(new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.0, 0.2), pSkin));
+
+      rigs.enemy_patrol = { Spine01: pSpine, Head: pHead, L_Upperarm: pLArm, R_Upperarm: pRArm, L_Thigh: pLThigh, R_Thigh: pRThigh };
+      for (const [k, obj] of Object.entries(rigs.enemy_patrol)) initialRots['enpat_' + k] = obj.rotation.clone();
+      models['enemy_patrol'] = pat; pat.visible = false; scene.add(pat);
+
+      // 3. Elite Boss Titan Colossus (2x Scale Anatomy)
+      const boss = new THREE.Group();
+      const bSkin = new THREE.MeshStandardMaterial({ color: 0x581c87, roughness: 0.4 });
+      const bArmor = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 });
+      
+      const bSpine = new THREE.Group(); bSpine.position.y = 1.8; boss.add(bSpine);
+      const bTorso = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.5, 0.8), bSkin);
+      bTorso.position.y = 0.75; bSpine.add(bTorso);
+      const bPauldrons = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.4, 0.9), bArmor);
+      bPauldrons.position.y = 1.4; bSpine.add(bPauldrons);
+
+      const bHead = new THREE.Group(); bHead.position.set(0, 1.6, 0); bSpine.add(bHead);
+      bHead.add(new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), bArmor));
+      const bEye = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.15, 0.85), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
+      bEye.position.y = 0.1; bHead.add(bEye);
+
+      const bLArm = new THREE.Group(); bLArm.position.set(-0.85, 1.3, 0); bSpine.add(bLArm);
+      bLArm.add(new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.5, 0.45), bSkin));
+      const bRArm = new THREE.Group(); bRArm.position.set(0.85, 1.3, 0); bSpine.add(bRArm);
+      bRArm.add(new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.5, 0.45), bSkin));
+
+      const bLThigh = new THREE.Group(); bLThigh.position.set(-0.4, 1.8, 0); boss.add(bLThigh);
+      bLThigh.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.8, 0.5), bArmor));
+      const bRThigh = new THREE.Group(); bRThigh.position.set(0.4, 1.8, 0); boss.add(bRThigh);
+      bRThigh.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.8, 0.5), bArmor));
+
+      rigs.enemy_boss = { Spine01: bSpine, Head: bHead, L_Upperarm: bLArm, R_Upperarm: bRArm, L_Thigh: bLThigh, R_Thigh: bRThigh };
+      for (const [k, obj] of Object.entries(rigs.enemy_boss)) initialRots['enboss_' + k] = obj.rotation.clone();
+      models['enemy_boss'] = boss; boss.visible = false; scene.add(boss);
+    }
+
+    // --- CATEGORY 3: WEAPONS ---
+    function buildAllWeapons() {
+      const gunMetal = new THREE.MeshStandardMaterial({ color: 0x1f2937, metalness: 0.8, roughness: 0.2 });
+      const darkCarbon = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 });
+      const neonCyan = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+      const neonPink = new THREE.MeshBasicMaterial({ color: 0xec4899 });
+      const neonGold = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+
+      const pistol = new THREE.Group();
+      pistol.add(new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.14, 0.45), gunMetal)).position.set(0, 1.1, 0);
+      addModel('pistol', pistol);
+
+      const shotgun = new THREE.Group();
+      shotgun.add(new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.85), gunMetal)).position.set(0, 1.1, 0.1);
+      addModel('shotgun', shotgun);
+
+      const sniper = new THREE.Group();
+      const snB = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 1.4, 16), gunMetal);
+      snB.rotation.x = Math.PI/2; snB.position.set(0, 1.15, 0.4); sniper.add(snB);
+      addModel('sniper', sniper);
+
+      const ak = new THREE.Group();
+      ak.add(new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.16, 0.7), gunMetal)).position.set(0, 1.15, 0.1);
+      addModel('ak47', ak);
+
+      const bow = new THREE.Group();
+      bow.add(new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.4, 0.08), gunMetal)).position.set(0, 1.2, 0);
+      addModel('bow', bow);
+
+      const rpg = new THREE.Group();
+      const rT = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.3, 16), new THREE.MeshStandardMaterial({ color: 0x365314 }));
+      rT.rotation.x = Math.PI/2; rT.position.set(0, 1.2, 0); rpg.add(rT);
+      addModel('rudal', rpg);
+
+      const knife = new THREE.Group();
+      knife.add(new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.45, 0.06), new THREE.MeshStandardMaterial({ color: 0x94a3b8 }))).position.set(0, 1.25, 0);
+      addModel('knife', knife);
+
+      const axe = new THREE.Group();
+      axe.add(new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.4, 0.5), new THREE.MeshStandardMaterial({ color: 0x64748b }))).position.set(0, 1.45, 0);
+      addModel('axe', axe);
+
+      const blade = new THREE.Group();
+      blade.add(new THREE.Mesh(new THREE.BoxGeometry(0.02, 1.1, 0.07), neonPink)).position.set(0, 1.5, 0);
+      addModel('blade', blade);
+
+      const hammer = new THREE.Group();
+      hammer.add(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.45, 0.65), new THREE.MeshStandardMaterial({ color: 0x334155 }))).position.set(0, 1.55, 0);
+      addModel('hammer', hammer);
+
+      const scythe = new THREE.Group();
+      scythe.add(new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.25, 0.95), neonCyan)).position.set(0, 1.75, 0.4);
+      addModel('scythe', scythe);
+    }
+
+    // --- CATEGORY 4: NPCS ---
+    function buildAllNPCs() {
+      const bld = new THREE.Group();
+      bld.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.3), new THREE.MeshStandardMaterial({ color: 0x1e40af }))).position.y = 1.0;
+      addModel('npc_builder', bld);
+
+      const lum = new THREE.Group();
+      lum.add(new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.72, 0.32), new THREE.MeshStandardMaterial({ color: 0xb91c1c }))).position.y = 1.0;
+      addModel('npc_lumberjack', lum);
+
+      const min = new THREE.Group();
+      min.add(new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.72, 0.32), new THREE.MeshStandardMaterial({ color: 0x334155 }))).position.y = 1.0;
+      addModel('npc_miner', min);
+    }
+
+    // --- CATEGORY 5: BUILDINGS ---
+    function buildAllBuildings() {
+      const tur = new THREE.Group();
+      tur.add(new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.6, 1.3), new THREE.MeshStandardMaterial({ color: 0x1e293b }))).position.y = 2.4;
+      addModel('turret', tur);
+
+      const bar = new THREE.Group();
+      bar.add(new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.4, 2.2), new THREE.MeshStandardMaterial({ color: 0x1e293b }))).position.y = 0.7;
+      addModel('barracks', bar);
+
+      const st = new THREE.Group();
+      st.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.8, 0), new THREE.MeshBasicMaterial({ color: 0xc084fc }))).position.y = 1.6;
+      addModel('stone', st);
+
+      const fenc = new THREE.Group();
+      fenc.add(new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.2, 0.08), new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.6 }))).position.set(0, 0.8, 0);
+      addModel('fence', fenc);
+    }
+
+    function addModel(key, group) {
+      models[key] = group;
+      group.visible = false;
+      scene.add(group);
+    }
+
+    // --- MODEL SWITCHING & HUD ---
+    const ASSET_SPECS = {
+      tripo_male: { title: '🧑‍🚀 Player Laki-laki (Tripo Anatomy)', desc: 'Karakter semi-realistis ber-rigging berdasarkan referensi Tripo3D (bb1388b7...). Dilengkapi sistem wardrobe pakaian, kinematika gerak 1st/3rd Person, dan fisika senjata.', specs: ['Tipe: Male Player', 'Anatomy: Semi-Realistic Tripo', 'Wardrobe: Spec-Ops Tactical'] },
+      tripo_female: { title: '👩‍🚀 Player Perempuan (Tripo Female Anatomy)', desc: 'Karakter perempuan dengan postur atletis ramping dan kuncir kuda (ponytail) taktis. Memiliki kompatibilitas penuh dengan 4 set pakaian wardrobe.', specs: ['Tipe: Female Player', 'Anatomy: Slender Athletic', 'Wardrobe: Kompatibel'] },
+      enemy_regular: { title: '🧟 Musuh Zombie Reguler (Creeper Tripo)', desc: 'Infantri zombie dengan anatomi semi-realistis Tripo. Memiliki postur membungkuk agresif, tulang rusuk terbuka, dan serangan 1 tile (1.5s aktivasi).', specs: ['Jarak Serang: 1 Tile', 'Aktivasi: 1.5s', 'Anatomy: Tripo Zombie'] },
+      enemy_patrol: { title: '🏃 Musuh Patroli Aggro (Plasma Runner)', desc: 'Pelari agresif ber-armor merah plasma dengan duri bahu tajam. Otomatis mengejar dan menyerang jika pemain masuk radius 5 tile!', specs: ['Aggro Radius: 5 Tile', 'Anatomy: Tripo Sprinter', 'Drop: Gold Only'] },
+      enemy_boss: { title: '🐉 Musuh Boss Elite Titan (Colossus 2x)', desc: 'Mutan raksasa berskala 200% dengan kepalan baja penghancur pertahanan dan topeng tulang pelindung kepala.', specs: ['Skala: 200% Titan', 'Anatomy: Tripo Colossus', 'Drop: Gold Sultan'] }
+    };
+
+    function switchModel(type) {
+      currentModelType = type;
+      document.querySelectorAll('.btn-asset').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('btn-asset-' + type);
+      if (btn) btn.classList.add('active');
+
+      for (const k in models) if (models[k]) models[k].visible = false;
+      if (models[type]) models[type].visible = true;
+
+      const hud = document.getElementById('info-hud');
+      const sp = ASSET_SPECS[type] || { title: type, desc: 'Aset 3D Core Stone Defense.', specs: ['Tipe: Asset 3D'] };
+      hud.innerHTML = `<h2>${sp.title}</h2><p>${sp.desc}</p><div class="specs">${sp.specs.map(s=>`<span>${s}</span>`).join('')}</div>`;
+    }
+
+    let currentWieldWeapon = 'knife';
+    let wieldMeshGroup = null;
+
+    function setWieldWeapon(wKey) {
+      currentWieldWeapon = wKey;
+      document.querySelectorAll('#btn-wield-none, #btn-wield-knife, #btn-wield-ak47, #btn-wield-katana').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('btn-wield-' + wKey);
+      if (btn) btn.classList.add('active');
+
+      // Attach weapon mesh to active model's right hand or arm
+      const activeModel = models[currentModelType];
+      if (!activeModel) return;
+
+      if (wieldMeshGroup) {
+        if (wieldMeshGroup.parent) wieldMeshGroup.parent.remove(wieldMeshGroup);
+        wieldMeshGroup = null;
+      }
+
+      if (wKey === 'none') return;
+
+      wieldMeshGroup = new THREE.Group();
+      if (wKey === 'knife') {
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.45, 0.08), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 }));
+        blade.position.y = 0.25; wieldMeshGroup.add(blade);
+        const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, 0.08), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+        wieldMeshGroup.add(handle);
+      } else if (wKey === 'ak47') {
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.18, 0.75), new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7 }));
+        wieldMeshGroup.add(body);
+        const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+        barrel.rotation.x = Math.PI / 2; barrel.position.z = 0.5; wieldMeshGroup.add(barrel);
+        const mag = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.25, 0.12), new THREE.MeshStandardMaterial({ color: 0xb45309 }));
+        mag.rotation.x = 0.3; mag.position.set(0, -0.18, 0.1); wieldMeshGroup.add(mag);
+      } else if (wKey === 'katana') {
+        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.9, 0.06), new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 1.0, roughness: 0.0, emissive: 0x0284c7 }));
+        blade.position.y = 0.5; wieldMeshGroup.add(blade);
+        const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.06), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+        wieldMeshGroup.add(hilt);
+      }
+
+      // Find bone or attach to arm socket
+      const rig = rigs[currentModelType];
+      if (rig && rig.R_Hand) {
+        rig.R_Hand.add(wieldMeshGroup);
+        wieldMeshGroup.position.set(0, 0, 0);
+      } else if (rig && rig.R_Upperarm) {
+        rig.R_Upperarm.add(wieldMeshGroup);
+        wieldMeshGroup.position.set(0, -0.4, 0.2);
+      } else {
+        activeModel.add(wieldMeshGroup);
+        wieldMeshGroup.position.set(0.4, 1.2, 0.4);
+      }
+    }
+
+    function setStudioAnim(st) {
+      studioAnimState = st;
+      document.querySelectorAll('.btn-anim').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('btn-anim-' + st);
+      if (btn) btn.classList.add('active');
+
+      const rig = rigs[currentModelType];
+      if (rig) {
+        for (const [n, b] of Object.entries(rig)) {
+          const initKey = (currentModelType.includes('female')?'female_':currentModelType.includes('male')?'male_':currentModelType.includes('reg')?'enreg_':currentModelType.includes('pat')?'enpat_':'enboss_') + n;
+          if (initialRots[initKey]) b.rotation.copy(initialRots[initKey]);
+        }
+      }
+      setWieldWeapon(currentWieldWeapon);
+    }
+
+    function animateLoop() {
+      requestAnimationFrame(animateLoop);
+      studioClock += 0.016;
+      if (controls) controls.update();
+
+      const activeGroup = models[currentModelType];
+      if (!activeGroup) return;
+
+      if (rigs[currentModelType] && rigs[currentModelType].Spine01) {
+        applyRigKinematics(currentModelType, studioAnimState, studioClock);
+      } else if (currentModelType === 'stone') {
+        activeGroup.rotation.y += 0.012;
+      } else if (studioAnimState === 'walk' || studioAnimState === 'run') {
+        activeGroup.rotation.y = Math.sin(studioClock * 2.0) * 0.3;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    function applyRigKinematics(modelKey, st, t) {
+      const rig = rigs[modelKey];
+      if (!rig || !rig.Spine01) return;
+      const prefix = (modelKey.includes('female')?'female_':modelKey.includes('male')?'male_':modelKey.includes('reg')?'enreg_':modelKey.includes('pat')?'enpat_':'enboss_');
+      const getRot = (n) => initialRots[prefix + n] || new THREE.Euler();
+
+      if (st === 'idle') {
+        rig.Spine01.rotation.x = getRot('Spine01').x + Math.sin(t * 2.2) * 0.04;
+        if (rig.Head) rig.Head.rotation.y = getRot('Head').y + Math.sin(t * 1.5) * 0.08;
+        if (currentWieldWeapon !== 'none' && rig.R_Upperarm) {
+          rig.R_Upperarm.rotation.x = getRot('R_Upperarm').x - 0.5 + Math.sin(t * 2.0) * 0.05;
+        }
+      } else if (st === 'walk') {
+        const sw = Math.sin(t * 7.0) * 0.5;
+        if (rig.L_Thigh) rig.L_Thigh.rotation.x = getRot('L_Thigh').x + sw;
+        if (rig.R_Thigh) rig.R_Thigh.rotation.x = getRot('R_Thigh').x - sw;
+        if (rig.L_Upperarm) rig.L_Upperarm.rotation.x = getRot('L_Upperarm').x - sw * 0.6;
+        if (currentWieldWeapon !== 'none' && rig.R_Upperarm) {
+          rig.R_Upperarm.rotation.x = getRot('R_Upperarm').x - 0.7 - Math.abs(sw) * 0.3;
+        } else if (rig.R_Upperarm) {
+          rig.R_Upperarm.rotation.x = getRot('R_Upperarm').x + sw * 0.6;
+        }
+      } else if (st === 'run') {
+        const sw = Math.sin(t * 13.0) * 0.85;
+        if (rig.L_Thigh) rig.L_Thigh.rotation.x = getRot('L_Thigh').x + sw;
+        if (rig.R_Thigh) rig.R_Thigh.rotation.x = getRot('R_Thigh').x - sw;
+        if (rig.L_Upperarm) rig.L_Upperarm.rotation.x = getRot('L_Upperarm').x - sw * 0.75;
+        if (currentWieldWeapon !== 'none' && rig.R_Upperarm) {
+          rig.R_Upperarm.rotation.x = getRot('R_Upperarm').x - 1.0 - Math.abs(sw) * 0.4;
+        } else if (rig.R_Upperarm) {
+          rig.R_Upperarm.rotation.x = getRot('R_Upperarm').x + sw * 0.75;
+        }
+      } else if (st === 'attack') {
+        const ph = Math.sin(t * 16.0);
+        if (currentWieldWeapon !== 'none' && rig.R_Upperarm) {
+          rig.R_Upperarm.rotation.x = getRot('R_Upperarm').x - 1.3 + ph * 0.7;
+          if (rig.Spine01) rig.Spine01.rotation.y = Math.sin(t * 16.0) * 0.3;
+        } else {
+          if (rig.R_Upperarm) rig.R_Upperarm.rotation.x = getRot('R_Upperarm').x - 0.8 + ph * 0.6;
+          if (rig.L_Upperarm) rig.L_Upperarm.rotation.x = getRot('L_Upperarm').x - 0.8 + ph * 0.6;
+        }
+      }
+    }
+
+    function onResize() {
+      const c = document.getElementById('studio-canvas');
+      camera.aspect = c.clientWidth / c.clientHeight; camera.updateProjectionMatrix();
+      renderer.setSize(c.clientWidth, c.clientHeight);
+    }
+  </script>
+</body>
+</html>

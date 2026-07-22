@@ -8,8 +8,78 @@
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
 </head>
 <body>
+    <style>
+      .wbt-global-header {
+        position: sticky;
+        top: 0;
+        z-index: 9999;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        padding: 12px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      }
+      .wbt-global-header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .wbt-global-header-left img {
+        height: 38px;
+        width: auto;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .wbt-global-header-left img:hover {
+        transform: scale(1.05);
+      }
+      .wbt-global-header-title {
+        color: white;
+        font-weight: 800;
+        font-size: 18px;
+        letter-spacing: 0.5px;
+      }
+      .wbt-global-header-center {
+        color: #94a3b8;
+        font-size: 14px;
+        font-weight: 500;
+        flex-grow: 1;
+        text-align: center;
+      }
+      .wbt-global-header-right {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 8px 16px;
+        border-radius: 99px;
+        font-size: 13px;
+      }
+      @media (max-width: 768px) {
+        .wbt-global-header-center { display: none; }
+      }
+    </style>
+    <header class="wbt-global-header">
+      <div class="wbt-global-header-left">
+        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
+        </a>
+        <div class="wbt-global-header-title">Image Studio Pro</div>
+      </div>
+      <div class="wbt-global-header-center">
+        Kompres, Resize, Filter, Watermark, & Edit Foto Offline
+      </div>
+      <div class="wbt-global-header-right">
+        <span style="color:#fbbf24; font-weight:700;"><i class="fa-solid fa-crown"></i> 15-IN-1 PRO</span>
+      </div>
+    </header>
+
   <div class="ambient-glow"></div>
 
   <!-- Navbar -->
