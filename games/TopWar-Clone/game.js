@@ -318,28 +318,6 @@ function collectGold(mine) {
     selectedEntity = null;
 }
 
-document.getElementById('spawnArmyBtn').addEventListener('click', () => {
-    if (gameState.gold >= 100 && selectedBarrack) {
-        // Find empty adjacent 1x1 spot
-        let spawned = false;
-        for (let dr = -1; dr <= 2; dr++) {
-            for (let dc = -1; dc <= 2; dc++) {
-                let checkR = selectedBarrack.r + dr;
-                let checkC = selectedBarrack.c + dc;
-                if (canPlace(checkR, checkC, 1)) {
-                    spawnEntity('army', 1, checkR, checkC, 1);
-                    gameState.gold -= 100;
-                    updateHUD();
-                    spawned = true;
-                    break;
-                }
-            }
-            if(spawned) break;
-        }
-        if(!spawned) alert("Tidak ada ruang kosong di sekitar Barrack!");
-    }
-    document.getElementById('contextMenu').style.display = 'none';
-});
 
 function buyStructure(type, size, cost) {
     if (gameState.gold >= cost) {
