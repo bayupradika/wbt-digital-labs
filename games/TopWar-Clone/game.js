@@ -19,10 +19,12 @@ const TILE_H = 60;
 // --- ASSETS ---
 const ASSETS = {
     barrack: new Image(),
-    mine: new Image()
+    mine: new Image(),
+    soldier: new Image()
 };
 ASSETS.barrack.src = 'assets/barrack.png';
 ASSETS.mine.src = 'assets/goldmine.png';
+ASSETS.soldier.src = 'assets/soldier.jpg';
 
 let gameState = {
     gold: 15055764,
@@ -68,6 +70,7 @@ let hoveredGrid = { r: -1, c: -1 };
 let draggedEntity = null;
 let dragOffset = { x: 0, y: 0 };
 let dragStartGrid = { r: -1, c: -1 };
+let dragStartMouseGrid = { r: -1, c: -1 };
 
 function getMouseGrid(clientX, clientY) {
     // 1. Adjust for zoom and camera
@@ -162,6 +165,7 @@ window.addEventListener('pointerdown', (e) => {
     if (clickedEnt) {
         draggedEntity = clickedEnt;
         dragStartGrid = { r: clickedEnt.r, c: clickedEnt.c };
+        dragStartMouseGrid = { r: gridPos.r, c: gridPos.c };
     } else {
         isPanning = true;
     }
@@ -189,23 +193,28 @@ window.addEventListener('pointerup', (e) => {
     isPanning = false;
 
     if (draggedEntity) {
-        // Drop logic
         let dropGrid = getMouseGrid(e.clientX, e.clientY);
         
         // Check if just clicking (didn't move much)
-        if (dropGrid.r === dragStartGrid.r && dropGrid.c === dragStartGrid.c) {
-            if (draggedEntity.type === 'barrack') {
-                showBarrackMenu(e.clientX, e.clientY, draggedEntity);
+        if (dropGrid.r === dragStartMouseGrid.r && dropGrid.c === dragStartMouseGrid.c) {
+            if (draggedEntity.type === 'barrack' || draggedEntity.type === 'mine') {
+                showContextMenu(draggedEntity);
             }
         } else {
             // Trying to place
             let size = draggedEntity.size || 1;
             
+            // Calculate final dropped position based on relative drag
+            let deltaR = dropGrid.r - dragStartMouseGrid.r;
+            let deltaC = dropGrid.c - dragStartMouseGrid.c;
+            let finalR = dragStartGrid.r + deltaR;
+            let finalC = dragStartGrid.c + deltaC;
+            
             // Check if it's the placingEntity (we are just moving it before confirming)
             if (placingEntity && draggedEntity === placingEntity) {
-                if (canPlace(dropGrid.r, dropGrid.c, size, draggedEntity.id)) {
-                    placingEntity.r = dropGrid.r;
-                    placingEntity.c = dropGrid.c;
+                if (canPlace(finalR, finalC, size, draggedEntity.id)) {
+                    placingEntity.r = finalR;
+                    placingEntity.c = finalC;
                 } else {
                     // Revert to start grid if invalid
                     placingEntity.r = dragStartGrid.r;
@@ -215,7 +224,7 @@ window.addEventListener('pointerup', (e) => {
             else {
                 // Normal entity drop logic
                 // Is it merging?
-                let targetEnt = getEntityAt(dropGrid.r, dropGrid.c);
+                let targetEnt = getEntityAt(finalR, finalC);
                 if (targetEnt && targetEnt.id !== draggedEntity.id) {
                     if (targetEnt.type === draggedEntity.type && targetEnt.level === draggedEntity.level) {
                         // MERGE!
@@ -231,9 +240,9 @@ window.addEventListener('pointerup', (e) => {
                     }
                 } else {
                     // Moving to empty space
-                    if (canPlace(dropGrid.r, dropGrid.c, size, draggedEntity.id)) {
-                        draggedEntity.r = dropGrid.r;
-                        draggedEntity.c = dropGrid.c;
+                    if (canPlace(finalR, finalC, size, draggedEntity.id)) {
+                        draggedEntity.r = finalR;
+                        draggedEntity.c = finalC;
                     }
                 }
             }
@@ -253,13 +262,60 @@ document.getElementById('closeBuildBtn').addEventListener('click', () => {
 document.getElementById('buyBarrackBtn').addEventListener('click', () => buyStructure('barrack', 2, 300));
 document.getElementById('buyMineBtn').addEventListener('click', () => buyStructure('mine', 2, 500));
 
-let selectedBarrack = null;
-function showBarrackMenu(x, y, barrackEnt) {
-    selectedBarrack = barrackEnt;
-    const menu = document.getElementById('barrackMenu');
-    menu.style.display = 'block';
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
+let placingEntity = null;
+let placementUI = document.getElementById('placementUI');
+let selectedEntity = null;
+
+function showContextMenu(ent) {
+    selectedEntity = ent;
+    const menu = document.getElementById('contextMenu');
+    const btn = document.getElementById('contextActionBtn');
+    
+    if (ent.type === 'barrack') {
+        btn.innerHTML = '<i class="fa-solid fa-plus"></i> Latih (100 Gold)';
+        btn.onclick = () => recruitArmy(ent);
+        menu.style.display = 'block';
+    } else if (ent.type === 'mine') {
+        btn.innerHTML = '<i class="fa-solid fa-coins"></i> Kumpulkan';
+        btn.onclick = () => collectGold(ent);
+        menu.style.display = 'block';
+    } else {
+        menu.style.display = 'none';
+    }
+}
+
+function recruitArmy(barrack) {
+    if (gameState.gold >= 100) {
+        // Find empty adjacent 1x1 spot
+        let spawned = false;
+        for (let dr = -1; dr <= 2; dr++) {
+            for (let dc = -1; dc <= 2; dc++) {
+                let checkR = barrack.r + dr;
+                let checkC = barrack.c + dc;
+                if (canPlace(checkR, checkC, 1)) {
+                    spawnEntity('army', 1, checkR, checkC, 1);
+                    gameState.gold -= 100;
+                    updateHUD();
+                    spawned = true;
+                    break;
+                }
+            }
+            if(spawned) break;
+        }
+        if(!spawned) alert("Tidak ada ruang kosong di sekitar Barrack!");
+    } else {
+        alert("Gold tidak cukup!");
+    }
+    document.getElementById('contextMenu').style.display = 'none';
+    selectedEntity = null;
+}
+
+function collectGold(mine) {
+    let amount = 50 * mine.level;
+    gameState.gold += amount;
+    updateHUD();
+    document.getElementById('contextMenu').style.display = 'none';
+    selectedEntity = null;
 }
 
 document.getElementById('spawnArmyBtn').addEventListener('click', () => {
@@ -282,11 +338,8 @@ document.getElementById('spawnArmyBtn').addEventListener('click', () => {
         }
         if(!spawned) alert("Tidak ada ruang kosong di sekitar Barrack!");
     }
-    document.getElementById('barrackMenu').style.display = 'none';
+    document.getElementById('contextMenu').style.display = 'none';
 });
-
-let placingEntity = null;
-let placementUI = document.getElementById('placementUI');
 
 function buyStructure(type, size, cost) {
     if (gameState.gold >= cost) {
@@ -318,6 +371,15 @@ function buyStructure(type, size, cost) {
         placingEntity = { id: 'place_tmp', type, size, cost, level: 1, r: startR, c: startC };
         placementUI.style.display = 'flex';
         document.getElementById('buildMenu').classList.remove('active');
+        
+        // Auto-focus camera on the new placing entity
+        let cartX = startC * TILE_W;
+        let cartY = startR * TILE_H;
+        let iso = cartToIso(cartX, cartY);
+        // Center the building visually
+        camera.x = -iso.x;
+        camera.y = -(iso.y + TILE_H*size/2);
+
     } else {
         alert("Gold tidak cukup!");
     }
@@ -380,13 +442,6 @@ function render() {
     ctx.translate(camera.x, camera.y);
 
     // 1. Draw Island Base (Circle/Ellipse in Iso)
-    // Note: The island center is at Cartesian (0,0) which maps to Iso (0,0).
-    // But wait, the grid loop is from r=0 to GRID_SIZE. 
-    // To allow negative grid coords, let's change the loop to from -GRID_SIZE to GRID_SIZE,
-    // OR we shift the island. 
-    // Ah, my previous grid loop was from 0 to GRID_SIZE! 
-    // If we want the center to be 15,15, we need the island to be at iso mapped from (15,15).
-    
     let centerCartX = (GRID_SIZE/2) * TILE_W;
     let centerCartY = (GRID_SIZE/2) * TILE_H;
     let centerIso = cartToIso(centerCartX, centerCartY);
@@ -404,10 +459,9 @@ function render() {
     ctx.fillStyle = '#90be6d'; // Grass
     ctx.fill();
 
-    // 2. Draw Grid (Only draw tiles that are fully inside the island)
+    // 2. Draw Grid
     for (let r = 0; r < GRID_SIZE; r++) {
         for (let c = 0; c < GRID_SIZE; c++) {
-            // Check if the 1x1 tile is valid
             let valid = isPointInIsland(c * TILE_W, r * TILE_H) &&
                         isPointInIsland((c+1) * TILE_W, r * TILE_H) &&
                         isPointInIsland(c * TILE_W, (r+1) * TILE_H) &&
@@ -417,7 +471,6 @@ function render() {
                 let cartX = c * TILE_W;
                 let cartY = r * TILE_H;
                 
-                // Draw tile bounds
                 ctx.beginPath();
                 let p1 = cartToIso(cartX, cartY);
                 let p2 = cartToIso(cartX + TILE_W, cartY);
@@ -433,7 +486,6 @@ function render() {
                 ctx.strokeStyle = 'rgba(255,255,255,0.05)';
                 ctx.stroke();
 
-                // Hover highlight
                 if (!draggedEntity && hoveredGrid.r === r && hoveredGrid.c === c) {
                     ctx.fillStyle = 'rgba(255,255,255,0.3)';
                     ctx.fill();
@@ -442,22 +494,27 @@ function render() {
         }
     }
     
-    // Draw placement preview if dragging or placing new entity
+    // Draw placement preview
     let previewEntity = draggedEntity || placingEntity;
     
     if (previewEntity) {
-        let cartX = hoveredGrid.c * TILE_W;
-        let cartY = hoveredGrid.r * TILE_H;
-        
-        // Use placingEntity's actual r,c if it is out of bounds or something, 
-        // but hoveredGrid is usually fine.
+        let size = previewEntity.size || 1;
+        let checkR = hoveredGrid.r;
+        let checkC = hoveredGrid.c;
+        if (draggedEntity) {
+            let deltaR = hoveredGrid.r - dragStartMouseGrid.r;
+            let deltaC = hoveredGrid.c - dragStartMouseGrid.c;
+            checkR = dragStartGrid.r + deltaR;
+            checkC = dragStartGrid.c + deltaC;
+        }
         if (placingEntity) {
-            cartX = placingEntity.c * TILE_W;
-            cartY = placingEntity.r * TILE_H;
+            checkR = placingEntity.r;
+            checkC = placingEntity.c;
         }
 
-        let size = previewEntity.size || 1;
-        
+        let cartX = checkC * TILE_W;
+        let cartY = checkR * TILE_H;
+
         ctx.beginPath();
         let p1 = cartToIso(cartX, cartY);
         let p2 = cartToIso(cartX + TILE_W * size, cartY);
@@ -471,15 +528,15 @@ function render() {
         ctx.closePath();
         
         let ignoreId = draggedEntity ? draggedEntity.id : null;
-        if (canPlace(placingEntity ? placingEntity.r : hoveredGrid.r, placingEntity ? placingEntity.c : hoveredGrid.c, size, ignoreId)) {
-            ctx.fillStyle = 'rgba(74, 222, 128, 0.5)'; // Green valid
+        if (canPlace(checkR, checkC, size, ignoreId)) {
+            ctx.fillStyle = 'rgba(74, 222, 128, 0.5)';
         } else {
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.5)'; // Red invalid
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.5)';
         }
         ctx.fill();
     }
 
-    // Sort entities for pseudo-depth (Y-sorting based on grid row+col)
+    // Sort entities
     let entitiesToDraw = [...gameState.entities];
     if (placingEntity) {
         entitiesToDraw.push(placingEntity);
@@ -491,43 +548,65 @@ function render() {
         let drawR = e.r;
         let drawC = e.c;
         
-        // If dragging, draw at hovered grid (if valid) or follow mouse loosely
-        if (draggedEntity && e.id === draggedEntity.id) {
-            drawR = hoveredGrid.r;
-            drawC = hoveredGrid.c;
+        // If dragging, compute relative drag so it doesn't jump
+        if (draggedEntity && e.id === draggedEntity.id && !placingEntity) {
+            let deltaR = hoveredGrid.r - dragStartMouseGrid.r;
+            let deltaC = hoveredGrid.c - dragStartMouseGrid.c;
+            drawR = dragStartGrid.r + deltaR;
+            drawC = dragStartGrid.c + deltaC;
+        } else if (placingEntity && e.id === placingEntity.id) {
+            drawR = placingEntity.r;
+            drawC = placingEntity.c;
         }
 
         let cartX = drawC * TILE_W;
         let cartY = drawR * TILE_H;
         let iso = cartToIso(cartX, cartY);
-        
-        // Adjust center based on size (1x1 or 2x2)
-        let isoW = TILE_W * e.size * 1.732; // Approx width in iso
         let centerIsoX = iso.x;
-        let centerIsoY = iso.y + (TILE_H/2 * e.size); // shift down half
+        let centerIsoY = iso.y + (TILE_H/2 * e.size); 
+        
+        // Draw Selection Highlight
+        if (selectedEntity && e.id === selectedEntity.id) {
+            ctx.beginPath();
+            let p1 = cartToIso(cartX, cartY);
+            let p2 = cartToIso(cartX + TILE_W * e.size, cartY);
+            let p3 = cartToIso(cartX + TILE_W * e.size, cartY + TILE_H * e.size);
+            let p4 = cartToIso(cartX, cartY + TILE_H * e.size);
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineTo(p3.x, p3.y);
+            ctx.lineTo(p4.x, p4.y);
+            ctx.closePath();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#fbbf24'; 
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.2)';
+            ctx.fill();
+        }
 
         if (e.type === 'army') {
-            // Draw Blue square box
-            ctx.fillStyle = '#3b82f6';
-            ctx.strokeStyle = '#1d4ed8';
-            ctx.lineWidth = 3;
-            // Draw a pseudo-3D block
-            let w = 40; let h = 40;
-            ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
-            ctx.strokeRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
-            
-            // Text
+            let img = ASSETS.soldier;
+            if (img.complete && img.naturalWidth !== 0) {
+                let w = 80;
+                let h = w * (img.naturalHeight / img.naturalWidth);
+                ctx.drawImage(img, centerIsoX - w/2, centerIsoY - h + 10, w, h);
+            } else {
+                ctx.fillStyle = '#3b82f6';
+                ctx.strokeStyle = '#1d4ed8';
+                ctx.lineWidth = 3;
+                let w = 40; let h = 40;
+                ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
+                ctx.strokeRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
+            }
             ctx.fillStyle = 'white';
             ctx.font = 'bold 20px Roboto Condensed';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(e.level, centerIsoX, centerIsoY - h/2 - 10);
+            ctx.fillText(e.level, centerIsoX, centerIsoY - 30);
             
         } else if (e.type === 'barrack') {
             let img = ASSETS.barrack;
             if (img.complete && img.naturalWidth !== 0) {
-                let side = TILE_W * e.size; // 120px for 2x2
-                ctx.save();
                 ctx.translate(iso.x, iso.y);
                 // Apply isometric matrix projection to warp the square image into a rhombus
                 let cos30 = Math.cos(Math.PI/6);
@@ -590,6 +669,20 @@ function render() {
         placementUI.style.top = screenY + 'px';
     }
     
+    // Update Context Menu UI DOM position
+    let menu = document.getElementById('contextMenu');
+    if (selectedEntity && menu.style.display !== 'none') {
+        let cartX = selectedEntity.c * TILE_W;
+        let cartY = selectedEntity.r * TILE_H;
+        let iso = cartToIso(cartX, cartY);
+        // Project center top of the building
+        let screenX = (iso.x + camera.x) * zoom + width / 2;
+        let screenY = (iso.y - 40 + camera.y) * zoom + height / 2;
+        
+        menu.style.left = screenX + 'px';
+        menu.style.top = screenY + 'px';
+    }
+
     // Fake Chat Rotator (Handled in JS logic but we just need to ensure loop runs)
     requestAnimationFrame(render);
 }
