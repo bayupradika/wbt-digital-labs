@@ -16,6 +16,14 @@ const GRID_SIZE = 60; // Larger board so we can carve a circle out of it
 const TILE_W = 60; // Base width of a tile in cartesian
 const TILE_H = 60;
 
+// --- ASSETS ---
+const ASSETS = {
+    barrack: new Image(),
+    mine: new Image()
+};
+ASSETS.barrack.src = 'assets/barrack.png';
+ASSETS.mine.src = 'assets/goldmine.png';
+
 let gameState = {
     gold: 15055764,
     power: 19.9,
@@ -516,32 +524,42 @@ function render() {
             ctx.fillText(e.level, centerIsoX, centerIsoY - h/2 - 10);
             
         } else if (e.type === 'barrack') {
-            // Draw 2x2 Barrack (Gray tent)
-            ctx.fillStyle = '#64748b';
-            ctx.strokeStyle = '#334155';
-            let w = 80; let h = 80;
-            ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
-            ctx.strokeRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
+            let img = ASSETS.barrack;
+            if (img.complete && img.naturalWidth !== 0) {
+                let w = 200; // roughly covers 2x2 tile width
+                let h = w * (img.naturalHeight / img.naturalWidth);
+                ctx.drawImage(img, centerIsoX - w/2, centerIsoY - h + 30, w, h);
+            } else {
+                // Fallback while loading
+                ctx.fillStyle = '#64748b';
+                let w = 80; let h = 80;
+                ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
+            }
             
             ctx.fillStyle = 'white';
             ctx.font = 'bold 16px Roboto Condensed';
-            ctx.fillText("BARRACK", centerIsoX, centerIsoY - h/2 - 10);
+            ctx.fillText("BARRACK", centerIsoX, centerIsoY - 60);
             ctx.font = '12px Nunito';
-            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY - h/2 + 10);
+            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY - 40);
             
         } else if (e.type === 'mine') {
-            // Draw 2x2 Mine (Gold factory)
-            ctx.fillStyle = '#f59e0b';
-            ctx.strokeStyle = '#b45309';
-            let w = 80; let h = 80;
-            ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
-            ctx.strokeRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
+            let img = ASSETS.mine;
+            if (img.complete && img.naturalWidth !== 0) {
+                let w = 200; // roughly covers 2x2 tile width
+                let h = w * (img.naturalHeight / img.naturalWidth);
+                ctx.drawImage(img, centerIsoX - w/2, centerIsoY - h + 30, w, h);
+            } else {
+                // Fallback while loading
+                ctx.fillStyle = '#f59e0b';
+                let w = 80; let h = 80;
+                ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
+            }
             
             ctx.fillStyle = 'white';
             ctx.font = 'bold 16px Roboto Condensed';
-            ctx.fillText("MINE", centerIsoX, centerIsoY - h/2 - 10);
+            ctx.fillText("MINE", centerIsoX, centerIsoY - 60);
             ctx.font = '12px Nunito';
-            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY - h/2 + 10);
+            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY - 40);
         }
     }
 
