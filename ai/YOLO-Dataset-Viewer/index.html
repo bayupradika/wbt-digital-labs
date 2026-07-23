@@ -1,15 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YOLO Dataset Viewer Studio Pro - Multi-Format Annotation Visualizer</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>YOLO Dataset Viewer Studio Pro - Multi-Format Annotation Visualizer</title>
+<link href="style.css?v=3.0" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -62,91 +62,76 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">YOLO Dataset Viewer</div>
-      </div>
-      <div class="wbt-global-header-center">
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">YOLO Dataset Viewer</div>
+</div>
+<div class="wbt-global-header-center">
         Visualisasi Koordinat Bounding Box Dataset YOLO
       </div>
-      <div class="wbt-global-header-right">
-        
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+<button onclick="downloadViewerApp('windows')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button onclick="downloadViewerApp('android')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+</div></div>
+</header>
+<div class="container">
 
-  <div class="container">
-    <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-eye"></i> AI Viewer Studio Pro</div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadViewerApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadViewerApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-          <h2 class="card-title" style="margin:0;"><i class="fa-solid fa-image" style="color:#38bdf8;"></i> 1. Visualisasi Dataset & Mode</h2>
-          <div>
-            <input type="file" id="file-input" accept="image/*" style="display:none;">
-            <button style="padding:6px 12px; border-radius:8px; background:#38bdf8; color:#0f172a; font-weight:800; border:none; font-size:12px; cursor:pointer;" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-upload"></i> Unggah Gambar</button>
-            <button style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); font-size:12px; font-weight:700; cursor:pointer;" onclick="loadSample()">Contoh</button>
-          </div>
-        </div>
-
-        <div style="width:100%; margin-bottom:12px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
-          <label style="font-size:11px; color:#38bdf8; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-code-compare"></i> Format Koordinat Anotasi</label>
-          <select id="annot-format" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
-            <option value="yolo">🎯 YOLO Normalized (class_id x_center y_center width height 0.0 - 1.0)</option>
-            <option value="coco">📦 COCO Absolute Pixel (class_id x_min y_min width height in pixels)</option>
-            <option value="voc">📐 Pascal VOC Min-Max (class_id x_min y_min x_max y_max in pixels)</option>
-          </select>
-        </div>
-        
-        <div class="canvas-area" id="canvas-area" style="min-height:280px;"><canvas id="canvas"></canvas></div>
-
-        <!-- Offline Model Section -->
-        <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
-          <input type="file" id="viewer-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleViewerOfflineModelUpload(event)">
-          <div id="viewer-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
+<div class="grid">
+<div class="card">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+<h2 class="card-title" style="margin:0;"><i class="fa-solid fa-image" style="color:#38bdf8;"></i> 1. Visualisasi Dataset &amp; Mode</h2>
+<div>
+<input accept="image/*" id="file-input" style="display:none;" type="file"/>
+<button onclick="document.getElementById('file-input').click()" style="padding:6px 12px; border-radius:8px; background:#38bdf8; color:#0f172a; font-weight:800; border:none; font-size:12px; cursor:pointer;"><i class="fa-solid fa-upload"></i> Unggah Gambar</button>
+<button onclick="loadSample()" style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); color:white; border:1px solid rgba(255,255,255,0.2); font-size:12px; font-weight:700; cursor:pointer;">Contoh</button>
+</div>
+</div>
+<div style="width:100%; margin-bottom:12px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+<label style="font-size:11px; color:#38bdf8; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-code-compare"></i> Format Koordinat Anotasi</label>
+<select id="annot-format" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
+<option value="yolo">🎯 YOLO Normalized (class_id x_center y_center width height 0.0 - 1.0)</option>
+<option value="coco">📦 COCO Absolute Pixel (class_id x_min y_min width height in pixels)</option>
+<option value="voc">📐 Pascal VOC Min-Max (class_id x_min y_min x_max y_max in pixels)</option>
+</select>
+</div>
+<div class="canvas-area" id="canvas-area" style="min-height:280px;"><canvas id="canvas"></canvas></div>
+<!-- Offline Model Section -->
+<div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
+<input accept=".pack,.json,.bin" id="viewer-model-file-input" onchange="handleViewerOfflineModelUpload(event)" style="display:none;" type="file"/>
+<div id="viewer-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
             Ingin Bounding Box Visualizer lokal 100% di Aplikasi Standalone (Tanpa Internet)?
           </div>
-          <div style="display:flex; gap:6px;">
-            <button style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;" onclick="purchaseViewerOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model Visualizer (.pack)</button>
-            <button style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;" onclick="document.getElementById('viewer-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-code" style="color:#10b981;"></i> 2. Input Anotasi & Definisi Kelas</h2>
-        
-        <label style="font-size:11px; font-weight:800; color:#10b981; margin-bottom:4px; display:block;"><i class="fa-solid fa-tags"></i> Definisi Nama Kelas (Pisahkan koma)</label>
-        <input type="text" class="text-input" id="class-names-input" value="mobil, pejalan_kaki, lampu_lalu_lintas, sepeda, bus" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; margin-bottom:12px;">
-
-        <label style="font-size:11px; font-weight:800; color:#94a3b8; margin-bottom:4px; display:block;"><i class="fa-solid fa-list-ol"></i> Koordinat Anotasi Bounding Box</label>
-        <textarea id="yolo-input" placeholder="0 0.523000 0.481000 0.350000 0.620000..." style="min-height:160px;"></textarea>
-        
-        <button class="btn" style="margin-top:12px;" onclick="renderYOLO()"><i class="fa-solid fa-play"></i> Render Visualisasi Bounding Box</button>
-
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <button class="btn" style="flex:1; background:#0284c7; font-size:12px;" onclick="downloadAnnotatedImage()"><i class="fa-solid fa-camera"></i> Ekspor Gambar HD</button>
-          <button class="btn" style="flex:1; background:#10b981; font-size:12px;" onclick="downloadAnnotationTxt()"><i class="fa-solid fa-file-lines"></i> Ekspor .TXT</button>
-        </div>
-
-        <div style="margin-top:16px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px;">
-          <h4 style="font-size:13px; margin-bottom:8px; color:#e2e8f0;"><i class="fa-solid fa-chart-pie"></i> Statistik Dataset:</h4>
-          <div class="stat-item" style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px;"><span>Total Objek Terdeteksi</span><b style="color:#38bdf8;" id="stat-count">0</b></div>
-          <div class="stat-item" style="display:flex; justify-content:space-between; font-size:12px;"><span>Resolusi Gambar Asli</span><b style="color:#10b981;" id="stat-res">-</b></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=3.0"></script>
+<div style="display:flex; gap:6px;">
+<button onclick="purchaseViewerOfflineModel()" style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Model Visualizer (.pack)</button>
+<button onclick="document.getElementById('viewer-model-file-input').click()" style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+</div>
+</div>
+</div>
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-code" style="color:#10b981;"></i> 2. Input Anotasi &amp; Definisi Kelas</h2>
+<label style="font-size:11px; font-weight:800; color:#10b981; margin-bottom:4px; display:block;"><i class="fa-solid fa-tags"></i> Definisi Nama Kelas (Pisahkan koma)</label>
+<input class="text-input" id="class-names-input" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; margin-bottom:12px;" type="text" value="mobil, pejalan_kaki, lampu_lalu_lintas, sepeda, bus"/>
+<label style="font-size:11px; font-weight:800; color:#94a3b8; margin-bottom:4px; display:block;"><i class="fa-solid fa-list-ol"></i> Koordinat Anotasi Bounding Box</label>
+<textarea id="yolo-input" placeholder="0 0.523000 0.481000 0.350000 0.620000..." style="min-height:160px;"></textarea>
+<button class="btn" onclick="renderYOLO()" style="margin-top:12px;"><i class="fa-solid fa-play"></i> Render Visualisasi Bounding Box</button>
+<div style="display:flex; gap:8px; margin-top:10px;">
+<button class="btn" onclick="downloadAnnotatedImage()" style="flex:1; background:#0284c7; font-size:12px;"><i class="fa-solid fa-camera"></i> Ekspor Gambar HD</button>
+<button class="btn" onclick="downloadAnnotationTxt()" style="flex:1; background:#10b981; font-size:12px;"><i class="fa-solid fa-file-lines"></i> Ekspor .TXT</button>
+</div>
+<div style="margin-top:16px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px;">
+<h4 style="font-size:13px; margin-bottom:8px; color:#e2e8f0;"><i class="fa-solid fa-chart-pie"></i> Statistik Dataset:</h4>
+<div class="stat-item" style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12px;"><span>Total Objek Terdeteksi</span><b id="stat-count" style="color:#38bdf8;">0</b></div>
+<div class="stat-item" style="display:flex; justify-content:space-between; font-size:12px;"><span>Resolusi Gambar Asli</span><b id="stat-res" style="color:#10b981;">-</b></div>
+</div>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=3.0"></script>
 </body>
 </html>

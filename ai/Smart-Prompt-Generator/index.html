@@ -1,15 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Prompt Generator Studio Pro - Multi-Model Prompt Builder</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Prompt Generator Studio Pro - Multi-Model Prompt Builder</title>
+<link href="style.css?v=3.0" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -62,87 +62,75 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Smart Prompt Generator</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Smart Prompt Generator</div>
+</div>
+<div class="wbt-global-header-center">
+        Rakit Parameter Prompt Midjourney &amp; ChatGPT
       </div>
-      <div class="wbt-global-header-center">
-        Rakit Parameter Prompt Midjourney & ChatGPT
-      </div>
-      <div class="wbt-global-header-right">
-        
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+<button onclick="downloadPromptApp('windows')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button onclick="downloadPromptApp('android')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+</div></div>
+</header>
+<div class="container">
 
-  <div class="container">
-    <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-lightbulb"></i> AI Prompt Studio Pro</div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadPromptApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadPromptApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-sliders" style="color:#f59e0b;"></i> 1. Konfigurasi Arsitektur Prompt</h2>
-        
-        <label class="label">Ide Dasar / Topik / Konsep</label>
-        <input type="text" class="text-input" id="keyword-input" placeholder="e.g. kota siber di atas awan, sistem CRM web modern">
-        <div style="display:flex; gap:6px; margin-top:8px;">
-          <button style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); border:none; color:white; font-size:11px; font-weight:700; cursor:pointer;" onclick="document.getElementById('keyword-input').value='kucing naga samurai cyberpunk di bawah neon malam Tokyo'">💡 Ide Visual</button>
-          <button style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); border:none; color:white; font-size:11px; font-weight:700; cursor:pointer;" onclick="document.getElementById('keyword-input').value='aplikasi dashboard analisis kripto AI dengan dark mode modern'">💡 Ide Coding / App</button>
-        </div>
-
-        <label class="label" style="margin-top:14px;">Target Model AI Engine</label>
-        <select class="select-input" id="model-select">
-          <option value="midjourney">🎨 Midjourney v6 / Flux.1 / Stable Diffusion XL (Image Generation)</option>
-          <option value="chatgpt">🤖 ChatGPT 4o / Claude 3.5 Sonnet / Gemini 1.5 Pro (Text & Code LLM)</option>
-          <option value="video">🎬 Runway Gen-3 / Luma Dream Machine / Sora (AI Video Prompts)</option>
-          <option value="music">🎵 Suno AI v3.5 / Udio AI (AI Music & Song Production Prompts)</option>
-        </select>
-
-        <label class="label">Gaya Estetika / Kerangka Kerja (Style)</label>
-        <select class="select-input" id="style-select">
-          <option value="photorealistic">8K Photorealistic / Unreal Engine 5 Cinematic</option>
-          <option value="anime">Studio Ghibli / Makoto Shinkai Anime Masterpiece</option>
-          <option value="expert">Senior C-Suite Architect / Step-by-Step Structured Framework</option>
-          <option value="cyberpunk">Cyberpunk Neon Synthwave / High-Contrast Dark Aesthetic</option>
-        </select>
-
-        <button class="btn" style="margin-top:16px;" onclick="generatePrompts()"><i class="fa-solid fa-wand-magic-sparkles"></i> Racik 3 Prompt Masterpiece AI</button>
-        <button class="btn" style="margin-top:8px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:800;" onclick="magicEnhancePrompt()"><i class="fa-solid fa-bolt"></i> Magic Enhancer / Expander (Perkaya Ide Singkat)</button>
-
-        <!-- Offline Model Section -->
-        <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
-          <input type="file" id="prompt-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handlePromptOfflineModelUpload(event)">
-          <div id="prompt-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
+<div class="grid">
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-sliders" style="color:#f59e0b;"></i> 1. Konfigurasi Arsitektur Prompt</h2>
+<label class="label">Ide Dasar / Topik / Konsep</label>
+<input class="text-input" id="keyword-input" placeholder="e.g. kota siber di atas awan, sistem CRM web modern" type="text"/>
+<div style="display:flex; gap:6px; margin-top:8px;">
+<button onclick="document.getElementById('keyword-input').value='kucing naga samurai cyberpunk di bawah neon malam Tokyo'" style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); border:none; color:white; font-size:11px; font-weight:700; cursor:pointer;">💡 Ide Visual</button>
+<button onclick="document.getElementById('keyword-input').value='aplikasi dashboard analisis kripto AI dengan dark mode modern'" style="padding:6px 12px; border-radius:8px; background:rgba(255,255,255,0.1); border:none; color:white; font-size:11px; font-weight:700; cursor:pointer;">💡 Ide Coding / App</button>
+</div>
+<label class="label" style="margin-top:14px;">Target Model AI Engine</label>
+<select class="select-input" id="model-select">
+<option value="midjourney">🎨 Midjourney v6 / Flux.1 / Stable Diffusion XL (Image Generation)</option>
+<option value="chatgpt">🤖 ChatGPT 4o / Claude 3.5 Sonnet / Gemini 1.5 Pro (Text &amp; Code LLM)</option>
+<option value="video">🎬 Runway Gen-3 / Luma Dream Machine / Sora (AI Video Prompts)</option>
+<option value="music">🎵 Suno AI v3.5 / Udio AI (AI Music &amp; Song Production Prompts)</option>
+</select>
+<label class="label">Gaya Estetika / Kerangka Kerja (Style)</label>
+<select class="select-input" id="style-select">
+<option value="photorealistic">8K Photorealistic / Unreal Engine 5 Cinematic</option>
+<option value="anime">Studio Ghibli / Makoto Shinkai Anime Masterpiece</option>
+<option value="expert">Senior C-Suite Architect / Step-by-Step Structured Framework</option>
+<option value="cyberpunk">Cyberpunk Neon Synthwave / High-Contrast Dark Aesthetic</option>
+</select>
+<button class="btn" onclick="generatePrompts()" style="margin-top:16px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Racik 3 Prompt Masterpiece AI</button>
+<button class="btn" onclick="magicEnhancePrompt()" style="margin-top:8px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:800;"><i class="fa-solid fa-bolt"></i> Magic Enhancer / Expander (Perkaya Ide Singkat)</button>
+<!-- Offline Model Section -->
+<div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
+<input accept=".pack,.json,.bin" id="prompt-model-file-input" onchange="handlePromptOfflineModelUpload(event)" style="display:none;" type="file"/>
+<div id="prompt-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
             Ingin Token Synthesizer lokal 100% di Aplikasi Standalone (Tanpa Internet)?
           </div>
-          <div style="display:flex; gap:6px;">
-            <button style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;" onclick="purchasePromptOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model Prompt (.pack)</button>
-            <button style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;" onclick="document.getElementById('prompt-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-scroll" style="color:#ec4899;"></i> 2. Hasil Prompt Siap Pakai & Ekspor</h2>
-        <div id="output-list" style="flex: 1; overflow-y: auto;">
-          <div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
-            <i class="fa-solid fa-comment-dots" style="font-size: 40px; margin-bottom: 10px; color: #ec4899;"></i>
-            <p>Prompt yang telah dioptimalkan dengan parameter dan token penajam profesional akan muncul di sini.</p>
-          </div>
-        </div>
-        <button class="btn" id="dl-prompts-btn" style="display:none; margin-top:14px; background:#0284c7;" onclick="downloadAllPrompts()"><i class="fa-solid fa-file-arrow-down"></i> Simpan Seluruh Prompt ke .TXT</button>
-      </div>
-    </div>
-  </div>
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=3.0"></script>
+<div style="display:flex; gap:6px;">
+<button onclick="purchasePromptOfflineModel()" style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Model Prompt (.pack)</button>
+<button onclick="document.getElementById('prompt-model-file-input').click()" style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+</div>
+</div>
+</div>
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-scroll" style="color:#ec4899;"></i> 2. Hasil Prompt Siap Pakai &amp; Ekspor</h2>
+<div id="output-list" style="flex: 1; overflow-y: auto;">
+<div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
+<i class="fa-solid fa-comment-dots" style="font-size: 40px; margin-bottom: 10px; color: #ec4899;"></i>
+<p>Prompt yang telah dioptimalkan dengan parameter dan token penajam profesional akan muncul di sini.</p>
+</div>
+</div>
+<button class="btn" id="dl-prompts-btn" onclick="downloadAllPrompts()" style="display:none; margin-top:14px; background:#0284c7;"><i class="fa-solid fa-file-arrow-down"></i> Simpan Seluruh Prompt ke .TXT</button>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=3.0"></script>
 </body>
 </html>

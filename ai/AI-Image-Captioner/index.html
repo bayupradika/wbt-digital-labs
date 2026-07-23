@@ -1,15 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Image Captioner - Smart Caption Generator</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Image Captioner - Smart Caption Generator</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -62,88 +62,72 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">AI Image Captioner</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">AI Image Captioner</div>
+</div>
+<div class="wbt-global-header-center">
+        Analisis Gambar &amp; Buat Caption Otomatis untuk Medsos
       </div>
-      <div class="wbt-global-header-center">
-        Analisis Gambar & Buat Caption Otomatis untuk Medsos
-      </div>
-      <div class="wbt-global-header-right">
-        
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div></div>
+</header>
+<div class="container">
 
-  <div class="container">
-    <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Captioner Pro</div>
-      <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-image" style="color:#3b82f6;"></i> 1. Unggah Foto Anda</h2>
-        <input type="file" id="file-input" accept="image/*" style="display: none;">
-        
-        <img id="preview" class="preview-img" alt="Preview">
-        
-        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          <h3 style="font-size: 16px; margin-bottom: 6px;">Klik atau Tarik Foto ke Sini</h3>
-          <p style="font-size: 13px; color: #94a3b8;">Mendukung PNG, JPG, WEBP (Maks 10MB)</p>
-          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Foto Contoh</button>
-        </div>
-
-        <label class="label" style="margin-top: 16px;">Mesin Kecerdasan Buatan (AI Engine)</label>
-        <select class="select-input" id="engine-select" onchange="toggleEngineSettings()">
-          <option value="local">🤖 Local Computer Vision & NLP Engine (100% Gratis & Offline)</option>
-          <option value="gemini">⚡ Google Gemini Vision 1.5 Flash (Cloud Neural AI)</option>
-          <option value="openai">🧠 OpenAI GPT-4o Vision Pro (Cloud Neural AI)</option>
-        </select>
-
-        <div id="api-key-box" style="display:none; margin-top: 12px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); padding: 12px; border-radius: 12px;">
-          <label style="font-size:12px; color:#60a5fa; font-weight:700; display:block; margin-bottom:6px;"><i class="fa-solid fa-key"></i> Masukkan API Key Anda (Opsional):</label>
-          <input type="password" id="api-key-input" placeholder="Misal: AIzaSy... atau sk-..." style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:#0f172a; color:white; font-size:13px; box-sizing:border-box;">
-          <div style="font-size:11px; color:#94a3b8; margin-top:6px;">Dapatkan gratis Gemini API Key di <a href="https://aistudio.google.com" target="_blank" style="color:#60a5fa;">aistudio.google.com</a></div>
-        </div>
-
-        <label class="label" style="margin-top: 16px;">Gaya Platform (Tone)</label>
-        <select class="select-input" id="platform-select">
-          <option value="instagram">📸 Instagram Estetik & Trendy</option>
-          <option value="tiktok">🎵 TikTok Viral & Lucu</option>
-          <option value="ecommerce">🛒 E-Commerce & Promosi Jualan</option>
-          <option value="linkedin">💼 LinkedIn Profesional & Inspiratif</option>
-        </select>
-
-        <button class="btn-generate" onclick="generateCaptions()"><i class="fa-solid fa-wand-magic-sparkles"></i> Analisis Gambar & Buat Caption</button>
-        <canvas id="vision-canvas" style="display:none;"></canvas>
-      </div>
-
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-captions" style="color:#a855f7;"></i> 2. Hasil Analisis Visual & Caption AI</h2>
-        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 12px;">AI mengekstraksi atribut visual gambar Anda secara mendalam sebelum menyusun caption.</p>
-        
-        <div id="vision-diagnostics" style="display:none; margin-bottom: 20px; background: rgba(15,23,42,0.8); border: 1px solid rgba(168,85,247,0.3); border-radius: 14px; padding: 16px;">
-          <h4 style="color:#c084fc; font-size:14px; margin-bottom:10px;"><i class="fa-solid fa-microchip"></i> Laporan Analisis Visual Otomatis:</h4>
-          <div id="vision-stats-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; margin-bottom:12px;"></div>
-          <div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Palet Warna Dominan Terdeteksi:</div>
-          <div id="vision-palette" style="display:flex; gap:6px; height:24px; border-radius:6px; overflow:hidden;"></div>
-        </div>
-
-        <div class="output-list" id="output-list">
-          <div style="background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); padding: 40px 20px; border-radius: 16px; text-align: center; color: #94a3b8;">
-            <i class="fa-solid fa-sparkles" style="font-size: 32px; margin-bottom: 10px; color: #6366f1;"></i>
-            <p>Unggah gambar di sebelah kiri dan tekan tombol generate untuk melihat keajaiban AI!</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="../midtrans-pay.js?v=2.5"></script>
-  <script src="script.js?v=2.5"></script>
+<div class="grid">
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-image" style="color:#3b82f6;"></i> 1. Unggah Foto Anda</h2>
+<input accept="image/*" id="file-input" style="display: none;" type="file"/>
+<img alt="Preview" class="preview-img" id="preview"/>
+<div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+<i class="fa-solid fa-cloud-arrow-up"></i>
+<h3 style="font-size: 16px; margin-bottom: 6px;">Klik atau Tarik Foto ke Sini</h3>
+<p style="font-size: 13px; color: #94a3b8;">Mendukung PNG, JPG, WEBP (Maks 10MB)</p>
+<button onclick="event.stopPropagation(); loadSample()" style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;">Gunakan Foto Contoh</button>
+</div>
+<label class="label" style="margin-top: 16px;">Mesin Kecerdasan Buatan (AI Engine)</label>
+<select class="select-input" id="engine-select" onchange="toggleEngineSettings()">
+<option value="local">🤖 Local Computer Vision &amp; NLP Engine (100% Gratis &amp; Offline)</option>
+<option value="gemini">⚡ Google Gemini Vision 1.5 Flash (Cloud Neural AI)</option>
+<option value="openai">🧠 OpenAI GPT-4o Vision Pro (Cloud Neural AI)</option>
+</select>
+<div id="api-key-box" style="display:none; margin-top: 12px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); padding: 12px; border-radius: 12px;">
+<label style="font-size:12px; color:#60a5fa; font-weight:700; display:block; margin-bottom:6px;"><i class="fa-solid fa-key"></i> Masukkan API Key Anda (Opsional):</label>
+<input id="api-key-input" placeholder="Misal: AIzaSy... atau sk-..." style="width:100%; padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:#0f172a; color:white; font-size:13px; box-sizing:border-box;" type="password"/>
+<div style="font-size:11px; color:#94a3b8; margin-top:6px;">Dapatkan gratis Gemini API Key di <a href="https://aistudio.google.com" style="color:#60a5fa;" target="_blank">aistudio.google.com</a></div>
+</div>
+<label class="label" style="margin-top: 16px;">Gaya Platform (Tone)</label>
+<select class="select-input" id="platform-select">
+<option value="instagram">📸 Instagram Estetik &amp; Trendy</option>
+<option value="tiktok">🎵 TikTok Viral &amp; Lucu</option>
+<option value="ecommerce">🛒 E-Commerce &amp; Promosi Jualan</option>
+<option value="linkedin">💼 LinkedIn Profesional &amp; Inspiratif</option>
+</select>
+<button class="btn-generate" onclick="generateCaptions()"><i class="fa-solid fa-wand-magic-sparkles"></i> Analisis Gambar &amp; Buat Caption</button>
+<canvas id="vision-canvas" style="display:none;"></canvas>
+</div>
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-captions" style="color:#a855f7;"></i> 2. Hasil Analisis Visual &amp; Caption AI</h2>
+<p style="color: #94a3b8; font-size: 14px; margin-bottom: 12px;">AI mengekstraksi atribut visual gambar Anda secara mendalam sebelum menyusun caption.</p>
+<div id="vision-diagnostics" style="display:none; margin-bottom: 20px; background: rgba(15,23,42,0.8); border: 1px solid rgba(168,85,247,0.3); border-radius: 14px; padding: 16px;">
+<h4 style="color:#c084fc; font-size:14px; margin-bottom:10px;"><i class="fa-solid fa-microchip"></i> Laporan Analisis Visual Otomatis:</h4>
+<div id="vision-stats-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; font-size:12px; margin-bottom:12px;"></div>
+<div style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Palet Warna Dominan Terdeteksi:</div>
+<div id="vision-palette" style="display:flex; gap:6px; height:24px; border-radius:6px; overflow:hidden;"></div>
+</div>
+<div class="output-list" id="output-list">
+<div style="background: rgba(0,0,0,0.2); border: 1px dashed rgba(255,255,255,0.1); padding: 40px 20px; border-radius: 16px; text-align: center; color: #94a3b8;">
+<i class="fa-solid fa-sparkles" style="font-size: 32px; margin-bottom: 10px; color: #6366f1;"></i>
+<p>Unggah gambar di sebelah kiri dan tekan tombol generate untuk melihat keajaiban AI!</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=2.5"></script>
+<script src="script.js?v=2.5"></script>
 </body>
 </html>

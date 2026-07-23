@@ -1,15 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Photo Enhancer & Upscaler Studio Pro - HD Restoration</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Photo Enhancer &amp; Upscaler Studio Pro - HD Restoration</title>
+<link href="style.css?v=3.0" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -62,82 +62,68 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">AI Photo Enhancer</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">AI Photo Enhancer</div>
+</div>
+<div class="wbt-global-header-center">
+        Upscale Foto Buram &amp; Resolusi Rendah Jadi HD
       </div>
-      <div class="wbt-global-header-center">
-        Upscale Foto Buram & Resolusi Rendah Jadi HD
-      </div>
-      <div class="wbt-global-header-right">
-        
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+<button onclick="downloadEnhancerApp('windows')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button onclick="downloadEnhancerApp('android')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+</div></div>
+</header>
+<div class="container">
 
-  <div class="container">
-    <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Enhancer Studio Pro</div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadEnhancerApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadEnhancerApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-image" style="color:#10b981;"></i> 1. Foto Asli (Buram / Resolusi Rendah)</h2>
-        
-        <div style="width:100%; margin-bottom:14px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
-          <label style="font-size:11px; color:#10b981; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-microchip"></i> Mesin Enhancer & Upscaling</label>
-          <select id="engine-select" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
-            <option value="neural">🧬 WebGL Neural Super-Resolution 2x/4x Face & Detail Restoration (100% Offline HD)</option>
-            <option value="bilinear">🚀 Fast Bilinear Sharpening Upscaler (Demo Cepat)</option>
-          </select>
-        </div>
-
-        <input type="file" id="file-input" accept="image/*" style="display: none;">
-        <div class="canvas-wrapper" id="orig-wrapper" style="display:none;"><canvas id="orig-canvas"></canvas></div>
-        
-        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-          <i class="fa-solid fa-cloud-arrow-up" style="font-size:48px; color:#10b981; margin-bottom:15px;"></i>
-          <h3>Klik atau Tarik Foto ke Sini</h3>
-          <p style="font-size: 13px; color: #94a3b8;">Perbaiki foto buram, wajah gelap, atau resolusi pecah</p>
-          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Foto Contoh</button>
-        </div>
-
-        <button class="btn" style="margin-top:14px;" onclick="enhancePhoto()"><i class="fa-solid fa-bolt"></i> Tingkatkan Kualitas HD Super Tajam</button>
-
-        <!-- Offline Model Section -->
-        <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
-          <input type="file" id="enhancer-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleEnhancerOfflineModelUpload(event)">
-          <div id="enhancer-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
+<div class="grid">
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-image" style="color:#10b981;"></i> 1. Foto Asli (Buram / Resolusi Rendah)</h2>
+<div style="width:100%; margin-bottom:14px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+<label style="font-size:11px; color:#10b981; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-microchip"></i> Mesin Enhancer &amp; Upscaling</label>
+<select id="engine-select" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
+<option value="neural">🧬 WebGL Neural Super-Resolution 2x/4x Face &amp; Detail Restoration (100% Offline HD)</option>
+<option value="bilinear">🚀 Fast Bilinear Sharpening Upscaler (Demo Cepat)</option>
+</select>
+</div>
+<input accept="image/*" id="file-input" style="display: none;" type="file"/>
+<div class="canvas-wrapper" id="orig-wrapper" style="display:none;"><canvas id="orig-canvas"></canvas></div>
+<div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+<i class="fa-solid fa-cloud-arrow-up" style="font-size:48px; color:#10b981; margin-bottom:15px;"></i>
+<h3>Klik atau Tarik Foto ke Sini</h3>
+<p style="font-size: 13px; color: #94a3b8;">Perbaiki foto buram, wajah gelap, atau resolusi pecah</p>
+<button onclick="event.stopPropagation(); loadSample()" style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;">Gunakan Foto Contoh</button>
+</div>
+<button class="btn" onclick="enhancePhoto()" style="margin-top:14px;"><i class="fa-solid fa-bolt"></i> Tingkatkan Kualitas HD Super Tajam</button>
+<!-- Offline Model Section -->
+<div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
+<input accept=".pack,.json,.bin" id="enhancer-model-file-input" onchange="handleEnhancerOfflineModelUpload(event)" style="display:none;" type="file"/>
+<div id="enhancer-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
             Ingin Neural Super-Resolution lokal 100% di Aplikasi Standalone (Tanpa Internet)?
           </div>
-          <div style="display:flex; gap:6px;">
-            <button style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;" onclick="purchaseEnhancerOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model Enhancer (.pack)</button>
-            <button style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;" onclick="document.getElementById('enhancer-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-sparkles" style="color:#38bdf8;"></i> 2. Hasil HD Super Tajam & Restorasi</h2>
-        <div class="canvas-wrapper" id="enh-wrapper" style="display:none;"><canvas id="enh-canvas"></canvas></div>
-        
-        <div id="enh-placeholder" style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-          <i class="fa-solid fa-images" style="font-size: 40px; margin-bottom: 10px; color: #38bdf8;"></i>
-          <p>Hasil foto HD super tajam resolusi tinggi akan muncul di sini.</p>
-        </div>
-
-        <button class="btn btn-dl" id="dl-btn" style="display:none; margin-top:14px;" onclick="downloadImage()"><i class="fa-solid fa-download"></i> Download Hasil HD Super Tajam</button>
-      </div>
-    </div>
-  </div>
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=3.0"></script>
+<div style="display:flex; gap:6px;">
+<button onclick="purchaseEnhancerOfflineModel()" style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Model Enhancer (.pack)</button>
+<button onclick="document.getElementById('enhancer-model-file-input').click()" style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+</div>
+</div>
+</div>
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-sparkles" style="color:#38bdf8;"></i> 2. Hasil HD Super Tajam &amp; Restorasi</h2>
+<div class="canvas-wrapper" id="enh-wrapper" style="display:none;"><canvas id="enh-canvas"></canvas></div>
+<div id="enh-placeholder" style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+<i class="fa-solid fa-images" style="font-size: 40px; margin-bottom: 10px; color: #38bdf8;"></i>
+<p>Hasil foto HD super tajam resolusi tinggi akan muncul di sini.</p>
+</div>
+<button class="btn btn-dl" id="dl-btn" onclick="downloadImage()" style="display:none; margin-top:14px;"><i class="fa-solid fa-download"></i> Download Hasil HD Super Tajam</button>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=3.0"></script>
 </body>
 </html>

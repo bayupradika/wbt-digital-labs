@@ -1,14 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WBT Social Video Downloader Pro - Universal Media Extractor (1080p / 4K)</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WBT Social Video Downloader Pro - Universal Media Extractor (1080p / 4K)</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
     :root {
       --bg-dark: #030712;
       --card-bg: rgba(15, 23, 42, 0.75);
@@ -439,11 +440,10 @@
       font-size: 16px;
     }
   </style>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -496,158 +496,138 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Social Video Downloader Pro</div>
-      </div>
-      <div class="wbt-global-header-center">
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Social Video Downloader Pro</div>
+</div>
+<div class="wbt-global-header-center">
         Unduh Video FB, IG, TikTok, X, YouTube HD
       </div>
-      <div class="wbt-global-header-right">
-        <span style="color:#38bdf8; font-weight:700;"><i class="fa-solid fa-download"></i> PRO: Unlimited</span>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div style="display: flex; gap: 12px; align-items: center;">
+<div class="badge-status" id="usage-badge">
+<i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: 5 / 5 Video
       </div>
-    </header>
-
-
-  <!-- Header & Navigation -->
-  <header class="header-nav">
-    <a href="../../index.html" class="btn-back">
-      <i class="fa-solid fa-arrow-left"></i> Kembali ke Portal Tools
-    </a>
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <div id="usage-badge" class="badge-status">
-        <i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: 5 / 5 Video
-      </div>
-      <button onclick="MidtransPay.showUpgradeModal()" class="btn-upgrade">
-        <i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 10.000)
+<button class="btn-upgrade" onclick="MidtransPay.showUpgradeModal()">
+<i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 10.000)
       </button>
-    </div>
-  </header>
+</div></div>
+</header>
+<!-- Header & Navigation -->
 
-  <!-- Main Content -->
-  <main class="container">
-    <div class="hero-title">
-      <h1>WBT Social Video Downloader</h1>
-      <p>Unduh video & audio kualitas tinggi Full HD 1080p langsung dari YouTube, X (Twitter), TikTok, Instagram, dan Facebook secara cepat tanpa watermark.</p>
-    </div>
-
-    <div class="glass-card">
-      <div class="platform-icons">
-        <div class="platform-item"><i class="fa-brands fa-youtube" style="color: #ef4444;"></i> YouTube</div>
-        <div class="platform-item"><i class="fa-brands fa-x-twitter" style="color: #ffffff;"></i> X (Twitter)</div>
-        <div class="platform-item"><i class="fa-brands fa-tiktok" style="color: #2dd4bf;"></i> TikTok</div>
-        <div class="platform-item"><i class="fa-brands fa-instagram" style="color: #f43f5e;"></i> Instagram</div>
-        <div class="platform-item"><i class="fa-brands fa-facebook" style="color: #3b82f6;"></i> Facebook</div>
-      </div>
-
-      <div class="input-group">
-        <input type="text" id="video-url" class="input-url" placeholder="Tempel URL video di sini (contoh: https://www.youtube.com/watch?v=... atau https://x.com/...)">
-        <button onclick="pasteFromClipboard()" class="btn-paste"><i class="fa-regular fa-clipboard"></i> Paste URL</button>
-      </div>
-
-      <div class="options-grid">
-        <label class="format-option active" onclick="selectFormat(this)">
-          <input type="radio" name="format" value="1080p" checked>
-          <div>
-            <div style="font-weight: 700; font-size: 14px; color: white;">Video MP4 (1080p Full HD)</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Kualitas tertinggi + suara jernih</div>
-          </div>
-        </label>
-        <label class="format-option" onclick="selectFormat(this)">
-          <input type="radio" name="format" value="720p">
-          <div>
-            <div style="font-weight: 700; font-size: 14px; color: white;">Video MP4 (720p HD)</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Ukuran file hemat memori</div>
-          </div>
-        </label>
-        <label class="format-option" onclick="selectFormat(this)">
-          <input type="radio" name="format" value="mp3">
-          <div>
-            <div style="font-weight: 700; font-size: 14px; color: white;">Audio MP3 (320kbps)</div>
-            <div style="font-size: 11px; color: var(--text-muted);">Ekstrak suara / musik saja</div>
-          </div>
-        </label>
-      </div>
-
-      <button id="extract-btn" onclick="startExtraction()" class="btn-extract">
-        <i class="fa-solid fa-cloud-arrow-down"></i> Ekstrak & Download Video Sekarang
+<!-- Main Content -->
+<main class="container">
+<div class="hero-title">
+<h1>WBT Social Video Downloader</h1>
+<p>Unduh video &amp; audio kualitas tinggi Full HD 1080p langsung dari YouTube, X (Twitter), TikTok, Instagram, dan Facebook secara cepat tanpa watermark.</p>
+</div>
+<div class="glass-card">
+<div class="platform-icons">
+<div class="platform-item"><i class="fa-brands fa-youtube" style="color: #ef4444;"></i> YouTube</div>
+<div class="platform-item"><i class="fa-brands fa-x-twitter" style="color: #ffffff;"></i> X (Twitter)</div>
+<div class="platform-item"><i class="fa-brands fa-tiktok" style="color: #2dd4bf;"></i> TikTok</div>
+<div class="platform-item"><i class="fa-brands fa-instagram" style="color: #f43f5e;"></i> Instagram</div>
+<div class="platform-item"><i class="fa-brands fa-facebook" style="color: #3b82f6;"></i> Facebook</div>
+</div>
+<div class="input-group">
+<input class="input-url" id="video-url" placeholder="Tempel URL video di sini (contoh: https://www.youtube.com/watch?v=... atau https://x.com/...)" type="text"/>
+<button class="btn-paste" onclick="pasteFromClipboard()"><i class="fa-regular fa-clipboard"></i> Paste URL</button>
+</div>
+<div class="options-grid">
+<label class="format-option active" onclick="selectFormat(this)">
+<input checked="" name="format" type="radio" value="1080p"/>
+<div>
+<div style="font-weight: 700; font-size: 14px; color: white;">Video MP4 (1080p Full HD)</div>
+<div style="font-size: 11px; color: var(--text-muted);">Kualitas tertinggi + suara jernih</div>
+</div>
+</label>
+<label class="format-option" onclick="selectFormat(this)">
+<input name="format" type="radio" value="720p"/>
+<div>
+<div style="font-weight: 700; font-size: 14px; color: white;">Video MP4 (720p HD)</div>
+<div style="font-size: 11px; color: var(--text-muted);">Ukuran file hemat memori</div>
+</div>
+</label>
+<label class="format-option" onclick="selectFormat(this)">
+<input name="format" type="radio" value="mp3"/>
+<div>
+<div style="font-weight: 700; font-size: 14px; color: white;">Audio MP3 (320kbps)</div>
+<div style="font-size: 11px; color: var(--text-muted);">Ekstrak suara / musik saja</div>
+</div>
+</label>
+</div>
+<button class="btn-extract" id="extract-btn" onclick="startExtraction()">
+<i class="fa-solid fa-cloud-arrow-down"></i> Ekstrak &amp; Download Video Sekarang
       </button>
-
-      <!-- Progress Bar -->
-      <div id="progress-container" class="progress-bar-container">
-        <div class="progress-bg">
-          <div id="progress-fill" class="progress-fill"></div>
-        </div>
-        <div id="progress-text" class="progress-text">Memuat server pemrosesan video...</div>
-      </div>
-
-      <!-- Result Box -->
-      <div id="result-box" class="result-box">
-        <div class="video-info">
-          <img id="result-thumb" class="video-thumb" src="" alt="Video Thumbnail">
-          <div class="video-meta">
-            <h3 id="result-title">Judul Video Terdeteksi</h3>
-            <p id="result-source"><i class="fa-solid fa-link"></i> Sumber: YouTube / X / TikTok</p>
-            <span id="result-duration" class="tag-duration"><i class="fa-regular fa-clock"></i> Durasi: 14:20 Menit</span>
-          </div>
-        </div>
-        <button id="btn-start-download" onclick="startFileDownload()" class="btn-download-action">
-          <i class="fa-solid fa-download"></i> Simpan File ke Komputer / HP
+<!-- Progress Bar -->
+<div class="progress-bar-container" id="progress-container">
+<div class="progress-bg">
+<div class="progress-fill" id="progress-fill"></div>
+</div>
+<div class="progress-text" id="progress-text">Memuat server pemrosesan video...</div>
+</div>
+<!-- Result Box -->
+<div class="result-box" id="result-box">
+<div class="video-info">
+<img alt="Video Thumbnail" class="video-thumb" id="result-thumb" src=""/>
+<div class="video-meta">
+<h3 id="result-title">Judul Video Terdeteksi</h3>
+<p id="result-source"><i class="fa-solid fa-link"></i> Sumber: YouTube / X / TikTok</p>
+<span class="tag-duration" id="result-duration"><i class="fa-regular fa-clock"></i> Durasi: 14:20 Menit</span>
+</div>
+</div>
+<button class="btn-download-action" id="btn-start-download" onclick="startFileDownload()">
+<i class="fa-solid fa-download"></i> Simpan File ke Komputer / HP
         </button>
-
-        <!-- Live Download Progress Section -->
-        <div id="dl-progress-box" style="display: none; margin-top: 20px; padding: 18px; background: rgba(3, 7, 18, 0.85); border: 1px solid var(--accent-emerald); border-radius: 16px; animation: fadeIn 0.3s ease;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span id="dl-status-text" style="font-size: 14px; font-weight: 700; color: #ffffff;"><i class="fa-solid fa-cloud-arrow-down fa-bounce" style="color: var(--accent-emerald);"></i> Sedang Mengunduh Video...</span>
-            <span id="dl-percentage" style="font-size: 15px; font-weight: 800; color: var(--accent-emerald);">0%</span>
+<!-- Live Download Progress Section -->
+<div id="dl-progress-box" style="display: none; margin-top: 20px; padding: 18px; background: rgba(3, 7, 18, 0.85); border: 1px solid var(--accent-emerald); border-radius: 16px; animation: fadeIn 0.3s ease;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+<span id="dl-status-text" style="font-size: 14px; font-weight: 700; color: #ffffff;"><i class="fa-solid fa-cloud-arrow-down fa-bounce" style="color: var(--accent-emerald);"></i> Sedang Mengunduh Video...</span>
+<span id="dl-percentage" style="font-size: 15px; font-weight: 800; color: var(--accent-emerald);">0%</span>
+</div>
+<div class="progress-bg" style="height: 14px; background: #1e293b; border-color: rgba(16, 185, 129, 0.3);">
+<div class="progress-fill" id="dl-progress-fill" style="background: linear-gradient(90deg, #38bdf8, #10b981); width: 0%;"></div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: var(--text-muted);">
+<span id="dl-size-info">0 MB / 42.5 MB</span>
+<span id="dl-speed-info">⚡ 4.8 MB/s</span>
+</div>
+</div>
+<!-- Download Success & Re-download Action -->
+<div id="dl-success-box" style="display: none; margin-top: 20px; padding: 18px; background: rgba(16, 185, 129, 0.15); border: 2px solid var(--accent-emerald); border-radius: 16px; text-align: center; animation: fadeIn 0.4s ease;">
+<div style="font-size: 16px; font-weight: 800; color: #34d399; margin-bottom: 8px;">
+<i class="fa-solid fa-circle-check"></i> Download Selesai 100%!
           </div>
-          <div class="progress-bg" style="height: 14px; background: #1e293b; border-color: rgba(16, 185, 129, 0.3);">
-            <div id="dl-progress-fill" class="progress-fill" style="background: linear-gradient(90deg, #38bdf8, #10b981); width: 0%;"></div>
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-            <span id="dl-size-info">0 MB / 42.5 MB</span>
-            <span id="dl-speed-info">⚡ 4.8 MB/s</span>
-          </div>
-        </div>
-
-        <!-- Download Success & Re-download Action -->
-        <div id="dl-success-box" style="display: none; margin-top: 20px; padding: 18px; background: rgba(16, 185, 129, 0.15); border: 2px solid var(--accent-emerald); border-radius: 16px; text-align: center; animation: fadeIn 0.4s ease;">
-          <div style="font-size: 16px; font-weight: 800; color: #34d399; margin-bottom: 8px;">
-            <i class="fa-solid fa-circle-check"></i> Download Selesai 100%!
-          </div>
-          <div style="font-size: 13px; color: #e2e8f0; margin-bottom: 14px;">
+<div style="font-size: 13px; color: #e2e8f0; margin-bottom: 14px;">
             File video / audio telah siap disimpan atau diunduh ke penyimpanan perangkat Anda.
           </div>
-          <a id="btn-final-download" href="#" target="_blank" class="btn-download-action" style="background: linear-gradient(135deg, #38bdf8, #0284c7);">
-            <i class="fa-solid fa-folder-open"></i> Buka / Simpan File Sekarang
+<a class="btn-download-action" href="#" id="btn-final-download" style="background: linear-gradient(135deg, #38bdf8, #0284c7);" target="_blank">
+<i class="fa-solid fa-folder-open"></i> Buka / Simpan File Sekarang
           </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Rules Banner -->
-    <div class="rules-banner">
-      <div class="rules-item">
-        <i class="fa-solid fa-shield-halved"></i>
-        <span><b>Batas Gratis:</b> Maksimal 5 Video / Hari</span>
-      </div>
-      <div class="rules-item">
-        <i class="fa-solid fa-hourglass-half"></i>
-        <span><b>Batas Durasi:</b> Maksimal 60 Menit (1 Jam)</span>
-      </div>
-      <div class="rules-item">
-        <i class="fa-solid fa-crown" style="color: #fbbf24;"></i>
-        <span><b>Mode PRO (Rp 10.000):</b> Tanpa Batas Kuota & Tanpa Batas Durasi!</span>
-      </div>
-    </div>
-  </main>
-
-  <!-- Load Shared Payment Gateway & License Router -->
-  <script src="../../ai/midtrans-pay.js"></script>
-  <script>
+</div>
+</div>
+</div>
+<!-- Rules Banner -->
+<div class="rules-banner">
+<div class="rules-item">
+<i class="fa-solid fa-shield-halved"></i>
+<span><b>Batas Gratis:</b> Maksimal 5 Video / Hari</span>
+</div>
+<div class="rules-item">
+<i class="fa-solid fa-hourglass-half"></i>
+<span><b>Batas Durasi:</b> Maksimal 60 Menit (1 Jam)</span>
+</div>
+<div class="rules-item">
+<i class="fa-solid fa-crown" style="color: #fbbf24;"></i>
+<span><b>Mode PRO (Rp 10.000):</b> Tanpa Batas Kuota &amp; Tanpa Batas Durasi!</span>
+</div>
+</div>
+</main>
+<!-- Load Shared Payment Gateway & License Router -->
+<script src="../../ai/midtrans-pay.js"></script>
+<script>
     // Update usage badge on load
     function refreshBadge() {
       const badge = document.getElementById('usage-badge');

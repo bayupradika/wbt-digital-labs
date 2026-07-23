@@ -1,19 +1,19 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CitraLabeling Studio Pro - Bulk YOLO/VOC Annotator</title>
-  <link rel="stylesheet" href="style.css?v=4.10">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- TensorFlow.js & COCO-SSD Deep Learning Object Detection Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CitraLabeling Studio Pro - Bulk YOLO/VOC Annotator</title>
+<link href="style.css?v=4.10" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- TensorFlow.js & COCO-SSD Deep Learning Object Detection Engine -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -66,251 +66,223 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Dataset Labeling Tool</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Dataset Labeling Tool</div>
+</div>
+<div class="wbt-global-header-center">
+        Anotasi Bounding Box (YOLO &amp; Pascal VOC)
       </div>
-      <div class="wbt-global-header-center">
-        Anotasi Bounding Box (YOLO & Pascal VOC)
-      </div>
-      <div class="wbt-global-header-right">
-        
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="badge" id="quota-display"><i class="fa-solid fa-infinity"></i> Kuota Harian: 1.000 / 1.000 File</div>
+<button onclick="openAutoLabelModal()" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-solid fa-robot"></i> AI Auto-Label</button>
+<button onclick="upgradeProUnlimited()" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; border:none; font-size:12px; font-weight:900; cursor:pointer;"><i class="fa-solid fa-crown"></i> Upgrade Pro (Rp 20k)</button>
+<button onclick="downloadAppSimulator('windows')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button onclick="downloadAppSimulator('android')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+</div></div>
+</header>
+<div class="container">
 
-  <div class="container">
-    <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-layer-group"></i> CitraLabeling Studio Pro</div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="badge" id="quota-display"><i class="fa-solid fa-infinity"></i> Kuota Harian: 1.000 / 1.000 File</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="openAutoLabelModal()"><i class="fa-solid fa-robot"></i> AI Auto-Label</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; border:none; font-size:12px; font-weight:900; cursor:pointer;" onclick="upgradeProUnlimited()"><i class="fa-solid fa-crown"></i> Upgrade Pro (Rp 20k)</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadAppSimulator('android')"><i class="fa-brands fa-android"></i> App Android</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <!-- Left Column: Canvas & Gallery -->
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-          <h2 class="card-title" style="margin:0;"><i class="fa-solid fa-vector-square" style="color:#38bdf8;"></i> Area Anotasi Citra (<span id="curr-img-name">Belum Ada Foto</span>)</h2>
-          
-          <div style="display:flex; gap:6px;">
-            <input type="file" id="file-input-multi" accept="image/*" multiple style="display:none;" onchange="handleMultiUpload(event)">
-            <input type="file" id="file-input-zip" accept=".zip,.rar" style="display:none;" onchange="handleZipUpload(event)">
-            
-            <button style="padding:7px 12px; border-radius:8px; background:#38bdf8; color:#0f172a; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="document.getElementById('file-input-multi').click()"><i class="fa-solid fa-images"></i> Upload Banyak Foto / Folder</button>
-            <button style="padding:7px 12px; border-radius:8px; background:#f59e0b; color:#0f172a; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="document.getElementById('file-input-zip').click()"><i class="fa-solid fa-file-zipper"></i> Upload ZIP / RAR</button>
-            <button style="padding:7px 12px; border-radius:8px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="openDriveModal()"><i class="fa-brands fa-google-drive"></i> Koneksi Google Drive</button>
-            <button style="padding:7px 12px; border-radius:8px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="openShortcutModal()"><i class="fa-solid fa-keyboard"></i> Atur Shortcut</button>
-          </div>
-        </div>
-
-        <!-- Annotation Mode Toolbar with Keyboard Shortcuts (Organized into 2 Clean Rows) -->
-        <div class="mode-toolbar" style="display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
-            <span style="font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; min-width:85px;"><i class="fa-solid fa-shapes"></i> Mode Buat:</span>
-            <div class="mode-btn active" id="mode-rect" onclick="setAnnotateMode('rect')" title="Shortcut: [R]">
-              <i class="fa-regular fa-square"></i> [<span id="lbl-sc-rect">R</span>] Rectangle
+<div class="grid">
+<!-- Left Column: Canvas & Gallery -->
+<div class="card">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+<h2 class="card-title" style="margin:0;"><i class="fa-solid fa-vector-square" style="color:#38bdf8;"></i> Area Anotasi Citra (<span id="curr-img-name">Belum Ada Foto</span>)</h2>
+<div style="display:flex; gap:6px;">
+<input accept="image/*" id="file-input-multi" multiple="" onchange="handleMultiUpload(event)" style="display:none;" type="file"/>
+<input accept=".zip,.rar" id="file-input-zip" onchange="handleZipUpload(event)" style="display:none;" type="file"/>
+<button onclick="document.getElementById('file-input-multi').click()" style="padding:7px 12px; border-radius:8px; background:#38bdf8; color:#0f172a; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-solid fa-images"></i> Upload Banyak Foto / Folder</button>
+<button onclick="document.getElementById('file-input-zip').click()" style="padding:7px 12px; border-radius:8px; background:#f59e0b; color:#0f172a; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-solid fa-file-zipper"></i> Upload ZIP / RAR</button>
+<button onclick="openDriveModal()" style="padding:7px 12px; border-radius:8px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-google-drive"></i> Koneksi Google Drive</button>
+<button onclick="openShortcutModal()" style="padding:7px 12px; border-radius:8px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-solid fa-keyboard"></i> Atur Shortcut</button>
+</div>
+</div>
+<!-- Annotation Mode Toolbar with Keyboard Shortcuts (Organized into 2 Clean Rows) -->
+<div class="mode-toolbar" style="display:flex; flex-direction:column; gap:8px;">
+<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+<span style="font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase; min-width:85px;"><i class="fa-solid fa-shapes"></i> Mode Buat:</span>
+<div class="mode-btn active" id="mode-rect" onclick="setAnnotateMode('rect')" title="Shortcut: [R]">
+<i class="fa-regular fa-square"></i> [<span id="lbl-sc-rect">R</span>] Rectangle
             </div>
-            <div class="mode-btn" id="mode-oval" onclick="setAnnotateMode('oval')" title="Shortcut: [O]">
-              <i class="fa-regular fa-circle"></i> [<span id="lbl-sc-oval">O</span>] Oval
+<div class="mode-btn" id="mode-oval" onclick="setAnnotateMode('oval')" title="Shortcut: [O]">
+<i class="fa-regular fa-circle"></i> [<span id="lbl-sc-oval">O</span>] Oval
             </div>
-            <div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut: [S]">
-              <i class="fa-solid fa-scissors"></i> [<span id="lbl-sc-scissor">S</span>] Scissor
+<div class="mode-btn" id="mode-scissor" onclick="setAnnotateMode('scissor')" title="Shortcut: [S]">
+<i class="fa-solid fa-scissors"></i> [<span id="lbl-sc-scissor">S</span>] Scissor
             </div>
-            <div class="mode-btn" id="mode-point" onclick="setAnnotateMode('point')" title="Shortcut: [P]">
-              <i class="fa-solid fa-draw-polygon"></i> [<span id="lbl-sc-point">P</span>] Point Mode
+<div class="mode-btn" id="mode-point" onclick="setAnnotateMode('point')" title="Shortcut: [P]">
+<i class="fa-solid fa-draw-polygon"></i> [<span id="lbl-sc-point">P</span>] Point Mode
             </div>
-          </div>
-          <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
-            <span style="font-size:11px; font-weight:800; color:#c084fc; text-transform:uppercase; min-width:85px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Koreksi:</span>
-            <div class="mode-btn" id="mode-select" onclick="setAnnotateMode('select')" title="Shortcut: [V] - Pilih Bounding Box">
-              <i class="fa-solid fa-arrow-pointer"></i> [<span id="lbl-sc-select">V</span>] Select
+</div>
+<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+<span style="font-size:11px; font-weight:800; color:#c084fc; text-transform:uppercase; min-width:85px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Koreksi:</span>
+<div class="mode-btn" id="mode-select" onclick="setAnnotateMode('select')" title="Shortcut: [V] - Pilih Bounding Box">
+<i class="fa-solid fa-arrow-pointer"></i> [<span id="lbl-sc-select">V</span>] Select
             </div>
-            <div class="mode-btn" id="mode-edit" onclick="setAnnotateMode('edit')" title="Shortcut: [E] - Edit Ukuran / Posisi Bounding Box">
-              <i class="fa-solid fa-pen-to-square"></i> [<span id="lbl-sc-edit">E</span>] Edit BBox
+<div class="mode-btn" id="mode-edit" onclick="setAnnotateMode('edit')" title="Shortcut: [E] - Edit Ukuran / Posisi Bounding Box">
+<i class="fa-solid fa-pen-to-square"></i> [<span id="lbl-sc-edit">E</span>] Edit BBox
             </div>
-            <div class="mode-btn" id="mode-delete" onclick="setAnnotateMode('delete')" title="Shortcut: [D] - Hapus Bounding Box Terpilih">
-              <i class="fa-solid fa-trash-can"></i> [<span id="lbl-sc-delete">D</span>] Delete
+<div class="mode-btn" id="mode-delete" onclick="setAnnotateMode('delete')" title="Shortcut: [D] - Hapus Bounding Box Terpilih">
+<i class="fa-solid fa-trash-can"></i> [<span id="lbl-sc-delete">D</span>] Delete
             </div>
-          </div>
-        </div>
-
-        <!-- Interactive Zoom & Navigation Toolbar -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:rgba(15,23,42,0.9); padding:8px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); font-size:12px; color:#cbd5e1;">
-          <div><i class="fa-solid fa-magnifying-glass" style="color:#38bdf8;"></i> Navigasi Zoom Tampilan: <strong id="zoom-level-text" style="color:#fbbf24;">100%</strong> <small style="color:#64748b;">(Posisi gambar konsisten saat di-scroll)</small></div>
-          <div style="display:flex; gap:6px;">
-            <button style="padding:4px 10px; border-radius:6px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-weight:700; cursor:pointer;" onclick="changeZoom(0.25)" title="Zoom In (+)"><i class="fa-solid fa-plus"></i> Zoom In</button>
-            <button style="padding:4px 10px; border-radius:6px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-weight:700; cursor:pointer;" onclick="changeZoom(-0.25)" title="Zoom Out (-)"><i class="fa-solid fa-minus"></i> Zoom Out</button>
-            <button style="padding:4px 10px; border-radius:6px; background:#334155; color:#fbbf24; border:none; font-weight:700; cursor:pointer;" onclick="resetZoom()" title="Reset Ukuran Asli">Reset (100%)</button>
-          </div>
-        </div>
-        
-        <div class="canvas-area" id="canvas-area">
-          <div class="canvas-wrapper-inner" id="canvas-wrapper">
-            <canvas id="canvas"></canvas>
-          </div>
-        </div>
-        
-        <!-- Gallery Navigation & Fixed Single-Row Thumbnail Strip -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; flex-wrap:wrap; gap:8px;">
-          <div style="font-size:13px; font-weight:800; color:#cbd5e1;"><i class="fa-solid fa-images" style="color:#38bdf8;"></i> Galeri Citra (<span id="gallery-count">0</span> File)</div>
-          <button style="padding:8px 16px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(16,185,129,0.3);" onclick="nextImageAutoScroll()"><i class="fa-solid fa-check"></i> Selesai Anotasi & Lanjut Gambar Berikutnya ➔</button>
-        </div>
-        <div class="gallery-strip" id="gallery-strip">
-          <p style="color:#64748b; font-size:12px; padding:10px;">Unggah file gambar atau ZIP untuk menampilkannya di sini.</p>
-        </div>
-      </div>
-
-      <!-- Right Column: Classes & Export -->
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-list-check" style="color:#fbbf24;"></i> Kelola Kelas (classes.txt)</h2>
-        
-        <div style="display:flex; gap:6px; margin-bottom:10px;">
-          <input type="text" class="label-input" id="new-class-input" placeholder="Nama kelas baru..." style="margin-bottom:0;">
-          <button style="padding:8px 14px; border-radius:10px; background:#10b981; color:#0f172a; border:none; font-weight:800; cursor:pointer; flex-shrink:0;" onclick="addNewClass()"><i class="fa-solid fa-plus"></i></button>
-          <input type="file" id="classes-file-input" accept=".txt" style="display:none;" onchange="uploadClassesTxt(event)">
-          <button style="padding:8px 12px; border-radius:10px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" onclick="document.getElementById('classes-file-input').click()" title="Upload classes.txt"><i class="fa-solid fa-file-import"></i></button>
-        </div>
-
-        <div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Klik label untuk aktifkan. Drag atas/bawah untuk ubah urutan. Klik (X) hapus:</div>
-        <div class="class-list" id="class-pills"></div>
-
-        <button class="btn btn-export" style="margin-top:10px;" onclick="downloadClassesTxt()"><i class="fa-solid fa-download"></i> Download file classes.txt</button>
-
-        <div style="margin-top:18px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;">
-          <h4 style="font-size:14px; margin-bottom:8px; color:#e2e8f0;">Daftar Anotasi Citra Aktif (<span id="box-count">0</span>):</h4>
-          <div class="box-list" id="box-list">
-            <p style="color:#64748b; font-size:12px; text-align:center; padding:15px;">Belum ada anotasi.</p>
-          </div>
-        </div>
-
-        <button class="btn" style="margin-top:16px;" onclick="exportYOLO()"><i class="fa-solid fa-file-code"></i> Download YOLO Format (.txt)</button>
-        <button class="btn btn-export" style="border-color:#a855f7; color:#d8b4fe;" onclick="exportVOC()"><i class="fa-solid fa-code"></i> Download Pascal VOC (.xml)</button>
-        <button class="btn btn-export" style="border-color:#10b981; color:#34d399;" onclick="exportCOCO()"><i class="fa-solid fa-cube"></i> Download COCO Dataset (.json)</button>
-        <button class="btn" style="background:#38bdf8; color:#0f172a; font-weight:800; margin-top:10px;" onclick="runAugmentationEngine()"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Data Augmentation Generator</button>
-        <button class="btn" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:800; margin-top:8px;" onclick="exportDatasetSplitZIP()"><i class="fa-solid fa-file-zipper"></i> Ekspor Train/Val/Test Split ZIP</button>
-        <button class="btn" style="background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; font-weight:700; margin-top:8px; font-size:11px;" onclick="interpolateNextFrame()"><i class="fa-solid fa-clone"></i> Salin Anotasi ke Frame Berikutnya (Interpolasi)</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- AI Auto-Label Modal -->
-  <div id="ai-autolabel-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px);">
-    <div style="background:#111827; border:2px solid #3b82f6; border-radius:24px; max-width:620px; width:100%; padding:26px; color:white; position:relative; box-shadow:0 20px 50px rgba(59,130,246,0.25);">
-      <button style="position:absolute; top:18px; right:18px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;" onclick="closeAutoLabelModal()"><i class="fa-solid fa-xmark"></i></button>
-      <h3 style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px; color:#60a5fa;"><i class="fa-solid fa-robot"></i> AI Auto-Label One-Shot Engine</h3>
-      <p style="font-size:13px; color:#cbd5e1; line-height:1.6; margin-bottom:16px;">
+</div>
+</div>
+<!-- Interactive Zoom & Navigation Toolbar -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:rgba(15,23,42,0.9); padding:8px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); font-size:12px; color:#cbd5e1;">
+<div><i class="fa-solid fa-magnifying-glass" style="color:#38bdf8;"></i> Navigasi Zoom Tampilan: <strong id="zoom-level-text" style="color:#fbbf24;">100%</strong> <small style="color:#64748b;">(Posisi gambar konsisten saat di-scroll)</small></div>
+<div style="display:flex; gap:6px;">
+<button onclick="changeZoom(0.25)" style="padding:4px 10px; border-radius:6px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-weight:700; cursor:pointer;" title="Zoom In (+)"><i class="fa-solid fa-plus"></i> Zoom In</button>
+<button onclick="changeZoom(-0.25)" style="padding:4px 10px; border-radius:6px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-weight:700; cursor:pointer;" title="Zoom Out (-)"><i class="fa-solid fa-minus"></i> Zoom Out</button>
+<button onclick="resetZoom()" style="padding:4px 10px; border-radius:6px; background:#334155; color:#fbbf24; border:none; font-weight:700; cursor:pointer;" title="Reset Ukuran Asli">Reset (100%)</button>
+</div>
+</div>
+<div class="canvas-area" id="canvas-area">
+<div class="canvas-wrapper-inner" id="canvas-wrapper">
+<canvas id="canvas"></canvas>
+</div>
+</div>
+<!-- Gallery Navigation & Fixed Single-Row Thumbnail Strip -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; flex-wrap:wrap; gap:8px;">
+<div style="font-size:13px; font-weight:800; color:#cbd5e1;"><i class="fa-solid fa-images" style="color:#38bdf8;"></i> Galeri Citra (<span id="gallery-count">0</span> File)</div>
+<button onclick="nextImageAutoScroll()" style="padding:8px 16px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(16,185,129,0.3);"><i class="fa-solid fa-check"></i> Selesai Anotasi &amp; Lanjut Gambar Berikutnya ➔</button>
+</div>
+<div class="gallery-strip" id="gallery-strip">
+<p style="color:#64748b; font-size:12px; padding:10px;">Unggah file gambar atau ZIP untuk menampilkannya di sini.</p>
+</div>
+</div>
+<!-- Right Column: Classes & Export -->
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-list-check" style="color:#fbbf24;"></i> Kelola Kelas (classes.txt)</h2>
+<div style="display:flex; gap:6px; margin-bottom:10px;">
+<input class="label-input" id="new-class-input" placeholder="Nama kelas baru..." style="margin-bottom:0;" type="text"/>
+<button onclick="addNewClass()" style="padding:8px 14px; border-radius:10px; background:#10b981; color:#0f172a; border:none; font-weight:800; cursor:pointer; flex-shrink:0;"><i class="fa-solid fa-plus"></i></button>
+<input accept=".txt" id="classes-file-input" onchange="uploadClassesTxt(event)" style="display:none;" type="file"/>
+<button onclick="document.getElementById('classes-file-input').click()" style="padding:8px 12px; border-radius:10px; background:#334155; color:white; border:none; font-size:12px; font-weight:700; cursor:pointer;" title="Upload classes.txt"><i class="fa-solid fa-file-import"></i></button>
+</div>
+<div style="font-size:12px; color:#94a3b8; margin-bottom:4px;">Klik label untuk aktifkan. Drag atas/bawah untuk ubah urutan. Klik (X) hapus:</div>
+<div class="class-list" id="class-pills"></div>
+<button class="btn btn-export" onclick="downloadClassesTxt()" style="margin-top:10px;"><i class="fa-solid fa-download"></i> Download file classes.txt</button>
+<div style="margin-top:18px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;">
+<h4 style="font-size:14px; margin-bottom:8px; color:#e2e8f0;">Daftar Anotasi Citra Aktif (<span id="box-count">0</span>):</h4>
+<div class="box-list" id="box-list">
+<p style="color:#64748b; font-size:12px; text-align:center; padding:15px;">Belum ada anotasi.</p>
+</div>
+</div>
+<button class="btn" onclick="exportYOLO()" style="margin-top:16px;"><i class="fa-solid fa-file-code"></i> Download YOLO Format (.txt)</button>
+<button class="btn btn-export" onclick="exportVOC()" style="border-color:#a855f7; color:#d8b4fe;"><i class="fa-solid fa-code"></i> Download Pascal VOC (.xml)</button>
+<button class="btn btn-export" onclick="exportCOCO()" style="border-color:#10b981; color:#34d399;"><i class="fa-solid fa-cube"></i> Download COCO Dataset (.json)</button>
+<button class="btn" onclick="runAugmentationEngine()" style="background:#38bdf8; color:#0f172a; font-weight:800; margin-top:10px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Data Augmentation Generator</button>
+<button class="btn" onclick="exportDatasetSplitZIP()" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:800; margin-top:8px;"><i class="fa-solid fa-file-zipper"></i> Ekspor Train/Val/Test Split ZIP</button>
+<button class="btn" onclick="interpolateNextFrame()" style="background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; font-weight:700; margin-top:8px; font-size:11px;"><i class="fa-solid fa-clone"></i> Salin Anotasi ke Frame Berikutnya (Interpolasi)</button>
+</div>
+</div>
+</div>
+<!-- AI Auto-Label Modal -->
+<div id="ai-autolabel-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px);">
+<div style="background:#111827; border:2px solid #3b82f6; border-radius:24px; max-width:620px; width:100%; padding:26px; color:white; position:relative; box-shadow:0 20px 50px rgba(59,130,246,0.25);">
+<button onclick="closeAutoLabelModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+<h3 style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px; color:#60a5fa;"><i class="fa-solid fa-robot"></i> AI Auto-Label One-Shot Engine</h3>
+<p style="font-size:13px; color:#cbd5e1; line-height:1.6; margin-bottom:16px;">
         Unggah banyak gambar atau folder, buat <strong>minimal 1 bounding box anotasi referensi</strong> pada gambar saat ini sebagai contoh untuk setiap kelas, lalu biarkan model AI mencocokkan tekstur/warna objek dan melabeli sisa gambar di galeri secara otomatis!
       </p>
-      
-      <div style="background:#1e293b; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); margin-bottom:18px;">
-        <div style="font-size:13px; font-weight:800; color:#fbbf24; margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> Status Referensi & Progres:</div>
-        <div id="ai-ref-status" style="font-size:13px; color:#34d399; margin-bottom:12px;">Memeriksa referensi pada gambar saat ini...</div>
-        
-        <div id="ai-progress-container" style="display:none; margin-top:12px;">
-          <div style="width:100%; background:#0f172a; border-radius:8px; height:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.1);">
-            <div id="ai-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg,#3b82f6,#10b981); transition:width 0.3s ease;"></div>
-          </div>
-          <div id="ai-progress-text" style="font-size:11px; color:#94a3b8; text-align:center; margin-top:6px;">Menganalisis gambar 0 / 0...</div>
-        </div>
-      </div>
-
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <button id="btn-run-autolabel" style="width:100%; padding:14px; border-radius:14px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; font-weight:800; font-size:14px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 6px 16px rgba(59,130,246,0.4);" onclick="runAutoLabelEngine()"><i class="fa-solid fa-bolt"></i> Jalankan AI Auto-Label Semua Gambar</button>
-        
-        <div style="border-top:1px dashed rgba(255,255,255,0.15); margin:8px 0; padding-top:14px; text-align:center;">
-          <input type="file" id="ai-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleOfflineModelUpload(event)">
-          <div id="offline-model-status" style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">
+<div style="background:#1e293b; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); margin-bottom:18px;">
+<div style="font-size:13px; font-weight:800; color:#fbbf24; margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> Status Referensi &amp; Progres:</div>
+<div id="ai-ref-status" style="font-size:13px; color:#34d399; margin-bottom:12px;">Memeriksa referensi pada gambar saat ini...</div>
+<div id="ai-progress-container" style="display:none; margin-top:12px;">
+<div style="width:100%; background:#0f172a; border-radius:8px; height:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.1);">
+<div id="ai-progress-bar" style="width:0%; height:100%; background:linear-gradient(90deg,#3b82f6,#10b981); transition:width 0.3s ease;"></div>
+</div>
+<div id="ai-progress-text" style="font-size:11px; color:#94a3b8; text-align:center; margin-top:6px;">Menganalisis gambar 0 / 0...</div>
+</div>
+</div>
+<div style="display:flex; flex-direction:column; gap:10px;">
+<button id="btn-run-autolabel" onclick="runAutoLabelEngine()" style="width:100%; padding:14px; border-radius:14px; background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; font-weight:800; font-size:14px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 6px 16px rgba(59,130,246,0.4);"><i class="fa-solid fa-bolt"></i> Jalankan AI Auto-Label Semua Gambar</button>
+<div style="border-top:1px dashed rgba(255,255,255,0.15); margin:8px 0; padding-top:14px; text-align:center;">
+<input accept=".pack,.json,.bin" id="ai-model-file-input" onchange="handleOfflineModelUpload(event)" style="display:none;" type="file"/>
+<div id="offline-model-status" style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">
             Ingin menjalankan AI Auto-Label Offline di Aplikasi Standalone (PC/Android)?
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button style="flex:1; padding:11px; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="purchaseOfflineAIModel()"><i class="fa-solid fa-cart-shopping"></i> Beli & Download Model (.pack)</button>
-            <button style="flex:1; padding:11px; border-radius:12px; background:#10b981; color:white; font-weight:800; font-size:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="document.getElementById('ai-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat File Model (.pack)</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Google Drive Streaming Connection Modal -->
-  <div id="drive-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px);">
-    <div style="background:#111827; border:2px solid #10b981; border-radius:24px; max-width:580px; width:100%; padding:26px; color:white; position:relative; box-shadow:0 20px 50px rgba(16,185,129,0.25);">
-      <button style="position:absolute; top:18px; right:18px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;" onclick="closeDriveModal()"><i class="fa-solid fa-xmark"></i></button>
-      <h3 style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px; color:#34d399;"><i class="fa-brands fa-google-drive"></i> Koneksi Streaming Dataset Google Drive</h3>
-      <p style="font-size:13px; color:#cbd5e1; line-height:1.5; margin-bottom:18px;">
+<div style="display:flex; gap:8px; flex-wrap:wrap;">
+<button onclick="purchaseOfflineAIModel()" style="flex:1; padding:11px; border-radius:12px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="fa-solid fa-cart-shopping"></i> Beli &amp; Download Model (.pack)</button>
+<button onclick="document.getElementById('ai-model-file-input').click()" style="flex:1; padding:11px; border-radius:12px; background:#10b981; color:white; font-weight:800; font-size:12px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="fa-solid fa-folder-open"></i> Muat File Model (.pack)</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Google Drive Streaming Connection Modal -->
+<div id="drive-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px);">
+<div style="background:#111827; border:2px solid #10b981; border-radius:24px; max-width:580px; width:100%; padding:26px; color:white; position:relative; box-shadow:0 20px 50px rgba(16,185,129,0.25);">
+<button onclick="closeDriveModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+<h3 style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px; color:#34d399;"><i class="fa-brands fa-google-drive"></i> Koneksi Streaming Dataset Google Drive</h3>
+<p style="font-size:13px; color:#cbd5e1; line-height:1.5; margin-bottom:18px;">
         Hubungkan ribuan gambar dari Google Drive tanpa perlu menunggu seluruh file selesai di-download! Gambar diunduh secara antrean berurutan (lazy streaming). <strong>Gambar yang Anda klik di panel bawah akan langsung diprioritaskan diunduh seketika!</strong>
-      </p>
-
-      <div style="margin-bottom:16px;">
-        <label style="font-size:12px; font-weight:800; color:#a7f3d0; display:block; margin-bottom:6px;">Tempel Link Share / ID Folder atau Daftar Link Gambar Google Drive (Satu per baris):</label>
-        <textarea id="drive-links-input" rows="5" placeholder="Contoh:&#10;https://drive.google.com/file/d/1A2b3c4d5e.../view?usp=sharing&#10;https://drive.google.com/file/d/1X9y8z7w6v.../view?usp=sharing&#10;Atau cukup tempelkan ID File Google Drive: 1A2b3c4d5e..." style="width:100%; padding:12px; border-radius:12px; background:#0f172a; color:white; border:1px solid rgba(255,255,255,0.15); font-size:12px; font-family:monospace; resize:vertical;"></textarea>
+</p>
+<div style="margin-bottom:16px;">
+<label style="font-size:12px; font-weight:800; color:#a7f3d0; display:block; margin-bottom:6px;">Tempel Link Share / ID Folder atau Daftar Link Gambar Google Drive (Satu per baris):</label>
+<textarea id="drive-links-input" placeholder="Contoh:
+https://drive.google.com/file/d/1A2b3c4d5e.../view?usp=sharing
+https://drive.google.com/file/d/1X9y8z7w6v.../view?usp=sharing
+Atau cukup tempelkan ID File Google Drive: 1A2b3c4d5e..." rows="5" style="width:100%; padding:12px; border-radius:12px; background:#0f172a; color:white; border:1px solid rgba(255,255,255,0.15); font-size:12px; font-family:monospace; resize:vertical;"></textarea>
+</div>
+<div style="background:#064e3b; border:1px solid #059669; padding:12px; border-radius:12px; font-size:11px; color:#d1fae5; line-height:1.4; margin-bottom:18px;">
+<i class="fa-solid fa-circle-info"></i> <strong>Tips Streaming Cepat:</strong> Pastikan link Google Drive diatur ke <em>"Siapa saja yang memiliki link dapat melihat" (Anyone with link can view)</em> agar sistem dapat memproses unduhan otomatis di latar belakang.
       </div>
-
-      <div style="background:#064e3b; border:1px solid #059669; padding:12px; border-radius:12px; font-size:11px; color:#d1fae5; line-height:1.4; margin-bottom:18px;">
-        <i class="fa-solid fa-circle-info"></i> <strong>Tips Streaming Cepat:</strong> Pastikan link Google Drive diatur ke <em>"Siapa saja yang memiliki link dapat melihat" (Anyone with link can view)</em> agar sistem dapat memproses unduhan otomatis di latar belakang.
-      </div>
-
-      <div style="display:flex; gap:10px;">
-        <button style="flex:1; padding:12px; border-radius:12px; background:#334155; color:white; font-weight:700; border:none; cursor:pointer;" onclick="closeDriveModal()">Batal</button>
-        <button style="flex:2; padding:12px; border-radius:12px; background:linear-gradient(135deg,#10b981,#059669); color:white; font-weight:800; border:none; cursor:pointer;" onclick="connectGoogleDriveStreaming()"><i class="fa-solid fa-cloud-arrow-down"></i> Hubungkan & Mulai Streaming</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Keyboard Shortcut Customization Modal -->
-  <div id="shortcut-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px);">
-    <div style="background:#111827; border:2px solid #8b5cf6; border-radius:24px; max-width:560px; width:100%; padding:26px; color:white; position:relative; box-shadow:0 20px 50px rgba(139,92,246,0.25);">
-      <button style="position:absolute; top:18px; right:18px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;" onclick="closeShortcutModal()"><i class="fa-solid fa-xmark"></i></button>
-      <h3 style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px; color:#c084fc;"><i class="fa-solid fa-keyboard"></i> Kustomisasi Shortcut Keyboard</h3>
-      <p style="font-size:13px; color:#cbd5e1; line-height:1.5; margin-bottom:18px;">
+<div style="display:flex; gap:10px;">
+<button onclick="closeDriveModal()" style="flex:1; padding:12px; border-radius:12px; background:#334155; color:white; font-weight:700; border:none; cursor:pointer;">Batal</button>
+<button onclick="connectGoogleDriveStreaming()" style="flex:2; padding:12px; border-radius:12px; background:linear-gradient(135deg,#10b981,#059669); color:white; font-weight:800; border:none; cursor:pointer;"><i class="fa-solid fa-cloud-arrow-down"></i> Hubungkan &amp; Mulai Streaming</button>
+</div>
+</div>
+</div>
+<!-- Keyboard Shortcut Customization Modal -->
+<div id="shortcut-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px);">
+<div style="background:#111827; border:2px solid #8b5cf6; border-radius:24px; max-width:560px; width:100%; padding:26px; color:white; position:relative; box-shadow:0 20px 50px rgba(139,92,246,0.25);">
+<button onclick="closeShortcutModal()" style="position:absolute; top:18px; right:18px; background:none; border:none; color:#94a3b8; font-size:20px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+<h3 style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:10px; color:#c084fc;"><i class="fa-solid fa-keyboard"></i> Kustomisasi Shortcut Keyboard</h3>
+<p style="font-size:13px; color:#cbd5e1; line-height:1.5; margin-bottom:18px;">
         Sesuaikan tombol keyboard laptop/PC untuk mempercepat alur anotasi, seleksi, dan pengeditan bounding box:
       </p>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; max-height:360px; overflow-y:auto; padding-right:6px; margin-bottom:18px;">
-        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:13px;">Rectangle Mode:</span>
-          <input type="text" id="sc-in-rect" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
-        </div>
-        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:13px;">Oval Mode:</span>
-          <input type="text" id="sc-in-oval" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
-        </div>
-        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:13px;">Scissor Mode:</span>
-          <input type="text" id="sc-in-scissor" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
-        </div>
-        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:13px;">Point Mode:</span>
-          <input type="text" id="sc-in-point" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
-        </div>
-        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:13px;">Select BBox:</span>
-          <input type="text" id="sc-in-select" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#c084fc; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
-        </div>
-        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:13px;">Edit BBox:</span>
-          <input type="text" id="sc-in-edit" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#c084fc; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
-        </div>
-        <div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:13px;">Delete BBox:</span>
-          <input type="text" id="sc-in-delete" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#f87171; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;">
-        </div>
-      </div>
-
-      <div style="display:flex; gap:10px;">
-        <button style="flex:1; padding:12px; border-radius:12px; background:#334155; color:white; font-weight:700; border:none; cursor:pointer;" onclick="resetDefaultShortcuts()">Reset Default</button>
-        <button style="flex:2; padding:12px; border-radius:12px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:white; font-weight:800; border:none; cursor:pointer;" onclick="saveCustomShortcuts()"><i class="fa-solid fa-floppy-disk"></i> Simpan Shortcut</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="../midtrans-pay.js?v=4.10"></script>
-  <script src="script.js?v=4.10"></script>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; max-height:360px; overflow-y:auto; padding-right:6px; margin-bottom:18px;">
+<div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:13px;">Rectangle Mode:</span>
+<input id="sc-in-rect" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;" type="text"/>
+</div>
+<div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:13px;">Oval Mode:</span>
+<input id="sc-in-oval" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;" type="text"/>
+</div>
+<div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:13px;">Scissor Mode:</span>
+<input id="sc-in-scissor" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;" type="text"/>
+</div>
+<div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:13px;">Point Mode:</span>
+<input id="sc-in-point" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#38bdf8; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;" type="text"/>
+</div>
+<div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:13px;">Select BBox:</span>
+<input id="sc-in-select" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#c084fc; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;" type="text"/>
+</div>
+<div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:13px;">Edit BBox:</span>
+<input id="sc-in-edit" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#c084fc; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;" type="text"/>
+</div>
+<div style="background:#1e293b; padding:10px 14px; border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
+<span style="font-size:13px;">Delete BBox:</span>
+<input id="sc-in-delete" maxlength="1" style="width:45px; text-align:center; padding:6px; border-radius:8px; background:#0f172a; color:#f87171; border:1px solid rgba(255,255,255,0.15); font-weight:800; text-transform:uppercase;" type="text"/>
+</div>
+</div>
+<div style="display:flex; gap:10px;">
+<button onclick="resetDefaultShortcuts()" style="flex:1; padding:12px; border-radius:12px; background:#334155; color:white; font-weight:700; border:none; cursor:pointer;">Reset Default</button>
+<button onclick="saveCustomShortcuts()" style="flex:2; padding:12px; border-radius:12px; background:linear-gradient(135deg,#8b5cf6,#6d28d9); color:white; font-weight:800; border:none; cursor:pointer;"><i class="fa-solid fa-floppy-disk"></i> Simpan Shortcut</button>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=4.10"></script>
+<script src="script.js?v=4.10"></script>
 </body>
 </html>

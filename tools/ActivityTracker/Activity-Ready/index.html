@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="vibrant">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activity Tracker Pro</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<html data-theme="vibrant" lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Activity Tracker Pro</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/>
+<link href="manifest.json" rel="manifest"/>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -66,85 +66,76 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Activity Tracker Pro</div>
-      </div>
-      <div class="wbt-global-header-center">
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Activity Tracker Pro</div>
+</div>
+<div class="wbt-global-header-center">
         Aplikasi Manajemen Produktivitas
       </div>
-      <div class="wbt-global-header-right">
-        <span style="color:#10b981; font-weight:700;">PRO: Rp 20.000</span>
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<span style="color:#10b981; font-weight:700;">PRO: Rp 20.000</span>
+<div class="header-top">
+<h1 class="app-title">Activity Tracker</h1>
+<button class="theme-switch-btn" id="themeBtn" onclick="toggleTheme()">✨ Tema: Vibrant</button>
+</div><div class="header-status">
+<span class="network-status" id="netStatus">● Online</span>
+<span class="mobile-access-badge">📱 Mobile Sync: <strong id="mobileLink">Loading IP...</strong></span>
+<span class="license-badge" id="licenseBadge" onclick="showLicenseModal()" style="cursor: pointer; background: #f59e0b; color: #fff; padding: 4px 12px; border-radius: 6px; font-weight: bold; transition: transform 0.2s;">⚡ Aktifkan PRO</span>
+</div></div>
+</header>
+<div class="container">
 
-    <div class="container">
-        <header class="header">
-            <div class="header-top">
-                <h1 class="app-title">Activity Tracker</h1>
-                <button class="theme-switch-btn" onclick="toggleTheme()" id="themeBtn">✨ Tema: Vibrant</button>
-            </div>
-            <div class="header-status">
-                <span class="network-status" id="netStatus">● Online</span>
-                <span class="mobile-access-badge">📱 Mobile Sync: <strong id="mobileLink">Loading IP...</strong></span>
-                <span class="license-badge" id="licenseBadge" onclick="showLicenseModal()" style="cursor: pointer; background: #f59e0b; color: #fff; padding: 4px 12px; border-radius: 6px; font-weight: bold; transition: transform 0.2s;">⚡ Aktifkan PRO</span>
-            </div>
-        </header>
-
-        <div class="dashboard">
-            <div class="stats-panel">
-                <div class="stat-box process" onclick="switchTab('progress')">
-                    <span class="label">PROSES BERJALAN</span>
-                    <span class="value" id="processScore">0</span>
-                </div>
-                <div class="stat-box success" onclick="switchTab('success')">
-                    <span class="label">TUGAS SELESAI</span>
-                    <span class="value" id="successScore">0</span>
-                </div>
-                <div class="stat-box failed" onclick="switchTab('failed')">
-                    <span class="label">GAGAL / BATAL</span>
-                    <span class="value" id="failedScore">0</span>
-                </div>
-            </div>
-
-            <div class="add-task-panel glass">
-                <h3>📝 Tambah Waktu & Tugas Baru</h3>
-                <div class="input-group">
-                    <input type="text" id="taskName" placeholder="Tulis deskripsi atau aktivitas baru di sini...">
-                    <input type="date" id="taskDate">
-                    <input type="time" id="taskTime">
-                    <button class="add-btn" onclick="addTask()">+ Simpan Tugas</button>
-                </div>
-            </div>
-
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('progress')">🔥 Waktu Berjalan</button>
-                <button class="tab-btn" onclick="switchTab('success')">✅ Riwayat Selesai</button>
-                <button class="tab-btn" onclick="switchTab('failed')">❌ Riwayat Gagal</button>
-            </div>
-
-            <div class="task-list-container glass">
-                <table class="modern-table">
-                    <thead>
-                        <tr>
-                            <th>ID TUGAS</th>
-                            <th>DESKRIPSI TUGAS</th>
-                            <th>TANGGAL</th>
-                            <th>BATAS WAKTU</th>
-                            <th>AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody id="taskList">
-                        <!-- Tasks injected here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+<div class="dashboard">
+<div class="stats-panel">
+<div class="stat-box process" onclick="switchTab('progress')">
+<span class="label">PROSES BERJALAN</span>
+<span class="value" id="processScore">0</span>
+</div>
+<div class="stat-box success" onclick="switchTab('success')">
+<span class="label">TUGAS SELESAI</span>
+<span class="value" id="successScore">0</span>
+</div>
+<div class="stat-box failed" onclick="switchTab('failed')">
+<span class="label">GAGAL / BATAL</span>
+<span class="value" id="failedScore">0</span>
+</div>
+</div>
+<div class="add-task-panel glass">
+<h3>📝 Tambah Waktu &amp; Tugas Baru</h3>
+<div class="input-group">
+<input id="taskName" placeholder="Tulis deskripsi atau aktivitas baru di sini..." type="text"/>
+<input id="taskDate" type="date"/>
+<input id="taskTime" type="time"/>
+<button class="add-btn" onclick="addTask()">+ Simpan Tugas</button>
+</div>
+</div>
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('progress')">🔥 Waktu Berjalan</button>
+<button class="tab-btn" onclick="switchTab('success')">✅ Riwayat Selesai</button>
+<button class="tab-btn" onclick="switchTab('failed')">❌ Riwayat Gagal</button>
+</div>
+<div class="task-list-container glass">
+<table class="modern-table">
+<thead>
+<tr>
+<th>ID TUGAS</th>
+<th>DESKRIPSI TUGAS</th>
+<th>TANGGAL</th>
+<th>BATAS WAKTU</th>
+<th>AKSI</th>
+</tr>
+</thead>
+<tbody id="taskList">
+<!-- Tasks injected here -->
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<script src="script.js"></script>
 </body>
 </html>

@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Developer Swiss Army Knife Pro - WBT Digital Labs</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Developer Swiss Army Knife Pro - WBT Digital Labs</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&amp;family=JetBrains+Mono:wght@400;700&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<style>
     :root {
       --bg-dark: #06080e;
       --card-bg: #101522;
@@ -136,11 +137,10 @@
     .diff-ins { background: rgba(16,185,129,0.25); color: #34d399; padding: 2px 4px; border-radius: 4px; }
     .diff-del { background: rgba(239,68,68,0.25); color: #f87171; text-decoration: line-through; padding: 2px 4px; border-radius: 4px; }
   </style>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -193,135 +193,121 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Developer Swiss Army Knife</div>
-      </div>
-      <div class="wbt-global-header-center">
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Developer Swiss Army Knife</div>
+</div>
+<div class="wbt-global-header-center">
         Text Diff, Hash MD5/SHA, JWT Decoder, Regex Live
       </div>
-      <div class="wbt-global-header-right">
-        <span style="color:#8b5cf6; font-weight:700;">DEVTOYS PRO</span>
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div style="display:flex; gap:12px; align-items:center;">
+<div class="badge-offline"><i class="fa-solid fa-shield-halved"></i> 100% Offline &amp; Tanpa Login</div>
+<button class="btn btn-gold" onclick="downloadDevApp('windows')" style="padding: 8px 14px; font-size: 12px;"><i class="fa-brands fa-windows"></i> Unduh App</button>
+</div></div>
+</header>
 
-  <header>
-    <a href="../../index.html" class="brand"><i class="fa-solid fa-code"></i> WBT <span>DevToys Pro</span></a>
-    <div style="display:flex; gap:12px; align-items:center;">
-      <div class="badge-offline"><i class="fa-solid fa-shield-halved"></i> 100% Offline & Tanpa Login</div>
-      <button class="btn btn-gold" style="padding: 8px 14px; font-size: 12px;" onclick="downloadDevApp('windows')"><i class="fa-brands fa-windows"></i> Unduh App</button>
-    </div>
-  </header>
-
-  <div class="container">
-    <div class="hero">
-      <h1>Developer Swiss Army Knife Pro</h1>
-      <p>Kumpulan utilitas kriptografi, pembanding perbedaan teks, penguji regex, dan dekoder token JWT 100% offline di peramban Anda.</p>
-    </div>
-
-    <div class="nav-tabs">
-      <button class="tab-btn active" onclick="showDevTool('diff')"><i class="fa-solid fa-code-compare"></i> Text Diff Checker</button>
-      <button class="tab-btn" onclick="showDevTool('hash')"><i class="fa-solid fa-shield-cat"></i> Crypto Hash Studio</button>
-      <button class="tab-btn" onclick="showDevTool('jwt')"><i class="fa-solid fa-key"></i> JWT Offline Decoder</button>
-      <button class="tab-btn" onclick="showDevTool('regex')"><i class="fa-solid fa-asterisk"></i> Regex Live Tester</button>
-    </div>
-
-    <!-- Tool 1: Diff Checker -->
-    <div id="tool-diff" class="tool-panel">
-      <h3 style="font-family:'Outfit',sans-serif; margin-bottom:14px; color:var(--primary);"><i class="fa-solid fa-code-compare"></i> Bandingkan 2 Teks atau Kode (Diff Checker)</h3>
-      <div class="grid-2">
-        <div>
-          <label class="label">Teks Versi Asli (Original):</label>
-          <textarea id="diff-orig" class="textarea" rows="8" placeholder="Tulis teks atau kode lama di sini..."></textarea>
-        </div>
-        <div>
-          <label class="label">Teks Versi Revisi (Modified):</label>
-          <textarea id="diff-mod" class="textarea" rows="8" placeholder="Tulis teks atau kode baru di sini..."></textarea>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:14px;" onclick="runDiff()"><i class="fa-solid fa-play"></i> Bandingkan Perbedaan</button>
-      
-      <div style="margin-top:20px;">
-        <label class="label">Hasil Sorotan Perubahan (Diff Output):</label>
-        <div id="diff-output" class="result-box" style="color:#f8fafc; min-height:120px;">Klik "Bandingkan Perbedaan" untuk melihat hasil...</div>
-      </div>
-    </div>
-
-    <!-- Tool 2: Crypto Hash -->
-    <div id="tool-hash" class="tool-panel" style="display:none;">
-      <h3 style="font-family:'Outfit',sans-serif; margin-bottom:14px; color:var(--primary);"><i class="fa-solid fa-lock"></i> Multi-Algorithm Cryptographic Hash Generator</h3>
-      <div class="form-group">
-        <label class="label">Teks atau Kata Sandi Input:</label>
-        <textarea id="hash-inp" class="textarea" rows="4" placeholder="Ketik teks rahasia untuk dienkripsi ke berbagai format hash..." oninput="generateHashes()"></textarea>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr; gap:12px;">
-        <div>
-          <label class="label">MD5 Hash:</label>
-          <input id="out-md5" class="input" readonly style="color:#fbbf24;">
-        </div>
-        <div>
-          <label class="label">SHA-1 Hash:</label>
-          <input id="out-sha1" class="input" readonly style="color:#a855f7;">
-        </div>
-        <div>
-          <label class="label">SHA-256 Hash (Military Grade):</label>
-          <input id="out-sha256" class="input" readonly style="color:#38bdf8;">
-        </div>
-        <div>
-          <label class="label">SHA-512 Hash (Ultra High Entropy):</label>
-          <input id="out-sha512" class="input" readonly style="color:#10b981;">
-        </div>
-      </div>
-    </div>
-
-    <!-- Tool 3: JWT Decoder -->
-    <div id="tool-jwt" class="tool-panel" style="display:none;">
-      <h3 style="font-family:'Outfit',sans-serif; margin-bottom:14px; color:var(--primary);"><i class="fa-solid fa-ticket"></i> JSON Web Token (JWT) Offline Decoder</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Aman 100%! Token Anda diurai sepenuhnya di memori browser tanpa pernah dikirim via network.</p>
-      <div class="form-group">
-        <label class="label">Tempelkan Token JWT Anda (eyJhbGciOi...):</label>
-        <textarea id="jwt-inp" class="textarea" rows="4" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decodeJWT()"></textarea>
-      </div>
-      <div class="grid-2">
-        <div>
-          <label class="label" style="color:#f87171;">HEADER (Algorithm & Token Type):</label>
-          <pre id="jwt-header" class="result-box" style="color:#f87171;"></pre>
-        </div>
-        <div>
-          <label class="label" style="color:#a855f7;">PAYLOAD (Claims & User Data):</label>
-          <pre id="jwt-payload" class="result-box" style="color:#a855f7;"></pre>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tool 4: Regex Tester -->
-    <div id="tool-regex" class="tool-panel" style="display:none;">
-      <h3 style="font-family:'Outfit',sans-serif; margin-bottom:14px; color:var(--primary);"><i class="fa-solid fa-search"></i> Regular Expression (Regex) Live Tester</h3>
-      <div class="grid-2">
-        <div class="form-group">
-          <label class="label">Pola Regex (Pattern):</label>
-          <input id="reg-pattern" class="input" value="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" placeholder="e.g. \d{4}-\d{2}-\d{2}" oninput="testRegex()">
-        </div>
-        <div class="form-group">
-          <label class="label">Flags:</label>
-          <input id="reg-flags" class="input" value="gi" placeholder="g, i, m" oninput="testRegex()">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="label">Teks Uji (Test String):</label>
-        <textarea id="reg-text" class="textarea" rows="5" placeholder="Hubungi tim support kami di admin@wbtdigitallabs.com atau help@wbt.co.id segera!" oninput="testRegex()">Hubungi tim support kami di admin@wbtdigitallabs.com atau help@wbt.co.id segera!</textarea>
-      </div>
-      <div class="form-group">
-        <label class="label">Hasil Kecocokan (Total Matches: <span id="reg-count">0</span>):</label>
-        <div id="reg-output" class="result-box" style="color:#f8fafc; line-height:1.6;"></div>
-      </div>
-    </div>
-  </div>
-
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=1.0"></script>
+<div class="container">
+<div class="hero">
+<h1>Developer Swiss Army Knife Pro</h1>
+<p>Kumpulan utilitas kriptografi, pembanding perbedaan teks, penguji regex, dan dekoder token JWT 100% offline di peramban Anda.</p>
+</div>
+<div class="nav-tabs">
+<button class="tab-btn active" onclick="showDevTool('diff')"><i class="fa-solid fa-code-compare"></i> Text Diff Checker</button>
+<button class="tab-btn" onclick="showDevTool('hash')"><i class="fa-solid fa-shield-cat"></i> Crypto Hash Studio</button>
+<button class="tab-btn" onclick="showDevTool('jwt')"><i class="fa-solid fa-key"></i> JWT Offline Decoder</button>
+<button class="tab-btn" onclick="showDevTool('regex')"><i class="fa-solid fa-asterisk"></i> Regex Live Tester</button>
+</div>
+<!-- Tool 1: Diff Checker -->
+<div class="tool-panel" id="tool-diff">
+<h3 style="font-family:'Outfit',sans-serif; margin-bottom:14px; color:var(--primary);"><i class="fa-solid fa-code-compare"></i> Bandingkan 2 Teks atau Kode (Diff Checker)</h3>
+<div class="grid-2">
+<div>
+<label class="label">Teks Versi Asli (Original):</label>
+<textarea class="textarea" id="diff-orig" placeholder="Tulis teks atau kode lama di sini..." rows="8"></textarea>
+</div>
+<div>
+<label class="label">Teks Versi Revisi (Modified):</label>
+<textarea class="textarea" id="diff-mod" placeholder="Tulis teks atau kode baru di sini..." rows="8"></textarea>
+</div>
+</div>
+<button class="btn btn-primary" onclick="runDiff()" style="margin-top:14px;"><i class="fa-solid fa-play"></i> Bandingkan Perbedaan</button>
+<div style="margin-top:20px;">
+<label class="label">Hasil Sorotan Perubahan (Diff Output):</label>
+<div class="result-box" id="diff-output" style="color:#f8fafc; min-height:120px;">Klik "Bandingkan Perbedaan" untuk melihat hasil...</div>
+</div>
+</div>
+<!-- Tool 2: Crypto Hash -->
+<div class="tool-panel" id="tool-hash" style="display:none;">
+<h3 style="font-family:'Outfit',sans-serif; margin-bottom:14px; color:var(--primary);"><i class="fa-solid fa-lock"></i> Multi-Algorithm Cryptographic Hash Generator</h3>
+<div class="form-group">
+<label class="label">Teks atau Kata Sandi Input:</label>
+<textarea class="textarea" id="hash-inp" oninput="generateHashes()" placeholder="Ketik teks rahasia untuk dienkripsi ke berbagai format hash..." rows="4"></textarea>
+</div>
+<div style="display:grid; grid-template-columns:1fr; gap:12px;">
+<div>
+<label class="label">MD5 Hash:</label>
+<input class="input" id="out-md5" readonly="" style="color:#fbbf24;"/>
+</div>
+<div>
+<label class="label">SHA-1 Hash:</label>
+<input class="input" id="out-sha1" readonly="" style="color:#a855f7;"/>
+</div>
+<div>
+<label class="label">SHA-256 Hash (Military Grade):</label>
+<input class="input" id="out-sha256" readonly="" style="color:#38bdf8;"/>
+</div>
+<div>
+<label class="label">SHA-512 Hash (Ultra High Entropy):</label>
+<input class="input" id="out-sha512" readonly="" style="color:#10b981;"/>
+</div>
+</div>
+</div>
+<!-- Tool 3: JWT Decoder -->
+<div class="tool-panel" id="tool-jwt" style="display:none;">
+<h3 style="font-family:'Outfit',sans-serif; margin-bottom:14px; color:var(--primary);"><i class="fa-solid fa-ticket"></i> JSON Web Token (JWT) Offline Decoder</h3>
+<p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Aman 100%! Token Anda diurai sepenuhnya di memori browser tanpa pernah dikirim via network.</p>
+<div class="form-group">
+<label class="label">Tempelkan Token JWT Anda (eyJhbGciOi...):</label>
+<textarea class="textarea" id="jwt-inp" oninput="decodeJWT()" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." rows="4"></textarea>
+</div>
+<div class="grid-2">
+<div>
+<label class="label" style="color:#f87171;">HEADER (Algorithm &amp; Token Type):</label>
+<pre class="result-box" id="jwt-header" style="color:#f87171;"></pre>
+</div>
+<div>
+<label class="label" style="color:#a855f7;">PAYLOAD (Claims &amp; User Data):</label>
+<pre class="result-box" id="jwt-payload" style="color:#a855f7;"></pre>
+</div>
+</div>
+</div>
+<!-- Tool 4: Regex Tester -->
+<div class="tool-panel" id="tool-regex" style="display:none;">
+<h3 style="font-family:'Outfit',sans-serif; margin-bottom:14px; color:var(--primary);"><i class="fa-solid fa-search"></i> Regular Expression (Regex) Live Tester</h3>
+<div class="grid-2">
+<div class="form-group">
+<label class="label">Pola Regex (Pattern):</label>
+<input class="input" id="reg-pattern" oninput="testRegex()" placeholder="e.g. \d{4}-\d{2}-\d{2}" value="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"/>
+</div>
+<div class="form-group">
+<label class="label">Flags:</label>
+<input class="input" id="reg-flags" oninput="testRegex()" placeholder="g, i, m" value="gi"/>
+</div>
+</div>
+<div class="form-group">
+<label class="label">Teks Uji (Test String):</label>
+<textarea class="textarea" id="reg-text" oninput="testRegex()" placeholder="Hubungi tim support kami di admin@wbtdigitallabs.com atau help@wbt.co.id segera!" rows="5">Hubungi tim support kami di admin@wbtdigitallabs.com atau help@wbt.co.id segera!</textarea>
+</div>
+<div class="form-group">
+<label class="label">Hasil Kecocokan (Total Matches: <span id="reg-count">0</span>):</label>
+<div class="result-box" id="reg-output" style="color:#f8fafc; line-height:1.6;"></div>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=1.0"></script>
 </body>
 </html>

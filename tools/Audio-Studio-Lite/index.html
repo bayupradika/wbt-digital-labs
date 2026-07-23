@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline Audio Trimmer & Converter Studio - WBT Digital Labs</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Offline Audio Trimmer &amp; Converter Studio - WBT Digital Labs</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<style>
     :root {
       --bg-dark: #070a10;
       --card-bg: #111827;
@@ -129,11 +130,10 @@
     .btn-primary { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; }
     .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #0f172a; }
   </style>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -186,75 +186,62 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Offline Audio Trimmer Pro</div>
-      </div>
-      <div class="wbt-global-header-center">
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Offline Audio Trimmer Pro</div>
+</div>
+<div class="wbt-global-header-center">
         Potong Suara, Volume Booster, Ekspor ke WAV
       </div>
-      <div class="wbt-global-header-right">
-        <span style="color:#ec4899; font-weight:700;">AUDIO PRO</span>
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div style="display:flex; gap:12px; align-items:center;">
+<div class="badge-offline"><i class="fa-solid fa-shield-halved"></i> 100% Offline &amp; Tanpa Login</div>
+<button class="btn btn-gold" onclick="downloadAudioApp('windows')" style="padding: 8px 14px; font-size: 12px;"><i class="fa-brands fa-windows"></i> Unduh App</button>
+</div></div>
+</header>
 
-  <header>
-    <a href="../../index.html" class="brand"><i class="fa-solid fa-waveform-lines"></i> WBT <span>Audio Studio Pro</span></a>
-    <div style="display:flex; gap:12px; align-items:center;">
-      <div class="badge-offline"><i class="fa-solid fa-shield-halved"></i> 100% Offline & Tanpa Login</div>
-      <button class="btn btn-gold" style="padding: 8px 14px; font-size: 12px;" onclick="downloadAudioApp('windows')"><i class="fa-brands fa-windows"></i> Unduh App</button>
-    </div>
-  </header>
-
-  <div class="container">
-    <div class="hero">
-      <h1>Offline Audio Trimmer & Converter Pro</h1>
-      <p>Potong rekaman suara, tingkatkan volume audio, dan atur kecepatan putar tanpa mengunggah file ke server eksternal.</p>
-    </div>
-
-    <div id="drop-zone" class="upload-area" onclick="document.getElementById('audio-file').click()">
-      <i class="fa-solid fa-music" style="font-size:48px; color:var(--primary); margin-bottom:12px;"></i>
-      <h3 style="font-family:'Outfit',sans-serif; font-size:20px;">Pilih atau Tarik File Audio Anda (.MP3, .WAV, .OGG, .M4A)</h3>
-      <p style="color:var(--text-muted); font-size:13px; margin-top:6px;">Pemrosesan 100% di dalam RAM komputer/ponsel Anda</p>
-      <input type="file" id="audio-file" accept="audio/*" style="display:none;" onchange="loadAudioFile(event)">
-    </div>
-
-    <div id="workspace" class="workspace">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 id="file-title" style="font-family:'Outfit',sans-serif; color:var(--accent);">File Terpilih: audio.mp3</h3>
-        <button class="btn" style="padding:6px 14px; font-size:12px; background:#1e293b;" onclick="playAudioPreview()"><i class="fa-solid fa-play"></i> Putar Pratinjau</button>
-      </div>
-
-      <div class="waveform-box">
-        <canvas id="wave-canvas" width="800" height="120"></canvas>
-      </div>
-
-      <div class="controls-grid">
-        <div class="form-group">
-          <label class="label"><i class="fa-solid fa-scissors"></i> Mulai Potong (Detik):</label>
-          <input type="number" id="trim-start" class="input" value="0" min="0" step="0.5">
-        </div>
-        <div class="form-group">
-          <label class="label"><i class="fa-solid fa-stopwatch"></i> Selesai Potong (Detik):</label>
-          <input type="number" id="trim-end" class="input" value="30" min="1" step="0.5">
-        </div>
-        <div class="form-group">
-          <label class="label"><i class="fa-solid fa-volume-high"></i> Volume Booster (%):</label>
-          <input type="number" id="volume-boost" class="input" value="100" min="50" max="300" step="10">
-        </div>
-      </div>
-
-      <div style="display:flex; gap:12px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="processAndExportAudio()"><i class="fa-solid fa-wand-magic-sparkles"></i> Potong & Unduh WAV Offline</button>
-        <button class="btn" style="background:#ef4444; color:white;" onclick="resetAudio()"><i class="fa-solid fa-trash"></i> Reset</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=1.0"></script>
+<div class="container">
+<div class="hero">
+<h1>Offline Audio Trimmer &amp; Converter Pro</h1>
+<p>Potong rekaman suara, tingkatkan volume audio, dan atur kecepatan putar tanpa mengunggah file ke server eksternal.</p>
+</div>
+<div class="upload-area" id="drop-zone" onclick="document.getElementById('audio-file').click()">
+<i class="fa-solid fa-music" style="font-size:48px; color:var(--primary); margin-bottom:12px;"></i>
+<h3 style="font-family:'Outfit',sans-serif; font-size:20px;">Pilih atau Tarik File Audio Anda (.MP3, .WAV, .OGG, .M4A)</h3>
+<p style="color:var(--text-muted); font-size:13px; margin-top:6px;">Pemrosesan 100% di dalam RAM komputer/ponsel Anda</p>
+<input accept="audio/*" id="audio-file" onchange="loadAudioFile(event)" style="display:none;" type="file"/>
+</div>
+<div class="workspace" id="workspace">
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+<h3 id="file-title" style="font-family:'Outfit',sans-serif; color:var(--accent);">File Terpilih: audio.mp3</h3>
+<button class="btn" onclick="playAudioPreview()" style="padding:6px 14px; font-size:12px; background:#1e293b;"><i class="fa-solid fa-play"></i> Putar Pratinjau</button>
+</div>
+<div class="waveform-box">
+<canvas height="120" id="wave-canvas" width="800"></canvas>
+</div>
+<div class="controls-grid">
+<div class="form-group">
+<label class="label"><i class="fa-solid fa-scissors"></i> Mulai Potong (Detik):</label>
+<input class="input" id="trim-start" min="0" step="0.5" type="number" value="0"/>
+</div>
+<div class="form-group">
+<label class="label"><i class="fa-solid fa-stopwatch"></i> Selesai Potong (Detik):</label>
+<input class="input" id="trim-end" min="1" step="0.5" type="number" value="30"/>
+</div>
+<div class="form-group">
+<label class="label"><i class="fa-solid fa-volume-high"></i> Volume Booster (%):</label>
+<input class="input" id="volume-boost" max="300" min="50" step="10" type="number" value="100"/>
+</div>
+</div>
+<div style="display:flex; gap:12px;">
+<button class="btn btn-primary" onclick="processAndExportAudio()" style="flex:1;"><i class="fa-solid fa-wand-magic-sparkles"></i> Potong &amp; Unduh WAV Offline</button>
+<button class="btn" onclick="resetAudio()" style="background:#ef4444; color:white;"><i class="fa-solid fa-trash"></i> Reset</button>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=1.0"></script>
 </body>
 </html>

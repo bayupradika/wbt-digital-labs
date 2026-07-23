@@ -1,16 +1,16 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SQLite Database Viewer Studio Pro - Offline SQL Client</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SQLite Database Viewer Studio Pro - Offline SQL Client</title>
+<link href="style.css?v=3.0" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -63,71 +63,61 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">SQLite Database Viewer</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">SQLite Database Viewer</div>
+</div>
+<div class="wbt-global-header-center">
+        Buka, Baca, &amp; Eksekusi Query file .db/.sqlite lokal
       </div>
-      <div class="wbt-global-header-center">
-        Buka, Baca, & Eksekusi Query file .db/.sqlite lokal
-      </div>
-      <div class="wbt-global-header-right">
-        <span style="color:#3b82f6; font-weight:700;">PRO: Rp 20.000</span>
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div class="container nav-content">
+<a class="logo" href="#"><div class="logo-icon"><i class="fa-solid fa-database"></i></div>SQLite <span style="color:#3b82f6">Studio Pro</span></a>
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="quota-pill" id="quota-display" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+<button onclick="downloadSQLiteApp('windows')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button onclick="downloadSQLiteApp('android')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+<button class="btn btn-gold" onclick="MidtransPay.showUpgradeModal()"><i class="fa-solid fa-crown"></i> Pro Rp20rb</button>
+</div>
+</div></div>
+</header>
 
-  <header class="navbar">
-    <div class="container nav-content">
-      <a href="#" class="logo"><div class="logo-icon"><i class="fa-solid fa-database"></i></div>SQLite <span style="color:#3b82f6">Studio Pro</span></a>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="quota-pill" id="quota-display" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadSQLiteApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadSQLiteApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
-        <button class="btn btn-gold" onclick="MidtransPay.showUpgradeModal()"><i class="fa-solid fa-crown"></i> Pro Rp20rb</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="hero">
-      <h1>Buka & Eksplorasi Database <span style="color:#3b82f6">SQLite / .DB Offline</span></h1>
-      <p style="color:var(--text-muted)">Baca skema tabel, jalankan query SQL kustom, dan ekspor hasil tabel ke CSV/JSON secara lokal tanpa server.</p>
-    </section>
-
-    <div class="dropzone" id="dropzone">
-      <input type="file" id="file-input" class="file-input" accept=".sqlite,.db,.sqlite3">
-      <i class="fa-solid fa-server" style="font-size:48px; color:#3b82f6; margin-bottom:12px;"></i>
-      <h3>Pilih atau Tarik File Database Anda</h3>
-      <p style="color:var(--text-muted); font-size:14px; margin-top:6px;">Mendukung format database lokal .sqlite, .db, .sqlite3</p>
-    </div>
-
-    <div class="workspace" id="workspace" style="display:none; margin-top:24px;">
-      <div style="background:#111827; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); margin-bottom:16px;">
-        <div style="font-size:12px; font-weight:800; color:#38bdf8; margin-bottom:8px;"><i class="fa-solid fa-bolt"></i> Template Query Cepat:</div>
-        <div style="display:flex; flex-wrap:wrap; gap:6px;">
-          <button class="btn" style="padding:6px 12px; font-size:11px; background:#1e293b;" onclick="setQuery('SELECT * FROM sqlite_master WHERE type=\'table\';')">Daftar Semua Tabel</button>
-          <button class="btn" style="padding:6px 12px; font-size:11px; background:#1e293b;" onclick="setQuery('SELECT sql FROM sqlite_master WHERE type=\'table\';')">Skema DDL Tabel</button>
-          <button class="btn" style="padding:6px 12px; font-size:11px; background:#1e293b;" onclick="setQuery('SELECT count(*) as Total_Tables FROM sqlite_master WHERE type=\'table\';')">Hitung Jumlah Tabel</button>
-          <button class="btn" style="padding:6px 12px; font-size:11px; background:#a855f7; color:white;" onclick="auditIndexHealth()"><i class="fa-solid fa-heart-pulse"></i> Audit Index SQL</button>
-        </div>
-      </div>
-
-      <div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
-        <input id="query-input" value="SELECT * FROM sqlite_master WHERE type='table';" style="flex:1; min-width:260px; padding:12px; border-radius:10px; background:#151d2f; color:white; border:1px solid rgba(255,255,255,0.1); font-family:monospace;">
-        <button class="btn btn-primary" style="padding:12px 18px;" onclick="runQuery()"><i class="fa-solid fa-play"></i> Jalankan Query</button>
-        <button class="btn" style="padding:12px 16px; background:#10b981;" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Ekspor CSV</button>
-        <button class="btn" style="padding:12px 16px; background:#0284c7;" onclick="exportJSON()"><i class="fa-solid fa-code"></i> Ekspor JSON</button>
-        <button class="btn" style="padding:12px 16px; background:#f59e0b; color:#0f172a; font-weight:800;" onclick="exportSQLDump()"><i class="fa-solid fa-database"></i> Dump SQL</button>
-      </div>
-
-      <div style="overflow-x:auto; background:#111827; border-radius:14px; border:1px solid rgba(255,255,255,0.08); padding:12px;">
-        <table id="data-table" style="width:100%; border-collapse:collapse;"></table>
-      </div>
-    </div>
-  </main>
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="app.js?v=3.0"></script>
+<main class="container">
+<section class="hero">
+<h1>Buka &amp; Eksplorasi Database <span style="color:#3b82f6">SQLite / .DB Offline</span></h1>
+<p style="color:var(--text-muted)">Baca skema tabel, jalankan query SQL kustom, dan ekspor hasil tabel ke CSV/JSON secara lokal tanpa server.</p>
+</section>
+<div class="dropzone" id="dropzone">
+<input accept=".sqlite,.db,.sqlite3" class="file-input" id="file-input" type="file"/>
+<i class="fa-solid fa-server" style="font-size:48px; color:#3b82f6; margin-bottom:12px;"></i>
+<h3>Pilih atau Tarik File Database Anda</h3>
+<p style="color:var(--text-muted); font-size:14px; margin-top:6px;">Mendukung format database lokal .sqlite, .db, .sqlite3</p>
+</div>
+<div class="workspace" id="workspace" style="display:none; margin-top:24px;">
+<div style="background:#111827; padding:16px; border-radius:16px; border:1px solid rgba(255,255,255,0.08); margin-bottom:16px;">
+<div style="font-size:12px; font-weight:800; color:#38bdf8; margin-bottom:8px;"><i class="fa-solid fa-bolt"></i> Template Query Cepat:</div>
+<div style="display:flex; flex-wrap:wrap; gap:6px;">
+<button class="btn" onclick="setQuery('SELECT * FROM sqlite_master WHERE type=\'table\';')" style="padding:6px 12px; font-size:11px; background:#1e293b;">Daftar Semua Tabel</button>
+<button class="btn" onclick="setQuery('SELECT sql FROM sqlite_master WHERE type=\'table\';')" style="padding:6px 12px; font-size:11px; background:#1e293b;">Skema DDL Tabel</button>
+<button class="btn" onclick="setQuery('SELECT count(*) as Total_Tables FROM sqlite_master WHERE type=\'table\';')" style="padding:6px 12px; font-size:11px; background:#1e293b;">Hitung Jumlah Tabel</button>
+<button class="btn" onclick="auditIndexHealth()" style="padding:6px 12px; font-size:11px; background:#a855f7; color:white;"><i class="fa-solid fa-heart-pulse"></i> Audit Index SQL</button>
+</div>
+</div>
+<div style="display:flex; gap:10px; margin-bottom:15px; align-items:center; flex-wrap:wrap;">
+<input id="query-input" style="flex:1; min-width:260px; padding:12px; border-radius:10px; background:#151d2f; color:white; border:1px solid rgba(255,255,255,0.1); font-family:monospace;" value="SELECT * FROM sqlite_master WHERE type='table';"/>
+<button class="btn btn-primary" onclick="runQuery()" style="padding:12px 18px;"><i class="fa-solid fa-play"></i> Jalankan Query</button>
+<button class="btn" onclick="exportCSV()" style="padding:12px 16px; background:#10b981;"><i class="fa-solid fa-file-csv"></i> Ekspor CSV</button>
+<button class="btn" onclick="exportJSON()" style="padding:12px 16px; background:#0284c7;"><i class="fa-solid fa-code"></i> Ekspor JSON</button>
+<button class="btn" onclick="exportSQLDump()" style="padding:12px 16px; background:#f59e0b; color:#0f172a; font-weight:800;"><i class="fa-solid fa-database"></i> Dump SQL</button>
+</div>
+<div style="overflow-x:auto; background:#111827; border-radius:14px; border:1px solid rgba(255,255,255,0.08); padding:12px;">
+<table id="data-table" style="width:100%; border-collapse:collapse;"></table>
+</div>
+</div>
+</main>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="app.js?v=3.0"></script>
 </body>
 </html>

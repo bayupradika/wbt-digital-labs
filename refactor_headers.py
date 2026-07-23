@@ -5,19 +5,19 @@ import glob
 # Daftar Tools & AI dengan detail masing-masing untuk Header
 tool_data = {
     # UTILITIES & TOOLS
-    "PDF-Toolkit-Lite": {"title": "Document Toolkit", "feature": "Kelola Dokumen, PDF, Word, Excel, CSV Offline", "right": '<span style="color:#fbbf24; font-weight:700;"><i class="fa-solid fa-crown"></i> SUITE PRO</span>'},
-    "Social-Media-Video-Downloader": {"title": "Social Video Downloader Pro", "feature": "Unduh Video FB, IG, TikTok, X, YouTube HD", "right": '<span style="color:#38bdf8; font-weight:700;"><i class="fa-solid fa-download"></i> PRO: Unlimited</span>'},
-    "Live-Wallpaper-Video-Studio": {"title": "Live Wallpaper Studio Pro", "feature": "Jadikan Video Singkat Sebagai Wallpaper Desktop", "right": '<span style="color:#c4b5fd; font-weight:700;"><i class="fa-solid fa-crown"></i> PRO: Unlimited</span>'},
-    "WBT-Image-Studio-Pro": {"title": "Image Studio Pro", "feature": "Kompres, Resize, Filter, Watermark, & Edit Foto Offline", "right": '<span style="color:#fbbf24; font-weight:700;"><i class="fa-solid fa-crown"></i> 15-IN-1 PRO</span>'},
-    "SQLite-Database-Viewer": {"title": "SQLite Database Viewer", "feature": "Buka, Baca, & Eksekusi Query file .db/.sqlite lokal", "right": '<span style="color:#3b82f6; font-weight:700;">PRO: Rp 20.000</span>'},
-    "JSON-Formatter-Viewer": {"title": "JSON Formatter & Viewer", "feature": "Rapikan, Validasi, & Minify Struktur Kode JSON", "right": '<span style="color:#38bdf8; font-weight:700;">PRO: Rp 8.000</span>'},
-    "Mini-API-Tester": {"title": "Mini API Tester", "feature": "REST Client Ringan (GET, POST, PUT, DELETE)", "right": '<span style="color:#ec4899; font-weight:700;">PRO: Rp 20.000</span>'},
-    "ActivityTracker\\Web-Hosting": {"title": "Activity Tracker Web", "feature": "Pantau Aktivitas Harian dengan Grafik Visual", "right": '<span style="color:#10b981; font-weight:700;">PRO: Rp 20.000</span>'},
-    "ActivityTracker": {"title": "Activity Tracker Pro", "feature": "Aplikasi Manajemen Produktivitas", "right": '<span style="color:#10b981; font-weight:700;">PRO: Rp 20.000</span>'},
-    "QR-Barcode-Studio": {"title": "QR & Barcode Studio Pro", "feature": "Buat QR Code Kustom (WiFi, URL) & Scan Barcode", "right": '<span style="color:#10b981; font-weight:700;">NEW STUDIO</span>'},
-    "Dev-Crypto-Studio": {"title": "Developer Swiss Army Knife", "feature": "Text Diff, Hash MD5/SHA, JWT Decoder, Regex Live", "right": '<span style="color:#8b5cf6; font-weight:700;">DEVTOYS PRO</span>'},
-    "Audio-Studio-Lite": {"title": "Offline Audio Trimmer Pro", "feature": "Potong Suara, Volume Booster, Ekspor ke WAV", "right": '<span style="color:#ec4899; font-weight:700;">AUDIO PRO</span>'},
-    "3D-Model-Viewer": {"title": "3D Models Viewer Pro", "feature": "Lihat File .FBX, .OBJ, .GLB dengan Auto-Rotate", "right": '<span style="color:#00ff88; font-weight:700;">FREE UNLIMITED</span>'},
+    "PDF-Toolkit-Lite": {"title": "Document Toolkit", "feature": "Kelola Dokumen, PDF, Word, Excel, CSV Offline", "right": ''},
+    "Social-Media-Video-Downloader": {"title": "Social Video Downloader Pro", "feature": "Unduh Video FB, IG, TikTok, X, YouTube HD", "right": ''},
+    "Live-Wallpaper-Video-Studio": {"title": "Live Wallpaper Studio Pro", "feature": "Jadikan Video Singkat Sebagai Wallpaper Desktop", "right": ''},
+    "WBT-Image-Studio-Pro": {"title": "Image Studio Pro", "feature": "Kompres, Resize, Filter, Watermark, & Edit Foto Offline", "right": ''},
+    "SQLite-Database-Viewer": {"title": "SQLite Database Viewer", "feature": "Buka, Baca, & Eksekusi Query file .db/.sqlite lokal", "right": ''},
+    "JSON-Formatter-Viewer": {"title": "JSON Formatter & Viewer", "feature": "Rapikan, Validasi, & Minify Struktur Kode JSON", "right": ''},
+    "Mini-API-Tester": {"title": "Mini API Tester", "feature": "REST Client Ringan (GET, POST, PUT, DELETE)", "right": ''},
+    "ActivityTracker\\Web-Hosting": {"title": "Activity Tracker Web", "feature": "Pantau Aktivitas Harian dengan Grafik Visual", "right": ''},
+    "ActivityTracker": {"title": "Activity Tracker Pro", "feature": "Aplikasi Manajemen Produktivitas", "right": ''},
+    "QR-Barcode-Studio": {"title": "QR & Barcode Studio Pro", "feature": "Buat QR Code Kustom (WiFi, URL) & Scan Barcode", "right": ''},
+    "Dev-Crypto-Studio": {"title": "Developer Swiss Army Knife", "feature": "Text Diff, Hash MD5/SHA, JWT Decoder, Regex Live", "right": ''},
+    "Audio-Studio-Lite": {"title": "Offline Audio Trimmer Pro", "feature": "Potong Suara, Volume Booster, Ekspor ke WAV", "right": ''},
+    "3D-Model-Viewer": {"title": "3D Models Viewer Pro", "feature": "Lihat File .FBX, .OBJ, .GLB dengan Auto-Rotate", "right": ''},
     
     # SMART AI SUITE
     "AI-Image-Captioner": {"title": "AI Image Captioner", "feature": "Analisis Gambar & Buat Caption Otomatis untuk Medsos", "right": ''},

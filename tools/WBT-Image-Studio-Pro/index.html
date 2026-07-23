@@ -1,18 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WBT Image & Photo Studio Pro - 15-in-1 Offline Suite</title>
-  <meta name="description" content="Aplikasi pengolah foto offline super lengkap dari WBT Digital Labs. Kompres, OCR Teks, Resize Massal, Bersihkan EXIF GPS, Renamer, Filter, hingga Konversi Format.">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WBT Image &amp; Photo Studio Pro - 15-in-1 Offline Suite</title>
+<meta content="Aplikasi pengolah foto offline super lengkap dari WBT Digital Labs. Kompres, OCR Teks, Resize Massal, Bersihkan EXIF GPS, Renamer, Filter, hingga Konversi Format." name="description"/>
+<link href="style.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -65,362 +65,325 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Image Studio Pro</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Image Studio Pro</div>
+</div>
+<div class="wbt-global-header-center">
+        Kompres, Resize, Filter, Watermark, &amp; Edit Foto Offline
       </div>
-      <div class="wbt-global-header-center">
-        Kompres, Resize, Filter, Watermark, & Edit Foto Offline
-      </div>
-      <div class="wbt-global-header-right">
-        <span style="color:#fbbf24; font-weight:700;"><i class="fa-solid fa-crown"></i> 15-IN-1 PRO</span>
-      </div>
-    </header>
-
-  <div class="ambient-glow"></div>
-
-  <!-- Navbar -->
-  <header class="navbar">
-    <div class="container nav-content">
-      <a href="../../index.html" class="logo">
-        <div class="logo-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div class="container nav-content">
+<a class="logo" href="../../index.html">
+<div class="logo-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
         WBT <span class="text-gradient">Image Studio</span>
-        <span class="badge-wbt">Pro Suite</span>
-      </a>
-      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <div class="quota-pill">
-          <i class="fa-solid fa-bolt" style="color: var(--gold);"></i>
-          <span>Kuota Harian: <b class="quota-count" id="quota-display">3 / 3</b></span>
-        </div>
-        <button class="btn btn-gold" onclick="openUpgradeModal()">
-          <i class="fa-solid fa-crown"></i> Pro Lifetime (Rp 25.000)
+<span class="badge-wbt">Pro Suite</span>
+</a>
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+<div class="quota-pill">
+<i class="fa-solid fa-bolt" style="color: var(--gold);"></i>
+<span>Kuota Harian: <b class="quota-count" id="quota-display">3 / 3</b></span>
+</div>
+<button class="btn btn-gold" onclick="openUpgradeModal()">
+<i class="fa-solid fa-crown"></i> Pro Lifetime (Rp 25.000)
         </button>
-        <button class="btn" style="background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:800; font-size:12px; cursor:pointer;" onclick="downloadImageStudioApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button class="btn" style="background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:800; font-size:12px; cursor:pointer;" onclick="downloadImageStudioApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
-      </div>
-    </div>
-  </header>
+<button class="btn" onclick="downloadImageStudioApp('windows')" style="background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:800; font-size:12px; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button class="btn" onclick="downloadImageStudioApp('android')" style="background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; padding:8px 12px; border-radius:10px; font-weight:800; font-size:12px; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+</div>
+</div></div>
+</header>
+<div class="ambient-glow"></div>
+<!-- Navbar -->
 
-  <!-- Hero Section -->
-  <section class="hero container">
-    <h1>Megaportal <span class="text-gradient">WBT Image & Photo Studio</span></h1>
-    <p>Penggabungan 5 tools utama (Compressor, OCR, Resizer, EXIF Cleaner, Renamer) plus 10 fitur studio baru berkinerja tinggi yang berjalan 100% lokal & offline.</p>
-  </section>
-
-  <!-- Live Studio Workspace Section (Hidden until tool clicked) -->
-  <section id="workspace-section" class="workspace-section container">
-    <div class="workspace-card">
-      <div class="workspace-header">
-        <div class="workspace-title-area">
-          <div class="tool-icon" id="ws-icon" style="margin-bottom:0;"><i class="fa-solid fa-sliders"></i></div>
-          <div>
-            <h2 id="ws-title" style="font-size: 22px;">Nama Fitur Studio</h2>
-            <p id="ws-desc" style="color: var(--text-muted); font-size: 14px;">Deskripsi alat yang sedang aktif</p>
-          </div>
-        </div>
-        <button class="btn btn-outline" onclick="closeWorkspace()"><i class="fa-solid fa-xmark"></i> Tutup Studio</button>
-      </div>
-
-      <!-- Drag & Drop Zone -->
-      <div class="dropzone" id="dropzone">
-        <input type="file" id="file-input" class="file-input" accept="image/*" multiple>
-        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 48px; color: var(--primary); margin-bottom: 12px;"></i>
-        <h3>Pilih atau Tarik Foto Anda ke Sini</h3>
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;" id="dropzone-hint">Mendukung format JPG, PNG, WEBP, BMP (Maksimal 50MB per file)</p>
-      </div>
-
-      <!-- Tool Settings Panel -->
-      <div id="tool-settings"></div>
-
-      <!-- Selected Files List -->
-      <div id="file-list" class="file-list"></div>
-
-      <!-- Studio Canvas Preview Area -->
-      <div id="canvas-preview" class="canvas-preview" style="display: none;">
-        <h4 style="margin-bottom: 12px; color: var(--text-main);"><i class="fa-solid fa-eye"></i> Pratinjau Visual & Hasil Ekstraksi</h4>
-        <div id="preview-container"></div>
-      </div>
-
-      <!-- Action Button -->
-      <div style="margin-top: 28px; text-align: right; display: flex; justify-content: flex-end; gap: 12px;">
-        <button class="btn btn-outline" onclick="resetStudio()"><i class="fa-solid fa-rotate-left"></i> Ulangi</button>
-        <button class="btn btn-primary" id="btn-process" disabled onclick="processCurrentTool()">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Jalankan Pemrosesan & Unduh
+<!-- Hero Section -->
+<section class="hero container">
+<h1>Megaportal <span class="text-gradient">WBT Image &amp; Photo Studio</span></h1>
+<p>Penggabungan 5 tools utama (Compressor, OCR, Resizer, EXIF Cleaner, Renamer) plus 10 fitur studio baru berkinerja tinggi yang berjalan 100% lokal &amp; offline.</p>
+</section>
+<!-- Live Studio Workspace Section (Hidden until tool clicked) -->
+<section class="workspace-section container" id="workspace-section">
+<div class="workspace-card">
+<div class="workspace-header">
+<div class="workspace-title-area">
+<div class="tool-icon" id="ws-icon" style="margin-bottom:0;"><i class="fa-solid fa-sliders"></i></div>
+<div>
+<h2 id="ws-title" style="font-size: 22px;">Nama Fitur Studio</h2>
+<p id="ws-desc" style="color: var(--text-muted); font-size: 14px;">Deskripsi alat yang sedang aktif</p>
+</div>
+</div>
+<button class="btn btn-outline" onclick="closeWorkspace()"><i class="fa-solid fa-xmark"></i> Tutup Studio</button>
+</div>
+<!-- Drag & Drop Zone -->
+<div class="dropzone" id="dropzone">
+<input accept="image/*" class="file-input" id="file-input" multiple="" type="file"/>
+<i class="fa-solid fa-cloud-arrow-up" style="font-size: 48px; color: var(--primary); margin-bottom: 12px;"></i>
+<h3>Pilih atau Tarik Foto Anda ke Sini</h3>
+<p id="dropzone-hint" style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">Mendukung format JPG, PNG, WEBP, BMP (Maksimal 50MB per file)</p>
+</div>
+<!-- Tool Settings Panel -->
+<div id="tool-settings"></div>
+<!-- Selected Files List -->
+<div class="file-list" id="file-list"></div>
+<!-- Studio Canvas Preview Area -->
+<div class="canvas-preview" id="canvas-preview" style="display: none;">
+<h4 style="margin-bottom: 12px; color: var(--text-main);"><i class="fa-solid fa-eye"></i> Pratinjau Visual &amp; Hasil Ekstraksi</h4>
+<div id="preview-container"></div>
+</div>
+<!-- Action Button -->
+<div style="margin-top: 28px; text-align: right; display: flex; justify-content: flex-end; gap: 12px;">
+<button class="btn btn-outline" onclick="resetStudio()"><i class="fa-solid fa-rotate-left"></i> Ulangi</button>
+<button class="btn btn-primary" disabled="" id="btn-process" onclick="processCurrentTool()">
+<i class="fa-solid fa-wand-magic-sparkles"></i> Jalankan Pemrosesan &amp; Unduh
         </button>
-      </div>
-
-      <!-- Offline Model Section -->
-      <div style="margin-top:20px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
-        <input type="file" id="studio-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleStudioOfflineModelUpload(event)">
-        <div id="studio-offline-status" style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">
-          Ingin Super-Resolution AI & OCR lokal 100% di Aplikasi Standalone (Tanpa Internet)?
+</div>
+<!-- Offline Model Section -->
+<div style="margin-top:20px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
+<input accept=".pack,.json,.bin" id="studio-model-file-input" onchange="handleStudioOfflineModelUpload(event)" style="display:none;" type="file"/>
+<div id="studio-offline-status" style="font-size:12px; color:#cbd5e1; margin-bottom:10px;">
+          Ingin Super-Resolution AI &amp; OCR lokal 100% di Aplikasi Standalone (Tanpa Internet)?
         </div>
-        <div style="display:flex; justify-content:center; gap:10px; max-width:480px; margin:0 auto;">
-          <button class="btn" style="flex:1; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:12px;" onclick="purchaseStudioOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model AI Studio (.pack)</button>
-          <button class="btn" style="flex:1; background:#10b981; color:white; font-weight:800; font-size:12px;" onclick="document.getElementById('studio-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Main Tools Grid Section -->
-  <section class="container" id="tools-section">
-    <!-- Category Filter Tabs -->
-    <div class="category-filter">
-      <button class="cat-btn active" onclick="filterCategory('all')"><i class="fa-solid fa-layer-group"></i> Semua Fitur (16)</button>
-      <button class="cat-btn" onclick="filterCategory('compress')"><i class="fa-solid fa-compress"></i> Kompres & Ukuran (3)</button>
-      <button class="cat-btn" onclick="filterCategory('ocr')"><i class="fa-solid fa-file-lines"></i> OCR & Ekstrak (3)</button>
-      <button class="cat-btn" onclick="filterCategory('edit')"><i class="fa-solid fa-sliders"></i> Edit & Filter (4)</button>
-      <button class="cat-btn" onclick="filterCategory('privacy')"><i class="fa-solid fa-shield-halved"></i> Privasi & Keamanan (4)</button>
-      <button class="cat-btn" onclick="filterCategory('convert')"><i class="fa-solid fa-file-export"></i> Konverter & Kode (2)</button>
-    </div>
-
-    <div class="tools-grid">
-      <!-- 1. COMPRESSOR PRO -->
-      <div class="tool-card cat-compress" onclick="selectTool('compress')">
-        <span class="tool-badge">GABUNGAN 1</span>
-        <div>
-          <div class="tool-icon"><i class="fa-solid fa-compress"></i></div>
-          <h3 class="tool-title">Image Compressor Pro</h3>
-          <p class="tool-desc">Kecilkan ukuran file foto JPG/PNG hingga 95% dengan slider kualitas tanpa pecah.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 2. BATCH RESIZER -->
-      <div class="tool-card cat-compress" onclick="selectTool('resize')">
-        <span class="tool-badge">GABUNGAN 2</span>
-        <div>
-          <div class="tool-icon" style="color:#06b6d4; background:rgba(6,182,212,0.12);"><i class="fa-solid fa-down-left-and-up-right-to-center"></i></div>
-          <h3 class="tool-title">Batch Image Resizer</h3>
-          <p class="tool-desc">Ubah dimensi resolusi lebar & tinggi secara massal berdasarkan piksel atau persentase.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 3. QUICKSCAN OCR -->
-      <div class="tool-card cat-ocr" onclick="selectTool('ocr')">
-        <span class="tool-badge">GABUNGAN 3</span>
-        <div>
-          <div class="tool-icon" style="color:#10b981; background:rgba(16,185,129,0.12);"><i class="fa-solid fa-file-lines"></i></div>
-          <h3 class="tool-title">QuickScan OCR (Teks Ekstraktor)</h3>
-          <p class="tool-desc">Pindai foto dokumen, buku, atau struk belanja dan ekstrak menjadi tulisan yang bisa disalin.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 4. EXIF CLEANER -->
-      <div class="tool-card cat-privacy" onclick="selectTool('exif')">
-        <span class="tool-badge">GABUNGAN 4</span>
-        <div>
-          <div class="tool-icon" style="color:#ef4444; background:rgba(239,68,68,0.12);"><i class="fa-solid fa-shield-halved"></i></div>
-          <h3 class="tool-title">EXIF & GPS Photo Cleaner</h3>
-          <p class="tool-desc">Hapus metadata privasi seperti lokasi koordinat GPS, nama kamera, dan tanggal foto.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 5. BULK RENAMER -->
-      <div class="tool-card cat-compress" onclick="selectTool('rename')">
-        <span class="tool-badge">GABUNGAN 5</span>
-        <div>
-          <div class="tool-icon" style="color:#8b5cf6; background:rgba(139,92,246,0.12);"><i class="fa-solid fa-list-ol"></i></div>
-          <h3 class="tool-title">Bulk Photo Renamer</h3>
-          <p class="tool-desc">Ganti nama puluhan foto sekaligus dengan awalan kustom dan nomor urut otomatis.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 6. FORMAT CONVERTER -->
-      <div class="tool-card cat-convert" onclick="selectTool('converter')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#f59e0b; background:rgba(245,158,11,0.12);"><i class="fa-solid fa-rotate"></i></div>
-          <h3 class="tool-title">Format Converter Studio</h3>
-          <p class="tool-desc">Konversi format gambar dari/ke JPG, PNG, WEBP ringan, atau BMP dalam satu klik.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 7. FILTER & COLOR GRADING -->
-      <div class="tool-card cat-edit" onclick="selectTool('filters')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#ec4899; background:rgba(236,72,153,0.12);"><i class="fa-solid fa-wand-magic"></i></div>
-          <h3 class="tool-title">Filter & Color Grading</h3>
-          <p class="tool-desc">Atur kecerahan, kontras, saturasi, efek vintage, sepia, dan grayscale secara real-time.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 8. CROPPER & ASPECT RATIO -->
-      <div class="tool-card cat-edit" onclick="selectTool('cropper')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#38bdf8; background:rgba(56,189,248,0.12);"><i class="fa-solid fa-crop"></i></div>
-          <h3 class="tool-title">Image Cropper & Rasio</h3>
-          <p class="tool-desc">Potong foto ke rasio standar sosial media 1:1 (Instagram), 16:9 (YouTube), atau kustom.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 9. WATERMARK STAMP -->
-      <div class="tool-card cat-privacy" onclick="selectTool('watermark')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#a855f7; background:rgba(168,85,247,0.12);"><i class="fa-solid fa-stamp"></i></div>
-          <h3 class="tool-title">Watermark & Branding Stamp</h3>
-          <p class="tool-desc">Sisipkan teks tanda air hak cipta atau nama brand di atas foto dengan kontrol opasitas.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 10. INSTAGRAM GRID SPLITTER -->
-      <div class="tool-card cat-edit" onclick="selectTool('grid')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#14b8a6; background:rgba(20,184,166,0.12);"><i class="fa-solid fa-grid-horizontal"></i></div>
-          <h3 class="tool-title">Instagram Grid Splitter</h3>
-          <p class="tool-desc">Pecah 1 foto panorama menjadi potongan grid 3x1 atau 3x3 untuk carousel estetis.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 11. ROUNDED CORNERS & BORDERS -->
-      <div class="tool-card cat-edit" onclick="selectTool('borders')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#f97316; background:rgba(249,115,22,0.12);"><i class="fa-solid fa-border-all"></i></div>
-          <h3 class="tool-title">Border Bingkai & Lengkung Sudut</h3>
-          <p class="tool-desc">Tambahkan bingkai border warna elegan atau lengkungan sudut halus (Rounded Corner).</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 12. DOMINANT COLOR EXTRACTOR -->
-      <div class="tool-card cat-ocr" onclick="selectTool('palette')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#6366f1; background:rgba(99,102,241,0.12);"><i class="fa-solid fa-palette"></i></div>
-          <h3 class="tool-title">Dominant Palette Extractor</h3>
-          <p class="tool-desc">Ekstrak 5 warna dominan beserta kode HEX & RGB untuk inspirasi palet desain visual.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 13. FLIP & MIRROR STUDIO -->
-      <div class="tool-card cat-edit" onclick="selectTool('flip')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#84cc16; background:rgba(132,204,22,0.12);"><i class="fa-solid fa-right-left"></i></div>
-          <h3 class="tool-title">Flip & Mirror Studio</h3>
-          <p class="tool-desc">Balik orientasi foto secara horizontal (efek cermin kaca) atau vertikal.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 14. FACE & SENSITIVE BLUR -->
-      <div class="tool-card cat-privacy" onclick="selectTool('blur')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#ef4444; background:rgba(239,68,68,0.12);"><i class="fa-solid fa-user-secret"></i></div>
-          <h3 class="tool-title">Privacy Sensor / Blur Wajah</h3>
-          <p class="tool-desc">Berikan efek pikselasi blur pada bagian sensitif, wajah, atau plat nomor kendaraan.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 15. BASE64 ENCODER / DECODER -->
-      <div class="tool-card cat-convert" onclick="selectTool('base64')">
-        <span class="tool-badge">FITUR BARU</span>
-        <div>
-          <div class="tool-icon" style="color:#06b6d4; background:rgba(6,182,212,0.12);"><i class="fa-solid fa-code"></i></div>
-          <h3 class="tool-title">Base64 Image Encoder / Decoder</h3>
-          <p class="tool-desc">Ubah file foto langsung menjadi string Base64 untuk embed kode web developer.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-
-      <!-- 16. BATCH COPYRIGHT WATERMARK STUDIO -->
-      <div class="tool-card cat-privacy" onclick="selectTool('watermark')">
-        <span class="tool-badge">BENCHMARK PRO</span>
-        <div>
-          <div class="tool-icon" style="color:#f59e0b; background:rgba(245,158,11,0.12);"><i class="fa-solid fa-stamp"></i></div>
-          <h3 class="tool-title">Batch Copyright Watermark Studio</h3>
-          <p class="tool-desc">Bubuhkan teks hak cipta atau logo watermark transparan secara massal pada puluhan foto sekaligus.</p>
-        </div>
-        <div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Pricing Section -->
-  <section class="container" style="margin-bottom: 80px;">
-    <div style="text-align: center; margin-bottom: 35px;">
-      <h2 style="font-size: 32px; font-weight: 800;">Pilihan Paket <span class="text-gradient">Lisensi Studio</span></h2>
-      <p style="color: var(--text-muted);">Gabungan 5 alat foto terpopuler dan 10 fitur studio baru dalam satu lisensi hemat seumur hidup.</p>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; max-width: 860px; margin: 0 auto;">
-      <div class="workspace-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <h3 style="font-size: 20px;">Paket Starter (Gratis)</h3>
-          <p style="color: var(--text-muted); font-size: 14px;">Eksplorasi seluruh fitur dasar untuk kebutuhan harian</p>
-          <div style="font-size: 32px; font-weight: 800; margin: 16px 0;">Rp 0 <span style="font-size: 14px; color: var(--text-muted); font-weight: 400;">/ selamanya</span></div>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px; margin-bottom: 24px;">
-            <li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Akses ke 15 Fitur Image Studio Pro</li>
-            <li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Batasan 3 Penggunaan / Hari</li>
-            <li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> 100% Pemrosesan Lokal & Privasi Aman</li>
-          </ul>
-        </div>
-        <button class="btn btn-outline" style="width: 100%;" onclick="showToast('Anda sedang berada di paket Starter Gratis', 'info')">Paket Aktif Saat Ini</button>
-      </div>
-
-      <div class="workspace-card" style="border-color: var(--gold); box-shadow: 0 0 30px rgba(245, 158, 11, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
-        <div>
-          <div style="background: var(--gold); color: #111827; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: var(--radius-full); display: inline-block; margin-bottom: 12px;">RECOMMENDED SUITE</div>
-          <h3 style="font-size: 20px; color: var(--gold);">Paket Pro Lifetime All-in-One</h3>
-          <p style="color: #d1d5db; font-size: 14px;">Bebas kendala kuota untuk profesional & content creator</p>
-          <div style="font-size: 32px; font-weight: 800; color: var(--gold); margin: 16px 0;">Rp 25.000 <span style="font-size: 14px; color: #9ca3af; font-weight: 400;">/ sekali bayar</span></div>
-          <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px; margin-bottom: 24px;">
-            <li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> <b>Tanpa Batas Kuota (Unlimited Penggunaan)</b></li>
-            <li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Akses Penuh ke 15 Alat Pengolah Foto Studio</li>
-            <li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Batch Ekstraksi & Konversi Kecepatan Maksimal</li>
-            <li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Lisensi Resmi Sekali Bayar Seumur Hidup</li>
-          </ul>
-        </div>
-        <button class="btn btn-gold" style="width: 100%;" onclick="openUpgradeModal()">Beli Lisensi Suite (Rp 25.000)</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Upgrade Modal -->
-  <div class="modal" id="upgrade-modal">
-    <div class="modal-content">
-      <button onclick="closeUpgradeModal()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
-      <div class="tool-icon" style="background: var(--gradient-gold); color: #111827; margin: 0 auto 16px;"><i class="fa-solid fa-crown"></i></div>
-      <h2>Upgrade WBT Image Studio Pro</h2>
-      <p style="color: var(--text-muted); font-size: 14px; margin: 8px 0 20px;">Dapatkan akses tanpa batas untuk 15 alat pengolah foto offline hanya dengan sekali pembayaran.</p>
-      <button class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; margin-bottom: 16px;" onclick="payWithMidtrans()">
-        <i class="fa-solid fa-credit-card"></i> Bayar Otomatis via Midtrans (Rp 25.000)
+<div style="display:flex; justify-content:center; gap:10px; max-width:480px; margin:0 auto;">
+<button class="btn" onclick="purchaseStudioOfflineModel()" style="flex:1; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:12px;"><i class="fa-solid fa-cart-shopping"></i> Beli Model AI Studio (.pack)</button>
+<button class="btn" onclick="document.getElementById('studio-model-file-input').click()" style="flex:1; background:#10b981; color:white; font-weight:800; font-size:12px;"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Tools Grid Section -->
+<section class="container" id="tools-section">
+<!-- Category Filter Tabs -->
+<div class="category-filter">
+<button class="cat-btn active" onclick="filterCategory('all')"><i class="fa-solid fa-layer-group"></i> Semua Fitur (16)</button>
+<button class="cat-btn" onclick="filterCategory('compress')"><i class="fa-solid fa-compress"></i> Kompres &amp; Ukuran (3)</button>
+<button class="cat-btn" onclick="filterCategory('ocr')"><i class="fa-solid fa-file-lines"></i> OCR &amp; Ekstrak (3)</button>
+<button class="cat-btn" onclick="filterCategory('edit')"><i class="fa-solid fa-sliders"></i> Edit &amp; Filter (4)</button>
+<button class="cat-btn" onclick="filterCategory('privacy')"><i class="fa-solid fa-shield-halved"></i> Privasi &amp; Keamanan (4)</button>
+<button class="cat-btn" onclick="filterCategory('convert')"><i class="fa-solid fa-file-export"></i> Konverter &amp; Kode (2)</button>
+</div>
+<div class="tools-grid">
+<!-- 1. COMPRESSOR PRO -->
+<div class="tool-card cat-compress" onclick="selectTool('compress')">
+<span class="tool-badge">GABUNGAN 1</span>
+<div>
+<div class="tool-icon"><i class="fa-solid fa-compress"></i></div>
+<h3 class="tool-title">Image Compressor Pro</h3>
+<p class="tool-desc">Kecilkan ukuran file foto JPG/PNG hingga 95% dengan slider kualitas tanpa pecah.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 2. BATCH RESIZER -->
+<div class="tool-card cat-compress" onclick="selectTool('resize')">
+<span class="tool-badge">GABUNGAN 2</span>
+<div>
+<div class="tool-icon" style="color:#06b6d4; background:rgba(6,182,212,0.12);"><i class="fa-solid fa-down-left-and-up-right-to-center"></i></div>
+<h3 class="tool-title">Batch Image Resizer</h3>
+<p class="tool-desc">Ubah dimensi resolusi lebar &amp; tinggi secara massal berdasarkan piksel atau persentase.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 3. QUICKSCAN OCR -->
+<div class="tool-card cat-ocr" onclick="selectTool('ocr')">
+<span class="tool-badge">GABUNGAN 3</span>
+<div>
+<div class="tool-icon" style="color:#10b981; background:rgba(16,185,129,0.12);"><i class="fa-solid fa-file-lines"></i></div>
+<h3 class="tool-title">QuickScan OCR (Teks Ekstraktor)</h3>
+<p class="tool-desc">Pindai foto dokumen, buku, atau struk belanja dan ekstrak menjadi tulisan yang bisa disalin.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 4. EXIF CLEANER -->
+<div class="tool-card cat-privacy" onclick="selectTool('exif')">
+<span class="tool-badge">GABUNGAN 4</span>
+<div>
+<div class="tool-icon" style="color:#ef4444; background:rgba(239,68,68,0.12);"><i class="fa-solid fa-shield-halved"></i></div>
+<h3 class="tool-title">EXIF &amp; GPS Photo Cleaner</h3>
+<p class="tool-desc">Hapus metadata privasi seperti lokasi koordinat GPS, nama kamera, dan tanggal foto.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 5. BULK RENAMER -->
+<div class="tool-card cat-compress" onclick="selectTool('rename')">
+<span class="tool-badge">GABUNGAN 5</span>
+<div>
+<div class="tool-icon" style="color:#8b5cf6; background:rgba(139,92,246,0.12);"><i class="fa-solid fa-list-ol"></i></div>
+<h3 class="tool-title">Bulk Photo Renamer</h3>
+<p class="tool-desc">Ganti nama puluhan foto sekaligus dengan awalan kustom dan nomor urut otomatis.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 6. FORMAT CONVERTER -->
+<div class="tool-card cat-convert" onclick="selectTool('converter')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#f59e0b; background:rgba(245,158,11,0.12);"><i class="fa-solid fa-rotate"></i></div>
+<h3 class="tool-title">Format Converter Studio</h3>
+<p class="tool-desc">Konversi format gambar dari/ke JPG, PNG, WEBP ringan, atau BMP dalam satu klik.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 7. FILTER & COLOR GRADING -->
+<div class="tool-card cat-edit" onclick="selectTool('filters')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#ec4899; background:rgba(236,72,153,0.12);"><i class="fa-solid fa-wand-magic"></i></div>
+<h3 class="tool-title">Filter &amp; Color Grading</h3>
+<p class="tool-desc">Atur kecerahan, kontras, saturasi, efek vintage, sepia, dan grayscale secara real-time.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 8. CROPPER & ASPECT RATIO -->
+<div class="tool-card cat-edit" onclick="selectTool('cropper')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#38bdf8; background:rgba(56,189,248,0.12);"><i class="fa-solid fa-crop"></i></div>
+<h3 class="tool-title">Image Cropper &amp; Rasio</h3>
+<p class="tool-desc">Potong foto ke rasio standar sosial media 1:1 (Instagram), 16:9 (YouTube), atau kustom.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 9. WATERMARK STAMP -->
+<div class="tool-card cat-privacy" onclick="selectTool('watermark')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#a855f7; background:rgba(168,85,247,0.12);"><i class="fa-solid fa-stamp"></i></div>
+<h3 class="tool-title">Watermark &amp; Branding Stamp</h3>
+<p class="tool-desc">Sisipkan teks tanda air hak cipta atau nama brand di atas foto dengan kontrol opasitas.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 10. INSTAGRAM GRID SPLITTER -->
+<div class="tool-card cat-edit" onclick="selectTool('grid')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#14b8a6; background:rgba(20,184,166,0.12);"><i class="fa-solid fa-grid-horizontal"></i></div>
+<h3 class="tool-title">Instagram Grid Splitter</h3>
+<p class="tool-desc">Pecah 1 foto panorama menjadi potongan grid 3x1 atau 3x3 untuk carousel estetis.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 11. ROUNDED CORNERS & BORDERS -->
+<div class="tool-card cat-edit" onclick="selectTool('borders')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#f97316; background:rgba(249,115,22,0.12);"><i class="fa-solid fa-border-all"></i></div>
+<h3 class="tool-title">Border Bingkai &amp; Lengkung Sudut</h3>
+<p class="tool-desc">Tambahkan bingkai border warna elegan atau lengkungan sudut halus (Rounded Corner).</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 12. DOMINANT COLOR EXTRACTOR -->
+<div class="tool-card cat-ocr" onclick="selectTool('palette')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#6366f1; background:rgba(99,102,241,0.12);"><i class="fa-solid fa-palette"></i></div>
+<h3 class="tool-title">Dominant Palette Extractor</h3>
+<p class="tool-desc">Ekstrak 5 warna dominan beserta kode HEX &amp; RGB untuk inspirasi palet desain visual.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 13. FLIP & MIRROR STUDIO -->
+<div class="tool-card cat-edit" onclick="selectTool('flip')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#84cc16; background:rgba(132,204,22,0.12);"><i class="fa-solid fa-right-left"></i></div>
+<h3 class="tool-title">Flip &amp; Mirror Studio</h3>
+<p class="tool-desc">Balik orientasi foto secara horizontal (efek cermin kaca) atau vertikal.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 14. FACE & SENSITIVE BLUR -->
+<div class="tool-card cat-privacy" onclick="selectTool('blur')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#ef4444; background:rgba(239,68,68,0.12);"><i class="fa-solid fa-user-secret"></i></div>
+<h3 class="tool-title">Privacy Sensor / Blur Wajah</h3>
+<p class="tool-desc">Berikan efek pikselasi blur pada bagian sensitif, wajah, atau plat nomor kendaraan.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 15. BASE64 ENCODER / DECODER -->
+<div class="tool-card cat-convert" onclick="selectTool('base64')">
+<span class="tool-badge">FITUR BARU</span>
+<div>
+<div class="tool-icon" style="color:#06b6d4; background:rgba(6,182,212,0.12);"><i class="fa-solid fa-code"></i></div>
+<h3 class="tool-title">Base64 Image Encoder / Decoder</h3>
+<p class="tool-desc">Ubah file foto langsung menjadi string Base64 untuk embed kode web developer.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+<!-- 16. BATCH COPYRIGHT WATERMARK STUDIO -->
+<div class="tool-card cat-privacy" onclick="selectTool('watermark')">
+<span class="tool-badge">BENCHMARK PRO</span>
+<div>
+<div class="tool-icon" style="color:#f59e0b; background:rgba(245,158,11,0.12);"><i class="fa-solid fa-stamp"></i></div>
+<h3 class="tool-title">Batch Copyright Watermark Studio</h3>
+<p class="tool-desc">Bubuhkan teks hak cipta atau logo watermark transparan secara massal pada puluhan foto sekaligus.</p>
+</div>
+<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
+</div>
+</div>
+</section>
+<!-- Pricing Section -->
+<section class="container" style="margin-bottom: 80px;">
+<div style="text-align: center; margin-bottom: 35px;">
+<h2 style="font-size: 32px; font-weight: 800;">Pilihan Paket <span class="text-gradient">Lisensi Studio</span></h2>
+<p style="color: var(--text-muted);">Gabungan 5 alat foto terpopuler dan 10 fitur studio baru dalam satu lisensi hemat seumur hidup.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; max-width: 860px; margin: 0 auto;">
+<div class="workspace-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+<div>
+<h3 style="font-size: 20px;">Paket Starter (Gratis)</h3>
+<p style="color: var(--text-muted); font-size: 14px;">Eksplorasi seluruh fitur dasar untuk kebutuhan harian</p>
+<div style="font-size: 32px; font-weight: 800; margin: 16px 0;">Rp 0 <span style="font-size: 14px; color: var(--text-muted); font-weight: 400;">/ selamanya</span></div>
+<ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px; margin-bottom: 24px;">
+<li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Akses ke 15 Fitur Image Studio Pro</li>
+<li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Batasan 3 Penggunaan / Hari</li>
+<li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> 100% Pemrosesan Lokal &amp; Privasi Aman</li>
+</ul>
+</div>
+<button class="btn btn-outline" onclick="showToast('Anda sedang berada di paket Starter Gratis', 'info')" style="width: 100%;">Paket Aktif Saat Ini</button>
+</div>
+<div class="workspace-card" style="border-color: var(--gold); box-shadow: 0 0 30px rgba(245, 158, 11, 0.2); display: flex; flex-direction: column; justify-content: space-between;">
+<div>
+<div style="background: var(--gold); color: #111827; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: var(--radius-full); display: inline-block; margin-bottom: 12px;">RECOMMENDED SUITE</div>
+<h3 style="font-size: 20px; color: var(--gold);">Paket Pro Lifetime All-in-One</h3>
+<p style="color: #d1d5db; font-size: 14px;">Bebas kendala kuota untuk profesional &amp; content creator</p>
+<div style="font-size: 32px; font-weight: 800; color: var(--gold); margin: 16px 0;">Rp 25.000 <span style="font-size: 14px; color: #9ca3af; font-weight: 400;">/ sekali bayar</span></div>
+<ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 14px; margin-bottom: 24px;">
+<li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> <b>Tanpa Batas Kuota (Unlimited Penggunaan)</b></li>
+<li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Akses Penuh ke 15 Alat Pengolah Foto Studio</li>
+<li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Batch Ekstraksi &amp; Konversi Kecepatan Maksimal</li>
+<li><i class="fa-solid fa-check" style="color:#10b981; margin-right:8px;"></i> Lisensi Resmi Sekali Bayar Seumur Hidup</li>
+</ul>
+</div>
+<button class="btn btn-gold" onclick="openUpgradeModal()" style="width: 100%;">Beli Lisensi Suite (Rp 25.000)</button>
+</div>
+</div>
+</section>
+<!-- Upgrade Modal -->
+<div class="modal" id="upgrade-modal">
+<div class="modal-content">
+<button onclick="closeUpgradeModal()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+<div class="tool-icon" style="background: var(--gradient-gold); color: #111827; margin: 0 auto 16px;"><i class="fa-solid fa-crown"></i></div>
+<h2>Upgrade WBT Image Studio Pro</h2>
+<p style="color: var(--text-muted); font-size: 14px; margin: 8px 0 20px;">Dapatkan akses tanpa batas untuk 15 alat pengolah foto offline hanya dengan sekali pembayaran.</p>
+<button class="btn btn-primary" onclick="payWithMidtrans()" style="width: 100%; padding: 14px; font-size: 15px; margin-bottom: 16px;">
+<i class="fa-solid fa-credit-card"></i> Bayar Otomatis via Midtrans (Rp 25.000)
       </button>
-      <div style="border-top: 1px solid var(--border-color); padding-top: 16px; text-align: left;">
-        <label style="font-size: 13px; color: var(--text-muted);">Atau masukkan kode aktivasi manual (Ketik: <b>WBTIMAGE25K</b>):</label>
-        <div style="display: flex; gap: 8px; margin-top: 8px;">
-          <input type="text" id="activation-code" class="setting-input" placeholder="KODE AKTIVASI" style="flex: 1; text-transform: uppercase;">
-          <button class="btn btn-gold" onclick="verifyActivationCode()">Aktifkan</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast Notifications Container -->
-  <div id="toast-container" class="toast-container"></div>
-
-  <script src="app.js"></script>
-  <script src="../../midtrans-pay.js"></script>
+<div style="border-top: 1px solid var(--border-color); padding-top: 16px; text-align: left;">
+<label style="font-size: 13px; color: var(--text-muted);">Atau masukkan kode aktivasi manual (Ketik: <b>WBTIMAGE25K</b>):</label>
+<div style="display: flex; gap: 8px; margin-top: 8px;">
+<input class="setting-input" id="activation-code" placeholder="KODE AKTIVASI" style="flex: 1; text-transform: uppercase;" type="text"/>
+<button class="btn btn-gold" onclick="verifyActivationCode()">Aktifkan</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Toast Notifications Container -->
+<div class="toast-container" id="toast-container"></div>
+<script src="app.js"></script>
+<script src="../../midtrans-pay.js"></script>
 </body>
 </html>

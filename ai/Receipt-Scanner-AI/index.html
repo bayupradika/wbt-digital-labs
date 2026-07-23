@@ -1,17 +1,17 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Receipt & Invoice Scanner AI - Tesseract OCR Pro</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Tesseract.js WebAssembly Optical Character Recognition (OCR) Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Receipt &amp; Invoice Scanner AI - Tesseract OCR Pro</title>
+<link href="style.css?v=3.0" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- Tesseract.js WebAssembly Optical Character Recognition (OCR) Engine -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -64,120 +64,107 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Receipt Scanner AI</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Receipt Scanner AI</div>
+</div>
+<div class="wbt-global-header-center">
+        Pindai Struk Belanja &amp; Ekstrak Data ke JSON
       </div>
-      <div class="wbt-global-header-center">
-        Pindai Struk Belanja & Ekstrak Data ke JSON
-      </div>
-      <div class="wbt-global-header-right">
-        
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+<button onclick="downloadReceiptApp('windows')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button onclick="downloadReceiptApp('android')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+</div></div>
+</header>
+<div class="container">
 
-  <div class="container">
-    <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-receipt"></i> AI Receipt Scanner Pro</div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadReceiptApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadReceiptApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-camera" style="color:#10b981;"></i> 1. Unggah Foto Struk / Nota Belanja</h2>
-        
-        <div style="width:100%; margin-bottom:14px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
-          <label style="font-size:11px; color:#10b981; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-microchip"></i> Mesin Pemindai OCR</label>
-          <select id="engine-select" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700; margin-bottom:10px;">
-            <option value="tesseract">🧬 Tesseract.js WebAssembly Optical Character Recognition (100% Offline Real OCR)</option>
-            <option value="template">📋 Template Parsing Simulator (Demo Cepat)</option>
-          </select>
-          <div style="display:flex; align-items:center; justify-content:space-between; background:#0f172a; padding:10px 12px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
-            <div>
-              <span style="font-size:12px; font-weight:800; color:#38bdf8;"><i class="fa-solid fa-wand-magic-sparkles"></i> Mode CamScanner AI</span>
-              <p style="font-size:10px; color:#94a3b8; margin:2px 0 0;">Otomatis bersihkan bayangan foto kertas & pertajam kontras tinta</p>
-            </div>
-            <input type="checkbox" id="camscanner-mode" checked style="width:18px; height:18px; cursor:pointer; accent-color:#38bdf8;">
+<div class="grid">
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-camera" style="color:#10b981;"></i> 1. Unggah Foto Struk / Nota Belanja</h2>
+<div style="width:100%; margin-bottom:14px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+<label style="font-size:11px; color:#10b981; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-microchip"></i> Mesin Pemindai OCR</label>
+<select id="engine-select" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700; margin-bottom:10px;">
+<option value="tesseract">🧬 Tesseract.js WebAssembly Optical Character Recognition (100% Offline Real OCR)</option>
+<option value="template">📋 Template Parsing Simulator (Demo Cepat)</option>
+</select>
+<div style="display:flex; align-items:center; justify-content:space-between; background:#0f172a; padding:10px 12px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
+<div>
+<span style="font-size:12px; font-weight:800; color:#38bdf8;"><i class="fa-solid fa-wand-magic-sparkles"></i> Mode CamScanner AI</span>
+<p style="font-size:10px; color:#94a3b8; margin:2px 0 0;">Otomatis bersihkan bayangan foto kertas &amp; pertajam kontras tinta</p>
+</div>
+<input checked="" id="camscanner-mode" style="width:18px; height:18px; cursor:pointer; accent-color:#38bdf8;" type="checkbox"/>
+</div>
+</div>
+<div id="daily-quota-badge" style="background:#1e293b; color:#38bdf8; font-size:11px; padding:8px 12px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(56,189,248,0.3);">
+<span><i class="fa-solid fa-calendar-day"></i> Kuota Gratis UMKM Hari Ini: <strong id="quota-used" style="color:#fbbf24;">0</strong> / 10 Struk</span>
+<span style="color:#10b981; font-weight:800; font-size:10px;">Reset Harian (00:00)</span>
+</div>
+<input accept="image/*" id="file-input" multiple="" style="display: none;" type="file"/>
+<img alt="Preview" class="preview-img" id="preview"/>
+<canvas id="ocr-preprocess-canvas" style="display:none;"></canvas>
+<div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+<i class="fa-solid fa-file-invoice-dollar" style="font-size:48px; color:#10b981; margin-bottom:15px;"></i>
+<h3>Klik atau Tarik Foto Struk ke Sini</h3>
+<p style="font-size: 12px; color: #38bdf8; font-weight:700;">Dukung Upload Banyak Struk Sekaligus (Batch Scan UMKM)</p>
+<button onclick="event.stopPropagation(); loadSample()" style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;">Gunakan Struk Contoh</button>
+</div>
+<button class="btn" onclick="scanReceipt()" style="margin-top:14px;"><i class="fa-solid fa-magnifying-glass-dollar"></i> Scan &amp; Ekstrak Data Struk AI</button>
+<!-- Tiered Pricing & Mayar Center -->
+<div style="margin-top:16px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.15); width:100%;">
+<div style="font-size:12px; font-weight:800; color:#fbbf24; text-align:center; margin-bottom:10px;">
+<i class="fa-solid fa-tags"></i> Pilihan Upgrade Kuota Harian UMKM (Via Mayar.id)
           </div>
-        </div>
-
-        <div id="daily-quota-badge" style="background:#1e293b; color:#38bdf8; font-size:11px; padding:8px 12px; border-radius:8px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(56,189,248,0.3);">
-          <span><i class="fa-solid fa-calendar-day"></i> Kuota Gratis UMKM Hari Ini: <strong id="quota-used" style="color:#fbbf24;">0</strong> / 10 Struk</span>
-          <span style="color:#10b981; font-weight:800; font-size:10px;">Reset Harian (00:00)</span>
-        </div>
-
-        <input type="file" id="file-input" accept="image/*" multiple style="display: none;">
-        <img id="preview" class="preview-img" alt="Preview">
-        <canvas id="ocr-preprocess-canvas" style="display:none;"></canvas>
-        
-        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-          <i class="fa-solid fa-file-invoice-dollar" style="font-size:48px; color:#10b981; margin-bottom:15px;"></i>
-          <h3>Klik atau Tarik Foto Struk ke Sini</h3>
-          <p style="font-size: 12px; color: #38bdf8; font-weight:700;">Dukung Upload Banyak Struk Sekaligus (Batch Scan UMKM)</p>
-          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Struk Contoh</button>
-        </div>
-
-        <button class="btn" style="margin-top:14px;" onclick="scanReceipt()"><i class="fa-solid fa-magnifying-glass-dollar"></i> Scan & Ekstrak Data Struk AI</button>
-
-        <!-- Tiered Pricing & Mayar Center -->
-        <div style="margin-top:16px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.15); width:100%;">
-          <div style="font-size:12px; font-weight:800; color:#fbbf24; text-align:center; margin-bottom:10px;">
-            <i class="fa-solid fa-tags"></i> Pilihan Upgrade Kuota Harian UMKM (Via Mayar.id)
-          </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
-            <div style="background:#0f172a; border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:10px; text-align:center;">
-              <span style="font-size:10px; color:#38bdf8; font-weight:800; display:block;">STARTER (50 Struk/Hari)</span>
-              <strong style="font-size:13px; color:white;">Rp 5.000</strong>
-              <button onclick="purchaseTierPackage('starter', 5000, 50, 'https://mayar.id/pl/receipt-ai-50')" style="margin-top:6px; width:100%; padding:6px; background:#0284c7; color:white; font-size:10px; font-weight:800; border:none; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Rp 5k</button>
-            </div>
-            <div style="background:#0f172a; border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:10px; text-align:center;">
-              <span style="font-size:10px; color:#10b981; font-weight:800; display:block;">BISNIS (200 Struk/Hari)</span>
-              <strong style="font-size:13px; color:white;">Rp 10.000</strong>
-              <button onclick="purchaseTierPackage('bisnis', 10000, 200, 'https://mayar.id/pl/receipt-ai-200')" style="margin-top:6px; width:100%; padding:6px; background:#059669; color:white; font-size:10px; font-weight:800; border:none; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Rp 10k</button>
-            </div>
-            <div style="background:#0f172a; border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:10px; text-align:center;">
-              <span style="font-size:10px; color:#d8b4fe; font-weight:800; display:block;">JURAGAN (500 Struk/Hari)</span>
-              <strong style="font-size:13px; color:white;">Rp 20.000</strong>
-              <button onclick="purchaseTierPackage('juragan', 20000, 500, 'https://mayar.id/pl/receipt-ai-500')" style="margin-top:6px; width:100%; padding:6px; background:#7c3aed; color:white; font-size:10px; font-weight:800; border:none; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Rp 20k</button>
-            </div>
-            <div style="background:linear-gradient(135deg, #451a03, #1e1b4b); border:1px solid #fbbf24; border-radius:10px; padding:10px; text-align:center;">
-              <span style="font-size:10px; color:#fbbf24; font-weight:900; display:block;">👑 PRO VIP (Unlimited + APK)</span>
-              <strong style="font-size:13px; color:#fde047;">Rp 35.000</strong>
-              <button onclick="purchaseTierPackage('vip', 35000, 'unlimited', 'https://mayar.id/pl/receipt-ai-pro')" style="margin-top:6px; width:100%; padding:6px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-size:10px; font-weight:900; border:none; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-crown"></i> Beli Rp 35k</button>
-            </div>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <input type="file" id="receipt-model-file-input" accept=".pack,.json,.bin,.traineddata" style="display:none;" onchange="handleReceiptOfflineModelUpload(event)">
-            <button style="flex:1; padding:6px; border-radius:8px; background:rgba(255,255,255,0.08); color:#cbd5e1; font-weight:700; font-size:10px; border:1px solid rgba(255,255,255,0.15); cursor:pointer;" onclick="document.getElementById('receipt-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model Offline (.pack)</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-table-list" style="color:#fbbf24;"></i> 2. Hasil Ekstraksi OCR Struk</h2>
-        <div id="output-box" style="flex: 1; width:100%;">
-          <div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
-            <i class="fa-solid fa-calculator" style="font-size: 40px; margin-bottom: 10px; color: #fbbf24;"></i>
-            <p>Rincian pengeluaran, merchant, teks mentah OCR, dan total bayar akan muncul di sini.</p>
-          </div>
-        </div>
-        <div style="display:flex; gap:8px; width:100%; margin-top:15px; flex-wrap:wrap;">
-          <button class="btn" id="dl-btn" style="display:none; flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; box-shadow:none; font-size:11px;" onclick="exportJSON()"><i class="fa-solid fa-file-code"></i> Data .JSON</button>
-          <button class="btn" id="dl-txt-btn" style="display:none; flex:1; background:#1e293b; color:#10b981; border:1px solid #10b981; box-shadow:none; font-size:11px;" onclick="exportRawText()"><i class="fa-solid fa-file-lines"></i> Teks OCR .TXT</button>
-          <button class="btn" id="dl-csv-btn" style="display:none; flex:1; background:#1e293b; color:#fbbf24; border:1px solid #fbbf24; box-shadow:none; font-size:11px;" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Excel CSV</button>
-          <button class="btn" id="dl-dash-btn" style="display:none; flex:1; background:#1e293b; color:#a855f7; border:1px solid #a855f7; box-shadow:none; font-size:11px;" onclick="showExpenseDashboard()"><i class="fa-solid fa-chart-pie"></i> Rekap Bulanan</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=11.0"></script>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+<div style="background:#0f172a; border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:10px; text-align:center;">
+<span style="font-size:10px; color:#38bdf8; font-weight:800; display:block;">STARTER (50 Struk/Hari)</span>
+<strong style="font-size:13px; color:white;">Rp 5.000</strong>
+<button onclick="purchaseTierPackage('starter', 5000, 50, 'https://mayar.id/pl/receipt-ai-50')" style="margin-top:6px; width:100%; padding:6px; background:#0284c7; color:white; font-size:10px; font-weight:800; border:none; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Rp 5k</button>
+</div>
+<div style="background:#0f172a; border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:10px; text-align:center;">
+<span style="font-size:10px; color:#10b981; font-weight:800; display:block;">BISNIS (200 Struk/Hari)</span>
+<strong style="font-size:13px; color:white;">Rp 10.000</strong>
+<button onclick="purchaseTierPackage('bisnis', 10000, 200, 'https://mayar.id/pl/receipt-ai-200')" style="margin-top:6px; width:100%; padding:6px; background:#059669; color:white; font-size:10px; font-weight:800; border:none; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Rp 10k</button>
+</div>
+<div style="background:#0f172a; border:1px solid rgba(168,85,247,0.3); border-radius:10px; padding:10px; text-align:center;">
+<span style="font-size:10px; color:#d8b4fe; font-weight:800; display:block;">JURAGAN (500 Struk/Hari)</span>
+<strong style="font-size:13px; color:white;">Rp 20.000</strong>
+<button onclick="purchaseTierPackage('juragan', 20000, 500, 'https://mayar.id/pl/receipt-ai-500')" style="margin-top:6px; width:100%; padding:6px; background:#7c3aed; color:white; font-size:10px; font-weight:800; border:none; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Rp 20k</button>
+</div>
+<div style="background:linear-gradient(135deg, #451a03, #1e1b4b); border:1px solid #fbbf24; border-radius:10px; padding:10px; text-align:center;">
+<span style="font-size:10px; color:#fbbf24; font-weight:900; display:block;">👑 PRO VIP (Unlimited + APK)</span>
+<strong style="font-size:13px; color:#fde047;">Rp 35.000</strong>
+<button onclick="purchaseTierPackage('vip', 35000, 'unlimited', 'https://mayar.id/pl/receipt-ai-pro')" style="margin-top:6px; width:100%; padding:6px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-size:10px; font-weight:900; border:none; border-radius:6px; cursor:pointer;"><i class="fa-solid fa-crown"></i> Beli Rp 35k</button>
+</div>
+</div>
+<div style="display:flex; gap:6px;">
+<input accept=".pack,.json,.bin,.traineddata" id="receipt-model-file-input" onchange="handleReceiptOfflineModelUpload(event)" style="display:none;" type="file"/>
+<button onclick="document.getElementById('receipt-model-file-input').click()" style="flex:1; padding:6px; border-radius:8px; background:rgba(255,255,255,0.08); color:#cbd5e1; font-weight:700; font-size:10px; border:1px solid rgba(255,255,255,0.15); cursor:pointer;"><i class="fa-solid fa-folder-open"></i> Muat Model Offline (.pack)</button>
+</div>
+</div>
+</div>
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-table-list" style="color:#fbbf24;"></i> 2. Hasil Ekstraksi OCR Struk</h2>
+<div id="output-box" style="flex: 1; width:100%;">
+<div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
+<i class="fa-solid fa-calculator" style="font-size: 40px; margin-bottom: 10px; color: #fbbf24;"></i>
+<p>Rincian pengeluaran, merchant, teks mentah OCR, dan total bayar akan muncul di sini.</p>
+</div>
+</div>
+<div style="display:flex; gap:8px; width:100%; margin-top:15px; flex-wrap:wrap;">
+<button class="btn" id="dl-btn" onclick="exportJSON()" style="display:none; flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf8; box-shadow:none; font-size:11px;"><i class="fa-solid fa-file-code"></i> Data .JSON</button>
+<button class="btn" id="dl-txt-btn" onclick="exportRawText()" style="display:none; flex:1; background:#1e293b; color:#10b981; border:1px solid #10b981; box-shadow:none; font-size:11px;"><i class="fa-solid fa-file-lines"></i> Teks OCR .TXT</button>
+<button class="btn" id="dl-csv-btn" onclick="exportCSV()" style="display:none; flex:1; background:#1e293b; color:#fbbf24; border:1px solid #fbbf24; box-shadow:none; font-size:11px;"><i class="fa-solid fa-file-csv"></i> Excel CSV</button>
+<button class="btn" id="dl-dash-btn" onclick="showExpenseDashboard()" style="display:none; flex:1; background:#1e293b; color:#a855f7; border:1px solid #a855f7; box-shadow:none; font-size:11px;"><i class="fa-solid fa-chart-pie"></i> Rekap Bulanan</button>
+</div>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=11.0"></script>
 </body>
 </html>

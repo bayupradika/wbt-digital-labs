@@ -1,15 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline Grammar Checker Studio Pro - KBBI & Multilingual Writing Assistant</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Offline Grammar Checker Studio Pro - KBBI &amp; Multilingual Writing Assistant</title>
+<link href="style.css?v=3.0" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -62,87 +62,75 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Offline Grammar Checker</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Offline Grammar Checker</div>
+</div>
+<div class="wbt-global-header-center">
+        Cek Ejaan KBBI, Tanda Baca, &amp; Kalimat Efektif
       </div>
-      <div class="wbt-global-header-center">
-        Cek Ejaan KBBI, Tanda Baca, & Kalimat Efektif
-      </div>
-      <div class="wbt-global-header-right">
-        
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
+<button onclick="downloadGrammarApp('windows')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button onclick="downloadGrammarApp('android')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+</div></div>
+</header>
+<div class="container">
 
-  <div class="container">
-    <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-spell-check"></i> AI Grammar Studio Pro</div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadGrammarApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadGrammarApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-pen-nib" style="color:#6366f1;"></i> 1. Teks Asli & Mode Koreksi</h2>
-        
-        <div style="width:100%; margin-bottom:12px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
-          <label style="font-size:11px; color:#6366f1; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-layer-group"></i> Mode Penulisan & Bahasa</label>
-          <select id="grammar-mode" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
-            <option value="kbbi">🇮🇩 Formal KBBI & Ejaan EYD Baku (Skripsi / Surat Resmi)</option>
-            <option value="journalistic">📰 Jurnalistik & Berita (Ringkas, Padat, Kalimat Aktif)</option>
-            <option value="english">🇬🇧 English Academic & Professional Proofreading</option>
-            <option value="paraphrase">✨ AI Parafrase Kreatif (Mengubah Struktur Kalimat Tanpa Ubah Makna)</option>
-            <option value="marketing">🎯 Copywriting & Persuasif Marketing (Menarik Perhatian Pembeli)</option>
-            <option value="cs">🤝 Empati & Sopan Santun Customer Service (Ramah & Profesional)</option>
-            <option value="legal">⚖️ Formal Hukum & Kontrak Perjanjian (Bahasa Hukum Baku)</option>
-            <option value="genz">😎 Kasual & Gaul Gen-Z (Santai, Akrab, Asik Di-read)</option>
-          </select>
-        </div>
-
-        <textarea id="input-text" placeholder="Ketik atau tempel kalimat dokumen yang ingin diperiksa tata bahasanya di sini..."></textarea>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-          <button style="padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="loadSample()">Gunakan Teks Contoh</button>
-          <span id="char-counter" style="font-size:11px; color:#94a3b8;">0 karakter</span>
-        </div>
-
-        <button class="btn" style="margin-top:14px;" onclick="checkGrammar()"><i class="fa-solid fa-magnifying-glass"></i> Periksa Tata Bahasa & Koreksi AI</button>
-
-        <!-- Offline Model Section -->
-        <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
-          <input type="file" id="grammar-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleGrammarOfflineModelUpload(event)">
-          <div id="grammar-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
+<div class="grid">
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-pen-nib" style="color:#6366f1;"></i> 1. Teks Asli &amp; Mode Koreksi</h2>
+<div style="width:100%; margin-bottom:12px; background:rgba(0,0,0,0.25); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+<label style="font-size:11px; color:#6366f1; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-layer-group"></i> Mode Penulisan &amp; Bahasa</label>
+<select id="grammar-mode" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
+<option value="kbbi">🇮🇩 Formal KBBI &amp; Ejaan EYD Baku (Skripsi / Surat Resmi)</option>
+<option value="journalistic">📰 Jurnalistik &amp; Berita (Ringkas, Padat, Kalimat Aktif)</option>
+<option value="english">🇬🇧 English Academic &amp; Professional Proofreading</option>
+<option value="paraphrase">✨ AI Parafrase Kreatif (Mengubah Struktur Kalimat Tanpa Ubah Makna)</option>
+<option value="marketing">🎯 Copywriting &amp; Persuasif Marketing (Menarik Perhatian Pembeli)</option>
+<option value="cs">🤝 Empati &amp; Sopan Santun Customer Service (Ramah &amp; Profesional)</option>
+<option value="legal">⚖️ Formal Hukum &amp; Kontrak Perjanjian (Bahasa Hukum Baku)</option>
+<option value="genz">😎 Kasual &amp; Gaul Gen-Z (Santai, Akrab, Asik Di-read)</option>
+</select>
+</div>
+<textarea id="input-text" placeholder="Ketik atau tempel kalimat dokumen yang ingin diperiksa tata bahasanya di sini..."></textarea>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+<button onclick="loadSample()" style="padding: 8px 14px; border-radius: 10px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 12px; font-weight: 700; cursor: pointer;">Gunakan Teks Contoh</button>
+<span id="char-counter" style="font-size:11px; color:#94a3b8;">0 karakter</span>
+</div>
+<button class="btn" onclick="checkGrammar()" style="margin-top:14px;"><i class="fa-solid fa-magnifying-glass"></i> Periksa Tata Bahasa &amp; Koreksi AI</button>
+<!-- Offline Model Section -->
+<div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); width:100%; text-align:center;">
+<input accept=".pack,.json,.bin" id="grammar-model-file-input" onchange="handleGrammarOfflineModelUpload(event)" style="display:none;" type="file"/>
+<div id="grammar-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
             Ingin Mesin Grammar lokal 100% di Aplikasi Standalone (Tanpa Internet)?
           </div>
-          <div style="display:flex; gap:6px;">
-            <button style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;" onclick="purchaseGrammarOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model Grammar (.pack)</button>
-            <button style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;" onclick="document.getElementById('grammar-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-check-double" style="color:#10b981;"></i> 2. Hasil Koreksi & Analisis Bahasa</h2>
-        <div id="output-box" style="flex: 1; overflow-y: auto;">
-          <div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
-            <i class="fa-solid fa-clipboard-check" style="font-size: 40px; margin-bottom: 10px; color: #10b981;"></i>
-            <p>Saran perbaikan kalimat, analisis kesalahan ejaan, dan parafrase akan muncul di sini.</p>
-          </div>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:14px; width:100%;">
-          <button class="btn btn-copy" id="copy-btn" style="display:none; flex:1;" onclick="copyCorrected()"><i class="fa-regular fa-copy"></i> Salin Hasil</button>
-          <button class="btn" id="dl-txt-btn" style="display:none; flex:1; background:#0284c7;" onclick="downloadGrammarDoc()"><i class="fa-solid fa-file-word"></i> Simpan .TXT</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=3.0"></script>
+<div style="display:flex; gap:6px;">
+<button onclick="purchaseGrammarOfflineModel()" style="flex:1; padding:8px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer;"><i class="fa-solid fa-cart-shopping"></i> Beli Model Grammar (.pack)</button>
+<button onclick="document.getElementById('grammar-model-file-input').click()" style="flex:1; padding:8px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer;"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+</div>
+</div>
+</div>
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-check-double" style="color:#10b981;"></i> 2. Hasil Koreksi &amp; Analisis Bahasa</h2>
+<div id="output-box" style="flex: 1; overflow-y: auto;">
+<div style="border: 1px dashed rgba(255,255,255,0.1); padding: 60px 20px; border-radius: 18px; text-align: center; color: #94a3b8;">
+<i class="fa-solid fa-clipboard-check" style="font-size: 40px; margin-bottom: 10px; color: #10b981;"></i>
+<p>Saran perbaikan kalimat, analisis kesalahan ejaan, dan parafrase akan muncul di sini.</p>
+</div>
+</div>
+<div style="display:flex; gap:10px; margin-top:14px; width:100%;">
+<button class="btn btn-copy" id="copy-btn" onclick="copyCorrected()" style="display:none; flex:1;"><i class="fa-regular fa-copy"></i> Salin Hasil</button>
+<button class="btn" id="dl-txt-btn" onclick="downloadGrammarDoc()" style="display:none; flex:1; background:#0284c7;"><i class="fa-solid fa-file-word"></i> Simpan .TXT</button>
+</div>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=3.0"></script>
 </body>
 </html>

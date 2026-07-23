@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Code & Barcode Studio Pro - WBT Digital Labs</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QR Code &amp; Barcode Studio Pro - WBT Digital Labs</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
     :root {
       --bg-dark: #07090e;
       --card-bg: #101520;
@@ -158,11 +159,10 @@
     }
     .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   </style>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -215,139 +215,123 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">QR & Barcode Studio Pro</div>
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">QR &amp; Barcode Studio Pro</div>
+</div>
+<div class="wbt-global-header-center">
+        Buat QR Code Kustom (WiFi, URL) &amp; Scan Barcode
       </div>
-      <div class="wbt-global-header-center">
-        Buat QR Code Kustom (WiFi, URL) & Scan Barcode
-      </div>
-      <div class="wbt-global-header-right">
-        <span style="color:#10b981; font-weight:700;">NEW STUDIO</span>
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div style="display:flex; gap:12px; align-items:center;">
+<div class="badge-offline"><i class="fa-solid fa-shield-halved"></i> 100% Offline &amp; Tanpa Login</div>
+<button class="btn btn-gold" onclick="downloadQRApp('windows')" style="padding: 8px 14px; font-size: 12px;"><i class="fa-brands fa-windows"></i> Unduh App</button>
+</div></div>
+</header>
 
-  <header>
-    <a href="../../index.html" class="brand"><i class="fa-solid fa-qrcode"></i> WBT <span>QR Studio Pro</span></a>
-    <div style="display:flex; gap:12px; align-items:center;">
-      <div class="badge-offline"><i class="fa-solid fa-shield-halved"></i> 100% Offline & Tanpa Login</div>
-      <button class="btn btn-gold" style="padding: 8px 14px; font-size: 12px;" onclick="downloadQRApp('windows')"><i class="fa-brands fa-windows"></i> Unduh App</button>
-    </div>
-  </header>
-
-  <div class="container">
-    <div class="hero">
-      <h1>QR Code & Barcode Studio Pro</h1>
-      <p>Buat QR Code Kustom (Wi-Fi, vCard, URL, Teks) berdesain premium atau pindai barcode langsung dari foto Anda secara lokal.</p>
-    </div>
-
-    <div class="grid-studio">
-      <!-- Left: Configuration Form -->
-      <div class="panel">
-        <div class="panel-title"><i class="fa-solid fa-sliders"></i> Konfigurasi Data QR Code</div>
-        
-        <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('url')"><i class="fa-solid fa-link"></i> URL / Teks</button>
-          <button class="tab-btn" onclick="switchTab('wifi')"><i class="fa-solid fa-wifi"></i> Wi-Fi Auto</button>
-          <button class="tab-btn" onclick="switchTab('vcard')"><i class="fa-solid fa-address-card"></i> vCard Kontak</button>
-          <button class="tab-btn" onclick="switchTab('scanner')"><i class="fa-solid fa-camera"></i> Scan Barcode</button>
-        </div>
-
-        <!-- Tab 1: URL/Text -->
-        <div id="form-url" class="tab-content">
-          <div class="form-group">
-            <label class="label">Alamat URL atau Teks Konten</label>
-            <textarea id="inp-text" class="textarea" rows="4" placeholder="https://wbtdigitallabs.com atau teks rahasia..."></textarea>
-          </div>
-        </div>
-
-        <!-- Tab 2: Wi-Fi -->
-        <div id="form-wifi" class="tab-content" style="display:none;">
-          <div class="form-group">
-            <label class="label">Nama Jaringan Wi-Fi (SSID)</label>
-            <input type="text" id="wifi-ssid" class="input" placeholder="e.g. Kantor WBT Lantai 2">
-          </div>
-          <div class="form-group">
-            <label class="label">Kata Sandi Wi-Fi (Password)</label>
-            <input type="text" id="wifi-pass" class="input" placeholder="Rahasia123">
-          </div>
-          <div class="form-group">
-            <label class="label">Tipe Enkripsi</label>
-            <select id="wifi-enc" class="select">
-              <option value="WPA">WPA / WPA2 (Umum)</option>
-              <option value="WEP">WEP</option>
-              <option value="nopass">Tanpa Password (Open Wi-Fi)</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Tab 3: vCard -->
-        <div id="form-vcard" class="tab-content" style="display:none;">
-          <div class="form-group">
-            <label class="label">Nama Lengkap</label>
-            <input type="text" id="vc-name" class="input" placeholder="Bayu Pradika">
-          </div>
-          <div class="form-group">
-            <label class="label">Nomor WhatsApp / HP</label>
-            <input type="text" id="vc-phone" class="input" placeholder="+62 812 3456 7890">
-          </div>
-          <div class="form-group">
-            <label class="label">Email & Jabatan</label>
-            <input type="text" id="vc-email" class="input" placeholder="bayu@wbtdigitallabs.com - CEO">
-          </div>
-        </div>
-
-        <!-- Tab 4: Scanner -->
-        <div id="form-scanner" class="tab-content" style="display:none;">
-          <div style="background:#1e293b; padding:20px; border-radius:14px; text-align:center;">
-            <i class="fa-solid fa-cloud-arrow-up" style="font-size:36px; color:var(--primary); margin-bottom:10px;"></i>
-            <p style="font-size:13px; color:#cbd5e1; margin-bottom:12px;">Unggah foto QR Code atau Barcode untuk diekstrak teks datanya offline.</p>
-            <input type="file" id="scan-file" accept="image/*" style="display:none;" onchange="scanUploadedImage(event)">
-            <button class="btn btn-primary" onclick="document.getElementById('scan-file').click()"><i class="fa-solid fa-folder-open"></i> Pilih Foto QR / Barcode</button>
-            <div id="scan-result" style="margin-top:16px; padding:12px; background:#0f172a; border-radius:10px; font-family:monospace; font-size:13px; color:#10b981; display:none; word-break:break-all;"></div>
-          </div>
-        </div>
-
-        <!-- Custom Styling Options -->
-        <div id="styling-box">
-          <div class="panel-title" style="margin-top:20px; font-size:16px;"><i class="fa-solid fa-paint-brush"></i> Desain & Warna Kustom</div>
-          <div class="color-row">
-            <div class="form-group">
-              <label class="label">Warna Titik QR</label>
-              <input type="color" id="qr-color-dark" class="input" value="#000000" style="padding:4px; height:42px;">
-            </div>
-            <div class="form-group">
-              <label class="label">Warna Latar (Background)</label>
-              <input type="color" id="qr-color-light" class="input" value="#ffffff" style="padding:4px; height:42px;">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="label">Teks Stempel di Tengah QR (Opsional)</label>
-            <input type="text" id="qr-stamp" class="input" placeholder="e.g. WBT CORP">
-          </div>
-          <button class="btn btn-primary" style="margin-top:10px;" onclick="generateQR()"><i class="fa-solid fa-wand-magic-sparkles"></i> Racik & Generate QR Code</button>
-        </div>
-      </div>
-
-      <!-- Right: Preview & Actions -->
-      <div class="panel">
-        <div class="panel-title"><i class="fa-solid fa-eye"></i> Pratinjau QR Code Anda</div>
-        <div class="qr-preview-box">
-          <div id="qrcode"></div>
-          <p id="hint-qr" style="font-size:12px; color:var(--text-muted); margin-top:14px;">Klik "Racik & Generate" untuk menampilkan hasil</p>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:16px;">
-          <button class="btn" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf8;" onclick="downloadQRImage()"><i class="fa-solid fa-download"></i> Simpan PNG</button>
-          <button class="btn" style="flex:1; background:#10b981; color:#0f172a;" onclick="copyQRData()"><i class="fa-regular fa-copy"></i> Salin Data</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=1.0"></script>
+<div class="container">
+<div class="hero">
+<h1>QR Code &amp; Barcode Studio Pro</h1>
+<p>Buat QR Code Kustom (Wi-Fi, vCard, URL, Teks) berdesain premium atau pindai barcode langsung dari foto Anda secara lokal.</p>
+</div>
+<div class="grid-studio">
+<!-- Left: Configuration Form -->
+<div class="panel">
+<div class="panel-title"><i class="fa-solid fa-sliders"></i> Konfigurasi Data QR Code</div>
+<div class="tabs">
+<button class="tab-btn active" onclick="switchTab('url')"><i class="fa-solid fa-link"></i> URL / Teks</button>
+<button class="tab-btn" onclick="switchTab('wifi')"><i class="fa-solid fa-wifi"></i> Wi-Fi Auto</button>
+<button class="tab-btn" onclick="switchTab('vcard')"><i class="fa-solid fa-address-card"></i> vCard Kontak</button>
+<button class="tab-btn" onclick="switchTab('scanner')"><i class="fa-solid fa-camera"></i> Scan Barcode</button>
+</div>
+<!-- Tab 1: URL/Text -->
+<div class="tab-content" id="form-url">
+<div class="form-group">
+<label class="label">Alamat URL atau Teks Konten</label>
+<textarea class="textarea" id="inp-text" placeholder="https://wbtdigitallabs.com atau teks rahasia..." rows="4"></textarea>
+</div>
+</div>
+<!-- Tab 2: Wi-Fi -->
+<div class="tab-content" id="form-wifi" style="display:none;">
+<div class="form-group">
+<label class="label">Nama Jaringan Wi-Fi (SSID)</label>
+<input class="input" id="wifi-ssid" placeholder="e.g. Kantor WBT Lantai 2" type="text"/>
+</div>
+<div class="form-group">
+<label class="label">Kata Sandi Wi-Fi (Password)</label>
+<input class="input" id="wifi-pass" placeholder="Rahasia123" type="text"/>
+</div>
+<div class="form-group">
+<label class="label">Tipe Enkripsi</label>
+<select class="select" id="wifi-enc">
+<option value="WPA">WPA / WPA2 (Umum)</option>
+<option value="WEP">WEP</option>
+<option value="nopass">Tanpa Password (Open Wi-Fi)</option>
+</select>
+</div>
+</div>
+<!-- Tab 3: vCard -->
+<div class="tab-content" id="form-vcard" style="display:none;">
+<div class="form-group">
+<label class="label">Nama Lengkap</label>
+<input class="input" id="vc-name" placeholder="Bayu Pradika" type="text"/>
+</div>
+<div class="form-group">
+<label class="label">Nomor WhatsApp / HP</label>
+<input class="input" id="vc-phone" placeholder="+62 812 3456 7890" type="text"/>
+</div>
+<div class="form-group">
+<label class="label">Email &amp; Jabatan</label>
+<input class="input" id="vc-email" placeholder="bayu@wbtdigitallabs.com - CEO" type="text"/>
+</div>
+</div>
+<!-- Tab 4: Scanner -->
+<div class="tab-content" id="form-scanner" style="display:none;">
+<div style="background:#1e293b; padding:20px; border-radius:14px; text-align:center;">
+<i class="fa-solid fa-cloud-arrow-up" style="font-size:36px; color:var(--primary); margin-bottom:10px;"></i>
+<p style="font-size:13px; color:#cbd5e1; margin-bottom:12px;">Unggah foto QR Code atau Barcode untuk diekstrak teks datanya offline.</p>
+<input accept="image/*" id="scan-file" onchange="scanUploadedImage(event)" style="display:none;" type="file"/>
+<button class="btn btn-primary" onclick="document.getElementById('scan-file').click()"><i class="fa-solid fa-folder-open"></i> Pilih Foto QR / Barcode</button>
+<div id="scan-result" style="margin-top:16px; padding:12px; background:#0f172a; border-radius:10px; font-family:monospace; font-size:13px; color:#10b981; display:none; word-break:break-all;"></div>
+</div>
+</div>
+<!-- Custom Styling Options -->
+<div id="styling-box">
+<div class="panel-title" style="margin-top:20px; font-size:16px;"><i class="fa-solid fa-paint-brush"></i> Desain &amp; Warna Kustom</div>
+<div class="color-row">
+<div class="form-group">
+<label class="label">Warna Titik QR</label>
+<input class="input" id="qr-color-dark" style="padding:4px; height:42px;" type="color" value="#000000"/>
+</div>
+<div class="form-group">
+<label class="label">Warna Latar (Background)</label>
+<input class="input" id="qr-color-light" style="padding:4px; height:42px;" type="color" value="#ffffff"/>
+</div>
+</div>
+<div class="form-group">
+<label class="label">Teks Stempel di Tengah QR (Opsional)</label>
+<input class="input" id="qr-stamp" placeholder="e.g. WBT CORP" type="text"/>
+</div>
+<button class="btn btn-primary" onclick="generateQR()" style="margin-top:10px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Racik &amp; Generate QR Code</button>
+</div>
+</div>
+<!-- Right: Preview & Actions -->
+<div class="panel">
+<div class="panel-title"><i class="fa-solid fa-eye"></i> Pratinjau QR Code Anda</div>
+<div class="qr-preview-box">
+<div id="qrcode"></div>
+<p id="hint-qr" style="font-size:12px; color:var(--text-muted); margin-top:14px;">Klik "Racik &amp; Generate" untuk menampilkan hasil</p>
+</div>
+<div style="display:flex; gap:10px; margin-top:16px;">
+<button class="btn" onclick="downloadQRImage()" style="flex:1; background:#1e293b; color:#38bdf8; border:1px solid #38bdf8;"><i class="fa-solid fa-download"></i> Simpan PNG</button>
+<button class="btn" onclick="copyQRData()" style="flex:1; background:#10b981; color:#0f172a;"><i class="fa-regular fa-copy"></i> Salin Data</button>
+</div>
+</div>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=1.0"></script>
 </body>
 </html>

@@ -1,14 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WBT Live Wallpaper Studio Pro - Buat Video Singkat Jadi Wallpaper Laptop</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WBT Live Wallpaper Studio Pro - Buat Video Singkat Jadi Wallpaper Laptop</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
     :root {
       --bg-dark: #070913;
       --card-bg: rgba(15, 23, 42, 0.75);
@@ -387,11 +388,10 @@
       flex-shrink: 0;
     }
   </style>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -444,170 +444,146 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Live Wallpaper Studio Pro</div>
-      </div>
-      <div class="wbt-global-header-center">
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Live Wallpaper Studio Pro</div>
+</div>
+<div class="wbt-global-header-center">
         Jadikan Video Singkat Sebagai Wallpaper Desktop
       </div>
-      <div class="wbt-global-header-right">
-        <span style="color:#c4b5fd; font-weight:700;"><i class="fa-solid fa-crown"></i> PRO: Unlimited</span>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div style="display: flex; gap: 12px; align-items: center;">
+<div class="badge-status" id="usage-badge">
+<i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: 5 / 5 Video
       </div>
-    </header>
-
-
-  <!-- Header -->
-  <header class="header-nav">
-    <a href="../../index.html" class="btn-back">
-      <i class="fa-solid fa-arrow-left"></i> Kembali ke Portal Tools
-    </a>
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <div id="usage-badge" class="badge-status">
-        <i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: 5 / 5 Video
-      </div>
-      <button onclick="MidtransPay.showUpgradeModal()" class="btn-upgrade">
-        <i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 10.000)
+<button class="btn-upgrade" onclick="MidtransPay.showUpgradeModal()">
+<i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 10.000)
       </button>
-    </div>
-  </header>
+</div></div>
+</header>
+<!-- Header -->
 
-  <main class="container">
-    <div class="hero-title">
-      <h1>WBT Live Wallpaper Studio Pro</h1>
-      <p>Ubah video singkat (10 - 30 detik) dari TikTok, YouTube, atau X menjadi wallpaper bergerak (*Live Desktop Wallpaper*) Windows 11 resolusi Full HD dengan efek *Seamless Loop* & Overlay.</p>
-    </div>
-
-    <div class="studio-grid">
-      <!-- Left Panel: Upload & Customization -->
-      <div class="glass-card">
-        <div class="section-title">
-          <i class="fa-solid fa-sliders"></i> 1. Pilih Video & Pengaturan Studio
+<main class="container">
+<div class="hero-title">
+<h1>WBT Live Wallpaper Studio Pro</h1>
+<p>Ubah video singkat (10 - 30 detik) dari TikTok, YouTube, atau X menjadi wallpaper bergerak (*Live Desktop Wallpaper*) Windows 11 resolusi Full HD dengan efek *Seamless Loop* &amp; Overlay.</p>
+</div>
+<div class="studio-grid">
+<!-- Left Panel: Upload & Customization -->
+<div class="glass-card">
+<div class="section-title">
+<i class="fa-solid fa-sliders"></i> 1. Pilih Video &amp; Pengaturan Studio
         </div>
-
-        <!-- Upload Area -->
-        <input type="file" id="video-input" accept="video/mp4,video/webm,video/mov" style="display: none;" onchange="handleVideoUpload(event)">
-        <div class="upload-area" onclick="document.getElementById('video-input').click()">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          <h3 style="font-size: 16px; margin-bottom: 6px; color: white;">Klik untuk Pilih Video Singkat (.MP4 / .WEBM)</h3>
-          <p style="font-size: 13px; color: var(--text-muted);">Atau pilih langsung video yang baru Anda unduh dari tool Downloader kita</p>
-        </div>
-
-        <div id="file-info" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--accent-emerald); padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; color: #34d399; align-items: center; justify-content: space-between;">
-          <span><i class="fa-solid fa-circle-check"></i> <b id="file-name">video_10detik.mp4</b> (<span id="file-dur">10s</span>)</span>
-          <button onclick="clearVideo()" style="background: none; border: none; color: #f87171; cursor: pointer; font-weight: 700;">Ganti</button>
-        </div>
-
-        <!-- Dimension & Fit Setting -->
-        <div class="option-group">
-          <span class="option-label"><i class="fa-solid fa-expand"></i> Mode Penyesuaian Rasio Layar Laptop (16:9):</span>
-          <div class="preset-grid">
-            <div class="preset-item active" onclick="setRatioMode('ambient', this)">
-              <h4>✨ Ambient Blur Background</h4>
-              <p>Otomatis mengisi pinggiran layar dengan efek blur sinematik jika video vertikal (TikTok/IG)</p>
-            </div>
-            <div class="preset-item" onclick="setRatioMode('stretch', this)">
-              <h4>🖥️ Full Widescreen Fill</h4>
-              <p>Sesuaikan penuh layar laptop tanpa batas pinggir</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Loop Effect Mode -->
-        <div class="option-group">
-          <span class="option-label"><i class="fa-solid fa-repeat"></i> Mode Looping (Putar Berulang):</span>
-          <div class="preset-grid">
-            <div class="preset-item active" onclick="setLoopMode('pingpong', this)">
-              <h4>🔄 Seamless Ping-Pong Loop</h4>
-              <p>Maju & Mundur otomatis agar transisi akhir-awal tidak terputus (*Anti-Jump Cut*)</p>
-            </div>
-            <div class="preset-item" onclick="setLoopMode('normal', this)">
-              <h4>▶️ Normal Continuous Loop</h4>
-              <p>Putar standar dari awal ke akhir berulang kali</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Overlay HUD Option -->
-        <div class="option-group">
-          <span class="option-label"><i class="fa-solid fa-clock"></i> Fitur Interactive Wallpaper Overlay:</span>
-          <div class="preset-grid">
-            <div class="preset-item" id="btn-hud" onclick="toggleHUD(this)">
-              <h4>⌚ Cyberpunk Clock & Date HUD</h4>
-              <p>Tampilkan jam digital estetik di pojok atas wallpaper</p>
-            </div>
-            <div class="preset-item" onclick="MidtransPay.showUpgradeModal()">
-              <h4>👑 PRO 4K Color Grading</h4>
-              <p>Pertajam resolusi & warna sinematik khusus PRO</p>
-            </div>
-          </div>
-        </div>
-
-        <button id="btn-generate" onclick="generateWallpaperPackage()" class="btn-process" disabled>
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Proses & Unduh Paket Wallpaper Laptop
+<!-- Upload Area -->
+<input accept="video/mp4,video/webm,video/mov" id="video-input" onchange="handleVideoUpload(event)" style="display: none;" type="file"/>
+<div class="upload-area" onclick="document.getElementById('video-input').click()">
+<i class="fa-solid fa-cloud-arrow-up"></i>
+<h3 style="font-size: 16px; margin-bottom: 6px; color: white;">Klik untuk Pilih Video Singkat (.MP4 / .WEBM)</h3>
+<p style="font-size: 13px; color: var(--text-muted);">Atau pilih langsung video yang baru Anda unduh dari tool Downloader kita</p>
+</div>
+<div id="file-info" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--accent-emerald); padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; color: #34d399; align-items: center; justify-content: space-between;">
+<span><i class="fa-solid fa-circle-check"></i> <b id="file-name">video_10detik.mp4</b> (<span id="file-dur">10s</span>)</span>
+<button onclick="clearVideo()" style="background: none; border: none; color: #f87171; cursor: pointer; font-weight: 700;">Ganti</button>
+</div>
+<!-- Dimension & Fit Setting -->
+<div class="option-group">
+<span class="option-label"><i class="fa-solid fa-expand"></i> Mode Penyesuaian Rasio Layar Laptop (16:9):</span>
+<div class="preset-grid">
+<div class="preset-item active" onclick="setRatioMode('ambient', this)">
+<h4>✨ Ambient Blur Background</h4>
+<p>Otomatis mengisi pinggiran layar dengan efek blur sinematik jika video vertikal (TikTok/IG)</p>
+</div>
+<div class="preset-item" onclick="setRatioMode('stretch', this)">
+<h4>🖥️ Full Widescreen Fill</h4>
+<p>Sesuaikan penuh layar laptop tanpa batas pinggir</p>
+</div>
+</div>
+</div>
+<!-- Loop Effect Mode -->
+<div class="option-group">
+<span class="option-label"><i class="fa-solid fa-repeat"></i> Mode Looping (Putar Berulang):</span>
+<div class="preset-grid">
+<div class="preset-item active" onclick="setLoopMode('pingpong', this)">
+<h4>🔄 Seamless Ping-Pong Loop</h4>
+<p>Maju &amp; Mundur otomatis agar transisi akhir-awal tidak terputus (*Anti-Jump Cut*)</p>
+</div>
+<div class="preset-item" onclick="setLoopMode('normal', this)">
+<h4>▶️ Normal Continuous Loop</h4>
+<p>Putar standar dari awal ke akhir berulang kali</p>
+</div>
+</div>
+</div>
+<!-- Overlay HUD Option -->
+<div class="option-group">
+<span class="option-label"><i class="fa-solid fa-clock"></i> Fitur Interactive Wallpaper Overlay:</span>
+<div class="preset-grid">
+<div class="preset-item" id="btn-hud" onclick="toggleHUD(this)">
+<h4>⌚ Cyberpunk Clock &amp; Date HUD</h4>
+<p>Tampilkan jam digital estetik di pojok atas wallpaper</p>
+</div>
+<div class="preset-item" onclick="MidtransPay.showUpgradeModal()">
+<h4>👑 PRO 4K Color Grading</h4>
+<p>Pertajam resolusi &amp; warna sinematik khusus PRO</p>
+</div>
+</div>
+</div>
+<button class="btn-process" disabled="" id="btn-generate" onclick="generateWallpaperPackage()">
+<i class="fa-solid fa-wand-magic-sparkles"></i> Proses &amp; Unduh Paket Wallpaper Laptop
         </button>
-      </div>
-
-      <!-- Right Panel: Windows 11 Live Preview Simulator -->
-      <div class="glass-card">
-        <div class="section-title">
-          <i class="fa-solid fa-desktop"></i> 2. Live Preview Simulator Layar Laptop Windows 11
+</div>
+<!-- Right Panel: Windows 11 Live Preview Simulator -->
+<div class="glass-card">
+<div class="section-title">
+<i class="fa-solid fa-desktop"></i> 2. Live Preview Simulator Layar Laptop Windows 11
         </div>
-
-        <div class="preview-laptop">
-          <div class="preview-video-container" id="preview-container">
-            <!-- Background blurred ambient layer for vertical videos -->
-            <video id="bg-ambient-video" class="preview-video" style="position: absolute; width: 120%; height: 120%; filter: blur(35px) brightness(0.6); display: none;" loop muted autoplay playsinline></video>
-            <!-- Main Video -->
-            <video id="main-preview-video" class="preview-video" style="position: relative; z-index: 1;" loop muted autoplay playsinline src="https://assets.mixkit.co/videos/preview/mixkit-futuristic-cyberpunk-city-traffic-loop-41555-large.mp4"></video>
-            
-            <!-- HUD Overlay -->
-            <div id="preview-hud" class="hud-overlay">
-              <div class="hud-clock" id="clock-display">22:45</div>
-              <div class="hud-date" id="date-display">Rabu, 8 Juli 2026</div>
-            </div>
-          </div>
-
-          <!-- Taskbar Windows 11 -->
-          <div class="win-taskbar">
-            <div class="win-icon" style="background: #2563eb;"><i class="fa-brands fa-windows"></i></div>
-            <div class="win-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
-            <div class="win-icon"><i class="fa-regular fa-folder-open" style="color: #fbbf24;"></i></div>
-            <div class="win-icon"><i class="fa-brands fa-chrome" style="color: #38bdf8;"></i></div>
-            <div class="win-icon"><i class="fa-solid fa-code" style="color: #3b82f6;"></i></div>
-          </div>
+<div class="preview-laptop">
+<div class="preview-video-container" id="preview-container">
+<!-- Background blurred ambient layer for vertical videos -->
+<video autoplay="" class="preview-video" id="bg-ambient-video" loop="" muted="" playsinline="" style="position: absolute; width: 120%; height: 120%; filter: blur(35px) brightness(0.6); display: none;"></video>
+<!-- Main Video -->
+<video autoplay="" class="preview-video" id="main-preview-video" loop="" muted="" playsinline="" src="https://assets.mixkit.co/videos/preview/mixkit-futuristic-cyberpunk-city-traffic-loop-41555-large.mp4" style="position: relative; z-index: 1;"></video>
+<!-- HUD Overlay -->
+<div class="hud-overlay" id="preview-hud">
+<div class="hud-clock" id="clock-display">22:45</div>
+<div class="hud-date" id="date-display">Rabu, 8 Juli 2026</div>
+</div>
+</div>
+<!-- Taskbar Windows 11 -->
+<div class="win-taskbar">
+<div class="win-icon" style="background: #2563eb;"><i class="fa-brands fa-windows"></i></div>
+<div class="win-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+<div class="win-icon"><i class="fa-regular fa-folder-open" style="color: #fbbf24;"></i></div>
+<div class="win-icon"><i class="fa-brands fa-chrome" style="color: #38bdf8;"></i></div>
+<div class="win-icon"><i class="fa-solid fa-code" style="color: #3b82f6;"></i></div>
+</div>
+</div>
+<div style="text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-muted);">
+<i class="fa-solid fa-circle-info" style="color: var(--accent-cyan);"></i> Simulator di atas memperlihatkan tampilan real-time wallpaper di layar laptop Anda.
         </div>
-
-        <div style="text-align: center; margin-top: 14px; font-size: 13px; color: var(--text-muted);">
-          <i class="fa-solid fa-circle-info" style="color: var(--accent-cyan);"></i> Simulator di atas memperlihatkan tampilan real-time wallpaper di layar laptop Anda.
-        </div>
-
-        <!-- Download & Setup Guide Box -->
-        <div class="guide-card">
-          <h3><i class="fa-solid fa-shield-halved"></i> Cara Pasang ke Laptop Windows Dalam 30 Detik:</h3>
-          <div class="guide-step">
-            <div class="guide-num">1</div>
-            <div>Klik tombol <b>Proses & Unduh</b> di kiri untuk menyimpan file video berformat 1080p Seamless yang sudah di-optimize untuk laptop.</div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-num">2</div>
-            <div>Buka aplikasi gratis <b>Lively Wallpaper</b> di laptop Windows Anda (Bisa unduh gratis di Microsoft Store jika belum ada).</div>
-          </div>
-          <div class="guide-step">
-            <div class="guide-num">3</div>
-            <div>Klik tombol <b>+ (Add Wallpaper)</b> di Lively, pilih file video yang baru diunduh tadi, lalu klik <b>Set as Wallpaper</b>. Selesai!</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- Shared Payment Script -->
-  <script src="../../ai/midtrans-pay.js"></script>
-  <script>
+<!-- Download & Setup Guide Box -->
+<div class="guide-card">
+<h3><i class="fa-solid fa-shield-halved"></i> Cara Pasang ke Laptop Windows Dalam 30 Detik:</h3>
+<div class="guide-step">
+<div class="guide-num">1</div>
+<div>Klik tombol <b>Proses &amp; Unduh</b> di kiri untuk menyimpan file video berformat 1080p Seamless yang sudah di-optimize untuk laptop.</div>
+</div>
+<div class="guide-step">
+<div class="guide-num">2</div>
+<div>Buka aplikasi gratis <b>Lively Wallpaper</b> di laptop Windows Anda (Bisa unduh gratis di Microsoft Store jika belum ada).</div>
+</div>
+<div class="guide-step">
+<div class="guide-num">3</div>
+<div>Klik tombol <b>+ (Add Wallpaper)</b> di Lively, pilih file video yang baru diunduh tadi, lalu klik <b>Set as Wallpaper</b>. Selesai!</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Shared Payment Script -->
+<script src="../../ai/midtrans-pay.js"></script>
+<script>
     let currentVideoFile = null;
     let ratioMode = 'ambient';
     let loopMode = 'pingpong';

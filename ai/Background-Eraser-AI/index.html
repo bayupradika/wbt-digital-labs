@@ -1,18 +1,18 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Background Eraser AI & Replacement Studio Pro</title>
-  <link rel="stylesheet" href="style.css?v=2.6">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- TensorFlow.js & BodyPix Human/Silhouette Segmentation Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.1/dist/body-pix.min.js"></script>
-
-    <link rel="icon" href="/wbt-digital-labs/assets/img/favicon.png" type="image/png">
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Background Eraser AI &amp; Replacement Studio Pro</title>
+<link href="style.css?v=2.6" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- TensorFlow.js & BodyPix Human/Silhouette Segmentation Engine -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.1/dist/body-pix.min.js"></script>
+<link href="/wbt-digital-labs/assets/img/favicon.png" rel="icon" type="image/png"/>
 </head>
 <body>
-    <style>
+<style>
       .wbt-global-header {
         position: sticky;
         top: 0;
@@ -65,179 +65,157 @@
         .wbt-global-header-center { display: none; }
       }
     </style>
-    <header class="wbt-global-header">
-      <div class="wbt-global-header-left">
-        <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
-            <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
-        </a>
-        <div class="wbt-global-header-title">Background Eraser AI</div>
-      </div>
-      <div class="wbt-global-header-center">
+<header class="wbt-global-header">
+<div class="wbt-global-header-left">
+<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+</a>
+<div class="wbt-global-header-title">Background Eraser AI</div>
+</div>
+<div class="wbt-global-header-center">
         Hapus Latar Belakang Foto Otomatis (PNG Transparan)
       </div>
-      <div class="wbt-global-header-right">
-        
-      </div>
-    </header>
+<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="badge" id="quota-badge" style="background:#1e293b; color:#fbbf24; border:1px solid #fbbf24;">⚡ Kuota Gratis: <strong id="quota-count">0</strong> / 100 Gambar</div>
+<button onclick="downloadEraserApp('windows')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-windows"></i> App Windows</button>
+<button onclick="downloadEraserApp('android')" style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;"><i class="fa-brands fa-android"></i> App Android</button>
+</div></div>
+</header>
+<div class="container">
 
-  <div class="container">
-    <div class="nav-bar">
-      <div class="logo"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Eraser & Remove.bg Studio Pro</div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <div class="badge" id="quota-badge" style="background:#1e293b; color:#fbbf24; border:1px solid #fbbf24;">⚡ Kuota Gratis: <strong id="quota-count">0</strong> / 100 Gambar</div>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#a855f7,#ec4899); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadEraserApp('windows')"><i class="fa-brands fa-windows"></i> App Windows</button>
-        <button style="padding:8px 12px; border-radius:10px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; font-size:12px; font-weight:800; cursor:pointer;" onclick="downloadEraserApp('android')"><i class="fa-brands fa-android"></i> App Android</button>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-image" style="color:#ec4899;"></i> 1. Foto Subjek Asli</h2>
-        <input type="file" id="file-input" accept="image/*" style="display: none;">
-        
-        <div class="canvas-wrapper" id="orig-wrapper"><canvas id="orig-canvas"></canvas></div>
-        
-        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
-          <i class="fa-solid fa-cloud-arrow-up" style="font-size:48px; color:#ec4899; margin-bottom:15px;"></i>
-          <h3>Klik atau Tarik Foto ke Sini</h3>
-          <p style="font-size: 13px; color: #94a3b8;">Hapus latar belakang secara akurat tanpa merusak objek manusia (Gratis 100 Foto/Hari)</p>
-          <button style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="event.stopPropagation(); loadSample()">Gunakan Foto Potret Contoh</button>
-        </div>
-
-        <div style="margin-top: 16px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06);">
-          <label style="font-size:12px; color:#f472b6; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-microchip"></i> Mesin Segmentasi AI</label>
-          <select id="engine-select" style="width:100%; padding:8px 12px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
-            <option value="bodypix">🧬 TensorFlow BodyPix Deep Learning Segmenter (Studio Quality Human/Hair Cutout)</option>
-            <option value="floodfill">🤖 Local Smart Flood-Fill & Chroma Protection (100% Gratis Offline)</option>
-            <option value="cloud">⚡ Cloud Deep Neural Segmenter (Matte AI Edge Accuracy)</option>
-          </select>
-          
-          <div style="margin-top: 12px;">
-            <label style="font-size:12px; color:#cbd5e1; display:flex; align-items:center; gap:8px; cursor:pointer;">
-              <input type="checkbox" id="toggle-tolerance-cb" onchange="toggleToleranceSlider(this.checked)" style="width:15px; height:15px; cursor:pointer;">
-              <span>Atur toleransi warna latar secara manual</span>
-            </label>
-            <div id="tolerance-slider-box" style="display:none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); justify-content:space-between; align-items:center;">
-              <label style="font-size:12px; color:#94a3b8;"><i class="fa-solid fa-sliders"></i> Sensitivitas Toleransi (<span id="tol-val">70</span>)</label>
-              <input type="range" id="tolerance-slider" min="15" max="120" value="70" oninput="document.getElementById('tol-val').innerText = this.value" style="width:130px; cursor:pointer;">
-            </div>
-          </div>
-        </div>
-
-        <button class="btn" onclick="eraseBackground()"><i class="fa-solid fa-scissors"></i> Hapus Latar Belakang Sekarang</button>
-
-        <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); text-align:center;">
-          <input type="file" id="eraser-model-file-input" accept=".pack,.json,.bin" style="display:none;" onchange="handleEraserOfflineModelUpload(event)">
-          <div id="eraser-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
+<div class="grid">
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-image" style="color:#ec4899;"></i> 1. Foto Subjek Asli</h2>
+<input accept="image/*" id="file-input" style="display: none;" type="file"/>
+<div class="canvas-wrapper" id="orig-wrapper"><canvas id="orig-canvas"></canvas></div>
+<div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+<i class="fa-solid fa-cloud-arrow-up" style="font-size:48px; color:#ec4899; margin-bottom:15px;"></i>
+<h3>Klik atau Tarik Foto ke Sini</h3>
+<p style="font-size: 13px; color: #94a3b8;">Hapus latar belakang secara akurat tanpa merusak objek manusia (Gratis 100 Foto/Hari)</p>
+<button onclick="event.stopPropagation(); loadSample()" style="margin-top: 15px; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 12px; font-weight: 700; cursor: pointer;">Gunakan Foto Potret Contoh</button>
+</div>
+<div style="margin-top: 16px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06);">
+<label style="font-size:12px; color:#f472b6; font-weight:800; display:block; margin-bottom:6px;"><i class="fa-solid fa-microchip"></i> Mesin Segmentasi AI</label>
+<select id="engine-select" style="width:100%; padding:8px 12px; border-radius:8px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:12px; font-weight:700;">
+<option value="bodypix">🧬 TensorFlow BodyPix Deep Learning Segmenter (Studio Quality Human/Hair Cutout)</option>
+<option value="floodfill">🤖 Local Smart Flood-Fill &amp; Chroma Protection (100% Gratis Offline)</option>
+<option value="cloud">⚡ Cloud Deep Neural Segmenter (Matte AI Edge Accuracy)</option>
+</select>
+<div style="margin-top: 12px;">
+<label style="font-size:12px; color:#cbd5e1; display:flex; align-items:center; gap:8px; cursor:pointer;">
+<input id="toggle-tolerance-cb" onchange="toggleToleranceSlider(this.checked)" style="width:15px; height:15px; cursor:pointer;" type="checkbox"/>
+<span>Atur toleransi warna latar secara manual</span>
+</label>
+<div id="tolerance-slider-box" style="display:none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); justify-content:space-between; align-items:center;">
+<label style="font-size:12px; color:#94a3b8;"><i class="fa-solid fa-sliders"></i> Sensitivitas Toleransi (<span id="tol-val">70</span>)</label>
+<input id="tolerance-slider" max="120" min="15" oninput="document.getElementById('tol-val').innerText = this.value" style="width:130px; cursor:pointer;" type="range" value="70"/>
+</div>
+</div>
+</div>
+<button class="btn" onclick="eraseBackground()"><i class="fa-solid fa-scissors"></i> Hapus Latar Belakang Sekarang</button>
+<div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.15); text-align:center;">
+<input accept=".pack,.json,.bin" id="eraser-model-file-input" onchange="handleEraserOfflineModelUpload(event)" style="display:none;" type="file"/>
+<div id="eraser-offline-status" style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">
             Ingin potong HD 100% Offline di Aplikasi Standalone (Tanpa Internet)?
           </div>
-          <div style="display:flex; gap:6px;">
-            <button style="flex:1; padding:9px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="purchaseEraserOfflineModel()"><i class="fa-solid fa-cart-shopping"></i> Beli Model HD (.pack)</button>
-            <button style="flex:1; padding:9px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" onclick="document.getElementById('eraser-model-file-input').click()"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="card-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:#38bdf8;"></i> 2. Hasil & Remove.bg Studio Pro</h2>
-        <div class="canvas-wrapper transparent-bg" id="res-wrapper"><canvas id="res-canvas"></canvas></div>
-        
-        <div id="res-placeholder" style="border: 1px dashed rgba(255,255,255,0.1); padding: 50px 20px; border-radius: 18px; text-align: center; color: #94a3b8; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-          <i class="fa-solid fa-object-ungroup" style="font-size: 40px; margin-bottom: 10px; color: #38bdf8;"></i>
-          <p>Hasil pemisahan objek & opsi editor remove.bg akan aktif di sini.</p>
-        </div>
-
-        <!-- Studio Replacement Controls (Active after erase) -->
-        <div id="studio-controls" style="display:none; background: rgba(15,23,42,0.9); border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; padding: 14px; margin-top: 5px;">
-          <div style="font-size:11px; font-weight:800; color:#38bdf8; margin-bottom:8px;"><i class="fa-solid fa-palette"></i> FITUR EDITOR ALAT REMOVE.BG:</div>
-          
-          <div class="studio-tabs" style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px;">
-            <div class="tab-btn active" id="tab-color-btn" onclick="switchStudioTab('color')" style="padding:6px 10px; font-size:11px;">🎨 Warna Solid</div>
-            <div class="tab-btn" id="tab-img-btn" onclick="switchStudioTab('img')" style="padding:6px 10px; font-size:11px;">🖼️ Latar & Blur</div>
-            <div class="tab-btn" id="tab-brush-btn" onclick="switchStudioTab('brush')" style="padding:6px 10px; font-size:11px;">🖌️ Kuas Manual</div>
-            <div class="tab-btn" id="tab-canvas-btn" onclick="switchStudioTab('canvas')" style="padding:6px 10px; font-size:11px;">📐 Ukuran & Teks</div>
-          </div>
-
-          <!-- Tab 1: Solid Color -->
-          <div id="panel-color" style="display:block;">
-            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-              <div class="color-swatch" style="background:transparent; border-style:dashed;" title="Transparan Asli" onclick="applySolidBg('transparent')"></div>
-              <div class="color-swatch" style="background:#dc2626;" title="Merah Pasfoto" onclick="applySolidBg('#dc2626')"></div>
-              <div class="color-swatch" style="background:#2563eb;" title="Biru Pasfoto" onclick="applySolidBg('#2563eb')"></div>
-              <div class="color-swatch" style="background:#ffffff;" title="Putih E-Commerce" onclick="applySolidBg('#ffffff')"></div>
-              <div class="color-swatch" style="background:#000000;" title="Hitam Studio" onclick="applySolidBg('#000000')"></div>
-              <div class="color-swatch" style="background:#eab308;" title="Kuning Cerah" onclick="applySolidBg('#eab308')"></div>
-              <div class="color-swatch" style="background:#22c55e;" title="Hijau Chroma Key" onclick="applySolidBg('#22c55e')"></div>
-              <label style="font-size:11px; color:#94a3b8; display:flex; align-items:center; gap:4px; margin-left:6px; cursor:pointer;">
-                <span>Custom:</span>
-                <input type="color" id="custom-color-picker" value="#a855f7" onchange="applySolidBg(this.value)" style="width:28px; height:28px; border:none; border-radius:6px; cursor:pointer;">
-              </label>
-            </div>
-          </div>
-
-          <!-- Tab 2: Custom Image Upload & Background Blur -->
-          <div id="panel-img" style="display:none;">
-            <input type="file" id="bg-file-input" accept="image/*" style="display:none;" onchange="loadCustomBg(event)">
-            <button style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px dashed #38bdf8; font-size:11px; font-weight:700; cursor:pointer; margin-bottom:10px;" onclick="document.getElementById('bg-file-input').click()">
-              <i class="fa-solid fa-folder-open"></i> Pilih Foto Latar Belakang dari Perangkat
+<div style="display:flex; gap:6px;">
+<button onclick="purchaseEraserOfflineModel()" style="flex:1; padding:9px; border-radius:10px; background:linear-gradient(135deg,#f59e0b,#d97706); color:#0f172a; font-weight:900; font-size:11px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="fa-solid fa-cart-shopping"></i> Beli Model HD (.pack)</button>
+<button onclick="document.getElementById('eraser-model-file-input').click()" style="flex:1; padding:9px; border-radius:10px; background:#10b981; color:white; font-weight:800; font-size:11px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;"><i class="fa-solid fa-folder-open"></i> Muat Model (.pack)</button>
+</div>
+</div>
+</div>
+<div class="card">
+<h2 class="card-title"><i class="fa-solid fa-wand-magic-sparkles" style="color:#38bdf8;"></i> 2. Hasil &amp; Remove.bg Studio Pro</h2>
+<div class="canvas-wrapper transparent-bg" id="res-wrapper"><canvas id="res-canvas"></canvas></div>
+<div id="res-placeholder" style="border: 1px dashed rgba(255,255,255,0.1); padding: 50px 20px; border-radius: 18px; text-align: center; color: #94a3b8; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+<i class="fa-solid fa-object-ungroup" style="font-size: 40px; margin-bottom: 10px; color: #38bdf8;"></i>
+<p>Hasil pemisahan objek &amp; opsi editor remove.bg akan aktif di sini.</p>
+</div>
+<!-- Studio Replacement Controls (Active after erase) -->
+<div id="studio-controls" style="display:none; background: rgba(15,23,42,0.9); border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; padding: 14px; margin-top: 5px;">
+<div style="font-size:11px; font-weight:800; color:#38bdf8; margin-bottom:8px;"><i class="fa-solid fa-palette"></i> FITUR EDITOR ALAT REMOVE.BG:</div>
+<div class="studio-tabs" style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px;">
+<div class="tab-btn active" id="tab-color-btn" onclick="switchStudioTab('color')" style="padding:6px 10px; font-size:11px;">🎨 Warna Solid</div>
+<div class="tab-btn" id="tab-img-btn" onclick="switchStudioTab('img')" style="padding:6px 10px; font-size:11px;">🖼️ Latar &amp; Blur</div>
+<div class="tab-btn" id="tab-brush-btn" onclick="switchStudioTab('brush')" style="padding:6px 10px; font-size:11px;">🖌️ Kuas Manual</div>
+<div class="tab-btn" id="tab-canvas-btn" onclick="switchStudioTab('canvas')" style="padding:6px 10px; font-size:11px;">📐 Ukuran &amp; Teks</div>
+</div>
+<!-- Tab 1: Solid Color -->
+<div id="panel-color" style="display:block;">
+<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+<div class="color-swatch" onclick="applySolidBg('transparent')" style="background:transparent; border-style:dashed;" title="Transparan Asli"></div>
+<div class="color-swatch" onclick="applySolidBg('#dc2626')" style="background:#dc2626;" title="Merah Pasfoto"></div>
+<div class="color-swatch" onclick="applySolidBg('#2563eb')" style="background:#2563eb;" title="Biru Pasfoto"></div>
+<div class="color-swatch" onclick="applySolidBg('#ffffff')" style="background:#ffffff;" title="Putih E-Commerce"></div>
+<div class="color-swatch" onclick="applySolidBg('#000000')" style="background:#000000;" title="Hitam Studio"></div>
+<div class="color-swatch" onclick="applySolidBg('#eab308')" style="background:#eab308;" title="Kuning Cerah"></div>
+<div class="color-swatch" onclick="applySolidBg('#22c55e')" style="background:#22c55e;" title="Hijau Chroma Key"></div>
+<label style="font-size:11px; color:#94a3b8; display:flex; align-items:center; gap:4px; margin-left:6px; cursor:pointer;">
+<span>Custom:</span>
+<input id="custom-color-picker" onchange="applySolidBg(this.value)" style="width:28px; height:28px; border:none; border-radius:6px; cursor:pointer;" type="color" value="#a855f7"/>
+</label>
+</div>
+</div>
+<!-- Tab 2: Custom Image Upload & Background Blur -->
+<div id="panel-img" style="display:none;">
+<input accept="image/*" id="bg-file-input" onchange="loadCustomBg(event)" style="display:none;" type="file"/>
+<button onclick="document.getElementById('bg-file-input').click()" style="width:100%; padding:8px; border-radius:8px; background:#1e293b; color:white; border:1px dashed #38bdf8; font-size:11px; font-weight:700; cursor:pointer; margin-bottom:10px;">
+<i class="fa-solid fa-folder-open"></i> Pilih Foto Latar Belakang dari Perangkat
             </button>
-            <div style="display:flex; align-items:center; justify-content:space-between; background:#0f172a; padding:8px 10px; border-radius:8px;">
-              <span style="font-size:11px; color:#94a3b8;"><i class="fa-solid fa-droplet"></i> Efek Buram (Blur Latar):</span>
-              <select id="bg-blur-select" onchange="setBgBlur(this.value)" style="padding:4px 8px; border-radius:6px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:11px;">
-                <option value="0">Off (Tajam Asli)</option>
-                <option value="4">Sedikit Buram (Low)</option>
-                <option value="10">Buram Bokeh (Medium)</option>
-                <option value="20">Sangat Buram (High Studio)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Tab 3: Manual Erase/Restore Brush -->
-          <div id="panel-brush" style="display:none;">
-            <div style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">Klik & seret pada gambar hasil di atas untuk menyempurnakan tepian:</div>
-            <div style="display:flex; gap:6px; margin-bottom:10px;">
-              <button class="btn" id="brush-mode-erase" style="flex:1; padding:6px; font-size:11px; background:#dc2626; color:white;" onclick="setBrushMode('erase')"><i class="fa-solid fa-eraser"></i> Hapus Kuas (Erase)</button>
-              <button class="btn" id="brush-mode-restore" style="flex:1; padding:6px; font-size:11px; background:#1e293b; color:#10b981;" onclick="setBrushMode('restore')"><i class="fa-solid fa-brush"></i> Pulihkan (Restore)</button>
-              <button class="btn" style="padding:6px 10px; font-size:11px; background:#0f172a; color:#94a3b8;" onclick="setBrushMode('none')"><i class="fa-solid fa-xmark"></i> Nonaktif</button>
-            </div>
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-              <span style="font-size:11px; color:#94a3b8;">Ukuran Kuas (<span id="brush-size-val">25</span>px):</span>
-              <input type="range" id="brush-size-slider" min="5" max="80" value="25" oninput="setBrushSize(this.value)" style="width:140px;">
-            </div>
-          </div>
-
-          <!-- Tab 4: Canvas Ratio, Expand, Text Overlay & Canva -->
-          <div id="panel-canvas" style="display:none;">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
-              <div>
-                <label style="font-size:10px; color:#94a3b8; display:block; margin-bottom:4px;">Aspek Rasio / Expand:</label>
-                <select id="canvas-ratio-select" onchange="setCanvasRatio(this.value)" style="width:100%; padding:6px; border-radius:6px; background:#0f172a; color:white; border:1px solid rgba(255,255,255,0.1); font-size:11px;">
-                  <option value="original">Asli (Original Fit)</option>
-                  <option value="1:1">1:1 (Katalog Shopee / IG)</option>
-                  <option value="4:5">4:5 (Portrait Story)</option>
-                  <option value="16:9">16:9 (Banner Landscape)</option>
-                </select>
-              </div>
-              <div>
-                <label style="font-size:10px; color:#94a3b8; display:block; margin-bottom:4px;">Elemen Teks / Watermark:</label>
-                <input type="text" id="canvas-text-input" placeholder="Tulis watermark toko..." oninput="setTextOverlay(this.value)" style="width:100%; padding:5px 8px; border-radius:6px; background:#0f172a; color:white; border:1px solid rgba(255,255,255,0.1); font-size:11px;">
-              </div>
-            </div>
-            <button style="width:100%; padding:8px; border-radius:8px; background:linear-gradient(135deg,#00c4cc,#7d2ae8); color:white; border:none; font-size:11px; font-weight:800; cursor:pointer;" onclick="redirectToCanva()"><i class="fa-solid fa-paintbrush"></i> Redirect & Desain Lanjutan di Canva Pro</button>
-          </div>
-
-          <!-- PhotoRoom & Canva Pro Style Effects (Outline Sticker & Drop Shadow) -->
-          <div style="margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15); display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-            <span style="font-size:11px; font-weight:800; color:#fbbf24;"><i class="fa-solid fa-wand-magic"></i> Efek Objek:</span>
-            <button class="btn" style="padding:6px 10px; font-size:11px; background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3);" onclick="toggleSubjectOutline()"><i class="fa-regular fa-circle-dot"></i> Sticker Outline Putih</button>
-            <button class="btn" style="padding:6px 10px; font-size:11px; background:#1e293b; color:#f59e0b; border:1px solid rgba(245,158,11,0.3);" onclick="toggleSubjectShadow()"><i class="fa-solid fa-layer-group"></i> Drop Shadow</button>
-          </div>
-        </div>
-
-        <button class="btn btn-dl" id="dl-btn" style="display:none;" onclick="downloadCutout()"><i class="fa-solid fa-download"></i> Download Hasil Akhir (PNG / JPG)</button>
-      </div>
-    </div>
-  <script src="../midtrans-pay.js?v=3.0"></script>
-  <script src="script.js?v=3.0"></script>
-</body>
+<div style="display:flex; align-items:center; justify-content:space-between; background:#0f172a; padding:8px 10px; border-radius:8px;">
+<span style="font-size:11px; color:#94a3b8;"><i class="fa-solid fa-droplet"></i> Efek Buram (Blur Latar):</span>
+<select id="bg-blur-select" onchange="setBgBlur(this.value)" style="padding:4px 8px; border-radius:6px; background:#1e293b; color:white; border:1px solid rgba(255,255,255,0.1); font-size:11px;">
+<option value="0">Off (Tajam Asli)</option>
+<option value="4">Sedikit Buram (Low)</option>
+<option value="10">Buram Bokeh (Medium)</option>
+<option value="20">Sangat Buram (High Studio)</option>
+</select>
+</div>
+</div>
+<!-- Tab 3: Manual Erase/Restore Brush -->
+<div id="panel-brush" style="display:none;">
+<div style="font-size:11px; color:#cbd5e1; margin-bottom:8px;">Klik &amp; seret pada gambar hasil di atas untuk menyempurnakan tepian:</div>
+<div style="display:flex; gap:6px; margin-bottom:10px;">
+<button class="btn" id="brush-mode-erase" onclick="setBrushMode('erase')" style="flex:1; padding:6px; font-size:11px; background:#dc2626; color:white;"><i class="fa-solid fa-eraser"></i> Hapus Kuas (Erase)</button>
+<button class="btn" id="brush-mode-restore" onclick="setBrushMode('restore')" style="flex:1; padding:6px; font-size:11px; background:#1e293b; color:#10b981;"><i class="fa-solid fa-brush"></i> Pulihkan (Restore)</button>
+<button class="btn" onclick="setBrushMode('none')" style="padding:6px 10px; font-size:11px; background:#0f172a; color:#94a3b8;"><i class="fa-solid fa-xmark"></i> Nonaktif</button>
+</div>
+<div style="display:flex; align-items:center; justify-content:space-between;">
+<span style="font-size:11px; color:#94a3b8;">Ukuran Kuas (<span id="brush-size-val">25</span>px):</span>
+<input id="brush-size-slider" max="80" min="5" oninput="setBrushSize(this.value)" style="width:140px;" type="range" value="25"/>
+</div>
+</div>
+<!-- Tab 4: Canvas Ratio, Expand, Text Overlay & Canva -->
+<div id="panel-canvas" style="display:none;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+<div>
+<label style="font-size:10px; color:#94a3b8; display:block; margin-bottom:4px;">Aspek Rasio / Expand:</label>
+<select id="canvas-ratio-select" onchange="setCanvasRatio(this.value)" style="width:100%; padding:6px; border-radius:6px; background:#0f172a; color:white; border:1px solid rgba(255,255,255,0.1); font-size:11px;">
+<option value="original">Asli (Original Fit)</option>
+<option value="1:1">1:1 (Katalog Shopee / IG)</option>
+<option value="4:5">4:5 (Portrait Story)</option>
+<option value="16:9">16:9 (Banner Landscape)</option>
+</select>
+</div>
+<div>
+<label style="font-size:10px; color:#94a3b8; display:block; margin-bottom:4px;">Elemen Teks / Watermark:</label>
+<input id="canvas-text-input" oninput="setTextOverlay(this.value)" placeholder="Tulis watermark toko..." style="width:100%; padding:5px 8px; border-radius:6px; background:#0f172a; color:white; border:1px solid rgba(255,255,255,0.1); font-size:11px;" type="text"/>
+</div>
+</div>
+<button onclick="redirectToCanva()" style="width:100%; padding:8px; border-radius:8px; background:linear-gradient(135deg,#00c4cc,#7d2ae8); color:white; border:none; font-size:11px; font-weight:800; cursor:pointer;"><i class="fa-solid fa-paintbrush"></i> Redirect &amp; Desain Lanjutan di Canva Pro</button>
+</div>
+<!-- PhotoRoom & Canva Pro Style Effects (Outline Sticker & Drop Shadow) -->
+<div style="margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.15); display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+<span style="font-size:11px; font-weight:800; color:#fbbf24;"><i class="fa-solid fa-wand-magic"></i> Efek Objek:</span>
+<button class="btn" onclick="toggleSubjectOutline()" style="padding:6px 10px; font-size:11px; background:#1e293b; color:#38bdf8; border:1px solid rgba(56,189,248,0.3);"><i class="fa-regular fa-circle-dot"></i> Sticker Outline Putih</button>
+<button class="btn" onclick="toggleSubjectShadow()" style="padding:6px 10px; font-size:11px; background:#1e293b; color:#f59e0b; border:1px solid rgba(245,158,11,0.3);"><i class="fa-solid fa-layer-group"></i> Drop Shadow</button>
+</div>
+</div>
+<button class="btn btn-dl" id="dl-btn" onclick="downloadCutout()" style="display:none;"><i class="fa-solid fa-download"></i> Download Hasil Akhir (PNG / JPG)</button>
+</div>
+</div>
+<script src="../midtrans-pay.js?v=3.0"></script>
+<script src="script.js?v=3.0"></script>
+</div></body>
 </html>
