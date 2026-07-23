@@ -135,10 +135,13 @@ function canPlace(r, c, size, ignoreEntityId = null) {
 }
 
 // --- EVENT LISTENERS ---
-window.addEventListener('pointerdown', (e) => {
-    // Ignore clicks on UI buttons/menus
-    if (e.target.closest('button') || e.target.closest('.build-menu-sheet') || e.target.closest('.context-menu') || e.target.closest('#placementUI')) return;
-
+canvas.addEventListener('pointerdown', (e) => {
+    // We are listening directly on canvas, so we know this is a canvas click
+    // (Clicks on UI buttons don't bubble to canvas because they are in sibling hudLayer)
+    e.preventDefault(); // Stop native browser drag/text selection
+    
+    // Safety check just in case
+    if (!e.target || e.target !== canvas) return;
     
     mouse.isDown = true;
     startPan.x = e.clientX;
@@ -251,6 +254,9 @@ window.addEventListener('pointerup', (e) => {
         draggedEntity = null;
     }
 });
+
+// To be absolutely safe against native drags ruining pointer events
+canvas.addEventListener('dragstart', (e) => e.preventDefault());
 
 // --- MENU ACTIONS ---
 document.getElementById('buildBtn').addEventListener('click', () => {
