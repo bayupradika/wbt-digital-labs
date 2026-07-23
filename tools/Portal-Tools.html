@@ -17,8 +17,8 @@
     
     .sticky-nav {
       position: sticky; top: 20px; z-index: 100; background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; padding: 10px 24px; max-width: 950px; margin: 20px auto 40px;
-      display: flex; justify-content: space-between; align-items: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7); flex-wrap: wrap; gap: 8px;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; padding: 10px 24px; max-width: 1050px; margin: 20px auto 40px;
+      display: flex; justify-content: space-between; align-items: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
     }
     .sticky-nav-center { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
     .sticky-logo { height: 36px; cursor: pointer; transition: transform 0.2s; filter: drop-shadow(0 0 5px rgba(56,189,248,0.3)); }
@@ -44,6 +44,23 @@
     .search-item:hover { background: rgba(255,255,255,0.08); }
     .search-item-title { color: #38bdf8; font-weight: 700; font-family: 'Outfit', sans-serif; font-size: 15px; }
     .search-item-desc { color: #94a3b8; font-size: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* Mobile responsive hamburger */
+    .hamburger-menu { display: none; color: white; font-size: 24px; cursor: pointer; padding: 4px; }
+    @media (max-width: 980px) {
+      .hamburger-menu { display: block; }
+      .nav-menu-wrapper { 
+        position: absolute; top: 110%; right: 24px; background: rgba(15,23,42,0.95); backdrop-filter: blur(16px);
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 16px; 
+        display: none; flex-direction: column; gap: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+      }
+      .nav-menu-wrapper.active { display: flex; }
+      .sticky-nav-center { flex-direction: column; align-items: stretch; gap: 8px; }
+      .search-dropdown { width: 100%; right: 0; }
+    }
+    @media (min-width: 981px) {
+      .nav-menu-wrapper { display: flex; align-items: center; gap: 16px; justify-content: space-between; flex-grow: 1; margin-left: 16px; }
+    }
 
     .nav-link { color: #cbd5e1; text-decoration: none; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 99px; transition: all 0.2s; }
     .nav-link:hover { background: rgba(255,255,255,0.08); color: white; transform: translateY(-2px); }
@@ -94,15 +111,20 @@
 <body>
   <div class="sticky-nav">
     <a href="#" onclick="window.scrollTo(0,0); return false;"><img src="../assets/img/wbt-logo.png" class="sticky-logo" alt="WBT Logo"></a>
-    <div class="sticky-nav-center">
-      <a href="#section-tools" class="nav-link tools"><i class="fa-solid fa-toolbox"></i> Utilities Tools (14)</a>
-      <a href="#section-ai" class="nav-link ai"><i class="fa-solid fa-microchip"></i> Smart AI Suite (10)</a>
-      <a href="#section-games" class="nav-link games"><i class="fa-solid fa-gamepad"></i> Arcade Games (10)</a>
-    </div>
-    <div class="search-container">
-      <i class="fa-solid fa-magnifying-glass search-icon"></i>
-      <input type="text" id="searchInput" class="search-input" placeholder="Cari Tools & Games..." oninput="handleSearch()">
-      <div id="searchDropdown" class="search-dropdown"></div>
+    
+    <div class="hamburger-menu" onclick="document.getElementById('navMenu').classList.toggle('active')"><i class="fa-solid fa-bars"></i></div>
+    
+    <div class="nav-menu-wrapper" id="navMenu">
+      <div class="sticky-nav-center">
+        <a href="#section-tools" class="nav-link tools"><i class="fa-solid fa-toolbox"></i> Utilities Tools (14)</a>
+        <a href="#section-ai" class="nav-link ai"><i class="fa-solid fa-microchip"></i> Smart AI Suite (10)</a>
+        <a href="#section-games" class="nav-link games"><i class="fa-solid fa-gamepad"></i> Arcade Games (10)</a>
+      </div>
+      <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="Cari Tools & Games..." oninput="handleSearch()">
+        <div id="searchDropdown" class="search-dropdown"></div>
+      </div>
     </div>
   </div>
 
