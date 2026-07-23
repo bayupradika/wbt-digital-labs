@@ -96,6 +96,18 @@ function getEntityAt(r, c) {
     return null;
 }
 
+function getOverlappingEntities(r, c, size, ignoreId) {
+    let overlaps = [];
+    for (let e of gameState.entities) {
+        if (e.id === ignoreId) continue;
+        let eSize = e.size || 1;
+        if (r < e.r + eSize && r + size > e.r && c < e.c + eSize && c + size > e.c) {
+            overlaps.push(e);
+        }
+    }
+    return overlaps;
+}
+
 function isPointInIsland(cartX, cartY) {
     let iso = cartToIso(cartX, cartY);
     let centerCartX = (GRID_SIZE/2) * TILE_W;
@@ -135,13 +147,9 @@ function canPlace(r, c, size, ignoreEntityId = null) {
 }
 
 // --- EVENT LISTENERS ---
-canvas.addEventListener('pointerdown', (e) => {
-    // We are listening directly on canvas, so we know this is a canvas click
-    // (Clicks on UI buttons don't bubble to canvas because they are in sibling hudLayer)
-    e.preventDefault(); // Stop native browser drag/text selection
-    
-    // Safety check just in case
-    if (!e.target || e.target !== canvas) return;
+window.addEventListener('pointerdown', (e) => {
+    // Ignore clicks on UI buttons/menus
+    if (e.target.closest && (e.target.closest('button') || e.target.closest('.build-menu-sheet') || e.target.closest('.context-menu') || e.target.closest('#placementUI'))) return;
     
     mouse.isDown = true;
     startPan.x = e.clientX;
@@ -227,9 +235,10 @@ window.addEventListener('pointerup', (e) => {
             }
             else {
                 // Normal entity drop logic
-                // Is it merging?
-                let targetEnt = getEntityAt(finalR, finalC);
-                if (targetEnt && targetEnt.id !== draggedEntity.id) {
+                let overlaps = getOverlappingEntities(finalR, finalC, size, draggedEntity.id);
+                
+                if (overlaps.length === 1) {
+                    let targetEnt = overlaps[0];
                     if (targetEnt.type === draggedEntity.type && targetEnt.level === draggedEntity.level) {
                         // MERGE!
                         targetEnt.level++;
@@ -240,9 +249,9 @@ window.addEventListener('pointerup', (e) => {
                         // Remove dragged entity
                         gameState.entities = gameState.entities.filter(ent => ent.id !== draggedEntity.id);
                     } else {
-                        // Invalid merge, return to start
+                        // Invalid merge, return to start (no update)
                     }
-                } else {
+                } else if (overlaps.length === 0) {
                     // Moving to empty space
                     if (canPlace(finalR, finalC, size, draggedEntity.id)) {
                         draggedEntity.r = finalR;
@@ -254,9 +263,6 @@ window.addEventListener('pointerup', (e) => {
         draggedEntity = null;
     }
 });
-
-// To be absolutely safe against native drags ruining pointer events
-canvas.addEventListener('dragstart', (e) => e.preventDefault());
 
 // --- MENU ACTIONS ---
 document.getElementById('buildBtn').addEventListener('click', () => {
@@ -300,7 +306,7 @@ function recruitArmy(barrack) {
                 let checkR = barrack.r + dr;
                 let checkC = barrack.c + dc;
                 if (canPlace(checkR, checkC, 1)) {
-                    spawnEntity('army', 1, checkR, checkC, 1);
+                    spawnEntity('army', 1, checkR, checkC, barrack.level);
                     gameState.gold -= 100;
                     updateHUD();
                     spawned = true;
