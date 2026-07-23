@@ -147,22 +147,20 @@ function canPlace(r, c, size, ignoreEntityId = null) {
 }
 
 // --- EVENT LISTENERS ---
-window.addEventListener('pointerdown', (e) => {
-    // Ignore clicks on UI buttons/menus
-    if (e.target.closest && (e.target.closest('button') || e.target.closest('.build-menu-sheet') || e.target.closest('.context-menu') || e.target.closest('#placementUI'))) return;
+function onDown(e, x, y) {
+    if (e.target && e.target.closest && (e.target.closest('button') || e.target.closest('.build-menu-sheet') || e.target.closest('.context-menu') || e.target.closest('#placementUI'))) return;
     
     mouse.isDown = true;
-    startPan.x = e.clientX;
-    startPan.y = e.clientY;
+    startPan.x = x;
+    startPan.y = y;
     lastCam.x = camera.x;
     lastCam.y = camera.y;
 
-    // Hide context menu
-    document.getElementById('barrackMenu').style.display = 'none';
+    let bMenu = document.getElementById('barrackMenu');
+    if (bMenu) bMenu.style.display = 'none';
 
-    // Check if clicking placingEntity
     if (placingEntity) {
-        let gridPos = getMouseGrid(e.clientX, e.clientY);
+        let gridPos = getMouseGrid(x, y);
         if (gridPos.r >= placingEntity.r && gridPos.r < placingEntity.r + placingEntity.size &&
             gridPos.c >= placingEntity.c && gridPos.c < placingEntity.c + placingEntity.size) {
             draggedEntity = placingEntity;
@@ -171,7 +169,7 @@ window.addEventListener('pointerdown', (e) => {
         }
     }
 
-    let gridPos = getMouseGrid(e.clientX, e.clientY);
+    let gridPos = getMouseGrid(x, y);
     let clickedEnt = getEntityAt(gridPos.r, gridPos.c);
     
     if (clickedEnt) {
@@ -181,31 +179,25 @@ window.addEventListener('pointerdown', (e) => {
     } else {
         isPanning = true;
     }
-});
+}
 
-window.addEventListener('pointermove', (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-    hoveredGrid = getMouseGrid(e.clientX, e.clientY);
+function onMove(e, x, y) {
+    mouse.x = x;
+    mouse.y = y;
+    hoveredGrid = getMouseGrid(x, y);
 
     if (isPanning) {
-        camera.x = lastCam.x + (e.clientX - startPan.x) / zoom;
-        camera.y = lastCam.y + (e.clientY - startPan.y) / zoom;
+        camera.x = lastCam.x + (x - startPan.x) / zoom;
+        camera.y = lastCam.y + (y - startPan.y) / zoom;
     }
-});
+}
 
-window.addEventListener('wheel', (e) => {
-    // e.preventDefault(); // Sometimes wheel is passive, so handle carefully
-    zoom += e.deltaY * -0.001;
-    zoom = Math.min(Math.max(0.2, zoom), 3.0); // allow more zoom out for the big island
-});
-
-window.addEventListener('pointerup', (e) => {
+function onUp(e, x, y) {
     mouse.isDown = false;
     isPanning = false;
 
     if (draggedEntity) {
-        let dropGrid = getMouseGrid(e.clientX, e.clientY);
+        let dropGrid = getMouseGrid(x, y);
         
         // Check if just clicking (didn't move much)
         if (dropGrid.r === dragStartMouseGrid.r && dropGrid.c === dragStartMouseGrid.c) {
@@ -222,37 +214,25 @@ window.addEventListener('pointerup', (e) => {
             let finalR = dragStartGrid.r + deltaR;
             let finalC = dragStartGrid.c + deltaC;
             
-            // Check if it's the placingEntity (we are just moving it before confirming)
             if (placingEntity && draggedEntity === placingEntity) {
                 if (canPlace(finalR, finalC, size, draggedEntity.id)) {
                     placingEntity.r = finalR;
                     placingEntity.c = finalC;
                 } else {
-                    // Revert to start grid if invalid
                     placingEntity.r = dragStartGrid.r;
                     placingEntity.c = dragStartGrid.c;
                 }
-            }
-            else {
-                // Normal entity drop logic
+            } else {
                 let overlaps = getOverlappingEntities(finalR, finalC, size, draggedEntity.id);
-                
                 if (overlaps.length === 1) {
                     let targetEnt = overlaps[0];
                     if (targetEnt.type === draggedEntity.type && targetEnt.level === draggedEntity.level) {
-                        // MERGE!
                         targetEnt.level++;
-                        // Gain gold
                         gameState.gold += (100 * targetEnt.level);
                         updateHUD();
-                        
-                        // Remove dragged entity
                         gameState.entities = gameState.entities.filter(ent => ent.id !== draggedEntity.id);
-                    } else {
-                        // Invalid merge, return to start (no update)
                     }
                 } else if (overlaps.length === 0) {
-                    // Moving to empty space
                     if (canPlace(finalR, finalC, size, draggedEntity.id)) {
                         draggedEntity.r = finalR;
                         draggedEntity.c = finalC;
@@ -262,6 +242,28 @@ window.addEventListener('pointerup', (e) => {
         }
         draggedEntity = null;
     }
+}
+
+window.addEventListener('mousedown', (e) => onDown(e, e.clientX, e.clientY));
+window.addEventListener('mousemove', (e) => onMove(e, e.clientX, e.clientY));
+window.addEventListener('mouseup', (e) => onUp(e, e.clientX, e.clientY));
+
+window.addEventListener('touchstart', (e) => {
+    if (e.target === canvas) e.preventDefault(); // Stop native scrolling
+    onDown(e, e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: false });
+window.addEventListener('touchmove', (e) => {
+    if (e.target === canvas) e.preventDefault();
+    onMove(e, e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: false });
+window.addEventListener('touchend', (e) => {
+    if (e.target === canvas) e.preventDefault();
+    onUp(e, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+}, { passive: false });
+
+window.addEventListener('wheel', (e) => {
+    zoom += e.deltaY * -0.001;
+    zoom = Math.min(Math.max(0.2, zoom), 3.0);
 });
 
 // --- MENU ACTIONS ---
