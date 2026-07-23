@@ -607,6 +607,8 @@ function render() {
         } else if (e.type === 'barrack') {
             let img = ASSETS.barrack;
             if (img.complete && img.naturalWidth !== 0) {
+                let side = TILE_W * e.size;
+                ctx.save();
                 ctx.translate(iso.x, iso.y);
                 // Apply isometric matrix projection to warp the square image into a rhombus
                 let cos30 = Math.cos(Math.PI/6);
