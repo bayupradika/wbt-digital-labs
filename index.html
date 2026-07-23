@@ -18,9 +18,34 @@
     /* Top Sticky Nav */
     .sticky-nav {
       position: sticky; top: 20px; z-index: 100; background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; padding: 10px 24px; max-width: 780px; margin: 20px auto 40px;
-      display: flex; justify-content: space-around; align-items: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7); flex-wrap: wrap; gap: 8px;
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; padding: 10px 24px; max-width: 950px; margin: 20px auto 40px;
+      display: flex; justify-content: space-between; align-items: center; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7); flex-wrap: wrap; gap: 8px;
     }
+    .sticky-nav-center { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .sticky-logo { height: 36px; cursor: pointer; transition: transform 0.2s; filter: drop-shadow(0 0 5px rgba(56,189,248,0.3)); }
+    .sticky-logo:hover { transform: scale(1.05); }
+    
+    .search-container { position: relative; }
+    .search-input { 
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 99px; 
+      padding: 8px 16px 8px 36px; color: white; outline: none; font-family: 'Inter', sans-serif; font-size: 13px; width: 220px; transition: all 0.3s;
+    }
+    .search-input:focus { background: rgba(255,255,255,0.1); border-color: #38bdf8; width: 260px; box-shadow: 0 0 10px rgba(56,189,248,0.2); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
+    
+    .search-dropdown {
+      position: absolute; top: 120%; right: 0; width: 320px; background: rgba(15,23,42,0.95); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+      max-height: 400px; overflow-y: auto; display: none; z-index: 101; flex-direction: column; padding: 8px;
+    }
+    .search-dropdown.active { display: flex; }
+    .search-item {
+      padding: 12px; border-radius: 10px; text-decoration: none; display: flex; flex-direction: column; gap: 4px; transition: background 0.2s;
+    }
+    .search-item:hover { background: rgba(255,255,255,0.08); }
+    .search-item-title { color: #38bdf8; font-weight: 700; font-family: 'Outfit', sans-serif; font-size: 15px; }
+    .search-item-desc { color: #94a3b8; font-size: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
     .nav-link { color: #cbd5e1; text-decoration: none; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 99px; transition: all 0.2s; }
     .nav-link:hover { background: rgba(255,255,255,0.08); color: white; transform: translateY(-2px); }
     .nav-link.rec { color: #fbbf24; }
@@ -73,15 +98,22 @@
 </head>
 <body>
   <div class="sticky-nav">
-    <a href="#section-recommended" class="nav-link rec"><i class="fa-solid fa-fire"></i> Top Rekomendasi (3)</a>
-    <a href="#section-tools" class="nav-link tools"><i class="fa-solid fa-toolbox"></i> Tools / Utilities (17)</a>
-    <a href="#section-games" class="nav-link games"><i class="fa-solid fa-gamepad"></i> Arcade Games (10)</a>
+    <a href="#" onclick="window.scrollTo(0,0); return false;"><img src="assets/img/wbt-logo.png" class="sticky-logo" alt="WBT Logo"></a>
+    <div class="sticky-nav-center">
+      <a href="#section-recommended" class="nav-link rec"><i class="fa-solid fa-fire"></i> Top Rekomendasi (3)</a>
+      <a href="#section-tools" class="nav-link tools"><i class="fa-solid fa-toolbox"></i> Tools / Utilities (17)</a>
+      <a href="#section-games" class="nav-link games"><i class="fa-solid fa-gamepad"></i> Arcade Games (10)</a>
+    </div>
+    <div class="search-container">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" id="searchInput" class="search-input" placeholder="Cari Tools & Games..." oninput="handleSearch()">
+      <div id="searchDropdown" class="search-dropdown"></div>
+    </div>
   </div>
 
   <div class="container">
     <header>
       <div style="font-size:13px; font-weight:800; color:#38bdf8; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px;"><i class="fa-solid fa-building-shield"></i> OFFICIAL PORTAL OF WBT CORP</div>
-      <img src="assets/img/wbt-logo.png" style="height: 80px; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(56,189,248,0.5));" alt="WBT Logo">
       <h1>⚡ WBT DIGITAL LABS</h1>
       <p class="subtitle">Pusat ekosistem inovasi produk digital karya <b>WBT Technologies</b>. Menghadirkan solusi teknologi mutakhir yang dibagi dalam 2 divisi utama: <b>Tools / Utilities Suite</b> dan <b>Interactive Arcade Games</b>.</p>
     </header>
@@ -484,5 +516,53 @@
       <p style="font-size:12px; margin-top:6px; color:#475569;">Empowering Next-Gen Productivity, Artificial Intelligence & Interactive Entertainment.</p>
     </footer>
   </div>
+  <script>
+    // System script for Search Autocomplete filtering
+    const cards = Array.from(document.querySelectorAll('.card'));
+    const searchData = cards.map(card => {
+      const titleEl = card.querySelector('.title');
+      const descEl = card.querySelector('.desc');
+      return {
+        title: titleEl ? titleEl.innerText : '',
+        desc: descEl ? descEl.innerText : '',
+        href: card.getAttribute('href')
+      };
+    });
+
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const dropdown = document.getElementById('searchDropdown');
+      
+      if (query.length === 0) {
+        dropdown.classList.remove('active');
+        return;
+      }
+      
+      const results = searchData.filter(item => 
+        item.title.toLowerCase().includes(query) || item.desc.toLowerCase().includes(query)
+      );
+      
+      if (results.length > 0) {
+        // limit to top 8 results
+        dropdown.innerHTML = results.slice(0, 8).map(item => `
+          <a href="${item.href}" target="_blank" class="search-item">
+            <div class="search-item-title">${item.title}</div>
+            <div class="search-item-desc">${item.desc}</div>
+          </a>
+        `).join('');
+      } else {
+        dropdown.innerHTML = `<div style="padding: 12px; color: #94a3b8; font-size: 13px; text-align: center;">Tidak ada aplikasi atau game yang sesuai.</div>`;
+      }
+      
+      dropdown.classList.add('active');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-container')) {
+        document.getElementById('searchDropdown').classList.remove('active');
+      }
+    });
+  </script>
 </body>
 </html>
