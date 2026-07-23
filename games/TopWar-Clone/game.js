@@ -136,8 +136,9 @@ function canPlace(r, c, size, ignoreEntityId = null) {
 
 // --- EVENT LISTENERS ---
 window.addEventListener('pointerdown', (e) => {
-    // Only initiate canvas interactions if we actually clicked on the canvas
-    if (e.target !== canvas) return;
+    // Ignore clicks on UI buttons/menus
+    if (e.target.closest('button') || e.target.closest('.build-menu-sheet') || e.target.closest('.context-menu') || e.target.closest('#placementUI')) return;
+
     
     mouse.isDown = true;
     startPan.x = e.clientX;
@@ -576,11 +577,16 @@ function render() {
                 ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
                 ctx.strokeRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
             }
+            // Level Badge
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            ctx.beginPath();
+            ctx.arc(centerIsoX, centerIsoY - 10, 12, 0, Math.PI*2);
+            ctx.fill();
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 20px Roboto Condensed';
+            ctx.font = 'bold 14px Roboto Condensed';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(e.level, centerIsoX, centerIsoY - 30);
+            ctx.fillText(e.level, centerIsoX, centerIsoY - 10);
             
         } else if (e.type === 'barrack') {
             let img = ASSETS.barrack;
@@ -602,11 +608,16 @@ function render() {
                 ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
             }
             
+            // Level Badge
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            ctx.beginPath();
+            ctx.arc(centerIsoX, centerIsoY - 10, 12, 0, Math.PI*2);
+            ctx.fill();
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 16px Roboto Condensed';
-            ctx.fillText("BARRACK", centerIsoX, centerIsoY - 10);
-            ctx.font = '12px Nunito';
-            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY + 10);
+            ctx.font = 'bold 14px Roboto Condensed';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(e.level, centerIsoX, centerIsoY - 10);
             
         } else if (e.type === 'mine') {
             let img = ASSETS.mine;
@@ -626,11 +637,16 @@ function render() {
                 ctx.fillRect(centerIsoX - w/2, centerIsoY - h - 10, w, h);
             }
             
+            // Level Badge
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+            ctx.beginPath();
+            ctx.arc(centerIsoX, centerIsoY - 10, 12, 0, Math.PI*2);
+            ctx.fill();
             ctx.fillStyle = 'white';
-            ctx.font = 'bold 16px Roboto Condensed';
-            ctx.fillText("MINE", centerIsoX, centerIsoY - 10);
-            ctx.font = '12px Nunito';
-            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY + 10);
+            ctx.font = 'bold 14px Roboto Condensed';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(e.level, centerIsoX, centerIsoY - 10);
         }
     }
 

@@ -10,6 +10,7 @@
     padding: 0;
     user-select: none;
     -webkit-user-drag: none;
+    touch-action: none; /* Crucial for custom pointer drag on touch devices */
 }
 
 body {
