@@ -12,7 +12,7 @@ window.addEventListener('resize', resize);
 resize();
 
 // --- GAME STATE ---
-const GRID_SIZE = 30; // 30x30 board
+const GRID_SIZE = 60; // Larger board so we can carve a circle out of it
 const TILE_W = 60; // Base width of a tile in cartesian
 const TILE_H = 60;
 
@@ -80,30 +80,32 @@ function getEntityAt(r, c) {
     return null;
 }
 
-function canPlace(r, c, size, ignoreEntityId = null) {
-    if (r < 0 || c < 0 || r + size > GRID_SIZE || c + size > GRID_SIZE) return false;
-    
-    // Check if within the green island (Ellipse collision)
-    // The island center in grid is at roughly r=15, c=15.
-    // The ellipse is drawn at iso (0, -10) with radii (GRID_SIZE*TILE_W*0.95, GRID_SIZE*TILE_H*0.95/2)
-    // But our grid (0,0) starts at top-left. Let's calculate the center of the placement.
-    let cartX = (c + size/2) * TILE_W;
-    let cartY = (r + size/2) * TILE_H;
+function isPointInIsland(cartX, cartY) {
     let iso = cartToIso(cartX, cartY);
-    
     let centerCartX = (GRID_SIZE/2) * TILE_W;
     let centerCartY = (GRID_SIZE/2) * TILE_H;
     let centerIso = cartToIso(centerCartX, centerCartY);
 
-    let a = GRID_SIZE * TILE_W * 0.90; // slightly smaller than green bounds to be safe
-    let b = GRID_SIZE * TILE_H * 0.95 / 2;
+    // We use a radius that defines the green grass.
+    // Let's say the grass radius is 20 tiles wide.
+    let radiusTiles = 22;
+    let a = radiusTiles * TILE_W; 
+    let b = radiusTiles * TILE_H / 2;
     
-    // Check against the green grass ellipse center which is at (centerIso.x, centerIso.y - 10)
     let dx = iso.x - centerIso.x;
     let dy = iso.y - (centerIso.y - 10);
     
-    let ellipseCheck = (dx * dx) / (a * a) + (dy * dy) / (b * b);
-    if (ellipseCheck > 1) return false;
+    return (dx * dx) / (a * a) + (dy * dy) / (b * b) <= 1;
+}
+
+function canPlace(r, c, size, ignoreEntityId = null) {
+    if (r < 0 || c < 0 || r + size > GRID_SIZE || c + size > GRID_SIZE) return false;
+    
+    // Check all 4 corners of the placement area to ensure it's FULLY inside the island
+    if (!isPointInIsland(c * TILE_W, r * TILE_H)) return false; // Top-Left
+    if (!isPointInIsland((c + size) * TILE_W, r * TILE_H)) return false; // Top-Right
+    if (!isPointInIsland(c * TILE_W, (r + size) * TILE_H)) return false; // Bottom-Left
+    if (!isPointInIsland((c + size) * TILE_W, (r + size) * TILE_H)) return false; // Bottom-Right
 
     for (let e of gameState.entities) {
         if (e.id === ignoreEntityId) continue;
@@ -384,42 +386,53 @@ function render() {
     let centerCartY = (GRID_SIZE/2) * TILE_H;
     let centerIso = cartToIso(centerCartX, centerCartY);
 
+    let radiusTiles = 22;
+    let a = radiusTiles * TILE_W; 
+    let b = radiusTiles * TILE_H / 2;
+
     ctx.beginPath();
-    ctx.ellipse(centerIso.x, centerIso.y, GRID_SIZE*TILE_W, GRID_SIZE*TILE_H/2, 0, 0, Math.PI*2);
+    ctx.ellipse(centerIso.x, centerIso.y, a * 1.1, b * 1.1, 0, 0, Math.PI*2);
     ctx.fillStyle = '#fefae0'; // Sand
     ctx.fill();
     ctx.beginPath();
-    ctx.ellipse(centerIso.x, centerIso.y - 10, GRID_SIZE*TILE_W*0.95, GRID_SIZE*TILE_H*0.95/2, 0, 0, Math.PI*2);
+    ctx.ellipse(centerIso.x, centerIso.y - 10, a, b, 0, 0, Math.PI*2);
     ctx.fillStyle = '#90be6d'; // Grass
     ctx.fill();
 
-    // 2. Draw Grid (Optional, faint lines)
+    // 2. Draw Grid (Only draw tiles that are fully inside the island)
     for (let r = 0; r < GRID_SIZE; r++) {
         for (let c = 0; c < GRID_SIZE; c++) {
-            let cartX = c * TILE_W;
-            let cartY = r * TILE_H;
-            let iso = cartToIso(cartX, cartY);
+            // Check if the 1x1 tile is valid
+            let valid = isPointInIsland(c * TILE_W, r * TILE_H) &&
+                        isPointInIsland((c+1) * TILE_W, r * TILE_H) &&
+                        isPointInIsland(c * TILE_W, (r+1) * TILE_H) &&
+                        isPointInIsland((c+1) * TILE_W, (r+1) * TILE_H);
             
-            // Draw tile bounds
-            ctx.beginPath();
-            let p1 = cartToIso(cartX, cartY);
-            let p2 = cartToIso(cartX + TILE_W, cartY);
-            let p3 = cartToIso(cartX + TILE_W, cartY + TILE_H);
-            let p4 = cartToIso(cartX, cartY + TILE_H);
-            
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.lineTo(p3.x, p3.y);
-            ctx.lineTo(p4.x, p4.y);
-            ctx.closePath();
-            
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.stroke();
+            if (valid) {
+                let cartX = c * TILE_W;
+                let cartY = r * TILE_H;
+                
+                // Draw tile bounds
+                ctx.beginPath();
+                let p1 = cartToIso(cartX, cartY);
+                let p2 = cartToIso(cartX + TILE_W, cartY);
+                let p3 = cartToIso(cartX + TILE_W, cartY + TILE_H);
+                let p4 = cartToIso(cartX, cartY + TILE_H);
+                
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.lineTo(p3.x, p3.y);
+                ctx.lineTo(p4.x, p4.y);
+                ctx.closePath();
+                
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                ctx.stroke();
 
-            // Hover highlight
-            if (!draggedEntity && hoveredGrid.r === r && hoveredGrid.c === c) {
-                ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                ctx.fill();
+                // Hover highlight
+                if (!draggedEntity && hoveredGrid.r === r && hoveredGrid.c === c) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    ctx.fill();
+                }
             }
         }
     }
