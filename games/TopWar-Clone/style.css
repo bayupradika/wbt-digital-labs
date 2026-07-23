@@ -1,0 +1,390 @@
+:root {
+    --bg-grass: #4ade80;
+    --grid-bg: rgba(20, 83, 45, 0.2);
+    --grid-border: rgba(255, 255, 255, 0.15);
+    --hud-bg: rgba(15, 23, 42, 0.85);
+    --text-main: #ffffff;
+    --btn-primary: #3b82f6;
+    --btn-primary-hover: #2563eb;
+    --btn-gold: #f59e0b;
+    --btn-danger: #ef4444;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background-color: var(--bg-grass);
+    /* Simple stylized grass pattern */
+    background-image: radial-gradient(#22c55e 1px, transparent 1px);
+    background-size: 20px 20px;
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* HUD */
+.hud-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    background: var(--hud-bg);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 900;
+    font-family: 'Fredoka One', cursive;
+    background: rgba(255,255,255,0.1);
+    padding: 6px 16px;
+    border-radius: 99px;
+    position: relative;
+}
+
+.income-rate {
+    position: absolute;
+    bottom: -16px;
+    right: 10px;
+    font-size: 11px;
+    color: #fbbf24;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+}
+
+/* Screens */
+#gameContainer {
+    flex: 1;
+    margin-top: 60px;
+    margin-bottom: 80px;
+    position: relative;
+}
+
+.screen {
+    display: none;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Base Grid */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 4px;
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1;
+    background: var(--grid-bg);
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+    /* Faux isometric tilt */
+    transform: perspective(800px) rotateX(15deg);
+}
+
+.grid-cell {
+    background: rgba(255,255,255,0.1);
+    border: 1px dashed var(--grid-border);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: background 0.2s;
+}
+
+.grid-cell.drag-over {
+    background: rgba(255,255,255,0.3);
+    border-style: solid;
+}
+
+/* Units / Entities */
+.entity {
+    width: 90%;
+    height: 90%;
+    border-radius: 8px;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    background-size: cover;
+    background-position: center;
+    background-image: url('assets/soldier.jpg'); /* Default background */
+    background-color: #3b82f6; /* Fallback */
+    transition: transform 0.1s;
+    font-family: 'Fredoka One', cursive;
+}
+
+.entity:active {
+    cursor: grabbing;
+    transform: scale(1.1);
+}
+
+.entity.type-mine {
+    background-image: url('assets/mine.jpg');
+    background-color: #f59e0b;
+}
+
+.entity-level {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 99px;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.entity-icon {
+    font-size: 24px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Bottom Bar */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--hud-bg);
+    padding: 12px 10px;
+    display: flex;
+    justify-content: space-around;
+    backdrop-filter: blur(10px);
+    z-index: 100;
+}
+
+.action-btn {
+    background: var(--btn-primary);
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 12px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 12px;
+    cursor: pointer;
+    flex: 1;
+    margin: 0 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 0 #1d4ed8;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.action-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #1d4ed8;
+}
+
+.action-btn i {
+    font-size: 20px;
+}
+
+.action-btn.battle-btn {
+    background: var(--btn-danger);
+    box-shadow: 0 4px 0 #b91c1c;
+    flex: 1.5;
+}
+.action-btn.battle-btn:active { box-shadow: 0 0 0 #b91c1c; }
+
+.action-btn.mine-btn {
+    background: var(--btn-gold);
+    box-shadow: 0 4px 0 #b45309;
+}
+.action-btn.mine-btn:active { box-shadow: 0 0 0 #b45309; }
+
+.cost {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+/* Battle Screen Elements */
+.battle-header {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.battle-arena {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.team-area {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px;
+    width: 100%;
+    aspect-ratio: 1;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    padding: 8px;
+}
+
+.vs-badge {
+    font-family: 'Fredoka One', cursive;
+    font-size: 28px;
+    color: #ef4444;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.battle-logs {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 400px;
+    height: 100px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.log-entry { margin-bottom: 4px; }
+.log-entry.damage { color: #fbbf24; }
+.log-entry.kill { color: #ef4444; font-weight: bold; }
+.log-entry.victory { color: #4ade80; font-weight: bold; }
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: var(--hud-bg);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 350px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-family: 'Fredoka One', cursive;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.decor-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.decor-info {
+    font-size: 12px;
+}
+
+.decor-info h4 {
+    font-size: 14px;
+    margin-bottom: 2px;
+    color: #fbbf24;
+}
+
+/* Animations */
+@keyframes spawn {
+    0% { transform: scale(0); }
+    80% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes merge {
+    0% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.3); filter: brightness(2); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+.anim-spawn { animation: spawn 0.3s ease-out; }
+.anim-merge { animation: merge 0.4s ease-out; }
+
+/* Battle HP Bar */
+.hp-bar-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(0,0,0,0.5);
+    position: absolute;
+    bottom: -6px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    background: #4ade80;
+    width: 100%;
+    transition: width 0.2s;
+}
