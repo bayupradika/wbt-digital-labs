@@ -20,16 +20,16 @@ tool_data = {
     "3D-Model-Viewer": {"title": "3D Models Viewer Pro", "feature": "Lihat File .FBX, .OBJ, .GLB dengan Auto-Rotate", "right": '<span style="color:#00ff88; font-weight:700;">FREE UNLIMITED</span>'},
     
     # SMART AI SUITE
-    "AI-Image-Captioner": {"title": "AI Image Captioner", "feature": "Analisis Gambar & Buat Caption Otomatis untuk Medsos", "right": '<span style="color:#a855f7; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "AI-Photo-Enhancer": {"title": "AI Photo Enhancer", "feature": "Upscale Foto Buram & Resolusi Rendah Jadi HD", "right": '<span style="color:#10b981; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "AI-Text-Summarizer": {"title": "AI Text Summarizer", "feature": "Rangkum Artikel Panjang Jadi Poin-Poin Ringkas", "right": '<span style="color:#6366f1; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "Background-Eraser-AI": {"title": "Background Eraser AI", "feature": "Hapus Latar Belakang Foto Otomatis (PNG Transparan)", "right": '<span style="color:#ec4899; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "Dataset-Labeling-Tool": {"title": "Dataset Labeling Tool", "feature": "Anotasi Bounding Box (YOLO & Pascal VOC)", "right": '<span style="color:#f97316; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "Offline-Grammar-Checker": {"title": "Offline Grammar Checker", "feature": "Cek Ejaan KBBI, Tanda Baca, & Kalimat Efektif", "right": '<span style="color:#3b82f6; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "Offline-Voice-Transcriber": {"title": "Offline Voice Transcriber", "feature": "Ubah Suara Mikrofon Menjadi Teks Real-time", "right": '<span style="color:#06b6d4; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "Receipt-Scanner-AI": {"title": "Receipt Scanner AI", "feature": "Pindai Struk Belanja & Ekstrak Data ke JSON", "right": '<span style="color:#10b981; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "Smart-Prompt-Generator": {"title": "Smart Prompt Generator", "feature": "Rakit Parameter Prompt Midjourney & ChatGPT", "right": '<span style="color:#f59e0b; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'},
-    "YOLO-Dataset-Viewer": {"title": "YOLO Dataset Viewer", "feature": "Visualisasi Koordinat Bounding Box Dataset YOLO", "right": '<span style="color:#38bdf8; font-weight:700;">Free: 3x/Hari | PRO: Rp 20.000</span>'}
+    "AI-Image-Captioner": {"title": "AI Image Captioner", "feature": "Analisis Gambar & Buat Caption Otomatis untuk Medsos", "right": ''},
+    "AI-Photo-Enhancer": {"title": "AI Photo Enhancer", "feature": "Upscale Foto Buram & Resolusi Rendah Jadi HD", "right": ''},
+    "AI-Text-Summarizer": {"title": "AI Text Summarizer", "feature": "Rangkum Artikel Panjang Jadi Poin-Poin Ringkas", "right": ''},
+    "Background-Eraser-AI": {"title": "Background Eraser AI", "feature": "Hapus Latar Belakang Foto Otomatis (PNG Transparan)", "right": ''},
+    "Dataset-Labeling-Tool": {"title": "Dataset Labeling Tool", "feature": "Anotasi Bounding Box (YOLO & Pascal VOC)", "right": ''},
+    "Offline-Grammar-Checker": {"title": "Offline Grammar Checker", "feature": "Cek Ejaan KBBI, Tanda Baca, & Kalimat Efektif", "right": ''},
+    "Offline-Voice-Transcriber": {"title": "Offline Voice Transcriber", "feature": "Ubah Suara Mikrofon Menjadi Teks Real-time", "right": ''},
+    "Receipt-Scanner-AI": {"title": "Receipt Scanner AI", "feature": "Pindai Struk Belanja & Ekstrak Data ke JSON", "right": ''},
+    "Smart-Prompt-Generator": {"title": "Smart Prompt Generator", "feature": "Rakit Parameter Prompt Midjourney & ChatGPT", "right": ''},
+    "YOLO-Dataset-Viewer": {"title": "YOLO Dataset Viewer", "feature": "Visualisasi Koordinat Bounding Box Dataset YOLO", "right": ''}
 }
 
 base_dir = r"D:\Produk-Sell"
