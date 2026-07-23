@@ -539,22 +539,35 @@ function render() {
         let drawR = e.r;
         let drawC = e.c;
         
-        // If dragging, compute relative drag so it doesn't jump
-        if (draggedEntity && e.id === draggedEntity.id && !placingEntity) {
-            let deltaR = hoveredGrid.r - dragStartMouseGrid.r;
-            let deltaC = hoveredGrid.c - dragStartMouseGrid.c;
-            drawR = dragStartGrid.r + deltaR;
-            drawC = dragStartGrid.c + deltaC;
-        } else if (placingEntity && e.id === placingEntity.id) {
-            drawR = placingEntity.r;
-            drawC = placingEntity.c;
-        }
-
         let cartX = drawC * TILE_W;
         let cartY = drawR * TILE_H;
         let iso = cartToIso(cartX, cartY);
         let centerIsoX = iso.x;
         let centerIsoY = iso.y + (TILE_H/2 * e.size); 
+        
+        // If dragging, smoothly follow the mouse
+        if (draggedEntity && e.id === draggedEntity.id && !placingEntity) {
+            let dx = (mouse.x - startPan.x) / zoom;
+            let dy = (mouse.y - startPan.y) / zoom;
+            
+            centerIsoX += dx;
+            centerIsoY += dy;
+            iso.x += dx;
+            iso.y += dy;
+            
+            // Recompute cartX/cartY so the selection highlight draws correctly
+            let updatedCart = isoToCart(iso.x, iso.y);
+            cartX = updatedCart.x;
+            cartY = updatedCart.y;
+        } else if (placingEntity && e.id === placingEntity.id) {
+            drawR = placingEntity.r;
+            drawC = placingEntity.c;
+            cartX = drawC * TILE_W;
+            cartY = drawR * TILE_H;
+            iso = cartToIso(cartX, cartY);
+            centerIsoX = iso.x;
+            centerIsoY = iso.y + (TILE_H/2 * e.size); 
+        }
         
         // Draw Selection Highlight
         if (selectedEntity && e.id === selectedEntity.id) {
