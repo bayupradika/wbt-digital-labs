@@ -124,9 +124,9 @@ function canPlace(r, c, size, ignoreEntityId = null) {
 }
 
 // --- EVENT LISTENERS ---
-canvas.addEventListener('mousedown', (e) => {
-    // Ignore clicks if clicking on DOM UI
-    if(e.target.closest('#hudLayer') || e.target.closest('.build-menu-sheet') || e.target.closest('#placementUI')) return;
+window.addEventListener('pointerdown', (e) => {
+    // Only initiate canvas interactions if we actually clicked on the canvas
+    if (e.target !== canvas) return;
     
     mouse.isDown = true;
     startPan.x = e.clientX;
@@ -139,6 +139,7 @@ canvas.addEventListener('mousedown', (e) => {
 
     // Check if clicking placingEntity
     if (placingEntity) {
+        let gridPos = getMouseGrid(e.clientX, e.clientY);
         if (gridPos.r >= placingEntity.r && gridPos.r < placingEntity.r + placingEntity.size &&
             gridPos.c >= placingEntity.c && gridPos.c < placingEntity.c + placingEntity.size) {
             draggedEntity = placingEntity;
@@ -147,6 +148,7 @@ canvas.addEventListener('mousedown', (e) => {
         }
     }
 
+    let gridPos = getMouseGrid(e.clientX, e.clientY);
     let clickedEnt = getEntityAt(gridPos.r, gridPos.c);
     
     if (clickedEnt) {
@@ -157,7 +159,7 @@ canvas.addEventListener('mousedown', (e) => {
     }
 });
 
-canvas.addEventListener('mousemove', (e) => {
+window.addEventListener('pointermove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
     hoveredGrid = getMouseGrid(e.clientX, e.clientY);
@@ -168,13 +170,13 @@ canvas.addEventListener('mousemove', (e) => {
     }
 });
 
-canvas.addEventListener('wheel', (e) => {
+window.addEventListener('wheel', (e) => {
     // e.preventDefault(); // Sometimes wheel is passive, so handle carefully
     zoom += e.deltaY * -0.001;
-    zoom = Math.min(Math.max(0.5, zoom), 2.0);
+    zoom = Math.min(Math.max(0.2, zoom), 3.0); // allow more zoom out for the big island
 });
 
-canvas.addEventListener('mouseup', (e) => {
+window.addEventListener('pointerup', (e) => {
     mouse.isDown = false;
     isPanning = false;
 
@@ -230,16 +232,6 @@ canvas.addEventListener('mouseup', (e) => {
         }
         draggedEntity = null;
     }
-});
-
-canvas.addEventListener('touchstart', (e) => { /* Map similar to mouse */ 
-    canvas.dispatchEvent(new MouseEvent('mousedown', {clientX: e.touches[0].clientX, clientY: e.touches[0].clientY}));
-});
-canvas.addEventListener('touchmove', (e) => {
-    canvas.dispatchEvent(new MouseEvent('mousemove', {clientX: e.touches[0].clientX, clientY: e.touches[0].clientY}));
-});
-canvas.addEventListener('touchend', (e) => {
-    canvas.dispatchEvent(new MouseEvent('mouseup', {clientX: mouse.x, clientY: mouse.y}));
 });
 
 // --- MENU ACTIONS ---
