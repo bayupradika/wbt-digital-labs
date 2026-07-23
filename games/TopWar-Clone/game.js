@@ -526,9 +526,16 @@ function render() {
         } else if (e.type === 'barrack') {
             let img = ASSETS.barrack;
             if (img.complete && img.naturalWidth !== 0) {
-                let w = 200; // roughly covers 2x2 tile width
-                let h = w * (img.naturalHeight / img.naturalWidth);
-                ctx.drawImage(img, centerIsoX - w/2, centerIsoY - h + 30, w, h);
+                let side = TILE_W * e.size; // 120px for 2x2
+                ctx.save();
+                ctx.translate(iso.x, iso.y);
+                // Apply isometric matrix projection to warp the square image into a rhombus
+                let cos30 = Math.cos(Math.PI/6);
+                let sin30 = Math.sin(Math.PI/6);
+                ctx.transform(cos30, sin30, -cos30, sin30, 0, 0);
+                // Draw the flat image
+                ctx.drawImage(img, 0, 0, side, side);
+                ctx.restore();
             } else {
                 // Fallback while loading
                 ctx.fillStyle = '#64748b';
@@ -538,16 +545,21 @@ function render() {
             
             ctx.fillStyle = 'white';
             ctx.font = 'bold 16px Roboto Condensed';
-            ctx.fillText("BARRACK", centerIsoX, centerIsoY - 60);
+            ctx.fillText("BARRACK", centerIsoX, centerIsoY - 10);
             ctx.font = '12px Nunito';
-            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY - 40);
+            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY + 10);
             
         } else if (e.type === 'mine') {
             let img = ASSETS.mine;
             if (img.complete && img.naturalWidth !== 0) {
-                let w = 200; // roughly covers 2x2 tile width
-                let h = w * (img.naturalHeight / img.naturalWidth);
-                ctx.drawImage(img, centerIsoX - w/2, centerIsoY - h + 30, w, h);
+                let side = TILE_W * e.size;
+                ctx.save();
+                ctx.translate(iso.x, iso.y);
+                let cos30 = Math.cos(Math.PI/6);
+                let sin30 = Math.sin(Math.PI/6);
+                ctx.transform(cos30, sin30, -cos30, sin30, 0, 0);
+                ctx.drawImage(img, 0, 0, side, side);
+                ctx.restore();
             } else {
                 // Fallback while loading
                 ctx.fillStyle = '#f59e0b';
@@ -557,9 +569,9 @@ function render() {
             
             ctx.fillStyle = 'white';
             ctx.font = 'bold 16px Roboto Condensed';
-            ctx.fillText("MINE", centerIsoX, centerIsoY - 60);
+            ctx.fillText("MINE", centerIsoX, centerIsoY - 10);
             ctx.font = '12px Nunito';
-            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY - 40);
+            ctx.fillText("Lv." + e.level, centerIsoX, centerIsoY + 10);
         }
     }
 
