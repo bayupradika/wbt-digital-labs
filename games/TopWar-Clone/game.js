@@ -82,6 +82,29 @@ function getEntityAt(r, c) {
 
 function canPlace(r, c, size, ignoreEntityId = null) {
     if (r < 0 || c < 0 || r + size > GRID_SIZE || c + size > GRID_SIZE) return false;
+    
+    // Check if within the green island (Ellipse collision)
+    // The island center in grid is at roughly r=15, c=15.
+    // The ellipse is drawn at iso (0, -10) with radii (GRID_SIZE*TILE_W*0.95, GRID_SIZE*TILE_H*0.95/2)
+    // But our grid (0,0) starts at top-left. Let's calculate the center of the placement.
+    let cartX = (c + size/2) * TILE_W;
+    let cartY = (r + size/2) * TILE_H;
+    let iso = cartToIso(cartX, cartY);
+    
+    let centerCartX = (GRID_SIZE/2) * TILE_W;
+    let centerCartY = (GRID_SIZE/2) * TILE_H;
+    let centerIso = cartToIso(centerCartX, centerCartY);
+
+    let a = GRID_SIZE * TILE_W * 0.90; // slightly smaller than green bounds to be safe
+    let b = GRID_SIZE * TILE_H * 0.95 / 2;
+    
+    // Check against the green grass ellipse center which is at (centerIso.x, centerIso.y - 10)
+    let dx = iso.x - centerIso.x;
+    let dy = iso.y - (centerIso.y - 10);
+    
+    let ellipseCheck = (dx * dx) / (a * a) + (dy * dy) / (b * b);
+    if (ellipseCheck > 1) return false;
+
     for (let e of gameState.entities) {
         if (e.id === ignoreEntityId) continue;
         let eSize = e.size || 1;
@@ -107,14 +130,16 @@ canvas.addEventListener('mousedown', (e) => {
     // Hide context menu
     document.getElementById('barrackMenu').style.display = 'none';
 
+    // Check if clicking placingEntity
     if (placingEntity) {
-        // If placing an entity, clicking doesn't drag other things, but can pan
-        isPanning = true;
-        return;
+        if (gridPos.r >= placingEntity.r && gridPos.r < placingEntity.r + placingEntity.size &&
+            gridPos.c >= placingEntity.c && gridPos.c < placingEntity.c + placingEntity.size) {
+            draggedEntity = placingEntity;
+            dragStartGrid = { r: placingEntity.r, c: placingEntity.c };
+            return;
+        }
     }
 
-    // Check if clicking an entity
-    let gridPos = getMouseGrid(e.clientX, e.clientY);
     let clickedEnt = getEntityAt(gridPos.r, gridPos.c);
     
     if (clickedEnt) {
@@ -133,13 +158,6 @@ canvas.addEventListener('mousemove', (e) => {
     if (isPanning) {
         camera.x = lastCam.x + (e.clientX - startPan.x) / zoom;
         camera.y = lastCam.y + (e.clientY - startPan.y) / zoom;
-    } else if (draggedEntity) {
-        // Dragging logic handled in render
-    }
-    
-    if (placingEntity && !isPanning) {
-        placingEntity.r = hoveredGrid.r;
-        placingEntity.c = hoveredGrid.c;
     }
 });
 
@@ -166,26 +184,40 @@ canvas.addEventListener('mouseup', (e) => {
             // Trying to place
             let size = draggedEntity.size || 1;
             
-            // Is it merging?
-            let targetEnt = getEntityAt(dropGrid.r, dropGrid.c);
-            if (targetEnt && targetEnt.id !== draggedEntity.id) {
-                if (targetEnt.type === draggedEntity.type && targetEnt.level === draggedEntity.level) {
-                    // MERGE!
-                    targetEnt.level++;
-                    // Gain gold
-                    gameState.gold += (100 * targetEnt.level);
-                    updateHUD();
-                    
-                    // Remove dragged entity
-                    gameState.entities = gameState.entities.filter(ent => ent.id !== draggedEntity.id);
-                } else {
-                    // Invalid merge, return to start
-                }
-            } else {
-                // Moving to empty space
+            // Check if it's the placingEntity (we are just moving it before confirming)
+            if (placingEntity && draggedEntity === placingEntity) {
                 if (canPlace(dropGrid.r, dropGrid.c, size, draggedEntity.id)) {
-                    draggedEntity.r = dropGrid.r;
-                    draggedEntity.c = dropGrid.c;
+                    placingEntity.r = dropGrid.r;
+                    placingEntity.c = dropGrid.c;
+                } else {
+                    // Revert to start grid if invalid
+                    placingEntity.r = dragStartGrid.r;
+                    placingEntity.c = dragStartGrid.c;
+                }
+            }
+            else {
+                // Normal entity drop logic
+                // Is it merging?
+                let targetEnt = getEntityAt(dropGrid.r, dropGrid.c);
+                if (targetEnt && targetEnt.id !== draggedEntity.id) {
+                    if (targetEnt.type === draggedEntity.type && targetEnt.level === draggedEntity.level) {
+                        // MERGE!
+                        targetEnt.level++;
+                        // Gain gold
+                        gameState.gold += (100 * targetEnt.level);
+                        updateHUD();
+                        
+                        // Remove dragged entity
+                        gameState.entities = gameState.entities.filter(ent => ent.id !== draggedEntity.id);
+                    } else {
+                        // Invalid merge, return to start
+                    }
+                } else {
+                    // Moving to empty space
+                    if (canPlace(dropGrid.r, dropGrid.c, size, draggedEntity.id)) {
+                        draggedEntity.r = dropGrid.r;
+                        draggedEntity.c = dropGrid.c;
+                    }
                 }
             }
         }
@@ -256,9 +288,14 @@ function buyStructure(type, size, cost) {
         
         // Find nearest valid empty spot
         let found = false;
+        
+        // Let's search spiraling out from center (15, 15).
+        let centerR = Math.floor(GRID_SIZE / 2);
+        let centerC = Math.floor(GRID_SIZE / 2);
+        
         for (let radius = 0; radius < GRID_SIZE; radius++) {
-            for (let r = center - radius; r <= center + radius; r++) {
-                for (let c = center - radius; c <= center + radius; c++) {
+            for (let r = centerR - radius; r <= centerR + radius; r++) {
+                for (let c = centerC - radius; c <= centerC + radius; c++) {
                     if (canPlace(r, c, size)) {
                         startR = r;
                         startC = c;
@@ -271,7 +308,7 @@ function buyStructure(type, size, cost) {
             if (found) break;
         }
 
-        placingEntity = { type, size, cost, level: 1, r: startR, c: startC };
+        placingEntity = { id: 'place_tmp', type, size, cost, level: 1, r: startR, c: startC };
         placementUI.style.display = 'flex';
         document.getElementById('buildMenu').classList.remove('active');
     } else {
@@ -336,12 +373,23 @@ function render() {
     ctx.translate(camera.x, camera.y);
 
     // 1. Draw Island Base (Circle/Ellipse in Iso)
+    // Note: The island center is at Cartesian (0,0) which maps to Iso (0,0).
+    // But wait, the grid loop is from r=0 to GRID_SIZE. 
+    // To allow negative grid coords, let's change the loop to from -GRID_SIZE to GRID_SIZE,
+    // OR we shift the island. 
+    // Ah, my previous grid loop was from 0 to GRID_SIZE! 
+    // If we want the center to be 15,15, we need the island to be at iso mapped from (15,15).
+    
+    let centerCartX = (GRID_SIZE/2) * TILE_W;
+    let centerCartY = (GRID_SIZE/2) * TILE_H;
+    let centerIso = cartToIso(centerCartX, centerCartY);
+
     ctx.beginPath();
-    ctx.ellipse(0, 0, GRID_SIZE*TILE_W, GRID_SIZE*TILE_H/2, 0, 0, Math.PI*2);
+    ctx.ellipse(centerIso.x, centerIso.y, GRID_SIZE*TILE_W, GRID_SIZE*TILE_H/2, 0, 0, Math.PI*2);
     ctx.fillStyle = '#fefae0'; // Sand
     ctx.fill();
     ctx.beginPath();
-    ctx.ellipse(0, -10, GRID_SIZE*TILE_W*0.95, GRID_SIZE*TILE_H*0.95/2, 0, 0, Math.PI*2);
+    ctx.ellipse(centerIso.x, centerIso.y - 10, GRID_SIZE*TILE_W*0.95, GRID_SIZE*TILE_H*0.95/2, 0, 0, Math.PI*2);
     ctx.fillStyle = '#90be6d'; // Grass
     ctx.fill();
 
@@ -506,11 +554,7 @@ function render() {
     requestAnimationFrame(render);
 }
 
-// Start
-spawnEntity('barrack', 2, 14, 14, 1);
-spawnEntity('mine', 2, 14, 17, 1);
-spawnEntity('army', 1, 16, 14, 84);
-spawnEntity('army', 1, 17, 14, 84);
+// Start (Empty Island)
 requestAnimationFrame(render);
 
 // FAKE CHAT
