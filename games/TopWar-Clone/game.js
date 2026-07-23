@@ -42,7 +42,12 @@ function isoToCart(isoX, isoY) {
 }
 
 // --- CAMERA PANNING ---
-let camera = { x: 0, y: -200 };
+// Calculate initial center
+let initialCenterCartX = (GRID_SIZE/2) * TILE_W;
+let initialCenterCartY = (GRID_SIZE/2) * TILE_H;
+let initialCenterIso = cartToIso(initialCenterCartX, initialCenterCartY);
+
+let camera = { x: -initialCenterIso.x, y: -initialCenterIso.y };
 let zoom = 1.0;
 let isPanning = false;
 let startPan = { x: 0, y: 0 };
