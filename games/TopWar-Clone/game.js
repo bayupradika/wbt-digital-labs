@@ -593,9 +593,14 @@ function render() {
         if (e.type === 'army') {
             let img = ASSETS.soldier;
             if (img.complete && img.naturalWidth !== 0) {
-                let w = 80;
-                let h = w * (img.naturalHeight / img.naturalWidth);
-                ctx.drawImage(img, centerIsoX - w/2, centerIsoY - h + 10, w, h);
+                let side = TILE_W * e.size;
+                ctx.save();
+                ctx.translate(iso.x, iso.y);
+                let cos30 = Math.cos(Math.PI/6);
+                let sin30 = Math.sin(Math.PI/6);
+                ctx.transform(cos30, sin30, -cos30, sin30, 0, 0);
+                ctx.drawImage(img, 0, 0, side, side);
+                ctx.restore();
             } else {
                 ctx.fillStyle = '#3b82f6';
                 ctx.strokeStyle = '#1d4ed8';
