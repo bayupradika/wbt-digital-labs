@@ -36,6 +36,8 @@ function initEditor() {
         <label>Background <input type="text" id="prop-bg"></label>
         <label>Color <input type="text" id="prop-color"></label>
         <label>Font Size <input type="text" id="prop-fontsize"></label>
+        <label>Width <input type="text" id="prop-width"></label>
+        <label>Height <input type="text" id="prop-height"></label>
         <label>Border Radius <input type="text" id="prop-radius"></label>
         
         <div class="btn-group">
@@ -66,6 +68,12 @@ function initEditor() {
     };
     document.getElementById('prop-fontsize').oninput = (e) => {
         if(selectedElement) selectedElement.style.fontSize = e.target.value;
+    };
+    document.getElementById('prop-width').oninput = (e) => {
+        if(selectedElement) selectedElement.style.width = e.target.value;
+    };
+    document.getElementById('prop-height').oninput = (e) => {
+        if(selectedElement) selectedElement.style.height = e.target.value;
     };
     document.getElementById('prop-radius').oninput = (e) => {
         if(selectedElement) selectedElement.style.borderRadius = e.target.value;
@@ -107,6 +115,8 @@ function selectElement(el) {
     document.getElementById('prop-bg').value = el.style.background || '';
     document.getElementById('prop-color').value = el.style.color || '';
     document.getElementById('prop-fontsize').value = el.style.fontSize || '';
+    document.getElementById('prop-width').value = el.style.width || el.offsetWidth + 'px';
+    document.getElementById('prop-height').value = el.style.height || el.offsetHeight + 'px';
     document.getElementById('prop-radius').value = el.style.borderRadius || '';
 }
 
@@ -227,6 +237,8 @@ function addElement(type) {
         el.style.border = 'none';
         el.style.borderRadius = '5px';
         el.style.cursor = 'pointer';
+        el.style.width = '60px';
+        el.style.height = '60px';
     } else if (type === 'text') {
         el.innerHTML = 'Teks Baru';
         el.style.color = 'white';
