@@ -337,6 +337,17 @@ function buyStructure(type, size, cost) {
     document.getElementById('placementUI').style.display = 'flex';
 }
 
+document.getElementById('buildBtn').addEventListener('click', () => {
+    document.getElementById('buildMenu').classList.add('active');
+});
+
+document.getElementById('closeBuildBtn').addEventListener('click', () => {
+    document.getElementById('buildMenu').classList.remove('active');
+});
+
+document.getElementById('buyBarrackBtn').addEventListener('click', () => buyStructure('barrack', 2, 300));
+document.getElementById('buyMineBtn').addEventListener('click', () => buyStructure('mine', 2, 500));
+
 document.getElementById('confirmPlaceBtn').addEventListener('click', () => {
     if (placingEntities.length > 0) {
         let valid = true;
