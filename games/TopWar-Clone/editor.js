@@ -156,14 +156,15 @@ function onEditorMouseDown(e) {
     // Make it absolutely positioned if not already
     let rect = el.getBoundingClientRect();
     if(window.getComputedStyle(el).position !== 'absolute') {
+        let parentRect = el.offsetParent ? el.offsetParent.getBoundingClientRect() : {left: 0, top: 0};
         el.style.position = 'absolute';
-        el.style.left = rect.left + 'px';
-        el.style.top = rect.top + 'px';
+        el.style.left = (rect.left - parentRect.left) + 'px';
+        el.style.top = (rect.top - parentRect.top) + 'px';
         el.style.margin = '0';
     }
     
-    dragOffsetX = e.clientX - el.getBoundingClientRect().left;
-    dragOffsetY = e.clientY - el.getBoundingClientRect().top;
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
 }
 
 function onEditorMouseMove(e) {
@@ -171,12 +172,46 @@ function onEditorMouseMove(e) {
     e.stopPropagation();
     e.preventDefault();
     
-    selectedElement.style.left = (e.clientX - dragOffsetX) + 'px';
-    selectedElement.style.top = (e.clientY - dragOffsetY) + 'px';
+    let parentRect = selectedElement.offsetParent ? selectedElement.offsetParent.getBoundingClientRect() : {left: 0, top: 0};
+    
+    let newLeft = (e.clientX - dragOffsetX) - parentRect.left;
+    let newTop = (e.clientY - dragOffsetY) - parentRect.top;
+    
+    selectedElement.style.left = newLeft + 'px';
+    selectedElement.style.top = newTop + 'px';
 }
 
 function onEditorMouseUp(e) {
-    if(!designModeActive || !isDraggingUI) return;
+    if(!designModeActive || !isDraggingUI || !selectedElement) return;
+    
+    // Find what is underneath by temporarily hiding selected element
+    selectedElement.style.pointerEvents = 'none';
+    let elUnder = document.elementFromPoint(e.clientX, e.clientY);
+    selectedElement.style.pointerEvents = 'auto';
+    
+    let hudLayer = document.getElementById('hudLayer');
+    
+    // Valid container: a div inside hudLayer that is not the selected element itself
+    let isContainer = elUnder && hudLayer.contains(elUnder) && elUnder.tagName === 'DIV' && elUnder !== hudLayer && !selectedElement.contains(elUnder);
+    
+    if(isContainer) {
+        if(selectedElement.parentNode !== elUnder) {
+            let rect = selectedElement.getBoundingClientRect();
+            let newParentRect = elUnder.getBoundingClientRect();
+            elUnder.appendChild(selectedElement);
+            selectedElement.style.left = (rect.left - newParentRect.left) + 'px';
+            selectedElement.style.top = (rect.top - newParentRect.top) + 'px';
+        }
+    } else {
+        if(selectedElement.parentNode !== hudLayer) {
+            let rect = selectedElement.getBoundingClientRect();
+            let newParentRect = hudLayer.getBoundingClientRect();
+            hudLayer.appendChild(selectedElement);
+            selectedElement.style.left = (rect.left - newParentRect.left) + 'px';
+            selectedElement.style.top = (rect.top - newParentRect.top) + 'px';
+        }
+    }
+    
     e.stopPropagation();
     e.preventDefault();
     isDraggingUI = false;
