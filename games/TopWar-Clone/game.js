@@ -36,6 +36,91 @@ let gameState = {
     entities: []
 };
 let placingEntities = [];
+
+// --- ISOMETRIC MATH ---
+function cartToIso(x, y) {
+    return {
+        x: (x - y) * Math.cos(Math.PI / 6),
+        y: (x + y) * Math.sin(Math.PI / 6)
+    };
+}
+
+function isoToCart(isoX, isoY) {
+    return {
+        x: (isoX / Math.cos(Math.PI / 6) + isoY / Math.sin(Math.PI / 6)) / 2,
+        y: (isoY / Math.sin(Math.PI / 6) - isoX / Math.cos(Math.PI / 6)) / 2
+    };
+}
+
+// --- CAMERA PANNING ---
+let camera = { x: 0, y: -200 };
+let zoom = 1.0;
+let isPanning = false;
+let startPan = { x: 0, y: 0 };
+let lastCam = { x: 0, y: 0 };
+
+let mouse = { x: 0, y: 0, isDown: false };
+let hoveredGrid = { r: -1, c: -1 };
+
+// Interaction states
+let draggedEntity = null;
+let dragOffset = { x: 0, y: 0 };
+let dragStartGrid = { r: -1, c: -1 };
+
+function getMouseGrid(clientX, clientY) {
+    let adjX = (clientX - width / 2) / zoom - camera.x;
+    let adjY = (clientY - height / 2) / zoom - camera.y;
+    let cart = isoToCart(adjX, adjY);
+    let c = Math.floor(cart.x / TILE_W);
+    let r = Math.floor(cart.y / TILE_H);
+    return { r, c };
+}
+
+function getEntityAt(r, c) {
+    for (let i = gameState.entities.length - 1; i >= 0; i--) {
+        let e = gameState.entities[i];
+        let size = e.size || 1;
+        if (r >= e.r && r < e.r + size && c >= e.c && c < e.c + size) {
+            return e;
+        }
+    }
+    return null;
+}
+
+function isPointInIsland(cartX, cartY) {
+    let iso = cartToIso(cartX, cartY);
+    let centerCartX = (GRID_SIZE/2) * TILE_W;
+    let centerCartY = (GRID_SIZE/2) * TILE_H;
+    let centerIso = cartToIso(centerCartX, centerCartY);
+
+    let radiusTiles = 22;
+    let a = radiusTiles * TILE_W; 
+    let b = radiusTiles * TILE_H / 2;
+    
+    let dx = iso.x - centerIso.x;
+    let dy = iso.y - (centerIso.y - 10);
+    
+    return (dx * dx) / (a * a) + (dy * dy) / (b * b) <= 1;
+}
+
+function canPlace(r, c, size, ignoreEntityId = null) {
+    if (r < 0 || c < 0 || r + size > GRID_SIZE || c + size > GRID_SIZE) return false;
+    
+    if (!isPointInIsland(c * TILE_W, r * TILE_H)) return false; // Top-Left
+    if (!isPointInIsland((c + size) * TILE_W, r * TILE_H)) return false; // Top-Right
+    if (!isPointInIsland(c * TILE_W, (r + size) * TILE_H)) return false; // Bottom-Left
+    if (!isPointInIsland((c + size) * TILE_W, (r + size) * TILE_H)) return false; // Bottom-Right
+
+    for (let e of gameState.entities) {
+        if (e.id === ignoreEntityId) continue;
+        let eSize = e.size || 1;
+        if (r < e.r + eSize && r + size > e.r && c < e.c + eSize && c + size > e.c) {
+            return false;
+        }
+    }
+    return true;
+}
+
 let placementUI = document.getElementById('placementUI');
 let selectedEntity = null;
 
