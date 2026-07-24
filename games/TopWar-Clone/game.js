@@ -27,257 +27,15 @@ ASSETS.mine.src = 'assets/goldmine.png';
 ASSETS.soldier.src = 'assets/soldier.jpg';
 
 let gameState = {
-    gold: 15055764,
-    power: 19.9,
-    gems: 21316,
-    level: 84,
-    // Array of objects. We won't use a strict 1D array to allow 2x2 easier management.
-    entities: [] 
+    gold: 50000,
+    gems: 100000,
+    level: 5,
+    exp: 4650,
+    maxExp: 6570,
+    power: 3235,
+    entities: []
 };
-
-// --- ISOMETRIC MATH ---
-// Top War typically uses an isometric projection where X and Y are rotated 45 degrees, then scaled Y by 0.5.
-function cartToIso(x, y) {
-    return {
-        x: (x - y) * Math.cos(Math.PI / 6),
-        y: (x + y) * Math.sin(Math.PI / 6)
-    };
-}
-
-function isoToCart(isoX, isoY) {
-    return {
-        x: (isoX / Math.cos(Math.PI / 6) + isoY / Math.sin(Math.PI / 6)) / 2,
-        y: (isoY / Math.sin(Math.PI / 6) - isoX / Math.cos(Math.PI / 6)) / 2
-    };
-}
-
-// --- CAMERA PANNING ---
-// Calculate initial center
-let initialCenterCartX = (GRID_SIZE/2) * TILE_W;
-let initialCenterCartY = (GRID_SIZE/2) * TILE_H;
-let initialCenterIso = cartToIso(initialCenterCartX, initialCenterCartY);
-
-let camera = { x: -initialCenterIso.x, y: -initialCenterIso.y };
-let zoom = 1.0;
-let isPanning = false;
-let startPan = { x: 0, y: 0 };
-let lastCam = { x: 0, y: 0 };
-
-let mouse = { x: 0, y: 0, isDown: false };
-let hoveredGrid = { r: -1, c: -1 };
-
-// Interaction states
-let draggedEntity = null;
-let dragOffset = { x: 0, y: 0 };
-let dragStartGrid = { r: -1, c: -1 };
-let dragStartMouseGrid = { r: -1, c: -1 };
-
-function getMouseGrid(clientX, clientY) {
-    // 1. Adjust for zoom and camera
-    let adjX = (clientX - width / 2) / zoom - camera.x;
-    let adjY = (clientY - height / 2) / zoom - camera.y;
-    // 2. Convert to Cartesian
-    let cart = isoToCart(adjX, adjY);
-    // 3. Grid coordinates
-    let c = Math.floor(cart.x / TILE_W);
-    let r = Math.floor(cart.y / TILE_H);
-    return { r, c };
-}
-
-function getEntityAt(r, c) {
-    // Reverse loop to get top-most entity
-    for (let i = gameState.entities.length - 1; i >= 0; i--) {
-        let e = gameState.entities[i];
-        let size = e.size || 1;
-        if (r >= e.r && r < e.r + size && c >= e.c && c < e.c + size) {
-            return e;
-        }
-    }
-    return null;
-}
-
-function getOverlappingEntities(r, c, size, ignoreId) {
-    let overlaps = [];
-    for (let e of gameState.entities) {
-        if (e.id === ignoreId) continue;
-        let eSize = e.size || 1;
-        if (r < e.r + eSize && r + size > e.r && c < e.c + eSize && c + size > e.c) {
-            overlaps.push(e);
-        }
-    }
-    return overlaps;
-}
-
-function isPointInIsland(cartX, cartY) {
-    let iso = cartToIso(cartX, cartY);
-    let centerCartX = (GRID_SIZE/2) * TILE_W;
-    let centerCartY = (GRID_SIZE/2) * TILE_H;
-    let centerIso = cartToIso(centerCartX, centerCartY);
-
-    // We use a radius that defines the green grass.
-    // Let's say the grass radius is 20 tiles wide.
-    let radiusTiles = 22;
-    let a = radiusTiles * TILE_W; 
-    let b = radiusTiles * TILE_H / 2;
-    
-    let dx = iso.x - centerIso.x;
-    let dy = iso.y - (centerIso.y - 10);
-    
-    return (dx * dx) / (a * a) + (dy * dy) / (b * b) <= 1;
-}
-
-function canPlace(r, c, size, ignoreEntityId = null) {
-    if (r < 0 || c < 0 || r + size > GRID_SIZE || c + size > GRID_SIZE) return false;
-    
-    // Check all 4 corners of the placement area to ensure it's FULLY inside the island
-    if (!isPointInIsland(c * TILE_W, r * TILE_H)) return false; // Top-Left
-    if (!isPointInIsland((c + size) * TILE_W, r * TILE_H)) return false; // Top-Right
-    if (!isPointInIsland(c * TILE_W, (r + size) * TILE_H)) return false; // Bottom-Left
-    if (!isPointInIsland((c + size) * TILE_W, (r + size) * TILE_H)) return false; // Bottom-Right
-
-    for (let e of gameState.entities) {
-        if (e.id === ignoreEntityId) continue;
-        let eSize = e.size || 1;
-        // AABB Collision in grid space
-        if (r < e.r + eSize && r + size > e.r && c < e.c + eSize && c + size > e.c) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// --- EVENT LISTENERS ---
-function onDown(e, x, y) {
-    if (e.target && e.target.closest && (e.target.closest('button') || e.target.closest('.build-menu-sheet') || e.target.closest('.context-menu') || e.target.closest('#placementUI'))) return;
-    
-    mouse.isDown = true;
-    startPan.x = x;
-    startPan.y = y;
-    lastCam.x = camera.x;
-    lastCam.y = camera.y;
-
-    let bMenu = document.getElementById('barrackMenu');
-    if (bMenu) bMenu.style.display = 'none';
-
-    if (placingEntity) {
-        let gridPos = getMouseGrid(x, y);
-        if (gridPos.r >= placingEntity.r && gridPos.r < placingEntity.r + placingEntity.size &&
-            gridPos.c >= placingEntity.c && gridPos.c < placingEntity.c + placingEntity.size) {
-            draggedEntity = placingEntity;
-            dragStartGrid = { r: placingEntity.r, c: placingEntity.c };
-            return;
-        }
-    }
-
-    let gridPos = getMouseGrid(x, y);
-    let clickedEnt = getEntityAt(gridPos.r, gridPos.c);
-    
-    if (clickedEnt) {
-        draggedEntity = clickedEnt;
-        dragStartGrid = { r: clickedEnt.r, c: clickedEnt.c };
-        dragStartMouseGrid = { r: gridPos.r, c: gridPos.c };
-    } else {
-        isPanning = true;
-    }
-}
-
-function onMove(e, x, y) {
-    mouse.x = x;
-    mouse.y = y;
-    hoveredGrid = getMouseGrid(x, y);
-
-    if (isPanning) {
-        camera.x = lastCam.x + (x - startPan.x) / zoom;
-        camera.y = lastCam.y + (y - startPan.y) / zoom;
-    }
-}
-
-function onUp(e, x, y) {
-    mouse.isDown = false;
-    isPanning = false;
-
-    if (draggedEntity) {
-        let dropGrid = getMouseGrid(x, y);
-        
-        // Check if just clicking (didn't move much)
-        if (dropGrid.r === dragStartMouseGrid.r && dropGrid.c === dragStartMouseGrid.c) {
-            if (draggedEntity.type === 'barrack' || draggedEntity.type === 'mine') {
-                showContextMenu(draggedEntity);
-            }
-        } else {
-            // Trying to place
-            let size = draggedEntity.size || 1;
-            
-            // Calculate final dropped position based on relative drag
-            let deltaR = dropGrid.r - dragStartMouseGrid.r;
-            let deltaC = dropGrid.c - dragStartMouseGrid.c;
-            let finalR = dragStartGrid.r + deltaR;
-            let finalC = dragStartGrid.c + deltaC;
-            
-            if (placingEntity && draggedEntity === placingEntity) {
-                if (canPlace(finalR, finalC, size, draggedEntity.id)) {
-                    placingEntity.r = finalR;
-                    placingEntity.c = finalC;
-                } else {
-                    placingEntity.r = dragStartGrid.r;
-                    placingEntity.c = dragStartGrid.c;
-                }
-            } else {
-                let overlaps = getOverlappingEntities(finalR, finalC, size, draggedEntity.id);
-                if (overlaps.length === 1) {
-                    let targetEnt = overlaps[0];
-                    if (targetEnt.type === draggedEntity.type && targetEnt.level === draggedEntity.level) {
-                        targetEnt.level++;
-                        gameState.gold += (100 * targetEnt.level);
-                        updateHUD();
-                        gameState.entities = gameState.entities.filter(ent => ent.id !== draggedEntity.id);
-                    }
-                } else if (overlaps.length === 0) {
-                    if (canPlace(finalR, finalC, size, draggedEntity.id)) {
-                        draggedEntity.r = finalR;
-                        draggedEntity.c = finalC;
-                    }
-                }
-            }
-        }
-        draggedEntity = null;
-    }
-}
-
-window.addEventListener('mousedown', (e) => onDown(e, e.clientX, e.clientY));
-window.addEventListener('mousemove', (e) => onMove(e, e.clientX, e.clientY));
-window.addEventListener('mouseup', (e) => onUp(e, e.clientX, e.clientY));
-
-window.addEventListener('touchstart', (e) => {
-    if (e.target === canvas) e.preventDefault(); // Stop native scrolling
-    onDown(e, e.touches[0].clientX, e.touches[0].clientY);
-}, { passive: false });
-window.addEventListener('touchmove', (e) => {
-    if (e.target === canvas) e.preventDefault();
-    onMove(e, e.touches[0].clientX, e.touches[0].clientY);
-}, { passive: false });
-window.addEventListener('touchend', (e) => {
-    if (e.target === canvas) e.preventDefault();
-    onUp(e, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-}, { passive: false });
-
-window.addEventListener('wheel', (e) => {
-    zoom += e.deltaY * -0.001;
-    zoom = Math.min(Math.max(0.2, zoom), 3.0);
-});
-
-// --- MENU ACTIONS ---
-document.getElementById('buildBtn').addEventListener('click', () => {
-    document.getElementById('buildMenu').classList.add('active');
-});
-document.getElementById('closeBuildBtn').addEventListener('click', () => {
-    document.getElementById('buildMenu').classList.remove('active');
-});
-
-document.getElementById('buyBarrackBtn').addEventListener('click', () => buyStructure('barrack', 2, 300));
-document.getElementById('buyMineBtn').addEventListener('click', () => buyStructure('mine', 2, 500));
-
-let placingEntity = null;
+let placingEntities = [];
 let placementUI = document.getElementById('placementUI');
 let selectedEntity = null;
 
@@ -335,68 +93,91 @@ function collectGold(mine) {
 
 
 function buyStructure(type, size, cost) {
-    if (gameState.gold >= cost) {
-        let center = Math.floor(GRID_SIZE / 2);
-        let startR = center; let startC = center;
-        
-        // Find nearest valid empty spot
-        let found = false;
-        
-        // Let's search spiraling out from center (15, 15).
-        let centerR = Math.floor(GRID_SIZE / 2);
-        let centerC = Math.floor(GRID_SIZE / 2);
-        
-        for (let radius = 0; radius < GRID_SIZE; radius++) {
-            for (let r = centerR - radius; r <= centerR + radius; r++) {
-                for (let c = centerC - radius; c <= centerC + radius; c++) {
-                    if (canPlace(r, c, size)) {
-                        startR = r;
-                        startC = c;
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) break;
-            }
-            if (found) break;
-        }
-
-        placingEntity = { id: 'place_tmp', type, size, cost, level: 1, r: startR, c: startC };
-        placementUI.style.display = 'flex';
-        document.getElementById('buildMenu').classList.remove('active');
-        
-        // Auto-focus camera on the new placing entity
-        let cartX = startC * TILE_W;
-        let cartY = startR * TILE_H;
-        let iso = cartToIso(cartX, cartY);
-        // Center the building visually
-        camera.x = -iso.x;
-        camera.y = -(iso.y + TILE_H*size/2);
-
-    } else {
-        alert("Gold tidak cukup!");
+    document.getElementById('buildMenu').classList.remove('active');
+    
+    let maxToBuy = 10;
+    let actualMax = Math.min(maxToBuy, Math.floor(gameState.gold / cost));
+    
+    if (actualMax === 0) {
+        alert("Not enough gold!");
+        return;
     }
+    
+    let center = Math.floor(GRID_SIZE / 2);
+    let foundArr = [];
+    
+    let r = center, c = center, dr = 1, dc = 0, segmentLen = 1, segmentPassed = 0;
+    for (let i = 0; i < 400 && foundArr.length < actualMax; i++) {
+        if (canPlace(r, c, size)) {
+            let overlap = false;
+            for (let f of foundArr) {
+                if (r < f.r + size && r + size > f.r && c < f.c + size && c + size > f.c) {
+                    overlap = true; break;
+                }
+            }
+            if (!overlap) foundArr.push({r, c});
+        }
+        r += dr; c += dc;
+        segmentPassed++;
+        if (segmentPassed === segmentLen) {
+            segmentPassed = 0;
+            let t = dr; dr = -dc; dc = t;
+            if (dc === 0) segmentLen++;
+        }
+    }
+    
+    if (foundArr.length === 0) {
+        alert("No empty space!");
+        return;
+    }
+    
+    placingEntities = foundArr.map((pos, idx) => ({
+        id: 'place_tmp_' + idx,
+        type: type,
+        size: size,
+        cost: cost,
+        level: 1,
+        r: pos.r,
+        c: pos.c
+    }));
+    
+    let cartX = foundArr[0].c * TILE_W;
+    let cartY = foundArr[0].r * TILE_H;
+    let iso = cartToIso(cartX, cartY);
+    camera.x = -iso.x;
+    camera.y = -(iso.y + TILE_H*size/2);
+
+    document.getElementById('placementUI').style.display = 'flex';
 }
 
 document.getElementById('confirmPlaceBtn').addEventListener('click', () => {
-    if (placingEntity) {
-        if (canPlace(placingEntity.r, placingEntity.c, placingEntity.size)) {
-            gameState.gold -= placingEntity.cost;
-            spawnEntity(placingEntity.type, placingEntity.size, placingEntity.r, placingEntity.c, placingEntity.level);
-            updateHUD();
-            placingEntity = null;
-            placementUI.style.display = 'none';
-        } else {
-            // Visual feedback for error could go here
-            placementUI.style.transform = 'translate(-50%, 20px) scale(1.1)';
-            setTimeout(() => placementUI.style.transform = 'translate(-50%, 20px) scale(1)', 200);
+    if (placingEntities.length > 0) {
+        let valid = true;
+        for (let p of placingEntities) {
+            if (!canPlace(p.r, p.c, p.size)) valid = false;
+            for (let op of placingEntities) {
+                if (p.id !== op.id && p.r < op.r + op.size && p.r + p.size > op.r && p.c < op.c + op.size && p.c + p.size > op.c) valid = false;
+            }
         }
+        
+        if (!valid) {
+            alert("Posisi tidak valid!");
+            return;
+        }
+        
+        for (let p of placingEntities) {
+            gameState.gold -= p.cost;
+            spawnEntity(p.type, p.size, p.r, p.c, p.level);
+        }
+        updateHUD();
+        placingEntities = [];
+        document.getElementById('placementUI').style.display = 'none';
     }
 });
 
 document.getElementById('cancelPlaceBtn').addEventListener('click', () => {
-    placingEntity = null;
-    placementUI.style.display = 'none';
+    placingEntities = [];
+    document.getElementById('placementUI').style.display = 'none';
 });
 
 function spawnEntity(type, size, r, c, level) {
@@ -406,8 +187,92 @@ function spawnEntity(type, size, r, c, level) {
     });
 }
 
+function formatNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(2).replace(/\.00$/, '').replace(/0$/, '') + 'K';
+    return num.toString();
+}
+
 function updateHUD() {
-    document.getElementById('goldText').innerText = gameState.gold.toLocaleString();
+    let goldEl = document.getElementById('goldText');
+    if(goldEl) goldEl.innerText = formatNumber(gameState.gold);
+    
+    let gemEl = document.getElementById('gemText');
+    if(gemEl) gemEl.innerText = formatNumber(gameState.gems);
+    
+    let lvlEl = document.getElementById('levelText');
+    if(lvlEl) lvlEl.innerText = gameState.level;
+    
+    let powEl = document.getElementById('powerText');
+    if(powEl) powEl.innerText = gameState.power.toLocaleString();
+    
+    let expPct = Math.min(100, (gameState.exp / gameState.maxExp) * 100);
+    let barEl = document.getElementById('expBar');
+    if(barEl) barEl.style.width = expPct + '%';
+    
+    let curEl = document.getElementById('expCurrentText');
+    if(curEl) curEl.innerText = formatNumber(gameState.exp);
+    
+    let maxEl = document.getElementById('expMaxText');
+    if(maxEl) maxEl.innerText = formatNumber(gameState.maxExp);
+    
+    let nextLvlEl = document.getElementById('nextLevelText');
+    if(nextLvlEl) nextLvlEl.innerText = gameState.level + 1;
+    
+    let reqEl = document.getElementById('expReqText');
+    if(reqEl) reqEl.innerText = formatNumber(gameState.maxExp - gameState.exp);
+}
+
+// Add event listener for exp container if not already added
+if (!window.expEvtAdded) {
+    window.addEventListener('DOMContentLoaded', () => {
+        let ec = document.getElementById('expContainer');
+        if(ec) {
+            ec.addEventListener('click', () => {
+                let tt = document.getElementById('expTooltip');
+                tt.style.display = tt.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+        
+        let tlBtn = document.getElementById('trainUnitsLeftBtn');
+        if(tlBtn) {
+            tlBtn.addEventListener('click', () => {
+                let maxLevel = 0;
+                for (let e of gameState.entities) {
+                    if (e.type === 'barrack' && e.level > maxLevel) maxLevel = e.level;
+                }
+                if (maxLevel === 0) {
+                    alert("Bangun Barrack terlebih dahulu!");
+                    return;
+                }
+                let cost = 100;
+                let actualMax = Math.min(10, Math.floor(gameState.gold / cost));
+                if (actualMax === 0) {
+                    alert("Koin emas tidak cukup!");
+                    return;
+                }
+                let center = Math.floor(GRID_SIZE / 2);
+                let found = 0;
+                let r = center, c = center, dr = 1, dc = 0, segmentLen = 1, segmentPassed = 0;
+                for (let i = 0; i < 1000 && found < actualMax; i++) {
+                    if (canPlace(r, c, 1)) {
+                        spawnEntity('army', 1, r, c, maxLevel);
+                        gameState.gold -= cost;
+                        found++;
+                    }
+                    r += dr; c += dc;
+                    segmentPassed++;
+                    if (segmentPassed === segmentLen) {
+                        segmentPassed = 0;
+                        let t = dr; dr = -dc; dc = t;
+                        if (dc === 0) segmentLen++;
+                    }
+                }
+                updateHUD();
+            });
+        }
+    });
+    window.expEvtAdded = true;
 }
 
 // --- RENDER LOOP ---
@@ -488,7 +353,7 @@ function render() {
     }
     
     // Draw placement preview
-    let previewEntity = draggedEntity || placingEntity;
+    let previewEntity = draggedEntity || (placingEntities.length > 0 ? placingEntities[0] : null);
     
     if (previewEntity) {
         let size = previewEntity.size || 1;
@@ -500,9 +365,9 @@ function render() {
             checkR = dragStartGrid.r + deltaR;
             checkC = dragStartGrid.c + deltaC;
         }
-        if (placingEntity) {
-            checkR = placingEntity.r;
-            checkC = placingEntity.c;
+        if (placingEntities.length > 0) {
+            checkR = placingEntities[0].r;
+            checkC = placingEntities[0].c;
         }
 
         let cartX = checkC * TILE_W;
@@ -531,8 +396,8 @@ function render() {
 
     // Sort entities
     let entitiesToDraw = [...gameState.entities];
-    if (placingEntity) {
-        entitiesToDraw.push(placingEntity);
+    for (let p of placingEntities) {
+        entitiesToDraw.push(p);
     }
     let sortedEntities = entitiesToDraw.sort((a,b) => (a.r+a.c) - (b.r+b.c));
 
@@ -548,7 +413,7 @@ function render() {
         let centerIsoY = iso.y + (TILE_H/2 * e.size); 
         
         // If dragging, smoothly follow the mouse
-        if (draggedEntity && e.id === draggedEntity.id && !placingEntity) {
+        if (draggedEntity && e.id === draggedEntity.id) {
             let dx = (mouse.x - startPan.x) / zoom;
             let dy = (mouse.y - startPan.y) / zoom;
             
@@ -557,18 +422,9 @@ function render() {
             iso.x += dx;
             iso.y += dy;
             
-            // Recompute cartX/cartY so the selection highlight draws correctly
             let updatedCart = isoToCart(iso.x, iso.y);
             cartX = updatedCart.x;
             cartY = updatedCart.y;
-        } else if (placingEntity && e.id === placingEntity.id) {
-            drawR = placingEntity.r;
-            drawC = placingEntity.c;
-            cartX = drawC * TILE_W;
-            cartY = drawR * TILE_H;
-            iso = cartToIso(cartX, cartY);
-            centerIsoX = iso.x;
-            centerIsoY = iso.y + (TILE_H/2 * e.size); 
         }
         
         // Draw Selection Highlight
@@ -685,13 +541,14 @@ function render() {
     ctx.restore();
     
     // Update Placement UI DOM position
-    if (placingEntity && placementUI.style.display !== 'none') {
-        let cartX = placingEntity.c * TILE_W;
-        let cartY = placingEntity.r * TILE_H;
+    if (placingEntities.length > 0 && placementUI.style.display !== 'none') {
+        let firstP = placingEntities[0];
+        let cartX = firstP.c * TILE_W;
+        let cartY = firstP.r * TILE_H;
         let iso = cartToIso(cartX, cartY);
         // Project center bottom of the building
         let screenX = (iso.x + camera.x) * zoom + width / 2;
-        let screenY = (iso.y + (TILE_H/2 * placingEntity.size) + camera.y) * zoom + height / 2;
+        let screenY = (iso.y + (TILE_H/2 * firstP.size) + camera.y) * zoom + height / 2;
         
         placementUI.style.left = screenX + 'px';
         placementUI.style.top = screenY + 'px';
