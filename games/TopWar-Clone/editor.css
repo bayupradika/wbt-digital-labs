@@ -1,0 +1,130 @@
+/* Editor Toolbar */
+#editor-toolbar {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 999999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    color: white;
+    font-family: Arial, sans-serif;
+    align-items: center;
+}
+
+#editor-toolbar button {
+    background: #444;
+    color: white;
+    border: 1px solid #666;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#editor-toolbar button:hover {
+    background: #555;
+}
+
+/* Editor Properties Panel */
+#editor-properties {
+    position: fixed;
+    right: 10px;
+    top: 60px;
+    width: 250px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 999999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#editor-properties h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+}
+
+#editor-properties label {
+    font-size: 12px;
+    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#editor-properties input, #editor-properties textarea {
+    background: #111;
+    border: 1px solid #444;
+    color: white;
+    padding: 5px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+#editor-properties .btn-group {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+#editor-properties button {
+    flex: 1;
+    background: #444;
+    color: white;
+    border: 1px solid #666;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#editor-properties button:hover {
+    background: #555;
+}
+
+#editor-properties button.danger {
+    background: #991b1b;
+    border-color: #7f1d1d;
+}
+
+#editor-properties button.danger:hover {
+    background: #b91c1c;
+}
+
+/* Toggle Editor Button */
+#toggle-editor-btn {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: #8b5cf6;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 999999;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* Selected Element Highlight */
+.editor-selected {
+    outline: 2px dashed #00ff00 !important;
+    outline-offset: 2px;
+    cursor: move !important;
+}
+
+.editor-draggable {
+    cursor: pointer;
+}
