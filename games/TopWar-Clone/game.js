@@ -53,7 +53,7 @@ function isoToCart(isoX, isoY) {
 }
 
 // --- CAMERA PANNING ---
-let camera = { x: 0, y: -200 };
+let camera = { x: 0, y: -1800 };
 let zoom = 1.0;
 let isPanning = false;
 let startPan = { x: 0, y: 0 };
@@ -176,6 +176,108 @@ function collectGold(mine) {
     selectedEntity = null;
 }
 
+canvas.addEventListener('pointerdown', (e) => {
+    if(e.target.closest('#hudLayer') || e.target.closest('.build-menu-sheet') || e.target.closest('#placementUI')) return;
+    
+    mouse.isDown = true;
+    startPan.x = e.clientX;
+    startPan.y = e.clientY;
+    lastCam.x = camera.x;
+    lastCam.y = camera.y;
+
+    let ctxMenu = document.getElementById('contextMenu');
+    if (ctxMenu) ctxMenu.style.display = 'none';
+
+    if (placingEntities.length > 0) {
+        let gridPos = getMouseGrid(e.clientX, e.clientY);
+        let clickedP = placingEntities.find(p => gridPos.r >= p.r && gridPos.r < p.r + p.size && gridPos.c >= p.c && gridPos.c < p.c + p.size);
+        if (clickedP) {
+            draggedEntity = clickedP;
+            dragStartGrid = { r: clickedP.r, c: clickedP.c };
+            return;
+        }
+        isPanning = true;
+        return;
+    }
+
+    let gridPos = getMouseGrid(e.clientX, e.clientY);
+    let clickedEnt = getEntityAt(gridPos.r, gridPos.c);
+    
+    if (clickedEnt) {
+        draggedEntity = clickedEnt;
+        dragStartGrid = { r: clickedEnt.r, c: clickedEnt.c };
+    } else {
+        isPanning = true;
+    }
+});
+
+canvas.addEventListener('pointermove', (e) => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    hoveredGrid = getMouseGrid(e.clientX, e.clientY);
+
+    if (isPanning) {
+        camera.x = lastCam.x + (e.clientX - startPan.x) / zoom;
+        camera.y = lastCam.y + (e.clientY - startPan.y) / zoom;
+    }
+    
+    if (placingEntities.length > 0 && !isPanning && draggedEntity) {
+        let isPlacing = placingEntities.find(p => p.id === draggedEntity.id);
+        if (isPlacing) {
+            isPlacing.r = hoveredGrid.r;
+            isPlacing.c = hoveredGrid.c;
+        }
+    }
+});
+
+canvas.addEventListener('wheel', (e) => {
+    zoom += e.deltaY * -0.001;
+    zoom = Math.min(Math.max(0.5, zoom), 2.0);
+});
+
+canvas.addEventListener('pointerup', (e) => {
+    mouse.isDown = false;
+    isPanning = false;
+
+    if (draggedEntity) {
+        let dropGrid = getMouseGrid(e.clientX, e.clientY);
+        let size = draggedEntity.size || 1;
+        
+        let isPlacing = placingEntities.find(p => p.id === draggedEntity.id);
+        if (isPlacing) {
+            let finalR = dropGrid.r;
+            let finalC = dropGrid.c;
+            let overlap = placingEntities.find(op => op.id !== draggedEntity.id && finalR < op.r + op.size && finalR + size > op.r && finalC < op.c + op.size && finalC + size > op.c);
+            if (!overlap && canPlace(finalR, finalC, size, draggedEntity.id)) {
+                isPlacing.r = finalR;
+                isPlacing.c = finalC;
+            } else {
+                isPlacing.r = dragStartGrid.r;
+                isPlacing.c = dragStartGrid.c;
+            }
+        } else {
+            if (dropGrid.r === dragStartGrid.r && dropGrid.c === dragStartGrid.c) {
+                showContextMenu(draggedEntity);
+            } else {
+                let targetEnt = getEntityAt(dropGrid.r, dropGrid.c);
+                if (targetEnt && targetEnt.id !== draggedEntity.id) {
+                    if (targetEnt.type === draggedEntity.type && targetEnt.level === draggedEntity.level) {
+                        targetEnt.level++;
+                        gameState.gold += (100 * targetEnt.level);
+                        updateHUD();
+                        gameState.entities = gameState.entities.filter(ent => ent.id !== draggedEntity.id);
+                    }
+                } else {
+                    if (canPlace(dropGrid.r, dropGrid.c, size, draggedEntity.id)) {
+                        draggedEntity.r = dropGrid.r;
+                        draggedEntity.c = dropGrid.c;
+                    }
+                }
+            }
+        }
+        draggedEntity = null;
+    }
+});
 
 function buyStructure(type, size, cost) {
     document.getElementById('buildMenu').classList.remove('active');
