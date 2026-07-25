@@ -90,12 +90,20 @@
                 <div class="item-icon barrack-icon"><i class="fa-solid fa-tents"></i></div>
                 <h4>Barrack</h4>
                 <p style="font-size:10px; color:#94a3b8; margin-bottom:5px;">(Spawn Army)</p>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 5px;">
+                    <span style="font-size: 12px; color: #fff;">Jumlah:</span>
+                    <input type="number" id="barrackQty" min="1" max="10" value="1" style="width: 40px; text-align: center; border-radius: 4px; border: 1px solid #ccc; color: black;" onclick="event.stopPropagation()">
+                </div>
                 <button class="buy-btn"><i class="fa-solid fa-coins"></i> 300</button>
             </div>
             <div class="build-item" id="buyMineBtn">
                 <div class="item-icon mine-icon"><i class="fa-solid fa-building"></i></div>
                 <h4>Gold Mine</h4>
                 <p style="font-size:10px; color:#94a3b8; margin-bottom:5px;">(Generate Gold)</p>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 5px;">
+                    <span style="font-size: 12px; color: #fff;">Jumlah:</span>
+                    <input type="number" id="mineQty" min="1" max="10" value="1" style="width: 40px; text-align: center; border-radius: 4px; border: 1px solid #ccc; color: black;" onclick="event.stopPropagation()">
+                </div>
                 <button class="buy-btn"><i class="fa-solid fa-coins"></i> 500</button>
             </div>
         </div>

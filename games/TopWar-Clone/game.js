@@ -143,26 +143,41 @@ function showContextMenu(ent) {
 }
 
 function recruitArmy(barrack) {
-    if (gameState.gold >= 100) {
-        // Find empty adjacent 1x1 spot
+    let trainedCount = 0;
+    let cost = 100;
+    
+    while (trainedCount < 5) {
+        if (gameState.gold < cost) break;
         let spawned = false;
-        for (let dr = -1; dr <= 2; dr++) {
-            for (let dc = -1; dc <= 2; dc++) {
-                let checkR = barrack.r + dr;
-                let checkC = barrack.c + dc;
-                if (canPlace(checkR, checkC, 1)) {
-                    spawnEntity('army', 1, checkR, checkC, barrack.level);
-                    gameState.gold -= 100;
-                    updateHUD();
-                    spawned = true;
-                    break;
+        let searchRadius = 1;
+        while (!spawned && searchRadius <= 5) {
+            for (let dr = -searchRadius; dr <= searchRadius + 1; dr++) {
+                for (let dc = -searchRadius; dc <= searchRadius + 1; dc++) {
+                    let checkR = barrack.r + dr;
+                    let checkC = barrack.c + dc;
+                    if (checkR >= barrack.r && checkR < barrack.r + barrack.size && checkC >= barrack.c && checkC < barrack.c + barrack.size) continue;
+                    
+                    if (canPlace(checkR, checkC, 1)) {
+                        spawnEntity('army', 1, checkR, checkC, barrack.level);
+                        gameState.gold -= cost;
+                        trainedCount++;
+                        spawned = true;
+                        break;
+                    }
                 }
+                if(spawned) break;
             }
-            if(spawned) break;
+            searchRadius++;
         }
-        if(!spawned) alert("Tidak ada ruang kosong di sekitar Barrack!");
-    } else {
+        if (!spawned) break;
+    }
+    
+    if (trainedCount > 0) {
+        updateHUD();
+    } else if (gameState.gold < cost) {
         alert("Gold tidak cukup!");
+    } else {
+        alert("Tidak ada ruang kosong di sekitar Barrack!");
     }
     document.getElementById('contextMenu').style.display = 'none';
     selectedEntity = null;
@@ -237,6 +252,7 @@ canvas.addEventListener('wheel', (e) => {
 
 canvas.addEventListener('pointerup', (e) => {
     mouse.isDown = false;
+    let isClick = Math.abs(e.clientX - startPan.x) < 5 && Math.abs(e.clientY - startPan.y) < 5;
     isPanning = false;
 
     if (draggedEntity) {
@@ -256,7 +272,7 @@ canvas.addEventListener('pointerup', (e) => {
                 isPlacing.c = dragStartGrid.c;
             }
         } else {
-            if (dropGrid.r === dragStartGrid.r && dropGrid.c === dragStartGrid.c) {
+            if (isClick || (dropGrid.r === dragStartGrid.r && dropGrid.c === dragStartGrid.c)) {
                 showContextMenu(draggedEntity);
             } else {
                 let targetEnt = getEntityAt(dropGrid.r, dropGrid.c);
@@ -279,10 +295,10 @@ canvas.addEventListener('pointerup', (e) => {
     }
 });
 
-function buyStructure(type, size, cost) {
+function buyStructure(type, size, cost, qty = 1) {
     document.getElementById('buildMenu').classList.remove('active');
     
-    let maxToBuy = 10;
+    let maxToBuy = Math.min(10, qty);
     let actualMax = Math.min(maxToBuy, Math.floor(gameState.gold / cost));
     
     if (actualMax === 0) {
@@ -345,8 +361,14 @@ document.getElementById('closeBuildBtn').addEventListener('click', () => {
     document.getElementById('buildMenu').classList.remove('active');
 });
 
-document.getElementById('buyBarrackBtn').addEventListener('click', () => buyStructure('barrack', 2, 300));
-document.getElementById('buyMineBtn').addEventListener('click', () => buyStructure('mine', 2, 500));
+document.getElementById('buyBarrackBtn').addEventListener('click', () => {
+    let qty = parseInt(document.getElementById('barrackQty').value) || 1;
+    buyStructure('barrack', 2, 300, qty);
+});
+document.getElementById('buyMineBtn').addEventListener('click', () => {
+    let qty = parseInt(document.getElementById('mineQty').value) || 1;
+    buyStructure('mine', 2, 500, qty);
+});
 
 document.getElementById('confirmPlaceBtn').addEventListener('click', () => {
     if (placingEntities.length > 0) {
@@ -435,43 +457,75 @@ if (!window.expEvtAdded) {
         let tlBtn = document.getElementById('trainUnitsLeftBtn');
         if(tlBtn) {
             tlBtn.addEventListener('click', () => {
-                let maxLevel = 0;
-                for (let e of gameState.entities) {
-                    if (e.type === 'barrack' && e.level > maxLevel) maxLevel = e.level;
-                }
-                if (maxLevel === 0) {
+                let barracks = gameState.entities.filter(e => e.type === 'barrack');
+                if (barracks.length === 0) {
                     alert("Bangun Barrack terlebih dahulu!");
                     return;
                 }
+                
+                let trainedCount = 0;
                 let cost = 100;
-                let actualMax = Math.min(10, Math.floor(gameState.gold / cost));
-                if (actualMax === 0) {
+                
+                for (let b of barracks) {
+                    let unitsForThisBarrack = 0;
+                    
+                    while (unitsForThisBarrack < 5) {
+                        if (gameState.gold < cost) break;
+                        
+                        let spawned = false;
+                        let searchRadius = 1;
+                        let maxRadius = 5;
+                        
+                        while(!spawned && searchRadius <= maxRadius) {
+                            for (let dr = -searchRadius; dr <= searchRadius + 1; dr++) {
+                                for (let dc = -searchRadius; dc <= searchRadius + 1; dc++) {
+                                    let checkR = b.r + dr;
+                                    let checkC = b.c + dc;
+                                    
+                                    if (checkR >= b.r && checkR < b.r + b.size && checkC >= b.c && checkC < b.c + b.size) continue;
+                                    
+                                    if (canPlace(checkR, checkC, 1)) {
+                                        spawnEntity('army', 1, checkR, checkC, b.level);
+                                        gameState.gold -= cost;
+                                        trainedCount++;
+                                        unitsForThisBarrack++;
+                                        spawned = true;
+                                        break;
+                                    }
+                                }
+                                if(spawned) break;
+                            }
+                            searchRadius++;
+                        }
+                        if (!spawned) break;
+                    }
+                }
+                
+                if (trainedCount > 0) {
+                    updateHUD();
+                } else if (gameState.gold < cost) {
                     alert("Koin emas tidak cukup!");
-                    return;
+                } else {
+                    alert("Tidak ada ruang kosong untuk melatih unit!");
                 }
-                let center = Math.floor(GRID_SIZE / 2);
-                let found = 0;
-                let r = center, c = center, dr = 1, dc = 0, segmentLen = 1, segmentPassed = 0;
-                for (let i = 0; i < 1000 && found < actualMax; i++) {
-                    if (canPlace(r, c, 1)) {
-                        spawnEntity('army', 1, r, c, maxLevel);
-                        gameState.gold -= cost;
-                        found++;
-                    }
-                    r += dr; c += dc;
-                    segmentPassed++;
-                    if (segmentPassed === segmentLen) {
-                        segmentPassed = 0;
-                        let t = dr; dr = -dc; dc = t;
-                        if (dc === 0) segmentLen++;
-                    }
-                }
-                updateHUD();
             });
         }
     });
     window.expEvtAdded = true;
 }
+
+// Passive Gold Generation
+setInterval(() => {
+    let mines = gameState.entities.filter(e => e.type === 'mine');
+    let addedGold = 0;
+    for (let m of mines) {
+        addedGold += (5 * m.level);
+    }
+    if (addedGold > 0) {
+        gameState.gold += addedGold;
+        updateHUD();
+    }
+}, 1000);
 
 // --- RENDER LOOP ---
 
