@@ -64,8 +64,9 @@ let hoveredGrid = { r: -1, c: -1 };
 
 // Interaction states
 let draggedEntity = null;
-let dragOffset = { x: 0, y: 0 };
 let dragStartGrid = { r: -1, c: -1 };
+let dragStartMouseGrid = { r: -1, c: -1 };
+let selectedEntity = null;
 
 function getMouseGrid(clientX, clientY) {
     let adjX = (clientX - width / 2) / zoom - camera.x;
@@ -221,6 +222,7 @@ canvas.addEventListener('pointerdown', (e) => {
     if (clickedEnt) {
         draggedEntity = clickedEnt;
         dragStartGrid = { r: clickedEnt.r, c: clickedEnt.c };
+        dragStartMouseGrid = { r: gridPos.r, c: gridPos.c };
     } else {
         isPanning = true;
     }
