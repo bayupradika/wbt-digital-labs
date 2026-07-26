@@ -123,7 +123,6 @@ function canPlace(r, c, size, ignoreEntityId = null) {
 }
 
 let placementUI = document.getElementById('placementUI');
-let selectedEntity = null;
 
 function showContextMenu(ent) {
     selectedEntity = ent;
