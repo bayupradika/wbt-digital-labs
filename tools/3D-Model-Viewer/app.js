@@ -16,6 +16,8 @@ const container = document.getElementById('canvasContainer');
 const loadingOverlay = document.getElementById('loadingOverlay');
 const loadingText = document.getElementById('loadingText');
 const selectionPanel = document.getElementById('selectionPanel');
+const converterModal = document.getElementById('converterModal');
+const modelSelect = document.getElementById('modelSelect');
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -174,10 +176,30 @@ function setupUI() {
         }
     });
 
-    // Exports
-    document.getElementById('btnExportGLB').addEventListener('click', () => exportModel('glb'));
-    document.getElementById('btnExportGLTF').addEventListener('click', () => exportModel('gltf'));
-    document.getElementById('btnExportOBJ').addEventListener('click', () => exportModel('obj'));
+    // Modal Logic
+    document.getElementById('headerConvertBtn').addEventListener('click', () => {
+        updateModalSelect();
+        converterModal.style.display = 'flex';
+    });
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+        converterModal.style.display = 'none';
+    });
+
+    // Exports via Modal
+    document.getElementById('modalBtnExportGLB').addEventListener('click', () => exportModel('glb'));
+    document.getElementById('modalBtnExportGLTF').addEventListener('click', () => exportModel('gltf'));
+    document.getElementById('modalBtnExportOBJ').addEventListener('click', () => exportModel('obj'));
+}
+
+function updateModalSelect() {
+    modelSelect.innerHTML = '<option value="">-- Pilih Model --</option>';
+    models.forEach((model, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.textContent = model.userData.filename || `Model ${index + 1}`;
+        if (model === selectedModel) opt.selected = true;
+        modelSelect.appendChild(opt);
+    });
 }
 
 function setupDragAndDrop() {
@@ -224,16 +246,16 @@ function loadModel(file) {
             if (extension === 'gltf' || extension === 'glb') {
                 const loader = new GLTFLoader();
                 loader.parse(contents, '', function(gltf) {
-                    processLoadedModel(gltf.scene);
+                    processLoadedModel(gltf.scene, file.name);
                 });
             } else if (extension === 'obj') {
                 const loader = new OBJLoader();
                 const obj = loader.parse(new TextDecoder().decode(contents));
-                processLoadedModel(obj);
+                processLoadedModel(obj, file.name);
             } else if (extension === 'fbx') {
                 const loader = new FBXLoader();
                 const fbx = loader.parse(contents, '');
-                processLoadedModel(fbx);
+                processLoadedModel(fbx, file.name);
             } else {
                 alert('Format tidak didukung! Gunakan FBX, OBJ, atau GLB.');
                 loadingOverlay.classList.add('hidden');
@@ -252,9 +274,10 @@ function loadModel(file) {
     }
 }
 
-function processLoadedModel(model) {
+function processLoadedModel(model, filename) {
     // Wrap model in a group to easily manipulate its origin
     const wrapper = new THREE.Group();
+    wrapper.userData.filename = filename;
     wrapper.add(model);
     
     // Auto-scale to a reasonable size
@@ -323,8 +346,18 @@ function recalculateLayout() {
 }
 
 function exportModel(format) {
-    if (!selectedModel) {
-        alert("Pilih model terlebih dahulu sebelum di-export.");
+    let targetModel = selectedModel;
+    
+    // Check if we are exporting from the modal and a specific model is selected
+    if (converterModal.style.display === 'flex' && modelSelect.value !== '') {
+        const index = parseInt(modelSelect.value);
+        if (!isNaN(index) && models[index]) {
+            targetModel = models[index];
+        }
+    }
+
+    if (!targetModel) {
+        alert("Pilih model terlebih dahulu dari daftar atau klik model di layar.");
         return;
     }
 
@@ -342,23 +375,23 @@ function exportModel(format) {
             };
             
             // Temporary reset position to 0,0,0 for export so it doesn't have an offset
-            const oldPos = selectedModel.position.clone();
-            selectedModel.position.set(0,0,0);
+            const oldPos = targetModel.position.clone();
+            targetModel.position.set(0,0,0);
 
             exporter.parse(
-                selectedModel,
+                targetModel,
                 function (result) {
-                    selectedModel.position.copy(oldPos); // restore position
+                    targetModel.position.copy(oldPos); // restore position
                     if (result instanceof ArrayBuffer) {
-                        saveArrayBuffer(result, `exported_model.${format}`);
+                        saveArrayBuffer(result, `exported_${targetModel.userData.filename || 'model'}.${format}`);
                     } else {
                         const output = JSON.stringify(result, null, 2);
-                        saveString(output, `exported_model.${format}`);
+                        saveString(output, `exported_${targetModel.userData.filename || 'model'}.${format}`);
                     }
                     loadingOverlay.classList.add('hidden');
                 },
                 function (error) {
-                    selectedModel.position.copy(oldPos);
+                    targetModel.position.copy(oldPos);
                     console.error(error);
                     alert("Error saat export GLTF/GLB");
                     loadingOverlay.classList.add('hidden');
@@ -368,14 +401,14 @@ function exportModel(format) {
         } else if (format === 'obj') {
             const exporter = new OBJExporter();
             
-            const oldPos = selectedModel.position.clone();
-            selectedModel.position.set(0,0,0);
+            const oldPos = targetModel.position.clone();
+            targetModel.position.set(0,0,0);
             
-            const result = exporter.parse(selectedModel);
+            const result = exporter.parse(targetModel);
             
-            selectedModel.position.copy(oldPos);
+            targetModel.position.copy(oldPos);
             
-            saveString(result, 'exported_model.obj');
+            saveString(result, `exported_${targetModel.userData.filename || 'model'}.obj`);
             loadingOverlay.classList.add('hidden');
         }
     }, 100);
