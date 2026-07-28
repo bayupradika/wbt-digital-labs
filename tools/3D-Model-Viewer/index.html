@@ -68,10 +68,10 @@
         <a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
             <img src="/wbt-digital-labs/assets/img/wbt-logo.png" alt="WBT Logo">
         </a>
-        <div class="wbt-global-header-title">3D Models Viewer Pro</div>
+        <div class="wbt-global-header-title">3DModels Viewer&Converter</div>
       </div>
       <div class="wbt-global-header-center">
-        Lihat File .FBX, .OBJ, .GLB dengan Auto-Rotate
+        Multipel Model, Transformasi Independen, & Konverter (GLB/GLTF/OBJ)
       </div>
       <div class="wbt-global-header-right">
       </div>
@@ -82,17 +82,39 @@
         <aside class="sidebar">
             <div class="logo-area">
                 <i class="fa-solid fa-cube text-primary"></i>
-                <h2>3D Viewer</h2>
+                <h2 style="font-size: 1.2rem;">3D Viewer & Converter</h2>
             </div>
             
             <div class="control-group">
-                <h3><i class="fa-solid fa-upload"></i> Unggah Model</h3>
+                <h3><i class="fa-solid fa-upload"></i> Tambah Model</h3>
                 <p class="help-text">Mendukung: .fbx, .obj, .glb, .gltf</p>
                 <div class="drop-zone" id="dropZone">
                     <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <p>Seret & Lepas file ke sini<br>atau klik untuk memilih</p>
-                    <input type="file" id="fileInput" accept=".fbx,.obj,.glb,.gltf" hidden>
+                    <p>Seret file ke sini<br>atau klik untuk menambah</p>
+                    <input type="file" id="fileInput" accept=".fbx,.obj,.glb,.gltf" multiple hidden>
                 </div>
+            </div>
+
+            <!-- New Control Panel for Selected Object -->
+            <div class="control-group" id="selectionPanel" style="display: none; border: 1px solid #38bdf8; padding: 10px; border-radius: 8px; background: rgba(56,189,248,0.05);">
+                <h3 style="color: #38bdf8;"><i class="fa-solid fa-crosshairs"></i> Objek Terpilih</h3>
+                
+                <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                    <button class="btn btn-secondary" id="modeTranslate" style="flex:1; padding: 5px; font-size: 12px;" title="Geser"><i class="fa-solid fa-arrows-up-down-left-right"></i></button>
+                    <button class="btn btn-secondary" id="modeRotate" style="flex:1; padding: 5px; font-size: 12px;" title="Putar"><i class="fa-solid fa-rotate"></i></button>
+                    <button class="btn btn-secondary" id="modeScale" style="flex:1; padding: 5px; font-size: 12px;" title="Skala"><i class="fa-solid fa-maximize"></i></button>
+                </div>
+
+                <p class="help-text" style="margin-top:10px;">Konversi & Unduh:</p>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <button class="btn btn-primary" id="btnExportGLB" style="font-size: 12px; background: #10b981;"><i class="fa-solid fa-download"></i> Export .GLB</button>
+                    <button class="btn btn-primary" id="btnExportGLTF" style="font-size: 12px; background: #3b82f6;"><i class="fa-solid fa-download"></i> Export .GLTF</button>
+                    <button class="btn btn-primary" id="btnExportOBJ" style="font-size: 12px; background: #8b5cf6;"><i class="fa-solid fa-download"></i> Export .OBJ</button>
+                </div>
+
+                <button class="btn btn-secondary" id="btnDeleteObj" style="margin-top: 10px; font-size: 12px; background: rgba(244,63,94,0.1); border-color: rgba(244,63,94,0.3); color: #f43f5e; width: 100%;">
+                    <i class="fa-solid fa-trash"></i> Hapus Objek
+                </button>
             </div>
 
             <div class="control-group">
@@ -142,7 +164,7 @@
             </div>
             <div id="canvasContainer"></div>
             <div class="instructions">
-                <i class="fa-solid fa-mouse"></i> Kiri: Putar | Kanan: Geser | Scroll: Zoom
+                <i class="fa-solid fa-mouse"></i> Klik Kiri (Latar): Putar Kamera | Klik Objek: Pilih | Kanan: Geser | Scroll: Zoom
             </div>
         </main>
     </div>

@@ -169,6 +169,15 @@ input[type=range] {
 }
 .btn-secondary:hover { background-color: #444; }
 
+.btn-primary {
+    background-color: var(--primary);
+    color: var(--bg-dark);
+    border: none;
+}
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
 .btn-outline {
     background-color: transparent;
     border: 1px solid var(--border);
