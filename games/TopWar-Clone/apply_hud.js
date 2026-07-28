@@ -1,0 +1,77 @@
+const fs = require('fs');
+
+const userHudLayer = `
+<div id="hudLayer">
+        <!-- Profile UI (Redesigned) -->
+        <div class="profile-ui" style="display: flex; gap: 10px; background: none; box-shadow: none; padding: 0;">
+            <!-- Avatar & VIP -->
+            <div class="avatar-box" style="position: relative; margin-right: 5px;"></div>
+        </div>
+
+        <!-- RIGHT MENU (Vertical Icons) -->
+        <div class="hud-right-menu">
+            <div class="menu-icon"><i class="fa-solid fa-cart-shopping"></i></div>
+            <div class="menu-icon"><i class="fa-solid fa-gift"></i><span class="badge-dot"></span></div>
+            <div class="menu-icon"><i class="fa-solid fa-shield"></i></div>
+            <div class="menu-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+            <div class="menu-icon"><i class="fa-solid fa-envelope"></i><span class="badge-num">97</span></div>
+            <div class="menu-icon"><i class="fa-solid fa-briefcase"></i></div>
+        </div>
+
+        <!-- BOTTOM CONTROLS -->
+        <div class="hud-bottom">
+            <div class="side-menu left" style="top: 50%; transform: translateY(-50%); position: absolute; left: 10px; display: flex; flex-direction: column; gap: 15px; z-index: 100;"></div>
+            <!-- Chat Panel -->
+            <!-- World Button -->
+        </div>
+
+    <div id="Field-kiriAtas" style="position: absolute; left: 207px; top: 83.5px; transform: translate(-50%, -50%); z-index: 100; width: 400px; height: 150px; background: rgba(0, 0, 0, 0.5); border: 2px solid white; border-radius: 10px; pointer-events: auto;"><img src="https://ui-avatars.com/api/?name=WB&amp;background=0ea5e9&amp;color=fff&amp;size=60" alt="Avatar" style="border-radius: 8px; border: 2px solid white; box-shadow: rgba(0, 0, 0, 0.5) 0px 4px 6px; position: absolute; left: 14px; top: 12.5px; margin: 0px; pointer-events: auto;"><div class="vip-badge" style="position: absolute; bottom: -10px; left: 44.2188px; transform: translateX(-50%); background: rgb(245, 158, 11); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; border: 1px solid white; top: 89.5px; pointer-events: auto; height: 20px; width: 60px;">VIP 0</div><div style="background: rgba(0, 0, 0, 0.5); border: 3px solid rgb(85, 85, 85); border-radius: 0px 15px 15px 0px; height: 24px; display: flex; align-items: center; width: 120px; padding-left: 15px; position: absolute; left: 142px; top: 99.5px; margin: 0px; pointer-events: auto;">
+                    <span id="powerText" style="color: white; font-weight: bold; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px;">3,235</span>
+                </div><div style="width: 32px; height: 32px; background: rgb(59, 130, 246); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; justify-content: center; align-items: center; color: white; z-index: 2; position: absolute; margin: 0px; left: 94px; top: 96.5px; pointer-events: auto;">
+                    <i class="fa-solid fa-star" style="color: rgb(251, 191, 36); font-size: 14px; position: absolute; left: 9.125px; top: 9px; margin: 0px; pointer-events: auto;"></i>
+                </div><div style="background: rgba(0, 0, 0, 0.5); border: 3px solid rgb(85, 85, 85); border-radius: 0px 15px 15px 0px; height: 28px; display: flex; align-items: center; width: 180px; position: absolute; overflow: hidden; cursor: pointer; left: 140px; top: 57.5px; margin: 0px; pointer-events: auto;" id="expContainer">
+                    <div id="expBar" style="background: #a3e635; height: 100%; width: 70.7%; box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2);"></div>
+                    <div style="position: absolute; width: 100%; text-align: center; color: white; font-weight: 900; font-size: 14px; text-shadow: 1px 1px 2px black; font-family: 'Roboto Condensed', sans-serif; letter-spacing: 1px;">Lv.<span id="levelText">5</span></div>
+                </div><div style="width: 44px; height: 44px; background: rgb(132, 204, 22); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; z-index: 2; font-size: 14px; position: absolute; margin: 0px; filter: drop-shadow(rgba(0, 0, 0, 0.8) 1px 1px 2px); left: 92px; top: 50.5px; pointer-events: auto;">
+                    
+                </div><div class="resource-badge" style="background: rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; border: 2px solid rgb(85, 85, 85); cursor: pointer; position: absolute; left: 102px; top: 11.5px; margin: 0px; pointer-events: auto;">
+                    <div style="width: 24px; height: 24px; background: gold; border-radius: 50%; border: 2px solid #b8860b; display: flex; justify-content: center; align-items: center; color: #b8860b; font-size: 14px; box-shadow: inset 0 0 5px rgba(255,255,255,0.8);">T</div>
+                    <span id="goldText">50K</span>
+                    <i class="fa-solid fa-plus" style="color: white; margin-left: 10px; font-size: 12px; font-weight: 900;"></i>
+                </div><div class="resource-badge" style="background: rgba(0, 0, 0, 0.5); border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; border: 2px solid rgb(85, 85, 85); cursor: pointer; position: absolute; left: 244px; top: 14.5px; margin: 0px; pointer-events: auto;">
+                    <i class="fa-solid fa-gem" style="color: #ef4444; font-size: 18px; filter: drop-shadow(0 0 2px rgba(255,0,0,0.5));"></i>
+                    <span id="gemText">100K</span>
+                    <i class="fa-solid fa-plus" style="color: white; margin-left: 10px; font-size: 12px; font-weight: 900;"></i>
+                </div></div><div style="display: flex; flex-direction: column; gap: 5px; position: absolute; left: 15px; top: 0px; margin: 0px; pointer-events: auto;">
+                <!-- Row 1: Gold and Gems -->
+            <div style="display: flex; gap: 10px;">
+            </div>
+            <!-- Row 2: Level and EXP -->
+            <!-- Row 3: Combat Power -->
+            </div><div style="display: flex; align-items: center; margin: 0px; position: absolute; left: 143px; top: 393px; pointer-events: auto;">
+            </div><div style="display: flex; align-items: center; position: absolute; left: 15px; top: 43px; margin: 0px; pointer-events: auto;">
+                <!-- EXP Tooltip (hidden by default) -->
+            </div><div id="Field-kiriBawah" style="position: absolute; left: 563px; top: 622.5px; transform: translate(-50%, -50%); z-index: 100; width: 600px; height: 80px; background: rgba(0, 0, 0, 0.5); border: 2px solid white; border-radius: 10px; pointer-events: auto;"><button class="circle-btn" id="trainUnitsLeftBtn" title="Latih Maks 10 Unit" style="background: rgb(59, 130, 246); color: white; width: 50px; height: 50px; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center; font-size: 20px; box-shadow: rgba(0, 0, 0, 0.5) 0px 4px 6px; cursor: pointer; position: absolute; left: 13px; top: 15.5px; margin: 0px; pointer-events: auto;">
+                    <i class="fa-solid fa-person-rifle"></i>
+                </button><div class="action-circle build-btn" id="buildBtn" style="position: absolute; left: 83px; top: 14.5px; margin: 0px; pointer-events: auto; width: 50px; height: 50px;">
+                
+                <span style="position: absolute; left: 2.75px; top: 17px; margin: 0px; pointer-events: auto;">Bangun</span>
+            </div><div class="chat-panel" style="position: absolute; left: 163px; top: 10.5px; margin: 0px; pointer-events: auto; width: 350px;"><div class="chat-line"><span>Bayu:</span> wow game wbt mantap!</div><div class="chat-line"><span>Bayu:</span> wow game wbt mantap!</div><div class="chat-line"><span>Bayu:</span> wow game wbt mantap!</div><div class="chat-line"><span>Jonas:</span> hi</div><div class="chat-line"><span>Jonas:</span> hi</div></div><div class="action-circle world-btn" style="position: absolute; left: 538px; top: 12.5px; margin: 0px; pointer-events: auto; width: 50px; height: 50px;">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <span>Dunia</span>
+            </div></div>
+</div>
+`;
+
+let html = fs.readFileSync('D:/Produk-Sell/games/TopWar-Clone/index.html', 'utf8');
+
+let topIdx = html.indexOf('<div id="hudLayer">');
+let bottomIdx = html.indexOf('<!-- BUILD MENU MODAL');
+
+if (topIdx !== -1 && bottomIdx !== -1) {
+    let newHtml = html.substring(0, topIdx) + userHudLayer + '\n\n    ' + html.substring(bottomIdx);
+    fs.writeFileSync('D:/Produk-Sell/games/TopWar-Clone/index.html', newHtml);
+    console.log("Successfully replaced hudLayer.");
+} else {
+    console.log("Failed to match boundaries.");
+}

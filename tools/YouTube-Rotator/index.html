@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Watch & Rotator - WBT Digital Labs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            background: #070913; color: #f8fafc; min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 50%, rgba(236,72,153,0.1) 0%, transparent 40%);
+            display: flex; flex-direction: column; align-items: center; padding: 40px 24px;
+        }
+        
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #f43f5e, #fb923c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .header p { color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        
+        .control-panel {
+            background: rgba(15,23,42,0.6); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 24px;
+            padding: 30px; width: 100%; max-width: 800px; margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .input-group { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        .url-input {
+            flex-grow: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 14px; padding: 14px 20px; color: white; outline: none; font-size: 15px; transition: all 0.3s;
+            min-width: 250px;
+        }
+        .url-input:focus { border-color: #f43f5e; box-shadow: 0 0 15px rgba(244,63,94,0.2); }
+        .btn-load {
+            background: linear-gradient(135deg, #f43f5e, #fb923c); color: white; border: none;
+            border-radius: 14px; padding: 14px 28px; font-weight: 700; cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; gap: 8px; font-size: 15px;
+        }
+        .btn-load:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(244,63,94,0.3); }
+
+        .rotation-controls {
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+            padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .btn-rotate {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #cbd5e1; padding: 10px 20px; border-radius: 12px; cursor: pointer;
+            transition: all 0.2s; font-weight: 600; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-rotate:hover { background: rgba(255,255,255,0.1); color: white; }
+        .btn-rotate.active { background: rgba(244,63,94,0.2); border-color: #f43f5e; color: #f43f5e; }
+
+        .player-wrapper {
+            width: 100%; max-width: 800px;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; border-radius: 20px; background: #000;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+            position: relative;
+            /* Default Aspect Ratio 16:9 */
+            aspect-ratio: 16 / 9;
+            transition: aspect-ratio 0.3s ease, max-width 0.3s ease;
+        }
+        
+        .player-container {
+            width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        iframe {
+            width: 100%; height: 100%; border: none;
+            position: absolute; top: 0; left: 0;
+        }
+
+        .back-btn {
+            position: absolute; top: 24px; left: 24px; color: #94a3b8; text-decoration: none;
+            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s;
+        }
+        .back-btn:hover { color: white; }
+
+        .placeholder-text { color: #475569; font-weight: 600; font-size: 18px; position: absolute; z-index: 0; }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Kembali ke WBT Digital Labs</a>
+    
+    <div class="header">
+        <h1>YouTube Watch & Rotator</h1>
+        <p>Tonton video YouTube langsung tanpa iklan pengalih, dan sesuaikan orientasi/rotasi video jika direkam dengan posisi miring atau terbalik.</p>
+    </div>
+
+    <div class="control-panel">
+        <div class="input-group">
+            <input type="text" id="yt-url" class="url-input" placeholder="Tempel link YouTube di sini (contoh: https://youtu.be/...)">
+            <button class="btn-load" onclick="loadVideo()"><i class="fa-solid fa-play"></i> Putar Video</button>
+        </div>
+        
+        <div class="rotation-controls">
+            <button class="btn-rotate active" onclick="rotateVideo(0)" id="rot-0"><i class="fa-solid fa-rotate-right"></i> Normal (0°)</button>
+            <button class="btn-rotate" onclick="rotateVideo(90)" id="rot-90"><i class="fa-solid fa-rotate-right"></i> 90° Kanan</button>
+            <button class="btn-rotate" onclick="rotateVideo(180)" id="rot-180"><i class="fa-solid fa-rotate-right"></i> 180° Terbalik</button>
+            <button class="btn-rotate" onclick="rotateVideo(270)" id="rot-270"><i class="fa-solid fa-rotate-left"></i> 90° Kiri</button>
+        </div>
+    </div>
+
+    <div class="player-wrapper" id="playerWrapper">
+        <div class="placeholder-text" id="placeholder"><i class="fa-brands fa-youtube" style="font-size:48px; color: #334155; margin-bottom:10px; display:block; text-align:center;"></i> Masukkan link untuk memutar</div>
+        <div class="player-container" id="playerContainer">
+            <!-- Iframe will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        let currentRotation = 0;
+
+        function extractVideoID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function loadVideo() {
+            const urlInput = document.getElementById('yt-url').value;
+            const videoId = extractVideoID(urlInput);
+            const container = document.getElementById('playerContainer');
+            const placeholder = document.getElementById('placeholder');
+            
+            if (videoId) {
+                placeholder.style.display = 'none';
+                container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                rotateVideo(0); // Reset rotation on load
+            } else {
+                alert("Tautan YouTube tidak valid. Harap periksa kembali.");
+            }
+        }
+
+        function rotateVideo(deg) {
+            currentRotation = deg;
+            const container = document.getElementById('playerContainer');
+            const wrapper = document.getElementById('playerWrapper');
+            const iframe = container.querySelector('iframe');
+            
+            // Update active button state
+            document.querySelectorAll('.btn-rotate').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`rot-${deg}`).classList.add('active');
+
+            if (deg === 90 || deg === 270) {
+                // If rotated 90 or 270, the aspect ratio of the wrapper becomes 9:16 (tall)
+                // We keep the wrapper width bounded, e.g. max 450px wide so it doesn't overflow height
+                wrapper.style.aspectRatio = '9 / 16';
+                wrapper.style.maxWidth = '450px';
+                
+                // The container is rotated, so its local X axis points down/up
+                container.style.transform = `rotate(${deg}deg)`;
+                
+                // We want the iframe to fill the tall wrapper, but since the container is rotated,
+                // the container's width determines the visual HEIGHT of the player,
+                // and the container's height determines the visual WIDTH.
+                // Wrapper aspect is 9:16 (W:H = 0.5625)
+                // Container width needs to be wrapper's height. wrapper H = W * (16/9)
+                // So container width = 16/9 = 177.77% of wrapper width
+                // Container height needs to be wrapper's width. wrapper W = 100%
+                // So container height = 9/16 = 56.25% of wrapper height (actually it's just 100% of wrapper width)
+                
+                // Simplest CSS approach: Make the container a square based on the largest dimension, 
+                // or just apply dimensions explicitly:
+                container.style.width = '177.778%'; // 16/9
+                container.style.height = '56.25%'; // 9/16
+            } else {
+                // Normal 16:9
+                wrapper.style.aspectRatio = '16 / 9';
+                wrapper.style.maxWidth = '800px';
+                container.style.transform = `rotate(${deg}deg)`;
+                container.style.width = '100%';
+                container.style.height = '100%';
+            }
+        }
+    </script>
+</body>
+</html>
