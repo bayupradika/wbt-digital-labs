@@ -365,6 +365,9 @@ function exportModel(format) {
     loadingText.innerText = `Menyimpan sebagai .${format.toUpperCase()}...`;
 
     setTimeout(() => {
+        const originalName = targetModel.userData.filename || 'model';
+        const baseName = originalName.replace(/\.[^/.]+$/, ""); // Removes the last extension
+
         if (format === 'glb' || format === 'gltf') {
             const exporter = new GLTFExporter();
             const options = {
@@ -383,10 +386,10 @@ function exportModel(format) {
                 function (result) {
                     targetModel.position.copy(oldPos); // restore position
                     if (result instanceof ArrayBuffer) {
-                        saveArrayBuffer(result, `exported_${targetModel.userData.filename || 'model'}.${format}`);
+                        saveArrayBuffer(result, `exported_${baseName}.${format}`);
                     } else {
                         const output = JSON.stringify(result, null, 2);
-                        saveString(output, `exported_${targetModel.userData.filename || 'model'}.${format}`);
+                        saveString(output, `exported_${baseName}.${format}`);
                     }
                     loadingOverlay.classList.add('hidden');
                 },
@@ -408,7 +411,7 @@ function exportModel(format) {
             
             targetModel.position.copy(oldPos);
             
-            saveString(result, `exported_${targetModel.userData.filename || 'model'}.obj`);
+            saveString(result, `exported_${baseName}.obj`);
             loadingOverlay.classList.add('hidden');
         }
     }, 100);
