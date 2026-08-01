@@ -125,15 +125,15 @@
         let currentRotation = 0;
 
         function extractVideoID(url) {
-            // YouTube
-            const ytRegExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const ytMatch = url.match(ytRegExp);
-            if (ytMatch && ytMatch[2].length === 11) return { type: 'youtube', id: ytMatch[2] };
-
-            // Facebook (Reels or Video)
-            if (url.includes('facebook.com') || url.includes('fb.watch')) {
+            // Facebook (Reels or Video) - Check this first just in case
+            if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.gg')) {
                 return { type: 'facebook', url: url };
             }
+
+            // YouTube (Robust Regex)
+            const ytRegExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const ytMatch = url.match(ytRegExp);
+            if (ytMatch && ytMatch[1].length === 11) return { type: 'youtube', id: ytMatch[1] };
 
             // TikTok
             if (url.includes('tiktok.com')) {
