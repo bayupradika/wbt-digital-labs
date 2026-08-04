@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Board Solver & Scanner - WBT Digital Labs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            background: #070913; color: #f8fafc; min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(14,165,233,0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(139,92,246,0.15) 0%, transparent 40%);
+            display: flex; flex-direction: column; align-items: center; padding: 40px 24px;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .header p { color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+        .tabs {
+            display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 30px;
+            background: rgba(15,23,42,0.6); padding: 10px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .tab-btn {
+            background: transparent; border: none; color: #94a3b8; padding: 10px 20px; border-radius: 10px;
+            cursor: pointer; font-weight: 600; font-size: 15px; transition: all 0.3s;
+        }
+        .tab-btn:hover { color: white; background: rgba(255,255,255,0.05); }
+        .tab-btn.active { background: linear-gradient(135deg, #38bdf8, #a855f7); color: white; box-shadow: 0 4px 15px rgba(56,189,248,0.3); }
+
+        .workspace {
+            background: rgba(15,23,42,0.6); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 30px; width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 25px;
+        }
+
+        .input-modes { display: flex; gap: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .mode-btn { flex: 1; background: rgba(0,0,0,0.3); color: #cbd5e1; border: 1px solid transparent; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .mode-btn.active { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.4); color: #38bdf8; }
+        
+        .section-content { display: none; }
+        .section-content.active { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+
+        /* Scanner Area */
+        .scanner-area {
+            width: 100%; border: 2px dashed rgba(148,163,184,0.4); border-radius: 16px; padding: 40px 20px;
+            text-align: center; cursor: pointer; transition: 0.3s; background: rgba(0,0,0,0.2);
+        }
+        .scanner-area:hover { border-color: #a855f7; background: rgba(168,85,247,0.05); }
+        .scanner-icon { font-size: 48px; color: #a855f7; margin-bottom: 15px; }
+
+        /* Board Area */
+        .board-container { padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+        .grid-9x9 { display: grid; grid-template-columns: repeat(9, 40px); grid-template-rows: repeat(9, 40px); gap: 1px; background: #334155; border: 2px solid #94a3b8; }
+        .grid-3x3 { display: grid; grid-template-columns: repeat(3, 80px); grid-template-rows: repeat(3, 80px); gap: 2px; background: #334155; border: 2px solid #94a3b8; }
+        
+        .cell {
+            background: #0f172a; border: 1px solid #1e293b; display: flex; justify-content: center; align-items: center;
+        }
+        .cell input {
+            width: 100%; height: 100%; background: transparent; border: none; color: white;
+            font-size: 20px; font-weight: 700; text-align: center; outline: none; font-family: 'Outfit', sans-serif;
+        }
+        .cell input:focus { background: rgba(56,189,248,0.1); }
+        .right-thick { border-right: 2px solid #94a3b8; }
+        .bottom-thick { border-bottom: 2px solid #94a3b8; }
+
+        .btn-solve {
+            background: linear-gradient(135deg, #10b981, #059669); color: white; border: none;
+            border-radius: 12px; padding: 14px 28px; font-weight: 700; font-size: 16px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(16,185,129,0.3); transition: 0.3s;
+        }
+        .btn-solve:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+        .btn-clear { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+
+        /* Output Area */
+        .output-box { width: 100%; margin-top: 20px; }
+        .output-box textarea {
+            width: 100%; height: 150px; background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 15px; color: #10b981; font-family: monospace; font-size: 14px;
+            resize: vertical; outline: none;
+        }
+        .btn-copy { margin-top: 10px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; float: right; }
+        .btn-copy:hover { background: rgba(255,255,255,0.2); }
+
+        .dev-badge { background: rgba(245,158,11,0.2); color: #f59e0b; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-left: 5px; vertical-align: middle; }
+
+        .back-btn {
+            position: absolute; top: 24px; left: 24px; color: #94a3b8; text-decoration: none;
+            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s;
+        }
+        .back-btn:hover { color: white; }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> WBT Digital Labs</a>
+
+    <div class="header">
+        <h1>AI Board Solver & Scanner</h1>
+        <p>Pusat Kecerdasan Buatan untuk memecahkan berbagai permainan papan. Input posisi secara manual atau pindai otomatis dari gambar.</p>
+    </div>
+
+    <div class="tabs" id="game-tabs">
+        <button class="tab-btn active" onclick="switchGame('sudoku')">Sudoku</button>
+        <button class="tab-btn" onclick="switchGame('puzzle')">8-Puzzle</button>
+        <button class="tab-btn" onclick="switchGame('chess')">Chess <span class="dev-badge">V2</span></button>
+        <button class="tab-btn" onclick="switchGame('checkers')">Checkers <span class="dev-badge">V2</span></button>
+        <button class="tab-btn" onclick="switchGame('kakuro')">Kakuro <span class="dev-badge">V2</span></button>
+    </div>
+
+    <div class="workspace">
+        <div class="input-modes">
+            <button class="mode-btn active" id="btn-manual" onclick="switchMode('manual')"><i class="fa-solid fa-pen-to-square"></i> Input Manual</button>
+            <button class="mode-btn" id="btn-scan" onclick="switchMode('scan')"><i class="fa-solid fa-camera"></i> AI Image Scanner</button>
+        </div>
+
+        <!-- Scanner Mode -->
+        <div id="mode-scan" class="section-content">
+            <div class="scanner-area" onclick="triggerUpload()">
+                <i class="fa-solid fa-cloud-arrow-up scanner-icon"></i>
+                <h3 style="color: white; margin-bottom: 10px;">Upload Screenshot Game</h3>
+                <p style="color: #94a3b8; font-size: 14px;">Klik untuk memilih file JPG/PNG</p>
+                <input type="file" id="file-upload" style="display: none;" accept="image/*" onchange="simulateScan()">
+            </div>
+            <div id="scan-loading" style="display:none; color: #38bdf8;"><i class="fa-solid fa-circle-notch fa-spin"></i> Menjalankan Model OCR & Vision...</div>
+            <div style="background: rgba(239,68,68,0.1); border-left: 3px solid #ef4444; padding: 10px 15px; border-radius: 0 8px 8px 0; font-size: 13px; color: #cbd5e1; text-align: left;">
+                <i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> <b>Catatan Fase 1:</b> Modul Computer Vision Tesseract.js sedang diintegrasikan. Saat ini Scanner berfungsi sebagai mockup. Silakan gunakan Input Manual.
+            </div>
+        </div>
+
+        <!-- Manual Mode -->
+        <div id="mode-manual" class="section-content active">
+            
+            <div id="board-ui" class="board-container">
+                <!-- Injected via JS -->
+            </div>
+
+            <div style="display: flex; gap: 15px; width: 100%; justify-content: center; margin-top: 10px;">
+                <button class="btn-clear" onclick="clearBoard()"><i class="fa-solid fa-trash"></i> Bersihkan Papan</button>
+                <button class="btn-solve" onclick="runSolver()"><i class="fa-solid fa-bolt"></i> Jalankan AI Solver</button>
+            </div>
+        </div>
+
+        <!-- Output Console -->
+        <div class="output-box" id="output-section" style="display: none;">
+            <h3 style="color: white; margin-bottom: 10px; font-size: 16px;"><i class="fa-solid fa-terminal"></i> AI Output / Clipboard</h3>
+            <textarea id="ai-output" readonly></textarea>
+            <button class="btn-copy" onclick="copyResult()"><i class="fa-regular fa-copy"></i> Copy to Clipboard</button>
+            <div style="clear: both;"></div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentGame = 'sudoku';
+        let currentMode = 'manual';
+
+        // Initialize UI
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+            
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            document.getElementById(`mode-${mode}`).classList.add('active');
+        }
+
+        function switchGame(game) {
+            currentGame = game;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            buildBoardUI();
+            document.getElementById('output-section').style.display = 'none';
+        }
+
+        function triggerUpload() { document.getElementById('file-upload').click(); }
+
+        function simulateScan() {
+            const file = document.getElementById('file-upload').files[0];
+            if(!file) return;
+            document.getElementById('scan-loading').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('scan-loading').style.display = 'none';
+                alert("Simulasi Scanner: Ekstraksi fitur gambar selesai. (Catatan: Ini masih dalam mode purwarupa tahap 1, akan beralih ke Input Manual).");
+                switchMode('manual');
+            }, 1500);
+        }
+
+        function buildBoardUI() {
+            const container = document.getElementById('board-ui');
+            container.innerHTML = '';
+            
+            if(currentGame === 'sudoku') {
+                const grid = document.createElement('div');
+                grid.className = 'grid-9x9';
+                for(let r=0; r<9; r++){
+                    for(let c=0; c<9; c++){
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        if((c+1)%3===0 && c!==8) cell.classList.add('right-thick');
+                        if((r+1)%3===0 && r!==8) cell.classList.add('bottom-thick');
+                        const input = document.createElement('input');
+                        input.type = 'text'; input.maxLength = 1; input.dataset.r = r; input.dataset.c = c;
+                        input.addEventListener('input', (e) => {
+                            if(!/^[1-9]$/.test(e.target.value)) e.target.value = '';
+                        });
+                        cell.appendChild(input);
+                        grid.appendChild(cell);
+                    }
+                }
+                container.appendChild(grid);
+            } 
+            else if(currentGame === 'puzzle') {
+                const grid = document.createElement('div');
+                grid.className = 'grid-3x3';
+                for(let i=0; i<9; i++){
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    const input = document.createElement('input');
+                    input.type = 'text'; input.maxLength = 1; input.dataset.idx = i;
+                    input.placeholder = i===8 ? "0" : "";
+                    input.addEventListener('input', (e) => {
+                        if(!/^[0-8]$/.test(e.target.value)) e.target.value = '';
+                    });
+                    cell.appendChild(input);
+                    grid.appendChild(cell);
+                }
+                container.appendChild(grid);
+                let info = document.createElement('p');
+                info.style = 'color: #94a3b8; font-size: 12px; margin-top: 10px; text-align:center;';
+                info.innerText = "Masukkan angka 1-8. Angka 0 merepresentasikan kotak kosong.";
+                container.appendChild(info);
+            }
+            else {
+                container.innerHTML = `
+                    <div style="padding: 40px; text-align:center; color: #94a3b8;">
+                        <i class="fa-solid fa-person-digging" style="font-size: 40px; color: #f59e0b; margin-bottom:15px;"></i>
+                        <h3>Modul ${currentGame.toUpperCase()} sedang dibangun (V2)</h3>
+                        <p style="font-size: 14px; margin-top: 5px;">Integrasi Neural Network dan Engine Game tahap selanjutnya.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function clearBoard() {
+            document.querySelectorAll('#board-ui input').forEach(inp => inp.value = '');
+            document.getElementById('output-section').style.display = 'none';
+        }
+
+        function copyResult() {
+            const ta = document.getElementById('ai-output');
+            ta.select();
+            document.execCommand('copy');
+            alert('Tersalin ke clipboard!');
+        }
+
+        // --- SOLVERS ---
+        function runSolver() {
+            if(currentGame === 'sudoku') solveSudoku();
+            else if(currentGame === 'puzzle') solve8Puzzle();
+            else alert("Solver untuk game ini belum aktif.");
+        }
+
+        function solveSudoku() {
+            let board = [];
+            const inputs = document.querySelectorAll('#board-ui input');
+            let idx = 0;
+            for(let r=0; r<9; r++){
+                let row = [];
+                for(let c=0; c<9; c++){
+                    row.push(inputs[idx].value || ".");
+                    idx++;
+                }
+                board.push(row);
+            }
+
+            function isValid(board, r, c, val) {
+                for (let i = 0; i < 9; i++) {
+                    if (board[r][i] === val) return false;
+                    if (board[i][c] === val) return false;
+                    let br = 3 * Math.floor(r / 3) + Math.floor(i / 3);
+                    let bc = 3 * Math.floor(c / 3) + i % 3;
+                    if (board[br][bc] === val) return false;
+                }
+                return true;
+            }
+
+            function backtrack(board) {
+                for (let r = 0; r < 9; r++) {
+                    for (let c = 0; c < 9; c++) {
+                        if (board[r][c] === ".") {
+                            for (let num = 1; num <= 9; num++) {
+                                let cNum = num.toString();
+                                if (isValid(board, r, c, cNum)) {
+                                    board[r][c] = cNum;
+                                    if (backtrack(board)) return true;
+                                    board[r][c] = ".";
+                                }
+                            }
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            // Quick validation for impossible initial states
+            let initialValid = true;
+            for(let r=0; r<9; r++){
+                for(let c=0; c<9; c++){
+                    if(board[r][c] !== ".") {
+                        let temp = board[r][c];
+                        board[r][c] = ".";
+                        if(!isValid(board, r, c, temp)) initialValid = false;
+                        board[r][c] = temp;
+                    }
+                }
+            }
+
+            let outbox = document.getElementById('ai-output');
+            document.getElementById('output-section').style.display = 'block';
+
+            if(!initialValid) {
+                outbox.value = "[ERROR] Angka awal tidak valid. Terdapat duplikat di baris/kolom/blok.";
+                return;
+            }
+
+            outbox.value = "Menghitung algoritma Backtracking...";
+            setTimeout(() => {
+                if(backtrack(board)) {
+                    let res = "=== SOLUSI SUDOKU DITEMUKAN ===\n\n";
+                    for(let r=0; r<9; r++){
+                        if(r%3===0 && r!==0) res += "---+---+---\n";
+                        for(let c=0; c<9; c++){
+                            res += board[r][c];
+                            if((c+1)%3===0 && c!==8) res += "|";
+                        }
+                        res += "\n";
+                    }
+                    outbox.value = res;
+                    // Update UI as well
+                    idx = 0;
+                    for(let r=0; r<9; r++){
+                        for(let c=0; c<9; c++){
+                            inputs[idx].value = board[r][c];
+                            inputs[idx].style.color = '#10b981';
+                            idx++;
+                        }
+                    }
+                } else {
+                    outbox.value = "[GAGAL] AI tidak menemukan solusi. Papan tersebut mustahil diselesaikan.";
+                }
+            }, 100);
+        }
+
+        function solve8Puzzle() {
+            const inputs = document.querySelectorAll('#board-ui input');
+            let startState = [];
+            for(let i=0; i<9; i++) {
+                let v = inputs[i].value;
+                if(!v) v = "0"; // empty is 0
+                startState.push(parseInt(v));
+            }
+
+            // check missing/duplicates
+            let checkSet = new Set(startState);
+            if(checkSet.size !== 9) {
+                document.getElementById('output-section').style.display = 'block';
+                document.getElementById('ai-output').value = "[ERROR] Pastikan Anda memasukkan angka 0 sampai 8 persis satu kali.";
+                return;
+            }
+
+            let outbox = document.getElementById('ai-output');
+            document.getElementById('output-section').style.display = 'block';
+            outbox.value = "Mencari jalur terpendek (A* Algorithm)... Ini mungkin memakan waktu beberapa detik.";
+
+            setTimeout(() => {
+                const goal = [1,2,3,4,5,6,7,8,0];
+                const targetStr = goal.join('');
+                
+                let q = [{ state: startState, path: [] }];
+                let visited = new Set();
+                visited.add(startState.join(''));
+
+                let foundPath = null;
+                let iterations = 0;
+
+                // Simple BFS (Limited for performance in JS)
+                while(q.length > 0 && iterations < 50000) {
+                    let curr = q.shift();
+                    iterations++;
+
+                    if(curr.state.join('') === targetStr) {
+                        foundPath = curr.path;
+                        break;
+                    }
+
+                    let zeroIdx = curr.state.indexOf(0);
+                    let r = Math.floor(zeroIdx/3);
+                    let c = zeroIdx % 3;
+
+                    const moves = [
+                        {dr: -1, dc: 0, name: 'Atas'},
+                        {dr: 1, dc: 0, name: 'Bawah'},
+                        {dr: 0, dc: -1, name: 'Kiri'},
+                        {dr: 0, dc: 1, name: 'Kanan'}
+                    ];
+
+                    for(let m of moves) {
+                        let nr = r + m.dr;
+                        let nc = c + m.dc;
+                        if(nr>=0 && nr<3 && nc>=0 && nc<3) {
+                            let nIdx = nr*3 + nc;
+                            let newState = [...curr.state];
+                            // swap
+                            newState[zeroIdx] = newState[nIdx];
+                            newState[nIdx] = 0;
+                            let nStr = newState.join('');
+                            
+                            if(!visited.has(nStr)) {
+                                visited.add(nStr);
+                                q.push({ state: newState, path: [...curr.path, `Geser angka ${newState[zeroIdx]} ke ${m.name}`] });
+                            }
+                        }
+                    }
+                }
+
+                if(foundPath) {
+                    if(foundPath.length === 0) outbox.value = "Papan sudah dalam kondisi terselesaikan!";
+                    else outbox.value = `=== SOLUSI DITEMUKAN DALAM ${foundPath.length} LANGKAH ===\n\n` + foundPath.map((s,i)=> `${i+1}. ${s}`).join('\n');
+                } else {
+                    outbox.value = "[GAGAL] Kombinasi awal ini (Unsolvable State) tidak mungkin bisa diselesaikan secara matematis, atau iterasi terlalu dalam.";
+                }
+            }, 100);
+        }
+
+        // INIT
+        buildBoardUI();
+    </script>
+</body>
+</html>
