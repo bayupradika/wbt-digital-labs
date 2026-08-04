@@ -83,12 +83,18 @@
         <p>Mainkan Sudoku tanpa batas! Tambahkan grid sesuka Anda. Angka maksimal akan otomatis menyesuaikan ukuran papan terbesar.</p>
     </div>
 
-    <div class="controls">
+    <div class="controls" id="normal-controls">
         <button class="btn-add" onclick="addColumn()"><i class="fa-solid fa-arrow-right"></i> Add Grid (Samping)</button>
         <button class="btn-add" onclick="addRow()"><i class="fa-solid fa-arrow-down"></i> Add Grid (Bawah)</button>
         <button class="btn-check" onclick="checkBoard()"><i class="fa-solid fa-check-double"></i> Cek Jawaban</button>
         <button onclick="resetGame()"><i class="fa-solid fa-rotate-right"></i> Mode Klasik</button>
         <button onclick="initEmptyGame()"><i class="fa-solid fa-border-none"></i> Papan Kosong</button>
+    </div>
+    
+    <div class="controls" id="setup-controls" style="display: none; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.4);">
+        <p style="width: 100%; text-align: center; color: #38bdf8; font-weight: bold; margin-bottom: 5px;">MODE SETUP: Masukkan angka teka-teki awal Anda</p>
+        <button class="btn-check" onclick="submitSetup()"><i class="fa-solid fa-play"></i> Simpan & Mulai Main</button>
+        <button onclick="resetGame()"><i class="fa-solid fa-xmark"></i> Batal</button>
     </div>
 
     <div class="info-text" id="domain-info">Domain Angka Saat Ini: 1 - 9</div>
@@ -102,11 +108,14 @@
         let cols = 9;
         let boardState = []; // 2D array storing {val: '', isHint: false}
 
+        let isSetupMode = false;
+
         // Initialize completely empty 9x9 board (Custom Mode)
         function initEmptyGame() {
             rows = 9;
             cols = 9;
             boardState = [];
+            isSetupMode = true;
             for (let r = 0; r < rows; r++) {
                 let rowData = [];
                 for (let c = 0; c < cols; c++) {
@@ -117,8 +126,22 @@
             renderBoard();
         }
 
+        // Lock the inputs and start the game
+        function submitSetup() {
+            isSetupMode = false;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (boardState[r][c].val !== "") {
+                        boardState[r][c].isHint = true;
+                    }
+                }
+            }
+            renderBoard();
+        }
+
         // Initialize 9x9 board with some basic valid hints
         function initGame() {
+            isSetupMode = false;
             rows = 9;
             cols = 9;
             boardState = [];
@@ -152,6 +175,15 @@
         }
 
         function renderBoard() {
+            // UI Toggle
+            if(isSetupMode) {
+                document.getElementById('normal-controls').style.display = 'none';
+                document.getElementById('setup-controls').style.display = 'flex';
+            } else {
+                document.getElementById('normal-controls').style.display = 'flex';
+                document.getElementById('setup-controls').style.display = 'none';
+            }
+
             const boardEl = document.getElementById('board');
             boardEl.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
             boardEl.style.gridTemplateRows = `repeat(${rows}, 50px)`;
