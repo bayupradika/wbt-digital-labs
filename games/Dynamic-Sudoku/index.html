@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Sudoku - WBT Digital Labs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            background: #070913; color: #f8fafc; min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(139,92,246,0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 50%, rgba(56,189,248,0.1) 0%, transparent 40%);
+            display: flex; flex-direction: column; align-items: center; padding: 40px 24px;
+        }
+        
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .header p { color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        
+        .controls {
+            background: rgba(15,23,42,0.6); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 20px; margin-bottom: 30px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
+        }
+
+        button {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #f8fafc; padding: 12px 24px; border-radius: 12px; cursor: pointer;
+            font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 8px; font-size: 15px;
+        }
+        button:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .btn-add { border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; }
+        .btn-add:hover { background: rgba(56, 189, 248, 0.15); }
+        .btn-check { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; }
+        .btn-check:hover { background: linear-gradient(135deg, #059669, #047857); }
+
+        .sudoku-container {
+            overflow: auto; max-width: 100%; border-radius: 12px;
+            padding: 10px; background: rgba(0,0,0,0.3); border: 2px solid #334155;
+        }
+
+        .sudoku-board {
+            display: grid; gap: 0; background: #334155; border: 2px solid #94a3b8;
+        }
+
+        .sudoku-cell {
+            width: 50px; height: 50px; background: #0f172a; border: 1px solid #334155;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .sudoku-cell input {
+            width: 100%; height: 100%; background: transparent; border: none;
+            color: white; font-size: 20px; font-weight: 700; text-align: center; outline: none;
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        /* Highlight states */
+        .sudoku-cell input:focus { background: rgba(56, 189, 248, 0.1); }
+        .sudoku-cell.hint input { color: #94a3b8; background: #1e293b; pointer-events: none; }
+        .sudoku-cell.correct input { color: #10b981; font-weight: 900; background: rgba(16, 185, 129, 0.1); }
+        .sudoku-cell.error input { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+        /* Block Borders (3x3 logic) */
+        .sudoku-cell.right-border { border-right: 2px solid #94a3b8; }
+        .sudoku-cell.bottom-border { border-bottom: 2px solid #94a3b8; }
+
+        .info-text { margin-top: 15px; color: #cbd5e1; font-size: 14px; text-align: center; }
+
+        .back-btn {
+            position: absolute; top: 24px; left: 24px; color: #94a3b8; text-decoration: none;
+            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s;
+        }
+        .back-btn:hover { color: white; }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Kembali ke WBT Digital Labs</a>
+    
+    <div class="header">
+        <h1>Dynamic Sudoku</h1>
+        <p>Mainkan Sudoku tanpa batas! Tambahkan grid sesuka Anda. Angka maksimal akan otomatis menyesuaikan ukuran papan terbesar.</p>
+    </div>
+
+    <div class="controls">
+        <button class="btn-add" onclick="addColumn()"><i class="fa-solid fa-arrow-right"></i> Add Grid (Samping)</button>
+        <button class="btn-add" onclick="addRow()"><i class="fa-solid fa-arrow-down"></i> Add Grid (Bawah)</button>
+        <button class="btn-check" onclick="checkBoard()"><i class="fa-solid fa-check-double"></i> Cek Jawaban</button>
+        <button onclick="resetGame()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+    </div>
+
+    <div class="info-text" id="domain-info">Domain Angka Saat Ini: 1 - 9</div>
+
+    <div class="sudoku-container">
+        <div class="sudoku-board" id="board"></div>
+    </div>
+
+    <script>
+        let rows = 9;
+        let cols = 9;
+        let boardState = []; // 2D array storing {val: '', isHint: false}
+
+        // Initialize 9x9 board with some basic valid hints
+        function initGame() {
+            rows = 9;
+            cols = 9;
+            boardState = [];
+            
+            // Generate a simple valid diagonal seed to randomize
+            const base = [
+                [5,3,4,6,7,8,9,1,2],
+                [6,7,2,1,9,5,3,4,8],
+                [1,9,8,3,4,2,5,6,7],
+                [8,5,9,7,6,1,4,2,3],
+                [4,2,6,8,5,3,7,9,1],
+                [7,1,3,9,2,4,8,5,6],
+                [9,6,1,5,3,7,2,8,4],
+                [2,8,7,4,1,9,6,3,5],
+                [3,4,5,2,8,6,1,7,9]
+            ];
+
+            for (let r = 0; r < rows; r++) {
+                let rowData = [];
+                for (let c = 0; c < cols; c++) {
+                    // Randomly hide numbers (approx 50% hints)
+                    let isHint = Math.random() > 0.5;
+                    rowData.push({
+                        val: isHint ? base[r][c].toString() : "",
+                        isHint: isHint
+                    });
+                }
+                boardState.push(rowData);
+            }
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
+            boardEl.style.gridTemplateRows = `repeat(${rows}, 50px)`;
+            boardEl.innerHTML = '';
+
+            let maxDomain = Math.max(rows, cols);
+            document.getElementById('domain-info').innerText = `Domain Angka Saat Ini: 1 - ${maxDomain}`;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cellData = boardState[r][c];
+                    const cell = document.createElement('div');
+                    cell.className = 'sudoku-cell';
+                    
+                    // Add 3x3 block borders
+                    if ((c + 1) % 3 === 0 && c !== cols - 1) cell.classList.add('right-border');
+                    if ((r + 1) % 3 === 0 && r !== rows - 1) cell.classList.add('bottom-border');
+                    
+                    if (cellData.isHint) {
+                        cell.classList.add('hint');
+                    }
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = cellData.val;
+                    input.dataset.r = r;
+                    input.dataset.c = c;
+                    
+                    if (cellData.isHint) {
+                        input.readOnly = true;
+                    } else {
+                        // Limit input to maxDomain
+                        input.addEventListener('input', (e) => {
+                            let val = parseInt(e.target.value);
+                            if (isNaN(val) || val < 1) {
+                                e.target.value = '';
+                            } else if (val > maxDomain) {
+                                e.target.value = maxDomain;
+                            }
+                            boardState[r][c].val = e.target.value;
+                            // Clear status class on input
+                            cell.classList.remove('correct', 'error');
+                        });
+                    }
+
+                    cell.appendChild(input);
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        function addColumn() {
+            for (let r = 0; r < rows; r++) {
+                // Add 3 new columns
+                for(let i=0; i<3; i++){
+                    boardState[r].push({ val: "", isHint: false });
+                }
+            }
+            cols += 3;
+            renderBoard();
+        }
+
+        function addRow() {
+            // Add 3 new rows
+            for(let i=0; i<3; i++){
+                let newRow = [];
+                for (let c = 0; c < cols; c++) {
+                    newRow.push({ val: "", isHint: false });
+                }
+                boardState.push(newRow);
+            }
+            rows += 3;
+            renderBoard();
+        }
+
+        function checkBoard() {
+            const cells = document.querySelectorAll('.sudoku-cell');
+            // Remove previous checks
+            cells.forEach(c => {
+                if(!c.classList.contains('hint')) c.classList.remove('correct', 'error');
+            });
+
+            let maxDomain = Math.max(rows, cols);
+
+            // Validation arrays
+            let errorCoords = new Set(); // store "r,c" of errors
+            let filledCount = 0;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    let val = boardState[r][c].val;
+                    if (!val) continue;
+                    filledCount++;
+
+                    // Check Row
+                    for (let x = 0; x < cols; x++) {
+                        if (x !== c && boardState[r][x].val === val) {
+                            errorCoords.add(`${r},${c}`);
+                            errorCoords.add(`${r},${x}`);
+                        }
+                    }
+
+                    // Check Col
+                    for (let y = 0; y < rows; y++) {
+                        if (y !== r && boardState[y][c].val === val) {
+                            errorCoords.add(`${r},${c}`);
+                            errorCoords.add(`${y},${c}`);
+                        }
+                    }
+
+                    // Check 3x3 Block
+                    let blockR = Math.floor(r / 3) * 3;
+                    let blockC = Math.floor(c / 3) * 3;
+                    for (let y = blockR; y < blockR + 3; y++) {
+                        for (let x = blockC; x < blockC + 3; x++) {
+                            if ((y !== r || x !== c) && boardState[y][x].val === val) {
+                                errorCoords.add(`${r},${c}`);
+                                errorCoords.add(`${y},${x}`);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Apply styles
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (boardState[r][c].isHint) continue;
+                    let val = boardState[r][c].val;
+                    let index = r * cols + c;
+                    let cellEl = cells[index];
+                    
+                    if (val) {
+                        if (errorCoords.has(`${r},${c}`)) {
+                            cellEl.classList.add('error');
+                        } else {
+                            cellEl.classList.add('correct');
+                        }
+                    }
+                }
+            }
+        }
+
+        function resetGame() {
+            initGame();
+        }
+
+        // Start
+        initGame();
+    </script>
+</body>
+</html>
