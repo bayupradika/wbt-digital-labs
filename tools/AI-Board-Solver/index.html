@@ -6,6 +6,9 @@
     <title>AI Board Solver & Scanner - WBT Digital Labs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+    <!-- AI Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script async src="https://docs.opencv.org/4.8.0/opencv.js" type="text/javascript"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body {
@@ -118,15 +121,31 @@
 
         <!-- Scanner Mode -->
         <div id="mode-scan" class="section-content">
-            <div class="scanner-area" onclick="triggerUpload()">
+            <div id="scanner-status" style="width:100%; text-align:center; background: rgba(56,189,248,0.1); color:#38bdf8; padding:10px; border-radius:10px; margin-bottom:15px; border: 1px solid rgba(56,189,248,0.3);">
+                <i class="fa-solid fa-spinner fa-spin"></i> Menunggu inisialisasi AI Engine (OpenCV & Tesseract)...
+            </div>
+
+            <div class="scanner-area" id="upload-box" onclick="triggerUpload()" style="display: none;">
                 <i class="fa-solid fa-cloud-arrow-up scanner-icon"></i>
                 <h3 style="color: white; margin-bottom: 10px;">Upload Screenshot Game</h3>
-                <p style="color: #94a3b8; font-size: 14px;">Klik untuk memilih file JPG/PNG</p>
-                <input type="file" id="file-upload" style="display: none;" accept="image/*" onchange="simulateScan()">
+                <p style="color: #94a3b8; font-size: 14px;">AI akan mendeteksi area grid secara otomatis</p>
+                <input type="file" id="file-upload" style="display: none;" accept="image/*" onchange="processImageScan(event)">
             </div>
-            <div id="scan-loading" style="display:none; color: #38bdf8;"><i class="fa-solid fa-circle-notch fa-spin"></i> Menjalankan Model OCR & Vision...</div>
-            <div style="background: rgba(239,68,68,0.1); border-left: 3px solid #ef4444; padding: 10px 15px; border-radius: 0 8px 8px 0; font-size: 13px; color: #cbd5e1; text-align: left;">
-                <i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> <b>Catatan Fase 1:</b> Modul Computer Vision Tesseract.js sedang diintegrasikan. Saat ini Scanner berfungsi sebagai mockup. Silakan gunakan Input Manual.
+            
+            <div id="scan-progress" style="display:none; width: 100%; text-align: center; margin-top: 15px;">
+                <h3 style="color: #a855f7; margin-bottom: 10px;" id="scan-step-text">Memproses Gambar...</h3>
+                <div style="width: 100%; background: #1e293b; border-radius: 10px; height: 10px; overflow: hidden;">
+                    <div id="scan-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #38bdf8, #a855f7); transition: width 0.3s;"></div>
+                </div>
+            </div>
+
+            <!-- Hidden canvas for image processing -->
+            <canvas id="cv-canvas" style="display:none;"></canvas>
+            
+            <!-- Output visualizer for debugging / showing the user what AI sees -->
+            <div id="scan-preview-container" style="display:none; width: 100%; align-items: center; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <p style="color: #10b981; font-weight: bold;"><i class="fa-solid fa-check"></i> Grid Terdeteksi & Dipotong (Warped)</p>
+                <canvas id="warped-canvas" style="max-width: 100%; border: 2px solid #a855f7; border-radius: 8px;"></canvas>
             </div>
         </div>
 
@@ -176,17 +195,228 @@
             document.getElementById('output-section').style.display = 'none';
         }
 
-        function triggerUpload() { document.getElementById('file-upload').click(); }
+        // Wait for OpenCV to load
+        function checkOpenCV() {
+            if (typeof cv !== 'undefined' && cv.Mat) {
+                document.getElementById('scanner-status').style.display = 'none';
+                document.getElementById('upload-box').style.display = 'block';
+            } else {
+                setTimeout(checkOpenCV, 500);
+            }
+        }
+        checkOpenCV();
 
-        function simulateScan() {
-            const file = document.getElementById('file-upload').files[0];
+        function triggerUpload() { 
+            if(currentGame !== 'sudoku') {
+                alert("Scanner Image saat ini hanya didukung untuk game Sudoku.");
+                return;
+            }
+            document.getElementById('file-upload').click(); 
+        }
+
+        async function processImageScan(event) {
+            const file = event.target.files[0];
             if(!file) return;
-            document.getElementById('scan-loading').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('scan-loading').style.display = 'none';
-                alert("Simulasi Scanner: Ekstraksi fitur gambar selesai. (Catatan: Ini masih dalam mode purwarupa tahap 1, akan beralih ke Input Manual).");
-                switchMode('manual');
-            }, 1500);
+
+            document.getElementById('scan-progress').style.display = 'block';
+            document.getElementById('scan-preview-container').style.display = 'none';
+            const progressText = document.getElementById('scan-step-text');
+            const progressBar = document.getElementById('scan-progress-bar');
+            
+            progressText.innerText = "Membaca gambar...";
+            progressBar.style.width = "10%";
+
+            const img = new Image();
+            img.onload = async () => {
+                const canvas = document.getElementById('cv-canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                // Max width/height to avoid memory crash
+                const MAX_DIM = 1000;
+                let w = img.width;
+                let h = img.height;
+                if(w > MAX_DIM || h > MAX_DIM) {
+                    let ratio = Math.min(MAX_DIM/w, MAX_DIM/h);
+                    w = Math.round(w*ratio);
+                    h = Math.round(h*ratio);
+                }
+                canvas.width = w;
+                canvas.height = h;
+                ctx.drawImage(img, 0, 0, w, h);
+
+                progressText.innerText = "OpenCV: Mencari pola grid Sudoku...";
+                progressBar.style.width = "30%";
+
+                // Delay to allow UI to update
+                await new Promise(r => setTimeout(r, 100));
+
+                try {
+                    let src = cv.imread(canvas);
+                    let gray = new cv.Mat();
+                    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+                    
+                    // Blur & Threshold
+                    cv.GaussianBlur(gray, gray, new cv.Size(5, 5), 0);
+                    cv.adaptiveThreshold(gray, gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 2);
+                    
+                    // Find contours
+                    let contours = new cv.MatVector();
+                    let hierarchy = new cv.Mat();
+                    cv.findContours(gray, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+                    
+                    let maxArea = 0;
+                    let maxContourIdx = -1;
+                    for (let i = 0; i < contours.size(); ++i) {
+                        let cnt = contours.get(i);
+                        let area = cv.contourArea(cnt);
+                        if (area > maxArea) {
+                            maxArea = area;
+                            maxContourIdx = i;
+                        }
+                    }
+
+                    if(maxContourIdx === -1) throw new Error("Tidak menemukan grid");
+
+                    let contour = contours.get(maxContourIdx);
+                    let perimeter = cv.arcLength(contour, true);
+                    let approx = new cv.Mat();
+                    cv.approxPolyDP(contour, approx, 0.02 * perimeter, true);
+
+                    if (approx.rows !== 4) throw new Error("Kotak Sudoku tidak terdeteksi dengan jelas (harus memiliki 4 sudut). Pastikan gambar jelas.");
+
+                    // Order points: top-left, top-right, bottom-right, bottom-left
+                    let pts = [];
+                    for(let i=0; i<4; i++) {
+                        pts.push({x: approx.data32S[i*2], y: approx.data32S[i*2+1]});
+                    }
+                    
+                    // Sort by Y to separate top and bottom
+                    pts.sort((a,b) => a.y - b.y);
+                    let topPts = pts.slice(0, 2).sort((a,b) => a.x - b.x); // TL, TR
+                    let botPts = pts.slice(2, 4).sort((a,b) => a.x - b.x); // BL, BR
+
+                    let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+                        topPts[0].x, topPts[0].y,
+                        topPts[1].x, topPts[1].y,
+                        botPts[1].x, botPts[1].y,
+                        botPts[0].x, botPts[0].y
+                    ]);
+                    
+                    let side = 450; // 9x9 where each cell is 50x50
+                    let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+                        0, 0,
+                        side, 0,
+                        side, side,
+                        0, side
+                    ]);
+
+                    let M = cv.getPerspectiveTransform(srcTri, dstTri);
+                    let warped = new cv.Mat();
+                    let dsize = new cv.Size(side, side);
+                    
+                    // Re-read from original for clean digits
+                    let cleanSrc = cv.imread(canvas);
+                    cv.warpPerspective(cleanSrc, warped, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+                    
+                    cv.imshow('warped-canvas', warped);
+                    document.getElementById('scan-preview-container').style.display = 'flex';
+                    
+                    progressText.innerText = "Tesseract OCR: Membaca 81 kotak angka...";
+                    progressBar.style.width = "50%";
+
+                    // Pre-process warped for OCR
+                    let warpedGray = new cv.Mat();
+                    cv.cvtColor(warped, warpedGray, cv.COLOR_RGBA2GRAY);
+                    // Binarize
+                    cv.adaptiveThreshold(warpedGray, warpedGray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 2);
+
+                    // Initialize Tesseract Worker
+                    const worker = await Tesseract.createWorker('eng');
+                    await worker.setParameters({
+                        tessedit_char_whitelist: '123456789',
+                        tessedit_pageseg_mode: Tesseract.PSM.SINGLE_CHAR
+                    });
+
+                    let cellSize = side / 9;
+                    let detectedBoard = Array(9).fill().map(() => Array(9).fill(""));
+
+                    let totalCells = 81;
+                    let processed = 0;
+
+                    for(let r = 0; r < 9; r++) {
+                        for(let c = 0; c < 9; c++) {
+                            // Extract inner part of cell to avoid grid lines
+                            let margin = 5;
+                            let rect = new cv.Rect(
+                                Math.round(c * cellSize + margin), 
+                                Math.round(r * cellSize + margin), 
+                                Math.round(cellSize - margin*2), 
+                                Math.round(cellSize - margin*2)
+                            );
+                            let cellMat = warpedGray.roi(rect);
+                            
+                            // Check if empty by counting dark pixels
+                            // warpedGray is white background, black text. So we count pixels < 128
+                            let binaryCell = new cv.Mat();
+                            cv.threshold(cellMat, binaryCell, 128, 255, cv.THRESH_BINARY_INV);
+                            let darkPixels = cv.countNonZero(binaryCell);
+                            
+                            if(darkPixels > 30) {
+                                // Has digit, run OCR
+                                // Draw to temp canvas
+                                let tempCanvas = document.createElement('canvas');
+                                cv.imshow(tempCanvas, cellMat);
+                                
+                                const ret = await worker.recognize(tempCanvas);
+                                let char = ret.data.text.trim().replace(/[^1-9]/g, '');
+                                if(char.length > 0) {
+                                    detectedBoard[r][c] = char[0];
+                                }
+                            }
+                            
+                            binaryCell.delete();
+                            cellMat.delete();
+                            processed++;
+                            progressBar.style.width = `${50 + (processed/totalCells)*50}%`;
+                        }
+                    }
+
+                    await worker.terminate();
+
+                    // Cleanup CV
+                    src.delete(); gray.delete(); contours.delete(); hierarchy.delete();
+                    approx.delete(); srcTri.delete(); dstTri.delete(); M.delete();
+                    warped.delete(); cleanSrc.delete(); warpedGray.delete();
+
+                    progressText.innerText = "Selesai! Menampilkan hasil...";
+                    progressBar.style.width = "100%";
+
+                    // Populate UI
+                    setTimeout(() => {
+                        const inputs = document.querySelectorAll('#board-ui input');
+                        let idx = 0;
+                        for(let r=0; r<9; r++){
+                            for(let c=0; c<9; c++){
+                                inputs[idx].value = detectedBoard[r][c];
+                                idx++;
+                            }
+                        }
+                        
+                        document.getElementById('scan-progress').style.display = 'none';
+                        switchMode('manual');
+                        alert("Scan selesai! Silakan periksa angka yang terdeteksi di papan manual, perbaiki jika ada yang meleset, lalu tekan Jalankan AI Solver.");
+                        
+                        // Reset file input
+                        document.getElementById('file-upload').value = '';
+                    }, 1000);
+
+                } catch(e) {
+                    console.error(e);
+                    progressText.innerText = "Gagal memproses gambar!";
+                    progressText.style.color = "#ef4444";
+                    alert(e.message || "Gagal mendeteksi grid Sudoku.");
+                }
+            };
+            img.src = URL.createObjectURL(file);
         }
 
         function buildBoardUI() {
