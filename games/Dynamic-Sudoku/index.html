@@ -88,11 +88,12 @@
         <button class="btn-add" onclick="addRow()"><i class="fa-solid fa-arrow-down"></i> Add Grid (Bawah)</button>
         <button class="btn-check" onclick="checkBoard()"><i class="fa-solid fa-check-double"></i> Cek Jawaban</button>
         <button onclick="solveWithAI()" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6); border: none; color: white;"><i class="fa-solid fa-robot"></i> AI Solver</button>
-        <button onclick="initEmptyGame()"><i class="fa-solid fa-border-none"></i> Papan Kosong</button>
+        <button onclick="enterEditMode()"><i class="fa-solid fa-pen"></i> Edit Mode</button>
     </div>
     
     <div class="controls" id="setup-controls" style="display: none; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.4);">
-        <p style="width: 100%; text-align: center; color: #38bdf8; font-weight: bold; margin-bottom: 5px;">MODE SETUP: Masukkan angka teka-teki awal Anda</p>
+        <p style="width: 100%; text-align: center; color: #38bdf8; font-weight: bold; margin-bottom: 5px;">MODE EDIT: Tambah atau ubah angka teka-teki (Hint)</p>
+        <button onclick="clearAllBoard()" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #fca5a5;"><i class="fa-solid fa-trash"></i> Hapus Semua</button>
         <button class="btn-check" onclick="submitSetup()"><i class="fa-solid fa-play"></i> Simpan & Mulai Main</button>
         <button onclick="location.reload()"><i class="fa-solid fa-xmark"></i> Batal</button>
     </div>
@@ -117,18 +118,25 @@
 
         let isSetupMode = false;
 
-        // Initialize completely empty 9x9 board (Custom Mode)
-        function initEmptyGame() {
-            rows = 9;
-            cols = 9;
-            boardState = [];
+        // Enter edit mode
+        function enterEditMode() {
             isSetupMode = true;
+            // Allow all current numbers to be editable
             for (let r = 0; r < rows; r++) {
-                let rowData = [];
                 for (let c = 0; c < cols; c++) {
-                    rowData.push({ val: "", isHint: false });
+                    boardState[r][c].isHint = false;
                 }
-                boardState.push(rowData);
+            }
+            renderBoard();
+        }
+
+        // Clear all numbers
+        function clearAllBoard() {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    boardState[r][c].val = "";
+                    boardState[r][c].isHint = false;
+                }
             }
             renderBoard();
         }
