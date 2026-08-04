@@ -87,20 +87,27 @@
         <button class="btn-add" onclick="addColumn()"><i class="fa-solid fa-arrow-right"></i> Add Grid (Samping)</button>
         <button class="btn-add" onclick="addRow()"><i class="fa-solid fa-arrow-down"></i> Add Grid (Bawah)</button>
         <button class="btn-check" onclick="checkBoard()"><i class="fa-solid fa-check-double"></i> Cek Jawaban</button>
-        <button onclick="resetGame()"><i class="fa-solid fa-rotate-right"></i> Mode Klasik</button>
+        <button onclick="solveWithAI()" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6); border: none; color: white;"><i class="fa-solid fa-robot"></i> AI Solver</button>
         <button onclick="initEmptyGame()"><i class="fa-solid fa-border-none"></i> Papan Kosong</button>
     </div>
     
     <div class="controls" id="setup-controls" style="display: none; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.4);">
         <p style="width: 100%; text-align: center; color: #38bdf8; font-weight: bold; margin-bottom: 5px;">MODE SETUP: Masukkan angka teka-teki awal Anda</p>
         <button class="btn-check" onclick="submitSetup()"><i class="fa-solid fa-play"></i> Simpan & Mulai Main</button>
-        <button onclick="resetGame()"><i class="fa-solid fa-xmark"></i> Batal</button>
+        <button onclick="location.reload()"><i class="fa-solid fa-xmark"></i> Batal</button>
     </div>
 
     <div class="info-text" id="domain-info">Domain Angka Saat Ini: 1 - 9</div>
 
-    <div class="sudoku-container">
+    <div class="sudoku-container" id="main-container">
         <div class="sudoku-board" id="board"></div>
+    </div>
+    
+    <div class="header" id="ai-header" style="display: none; margin-top: 40px; margin-bottom: 20px;">
+        <h2 style="font-family: 'Outfit'; font-size: 28px; color: #a855f7;"><i class="fa-solid fa-robot"></i> Solusi AI</h2>
+    </div>
+    <div class="sudoku-container" id="ai-container" style="display: none; border-color: #8b5cf6;">
+        <div class="sudoku-board" id="ai-board"></div>
     </div>
 
     <script>
@@ -327,9 +334,112 @@
             }
         }
 
-        function resetGame() {
-            initGame();
+        // --- AI SOLVER ---
+        function isValid(board, r, c, val, maxD) {
+            // Check Row
+            for (let x = 0; x < cols; x++) {
+                if (board[r][x] === val) return false;
+            }
+            // Check Col
+            for (let y = 0; y < rows; y++) {
+                if (board[y][c] === val) return false;
+            }
+            // Check 3x3 Block
+            let blockR = Math.floor(r / 3) * 3;
+            let blockC = Math.floor(c / 3) * 3;
+            for (let y = blockR; y < blockR + 3; y++) {
+                for (let x = blockC; x < blockC + 3; x++) {
+                    if (y < rows && x < cols && board[y][x] === val) return false;
+                }
+            }
+            return true;
         }
+
+        function solveBacktrack(board, r, c, maxD) {
+            if (r === rows) return true; // Solved
+            if (c === cols) return solveBacktrack(board, r + 1, 0, maxD); // Next row
+            
+            if (board[r][c] !== "") {
+                return solveBacktrack(board, r, c + 1, maxD);
+            }
+            
+            for (let num = 1; num <= maxD; num++) {
+                let strNum = num.toString();
+                if (isValid(board, r, c, strNum, maxD)) {
+                    board[r][c] = strNum;
+                    if (solveBacktrack(board, r, c + 1, maxD)) return true;
+                    board[r][c] = ""; // backtrack
+                }
+            }
+            return false;
+        }
+
+        function solveWithAI() {
+            // Create a simple 2D array for the solver
+            let simBoard = [];
+            for(let r=0; r<rows; r++){
+                let row = [];
+                for(let c=0; c<cols; c++){
+                    row.push(boardState[r][c].val);
+                }
+                simBoard.push(row);
+            }
+            
+            let maxDomain = Math.max(rows, cols);
+            let originalButtonHTML = document.querySelector('.fa-robot').parentNode.innerHTML;
+            document.querySelector('.fa-robot').parentNode.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Berpikir...';
+            
+            setTimeout(() => {
+                let success = solveBacktrack(simBoard, 0, 0, maxDomain);
+                
+                document.querySelectorAll('.fa-spinner').forEach(el => el.parentNode.innerHTML = originalButtonHTML);
+                
+                if(success) {
+                    renderAIBoard(simBoard);
+                } else {
+                    alert("AI gagal menemukan solusi! Pastikan angka yang Anda masukkan tidak menyalahi aturan atau menciptakan papan mustahil.");
+                }
+            }, 100); // give UI time to update button state
+        }
+
+        function renderAIBoard(solvedBoard) {
+            document.getElementById('ai-header').style.display = 'block';
+            document.getElementById('ai-container').style.display = 'block';
+            const aiBoardEl = document.getElementById('ai-board');
+            aiBoardEl.style.gridTemplateColumns = `repeat(${cols}, 50px)`;
+            aiBoardEl.style.gridTemplateRows = `repeat(${rows}, 50px)`;
+            aiBoardEl.innerHTML = '';
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'sudoku-cell correct'; // styling it as correct
+                    
+                    if ((c + 1) % 3 === 0 && c !== cols - 1) cell.classList.add('right-border');
+                    if ((r + 1) % 3 === 0 && r !== rows - 1) cell.classList.add('bottom-border');
+
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = solvedBoard[r][c];
+                    input.readOnly = true;
+                    
+                    // If it was a hint in the main board, keep it distinct
+                    if(boardState[r][c].val === solvedBoard[r][c] && boardState[r][c].val !== "") {
+                        cell.classList.remove('correct');
+                        cell.classList.add('hint');
+                    }
+
+                    cell.appendChild(input);
+                    aiBoardEl.appendChild(cell);
+                }
+            }
+            // Scroll down to see AI board
+            document.getElementById('ai-header').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // function resetGame() {
+        //     initGame();
+        // }
 
         // Start
         initGame();
