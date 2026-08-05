@@ -396,6 +396,7 @@
                     state.msg = `Pemain ${firstPlayer+1} memiliki Balak ${highestBalak} dan jalan duluan!`;
                 }
 
+                state.requiredFirstTile = highestBalak;
                 state.turn = firstPlayer;
 
                 // In AI mode, if AI is first, trigger it
@@ -544,7 +545,12 @@
 
         // --- Core Rules & State Modification (Only Runs on Host/Local) ---
         function isValidMove(tile) {
-            if (state.table.length === 0) return true;
+            if (state.table.length === 0) {
+                if (state.requiredFirstTile !== -1) {
+                    return (tile[0] === tile[1] && tile[0] === state.requiredFirstTile);
+                }
+                return true;
+            }
             let [t1, t2] = tile;
             return t1 === state.leftEnd || t1 === state.rightEnd || t2 === state.leftEnd || t2 === state.rightEnd;
         }
@@ -560,9 +566,10 @@
                 
                 // First turn rule: Must play Balak if it's empty table
                 if (state.table.length === 0) {
-                    // Let them play whatever they clicked, ideally they click the balak.
-                    // For simplicity, we just accept the first tile they click as valid, 
-                    // though strictly they MUST play highest balak. We assume they follow rules if it's playable.
+                    if (state.requiredFirstTile !== -1 && (tile[0] !== tile[1] || tile[0] !== state.requiredFirstTile)) {
+                        alert(`Anda harus memulai dengan Balak ${state.requiredFirstTile}!`);
+                        return;
+                    }
                     state.table.push([tile[0], tile[1]]);
                     state.leftEnd = tile[0]; state.rightEnd = tile[1];
                     state.hands[reqPlayerId].splice(idx, 1);
@@ -593,7 +600,11 @@
                 state.msg = `${getRoleName(reqPlayerId)} PASS.`;
             }
 
-            if(checkWinCondition()) return; // Game over check
+            if(checkWinCondition()) {
+                if(isHost) broadcastState();
+                renderGaple();
+                return;
+            } // Game over check
 
             if (nextTurn) {
                 state.turn = (state.turn + 1) % config.players;
