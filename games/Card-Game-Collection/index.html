@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Game Collection - WBT Digital Labs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            background: #070913; color: #f8fafc; min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(239,68,68,0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(59,130,246,0.15) 0%, transparent 40%);
+            display: flex; flex-direction: column; align-items: center; padding: 40px 24px;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #ef4444, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .header p { color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+        .back-btn {
+            position: absolute; top: 24px; left: 24px; color: #94a3b8; text-decoration: none;
+            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s; z-index: 10;
+        }
+        .back-btn:hover { color: white; }
+
+        /* Screens */
+        .screen { display: none; width: 100%; max-width: 900px; flex-direction: column; align-items: center; }
+        .screen.active { display: flex; }
+
+        /* Hub Menu */
+        .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; justify-content: center; }
+        .game-card {
+            background: rgba(15,23,42,0.6); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .game-card:hover { transform: translateY(-5px); border-color: rgba(239,68,68,0.4); background: rgba(15,23,42,0.8); }
+        .game-icon { font-size: 48px; margin-bottom: 15px; color: #ef4444; }
+        .game-card h3 { color: white; font-size: 20px; margin-bottom: 8px; }
+        .game-card p { color: #94a3b8; font-size: 13px; }
+
+        /* Mode Selection Modal */
+        #mode-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-content {
+            background: #0f172a; padding: 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; width: 90%; max-width: 400px;
+        }
+        .modal-content h2 { margin-bottom: 20px; color: white; }
+        .mode-btn {
+            width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+            background: transparent; color: white; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 16px;
+        }
+        .mode-btn:hover { background: rgba(255,255,255,0.1); }
+        .mode-btn.ai { border-color: #ef4444; color: #ef4444; }
+        .mode-btn.ai:hover { background: rgba(239,68,68,0.1); }
+        .close-modal { margin-top: 15px; background: none; border: none; color: #94a3b8; cursor: pointer; text-decoration: underline; }
+
+        /* Game Board Area */
+        .board-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(15,23,42,0.8); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .board-header h2 { color: #ef4444; margin:0; font-size: 24px; }
+        .status-box { font-size: 18px; font-weight: 700; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+        
+        .board-container { background: rgba(22,101,52,0.6); border: 2px solid #14532d; border-radius: 16px; padding: 40px; width: 100%; min-height: 500px; position: relative; }
+        
+        /* Playing Cards */
+        .card-area { display: flex; gap: -30px; justify-content: center; min-height: 140px; margin-bottom: 30px; }
+        .card-area-title { text-align: center; font-weight: bold; margin-bottom: 10px; color: #cbd5e1; }
+        
+        .playing-card {
+            width: 90px; height: 130px; background: white; border-radius: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; justify-content: space-between; padding: 8px; font-size: 20px; font-weight: bold;
+            margin-right: -40px; /* Overlap */
+            position: relative;
+        }
+        .playing-card:last-child { margin-right: 0; }
+        .card-red { color: #ef4444; }
+        .card-black { color: #0f172a; }
+        .card-hidden { background: repeating-linear-gradient(45deg, #1e293b, #1e293b 10px, #0f172a 10px, #0f172a 20px); border: 2px solid white; }
+        
+        .card-top { align-self: flex-start; line-height: 1; }
+        .card-center { align-self: center; font-size: 32px; }
+        .card-bottom { align-self: flex-end; line-height: 1; transform: rotate(180deg); }
+
+        .controls { display: flex; gap: 15px; justify-content: center; margin-top: 20px; }
+        .btn-action { background: linear-gradient(135deg, #ef4444, #f97316); color: white; padding: 12px 24px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        .btn-action:hover { transform: scale(1.05); }
+        .btn-action.secondary { background: #334155; }
+
+        .btn-back-hub { margin-right: 15px; background: transparent; color: #94a3b8; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .btn-back-hub:hover { color: white; }
+
+        /* Score Box */
+        .score-box { background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 6px; font-size: 14px; margin-top: 5px; display: inline-block; }
+
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> WBT Digital Labs</a>
+
+    <div class="header">
+        <h1>Card Game Collection</h1>
+        <p>Rasakan sensasi permainan kartu kasino langsung dari browser Anda. Bermain secara lokal atau tantang Dealer (AI).</p>
+    </div>
+
+    <!-- HUB SCREEN -->
+    <div id="screen-hub" class="screen active">
+        <div class="hub-grid">
+            <div class="game-card" onclick="openModeSelect('blackjack')">
+                <i class="fa-solid fa-diamond game-icon"></i>
+                <h3>Blackjack (21)</h3>
+                <p>Kalahkan dealer dengan angka mendekati 21 tanpa melebihi batas.</p>
+            </div>
+            <div class="game-card" onclick="openModeSelect('highlow')">
+                <i class="fa-solid fa-arrow-up-9-1 game-icon"></i>
+                <h3>High-Low</h3>
+                <p>Tebak kartu selanjutnya apakah lebih besar atau lebih kecil.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MODE SELECT -->
+    <div id="mode-modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Pilih Mode</h2>
+            <!-- <button class="mode-btn" onclick="startGame('local')"><i class="fa-solid fa-user-group"></i> 1v1 Local</button> -->
+            <button class="mode-btn ai" onclick="startGame('ai')"><i class="fa-solid fa-robot"></i> Lawan Dealer / AI</button>
+            <button class="close-modal" onclick="closeModeSelect()">Batal</button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="screen-game" class="screen">
+        <div class="board-header">
+            <div style="display:flex; align-items:center;">
+                <button class="btn-back-hub" onclick="backToHub()"><i class="fa-solid fa-house"></i></button>
+                <h2 id="game-title">Nama Game</h2>
+            </div>
+            <div class="status-box" id="game-status">Membagi Kartu...</div>
+        </div>
+        
+        <div class="board-container" id="board-container">
+            <!-- Dynamic UI injected here -->
+        </div>
+    </div>
+
+    <script>
+        let selectedGame = '';
+        let gameMode = 'ai';
+        let deck = [];
+        let state = {};
+
+        const suits = ['♥', '♦', '♣', '♠'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+        // --- Core Deck Logic ---
+        function createDeck() {
+            let newDeck = [];
+            for(let s of suits) {
+                for(let v of values) {
+                    let weight = parseInt(v);
+                    if(v === 'J' || v === 'Q' || v === 'K') weight = 10;
+                    if(v === 'A') weight = 11;
+                    let color = (s === '♥' || s === '♦') ? 'red' : 'black';
+                    // real numeric value for high-low
+                    let realValue = values.indexOf(v) + 1; 
+                    newDeck.push({ suit: s, value: v, weight, color, realValue });
+                }
+            }
+            return newDeck.sort(() => Math.random() - 0.5);
+        }
+
+        // --- UI Flow ---
+        function openModeSelect(gameId) {
+            selectedGame = gameId;
+            document.getElementById('modal-title').innerText = gameId === 'blackjack' ? 'Blackjack (21)' : 'High-Low';
+            document.getElementById('mode-modal').style.display = 'flex';
+        }
+        function closeModeSelect() {
+            document.getElementById('mode-modal').style.display = 'none';
+        }
+        function startGame(mode) {
+            gameMode = mode;
+            closeModeSelect();
+            document.getElementById('screen-hub').classList.remove('active');
+            document.getElementById('screen-game').classList.add('active');
+            document.getElementById('game-title').innerText = selectedGame === 'blackjack' ? 'Blackjack' : 'High-Low';
+            
+            if(selectedGame === 'blackjack') initBlackjack();
+            else if(selectedGame === 'highlow') initHighLow();
+        }
+        function backToHub() {
+            document.getElementById('screen-game').classList.remove('active');
+            document.getElementById('screen-hub').classList.add('active');
+        }
+        function updateStatus(msg) {
+            document.getElementById('game-status').innerText = msg;
+        }
+
+        // --- Helper Rendering ---
+        function renderCardHTML(card, hidden=false) {
+            if(hidden) return `<div class="playing-card card-hidden"></div>`;
+            return `
+                <div class="playing-card card-${card.color}">
+                    <div class="card-top">${card.value}${card.suit}</div>
+                    <div class="card-center">${card.suit}</div>
+                    <div class="card-bottom">${card.value}${card.suit}</div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // BLACKJACK LOGIC
+        // ==========================================
+        function initBlackjack() {
+            deck = createDeck();
+            state = {
+                playerHand: [deck.pop(), deck.pop()],
+                dealerHand: [deck.pop(), deck.pop()],
+                gameOver: false,
+                msg: "Giliran Anda"
+            };
+            checkBlackjackWin(true);
+            renderBlackjack();
+        }
+
+        function calculateScore(hand) {
+            let score = 0;
+            let aces = 0;
+            for(let card of hand) {
+                score += card.weight;
+                if(card.value === 'A') aces += 1;
+            }
+            while(score > 21 && aces > 0) {
+                score -= 10;
+                aces -= 1;
+            }
+            return score;
+        }
+
+        function checkBlackjackWin(initial = false) {
+            let pScore = calculateScore(state.playerHand);
+            if(pScore === 21 && initial) {
+                state.gameOver = true; state.msg = "Blackjack! Anda Menang!";
+            } else if(pScore > 21) {
+                state.gameOver = true; state.msg = "Busted! Anda Kalah.";
+            }
+        }
+
+        function hitBlackjack() {
+            if(state.gameOver) return;
+            state.playerHand.push(deck.pop());
+            checkBlackjackWin();
+            renderBlackjack();
+        }
+
+        function standBlackjack() {
+            if(state.gameOver) return;
+            state.gameOver = true;
+            
+            // Dealer AI Logic (hit until 17)
+            let dScore = calculateScore(state.dealerHand);
+            while(dScore < 17) {
+                state.dealerHand.push(deck.pop());
+                dScore = calculateScore(state.dealerHand);
+            }
+
+            let pScore = calculateScore(state.playerHand);
+            if(dScore > 21) state.msg = "Dealer Busted! Anda Menang!";
+            else if(pScore > dScore) state.msg = "Anda Menang!";
+            else if(pScore < dScore) state.msg = "Dealer Menang!";
+            else state.msg = "Push (Seri)!";
+
+            renderBlackjack();
+        }
+
+        function renderBlackjack() {
+            updateStatus(state.msg);
+            let container = document.getElementById('board-container');
+            
+            let pScore = calculateScore(state.playerHand);
+            let dScore = state.gameOver ? calculateScore(state.dealerHand) : "?";
+
+            let html = `
+                <div>
+                    <div class="card-area-title">Dealer <br><span class="score-box">Score: ${dScore}</span></div>
+                    <div class="card-area">
+                        ${state.dealerHand.map((c, i) => renderCardHTML(c, (!state.gameOver && i===1))).join('')}
+                    </div>
+                </div>
+                <div style="margin-top: 50px;">
+                    <div class="card-area-title">Anda <br><span class="score-box">Score: ${pScore}</span></div>
+                    <div class="card-area">
+                        ${state.playerHand.map(c => renderCardHTML(c)).join('')}
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    ${!state.gameOver ? `
+                        <button class="btn-action" onclick="hitBlackjack()">Hit (+Kartu)</button>
+                        <button class="btn-action secondary" onclick="standBlackjack()">Stand (Tahan)</button>
+                    ` : `
+                        <button class="btn-action" onclick="initBlackjack()">Main Lagi</button>
+                    `}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // ==========================================
+        // HIGH-LOW LOGIC
+        // ==========================================
+        function initHighLow() {
+            deck = createDeck();
+            state = {
+                currentCard: deck.pop(),
+                streak: 0,
+                gameOver: false,
+                msg: "Tebak: Kartu selanjutnya Lebih Besar atau Kecil?"
+            };
+            renderHighLow();
+        }
+
+        function guessHighLow(choice) {
+            if(state.gameOver) return;
+            
+            let nextCard = deck.pop();
+            let isHigher = nextCard.realValue > state.currentCard.realValue;
+            let isEqual = nextCard.realValue === state.currentCard.realValue;
+
+            if(isEqual) {
+                // If equal, usually counts as loss or pass. We'll count it as a streak saver but no points.
+                state.msg = "Angka Sama! Tidak ada poin.";
+            } else if ((choice === 'high' && isHigher) || (choice === 'low' && !isHigher)) {
+                state.streak++;
+                state.msg = "Tebakan Benar! Streak: " + state.streak;
+            } else {
+                state.gameOver = true;
+                state.msg = "Salah! Game Over. Streak akhir: " + state.streak;
+            }
+
+            state.currentCard = nextCard;
+            if(deck.length === 0) {
+                state.gameOver = true;
+                state.msg = "Kartu habis! You Win! Streak: " + state.streak;
+            }
+            renderHighLow();
+        }
+
+        function renderHighLow() {
+            updateStatus(state.msg);
+            let container = document.getElementById('board-container');
+            
+            let html = `
+                <div style="display:flex; flex-direction:column; align-items:center; margin-top:50px;">
+                    <div class="card-area-title">Kartu Saat Ini</div>
+                    <div class="card-area" style="margin-bottom: 50px;">
+                        ${renderCardHTML(state.currentCard)}
+                    </div>
+                    <div class="score-box" style="font-size:20px; margin-bottom: 20px;">Streak: ${state.streak} / 51</div>
+                    
+                    <div class="controls">
+                        ${!state.gameOver ? `
+                            <button class="btn-action" onclick="guessHighLow('high')"><i class="fa-solid fa-arrow-up"></i> Lebih Tinggi</button>
+                            <button class="btn-action secondary" onclick="guessHighLow('low')"><i class="fa-solid fa-arrow-down"></i> Lebih Rendah</button>
+                        ` : `
+                            <button class="btn-action" onclick="initHighLow()">Main Lagi</button>
+                        `}
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>

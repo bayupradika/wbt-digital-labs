@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Board Game Collection - WBT Digital Labs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            background: #070913; color: #f8fafc; min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(56,189,248,0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(139,92,246,0.15) 0%, transparent 40%);
+            display: flex; flex-direction: column; align-items: center; padding: 40px 24px;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .header p { color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+        .back-btn {
+            position: absolute; top: 24px; left: 24px; color: #94a3b8; text-decoration: none;
+            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s; z-index: 10;
+        }
+        .back-btn:hover { color: white; }
+
+        /* Screens */
+        .screen { display: none; width: 100%; max-width: 900px; flex-direction: column; align-items: center; }
+        .screen.active { display: flex; }
+
+        /* Hub Menu */
+        .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; }
+        .game-card {
+            background: rgba(15,23,42,0.6); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .game-card:hover { transform: translateY(-5px); border-color: rgba(56,189,248,0.4); background: rgba(15,23,42,0.8); }
+        .game-icon { font-size: 48px; margin-bottom: 15px; color: #38bdf8; }
+        .game-card h3 { color: white; font-size: 20px; margin-bottom: 8px; }
+        .game-card p { color: #94a3b8; font-size: 13px; }
+
+        /* Mode Selection Modal */
+        #mode-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-content {
+            background: #0f172a; padding: 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; width: 90%; max-width: 400px;
+        }
+        .modal-content h2 { margin-bottom: 20px; color: white; }
+        .mode-btn {
+            width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+            background: transparent; color: white; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 16px;
+        }
+        .mode-btn:hover { background: rgba(255,255,255,0.1); }
+        .mode-btn.ai { border-color: #a855f7; color: #a855f7; }
+        .mode-btn.ai:hover { background: rgba(168,85,247,0.1); }
+        .close-modal { margin-top: 15px; background: none; border: none; color: #94a3b8; cursor: pointer; text-decoration: underline; }
+
+        /* Game Board Area */
+        .board-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(15,23,42,0.8); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .board-header h2 { color: #38bdf8; margin:0; font-size: 24px; }
+        .status-box { font-size: 18px; font-weight: 700; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+        
+        .board-container { background: rgba(15,23,42,0.6); border: 2px solid #334155; border-radius: 16px; padding: 20px; }
+        
+        /* Grid definitions */
+        .grid { display: grid; gap: 4px; margin: 0 auto; width: max-content; }
+        
+        /* Tic Tac Toe */
+        .cell-ttt { width: 80px; height: 80px; background: #1e293b; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 48px; font-weight: 900; cursor: pointer; color: white; }
+        .cell-ttt:hover { background: #334155; }
+        
+        /* Connect 4 */
+        .grid-c4 { background: #1d4ed8; padding: 10px; border-radius: 12px; gap: 8px; }
+        .cell-c4 { width: 60px; height: 60px; background: #0f172a; border-radius: 50%; cursor: pointer; transition: 0.3s; }
+        .cell-c4:hover { box-shadow: inset 0 0 10px rgba(255,255,255,0.2); }
+        .c4-red { background: #ef4444; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3); }
+        .c4-yellow { background: #eab308; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3); }
+
+        /* Othello */
+        .grid-othello { background: #065f46; border: 4px solid #064e3b; padding: 2px; gap: 2px; }
+        .cell-oth { width: 50px; height: 50px; background: #10b981; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .cell-oth:hover { background: #34d399; }
+        .disc { width: 40px; height: 40px; border-radius: 50%; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+        .disc.black { background: #111827; }
+        .disc.white { background: #f9fafb; }
+        .disc.valid { background: rgba(0,0,0,0.2); border: 2px dashed rgba(255,255,255,0.5); box-shadow: none; }
+
+        /* Gomoku */
+        .grid-gomoku { background: #d97706; border: 4px solid #78350f; padding: 10px; gap: 0; position: relative; }
+        .cell-gom { width: 35px; height: 35px; position: relative; cursor: pointer; }
+        /* Draw lines */
+        .cell-gom::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: #78350f; z-index: 1; }
+        .cell-gom::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #78350f; z-index: 1; }
+        .stone { width: 28px; height: 28px; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; box-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
+        .stone.black { background: radial-gradient(circle at 30% 30%, #4b5563, #000); }
+        .stone.white { background: radial-gradient(circle at 30% 30%, #fff, #9ca3af); }
+
+        .btn-restart { margin-top: 20px; background: rgba(255,255,255,0.1); color: white; padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 16px; }
+        .btn-restart:hover { background: rgba(255,255,255,0.2); }
+        .btn-back-hub { margin-right: 15px; background: transparent; color: #94a3b8; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .btn-back-hub:hover { color: white; }
+
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> WBT Digital Labs</a>
+
+    <div class="header">
+        <h1>Board Game Collection</h1>
+        <p>Mainkan berbagai permainan papan klasik dalam satu tempat. Tersedia mode Multiplayer (Lokal) dan melawan AI (Robot).</p>
+    </div>
+
+    <!-- HUB SCREEN -->
+    <div id="screen-hub" class="screen active">
+        <div class="hub-grid">
+            <div class="game-card" onclick="openModeSelect('ttt')">
+                <i class="fa-solid fa-xmarks-lines game-icon"></i>
+                <h3>Tic-Tac-Toe</h3>
+                <p>Grid 3x3 Klasik. Susun 3 berderet.</p>
+            </div>
+            <div class="game-card" onclick="openModeSelect('c4')">
+                <i class="fa-solid fa-braille game-icon"></i>
+                <h3>Connect 4</h3>
+                <p>Jatuhkan koin, susun 4 warna berderet.</p>
+            </div>
+            <div class="game-card" onclick="openModeSelect('othello')">
+                <i class="fa-solid fa-circle-half-stroke game-icon"></i>
+                <h3>Othello</h3>
+                <p>Jepit bidak lawan untuk mengubah warna.</p>
+            </div>
+            <div class="game-card" onclick="openModeSelect('gomoku')">
+                <i class="fa-solid fa-border-all game-icon"></i>
+                <h3>Gomoku</h3>
+                <p>Grid 15x15. Susun 5 batu berderet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MODE SELECT -->
+    <div id="mode-modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Pilih Mode</h2>
+            <button class="mode-btn" onclick="startGame('local')"><i class="fa-solid fa-user-group"></i> 1v1 Multiplayer (Lokal)</button>
+            <button class="mode-btn ai" onclick="startGame('ai')"><i class="fa-solid fa-robot"></i> Lawan AI (Sederhana)</button>
+            <button class="close-modal" onclick="closeModeSelect()">Batal</button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="screen-game" class="screen">
+        <div class="board-header">
+            <div style="display:flex; align-items:center;">
+                <button class="btn-back-hub" onclick="backToHub()"><i class="fa-solid fa-house"></i></button>
+                <h2 id="game-title">Nama Game</h2>
+            </div>
+            <div class="status-box" id="game-status">Giliran: Pemain 1</div>
+        </div>
+        
+        <div class="board-container" id="board-container">
+            <!-- Grid rendered here -->
+        </div>
+
+        <button class="btn-restart" onclick="initBoard()"><i class="fa-solid fa-rotate-right"></i> Main Lagi</button>
+    </div>
+
+    <script>
+        let selectedGame = '';
+        let gameMode = 'local'; // 'local' or 'ai'
+        
+        let board = [];
+        let currentPlayer = 1; // 1 or 2
+        let isGameOver = false;
+
+        const config = {
+            'ttt': { title: 'Tic-Tac-Toe', rows: 3, cols: 3, p1: 'X', p2: 'O' },
+            'c4': { title: 'Connect 4', rows: 6, cols: 7, p1: 'Red', p2: 'Yellow' },
+            'othello': { title: 'Othello / Reversi', rows: 8, cols: 8, p1: 'Black', p2: 'White' },
+            'gomoku': { title: 'Gomoku', rows: 15, cols: 15, p1: 'Black', p2: 'White' }
+        };
+
+        // UI Flow
+        function openModeSelect(gameId) {
+            selectedGame = gameId;
+            document.getElementById('modal-title').innerText = config[gameId].title;
+            document.getElementById('mode-modal').style.display = 'flex';
+        }
+        function closeModeSelect() {
+            document.getElementById('mode-modal').style.display = 'none';
+        }
+        function startGame(mode) {
+            gameMode = mode;
+            closeModeSelect();
+            document.getElementById('screen-hub').classList.remove('active');
+            document.getElementById('screen-game').classList.add('active');
+            document.getElementById('game-title').innerText = config[selectedGame].title + (mode === 'ai' ? ' (vs AI)' : ' (1v1)');
+            initBoard();
+        }
+        function backToHub() {
+            document.getElementById('screen-game').classList.remove('active');
+            document.getElementById('screen-hub').classList.add('active');
+        }
+
+        // --- Core Logic ---
+        function initBoard() {
+            isGameOver = false;
+            currentPlayer = 1;
+            let c = config[selectedGame];
+            board = Array(c.rows).fill().map(() => Array(c.cols).fill(0));
+            updateStatus();
+
+            if(selectedGame === 'othello') {
+                // Initial setup for Othello
+                board[3][3] = 2; board[3][4] = 1;
+                board[4][3] = 1; board[4][4] = 2;
+            }
+
+            renderBoard();
+        }
+
+        function updateStatus(msg) {
+            const st = document.getElementById('game-status');
+            if(msg) {
+                st.innerText = msg;
+                st.style.color = '#10b981';
+            } else {
+                let name = currentPlayer === 1 ? config[selectedGame].p1 : config[selectedGame].p2;
+                if(gameMode === 'ai' && currentPlayer === 2) name = "AI Berpikir...";
+                st.innerText = `Giliran: ${name}`;
+                st.style.color = currentPlayer === 1 ? '#38bdf8' : '#a855f7';
+            }
+        }
+
+        function renderBoard() {
+            const container = document.getElementById('board-container');
+            container.innerHTML = '';
+            let grid = document.createElement('div');
+            grid.className = `grid grid-${selectedGame}`;
+            
+            let c = config[selectedGame];
+            grid.style.gridTemplateColumns = `repeat(${c.cols}, auto)`;
+
+            // Pre-calculate valid moves for Othello
+            let validOthello = [];
+            if(selectedGame === 'othello' && !isGameOver) {
+                validOthello = getValidMovesOthello(currentPlayer);
+                if(validOthello.length === 0) {
+                    // Pass turn
+                    currentPlayer = currentPlayer === 1 ? 2 : 1;
+                    validOthello = getValidMovesOthello(currentPlayer);
+                    if(validOthello.length === 0) {
+                        endOthello(); // Both pass, game over
+                        return;
+                    }
+                }
+            }
+
+            for(let r=0; r<c.rows; r++) {
+                for(let col=0; col<c.cols; col++) {
+                    let cell = document.createElement('div');
+                    let val = board[r][col];
+
+                    if(selectedGame === 'ttt') {
+                        cell.className = 'cell-ttt';
+                        if(val === 1) { cell.innerText = 'X'; cell.style.color = '#38bdf8'; }
+                        if(val === 2) { cell.innerText = 'O'; cell.style.color = '#ef4444'; }
+                        cell.onclick = () => handleMove(r, col);
+                    } 
+                    else if(selectedGame === 'c4') {
+                        cell.className = 'cell-c4';
+                        if(val === 1) cell.classList.add('c4-red');
+                        if(val === 2) cell.classList.add('c4-yellow');
+                        cell.onclick = () => handleMove(r, col);
+                    }
+                    else if(selectedGame === 'othello') {
+                        cell.className = 'cell-oth';
+                        if(val !== 0) {
+                            let d = document.createElement('div');
+                            d.className = `disc ${val===1?'black':'white'}`;
+                            cell.appendChild(d);
+                        } else {
+                            // Show valid hint
+                            if(!isGameOver && validOthello.some(m => m.r===r && m.c===col)) {
+                                let d = document.createElement('div');
+                                d.className = `disc valid`;
+                                cell.appendChild(d);
+                                cell.onclick = () => handleMove(r, col);
+                            }
+                        }
+                    }
+                    else if(selectedGame === 'gomoku') {
+                        cell.className = 'cell-gom';
+                        if(val !== 0) {
+                            let d = document.createElement('div');
+                            d.className = `stone ${val===1?'black':'white'}`;
+                            cell.appendChild(d);
+                        }
+                        cell.onclick = () => handleMove(r, col);
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+            container.appendChild(grid);
+
+            // Handle AI Turn
+            if(!isGameOver && gameMode === 'ai' && currentPlayer === 2) {
+                setTimeout(makeAIMove, 600);
+            }
+        }
+
+        function handleMove(r, c) {
+            if(isGameOver) return;
+            if(gameMode === 'ai' && currentPlayer === 2) return; // Prevent clicking during AI turn
+
+            let success = applyMove(r, c, currentPlayer);
+            if(success) {
+                checkWin();
+                if(!isGameOver) {
+                    currentPlayer = currentPlayer === 1 ? 2 : 1;
+                    updateStatus();
+                    renderBoard();
+                }
+            }
+        }
+
+        function applyMove(r, c, player) {
+            if(selectedGame === 'ttt' || selectedGame === 'gomoku') {
+                if(board[r][c] !== 0) return false;
+                board[r][c] = player;
+                return true;
+            }
+            if(selectedGame === 'c4') {
+                // Find lowest empty in col
+                for(let row = config['c4'].rows-1; row >= 0; row--) {
+                    if(board[row][c] === 0) {
+                        board[row][c] = player;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            if(selectedGame === 'othello') {
+                let moves = getValidMovesOthello(player);
+                let move = moves.find(m => m.r === r && m.c === c);
+                if(move) {
+                    board[r][c] = player;
+                    // Flip
+                    for(let flip of move.flips) {
+                        board[flip.r][flip.c] = player;
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        // --- Winning Logic ---
+        function checkWin() {
+            if(selectedGame === 'ttt') checkLineWin(3);
+            else if(selectedGame === 'c4') checkLineWin(4);
+            else if(selectedGame === 'gomoku') checkLineWin(5);
+            else if(selectedGame === 'othello') {
+                // Handled in render cycle when no moves left
+            }
+        }
+
+        function checkLineWin(target) {
+            let c = config[selectedGame];
+            let dirs = [[0,1], [1,0], [1,1], [1,-1]];
+            let isDraw = true;
+
+            for(let r=0; r<c.rows; r++) {
+                for(let col=0; col<c.cols; col++) {
+                    if(board[r][col] === 0) { isDraw = false; continue; }
+                    let player = board[r][col];
+                    
+                    for(let d of dirs) {
+                        let count = 1;
+                        for(let step=1; step<target; step++) {
+                            let nr = r + d[0]*step;
+                            let nc = col + d[1]*step;
+                            if(nr>=0 && nr<c.rows && nc>=0 && nc<c.cols && board[nr][nc] === player) {
+                                count++;
+                            } else break;
+                        }
+                        if(count === target) {
+                            gameOver(`Pemain ${player === 1 ? c.p1 : c.p2} Menang!`);
+                            return;
+                        }
+                    }
+                }
+            }
+            if(isDraw) gameOver("Seri!");
+        }
+
+        function endOthello() {
+            let p1=0, p2=0;
+            for(let r=0; r<8; r++) for(let c=0; c<8; c++) {
+                if(board[r][c]===1) p1++;
+                if(board[r][c]===2) p2++;
+            }
+            if(p1>p2) gameOver(`Hitam Menang (${p1} vs ${p2})!`);
+            else if(p2>p1) gameOver(`Putih Menang (${p2} vs ${p1})!`);
+            else gameOver(`Seri (${p1} vs ${p2})!`);
+        }
+
+        function gameOver(msg) {
+            isGameOver = true;
+            updateStatus("SELESAI: " + msg);
+            renderBoard(); // final render
+        }
+
+        // --- Othello Helper ---
+        function getValidMovesOthello(player) {
+            let opp = player === 1 ? 2 : 1;
+            let dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+            let valid = [];
+            for(let r=0; r<8; r++) {
+                for(let c=0; c<8; c++) {
+                    if(board[r][c] !== 0) continue;
+                    let flips = [];
+                    for(let d of dirs) {
+                        let tempFlips = [];
+                        let nr = r+d[0], nc = c+d[1];
+                        while(nr>=0 && nr<8 && nc>=0 && nc<8 && board[nr][nc] === opp) {
+                            tempFlips.push({r:nr, c:nc});
+                            nr += d[0]; nc += d[1];
+                        }
+                        if(nr>=0 && nr<8 && nc>=0 && nc<8 && board[nr][nc] === player && tempFlips.length > 0) {
+                            flips.push(...tempFlips);
+                        }
+                    }
+                    if(flips.length > 0) valid.push({r, c, flips});
+                }
+            }
+            return valid;
+        }
+
+        // --- AI LOGIC (Simple / Random Valid Move) ---
+        function makeAIMove() {
+            if(isGameOver) return;
+            let validMoves = [];
+            
+            if(selectedGame === 'ttt' || selectedGame === 'gomoku') {
+                for(let r=0; r<config[selectedGame].rows; r++) {
+                    for(let c=0; c<config[selectedGame].cols; c++) {
+                        if(board[r][c] === 0) validMoves.push({r, c});
+                    }
+                }
+            } 
+            else if(selectedGame === 'c4') {
+                for(let c=0; c<config['c4'].cols; c++) {
+                    if(board[0][c] === 0) {
+                        // find lowest row
+                        for(let r=config['c4'].rows-1; r>=0; r--) {
+                            if(board[r][c] === 0) { validMoves.push({r, c}); break; }
+                        }
+                    }
+                }
+            }
+            else if(selectedGame === 'othello') {
+                validMoves = getValidMovesOthello(2);
+            }
+
+            if(validMoves.length > 0) {
+                let move = validMoves[Math.floor(Math.random() * validMoves.length)];
+                applyMove(move.r, move.c, 2);
+                checkWin();
+                if(!isGameOver) {
+                    currentPlayer = 1;
+                    updateStatus();
+                }
+            }
+            renderBoard();
+        }
+
+    </script>
+</body>
+</html>
