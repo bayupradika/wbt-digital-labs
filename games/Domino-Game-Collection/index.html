@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domino Game Collection - WBT Digital Labs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            background: #070913; color: #f8fafc; min-height: 100vh;
+            background-image: radial-gradient(circle at 10% 20%, rgba(245,158,11,0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(16,185,129,0.15) 0%, transparent 40%);
+            display: flex; flex-direction: column; align-items: center; padding: 40px 24px;
+            overflow-x: hidden;
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .header p { color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+        .back-btn {
+            position: absolute; top: 24px; left: 24px; color: #94a3b8; text-decoration: none;
+            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s; z-index: 10;
+        }
+        .back-btn:hover { color: white; }
+
+        /* Screens */
+        .screen { display: none; width: 100%; max-width: 1000px; flex-direction: column; align-items: center; }
+        .screen.active { display: flex; }
+
+        /* Hub Menu */
+        .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; justify-content: center; }
+        .game-card {
+            background: rgba(15,23,42,0.6); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
+            padding: 30px 20px; text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .game-card:hover { transform: translateY(-5px); border-color: rgba(245,158,11,0.4); background: rgba(15,23,42,0.8); }
+        .game-icon { font-size: 48px; margin-bottom: 15px; color: #f59e0b; }
+        .game-card h3 { color: white; font-size: 20px; margin-bottom: 8px; }
+        .game-card p { color: #94a3b8; font-size: 13px; }
+
+        /* Game Board Area */
+        .board-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(15,23,42,0.8); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .board-header h2 { color: #f59e0b; margin:0; font-size: 24px; }
+        .status-box { font-size: 16px; font-weight: 700; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+        
+        .board-container { background: rgba(6,78,59,0.7); border: 4px solid #064e3b; border-radius: 16px; padding: 20px; width: 100%; min-height: 500px; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        /* Domino Tiles */
+        .domino-tile {
+            width: 40px; height: 80px; background: #f8fafc; border-radius: 6px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; border: 1px solid #cbd5e1;
+        }
+        .domino-tile:hover { transform: translateY(-5px); box-shadow: 2px 7px 10px rgba(0,0,0,0.6); }
+        .domino-tile.horizontal { width: 80px; height: 40px; flex-direction: row; }
+        .domino-tile.horizontal:hover { transform: translateY(-3px); }
+        .domino-tile.hidden { background: #334155; border-color: #1e293b; }
+        .domino-tile.hidden .half { display: none; }
+        .domino-tile.hidden .divider { display: none; }
+        
+        .half { flex: 1; display: flex; justify-content: center; align-items: center; font-weight: 900; font-size: 20px; color: #0f172a; }
+        .divider { width: 100%; height: 2px; background: #94a3b8; }
+        .horizontal .divider { width: 2px; height: 100%; }
+
+        /* Areas */
+        .ai-area { display: flex; justify-content: center; gap: 5px; height: 90px; align-items: center; }
+        .ai-label { color: #cbd5e1; font-weight: bold; margin-bottom: 5px; text-align: center; font-size: 14px; }
+        
+        .center-table { flex: 1; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.2); border-radius: 12px; margin: 20px 0; padding: 20px; overflow-x: auto; flex-wrap: wrap; gap: 5px; }
+        
+        .player-area { display: flex; justify-content: center; gap: 10px; height: 100px; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; }
+
+        .btn-action { background: linear-gradient(135deg, #f59e0b, #ea580c); color: white; padding: 12px 24px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+        .btn-action:hover { transform: scale(1.05); }
+        .btn-action:disabled { background: #64748b; cursor: not-allowed; transform: none; }
+        
+        .btn-back-hub { margin-right: 15px; background: transparent; color: #94a3b8; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+        .btn-back-hub:hover { color: white; }
+
+        .score-box { text-align: center; font-size: 18px; color: white; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> WBT Digital Labs</a>
+
+    <div class="header">
+        <h1>Domino Game Collection</h1>
+        <p>Mainkan seri permainan balok (Double-Six) populer melawan Bot AI.</p>
+    </div>
+
+    <!-- HUB SCREEN -->
+    <div id="screen-hub" class="screen active">
+        <div class="hub-grid">
+            <div class="game-card" onclick="startGame('gaple')">
+                <i class="fa-solid fa-dice-five game-icon"></i>
+                <h3>Domino Gaple (Block)</h3>
+                <p>Sambung balok di atas meja. Siapa yang baloknya habis duluan, dia menang.</p>
+            </div>
+            <div class="game-card" onclick="startGame('qiuqiu')">
+                <i class="fa-solid fa-coins game-icon"></i>
+                <h3>QiuQiu (99)</h3>
+                <p>Gabungkan 4 balok menjadi 2 pasang bernilai 9 untuk mengalahkan Bandar.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="screen-game" class="screen">
+        <div class="board-header">
+            <div style="display:flex; align-items:center;">
+                <button class="btn-back-hub" onclick="backToHub()"><i class="fa-solid fa-house"></i></button>
+                <h2 id="game-title">Nama Game</h2>
+            </div>
+            <div class="status-box" id="game-status">Memulai...</div>
+        </div>
+        
+        <div class="board-container" id="board-container">
+            <!-- Dynamic UI -->
+        </div>
+
+        <div style="text-align: center;">
+            <button class="btn-action" id="btn-restart" onclick="restartGame()" style="display:none;">Main Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedGame = '';
+        let dominoSet = [];
+        let state = {};
+
+        // --- Tile Generator ---
+        function createDominoSet() {
+            let set = [];
+            for (let i = 0; i <= 6; i++) {
+                for (let j = i; j <= 6; j++) {
+                    set.push([i, j]);
+                }
+            }
+            return set.sort(() => Math.random() - 0.5);
+        }
+
+        function renderTile(top, bot, isHidden=false, isHorizontal=false) {
+            let cls = 'domino-tile';
+            if(isHidden) cls += ' hidden';
+            if(isHorizontal) cls += ' horizontal';
+            return `
+                <div class="${cls}">
+                    <div class="half">${top}</div>
+                    <div class="divider"></div>
+                    <div class="half">${bot}</div>
+                </div>
+            `;
+        }
+
+        function renderClickableTile(top, bot, idx) {
+            return `
+                <div class="domino-tile" onclick="playTile(${idx})">
+                    <div class="half">${top}</div>
+                    <div class="divider"></div>
+                    <div class="half">${bot}</div>
+                </div>
+            `;
+        }
+
+        // --- Flow ---
+        function startGame(gameId) {
+            selectedGame = gameId;
+            document.getElementById('screen-hub').classList.remove('active');
+            document.getElementById('screen-game').classList.add('active');
+            document.getElementById('game-title').innerText = gameId === 'gaple' ? 'Domino Gaple' : 'QiuQiu (99)';
+            document.getElementById('btn-restart').style.display = 'none';
+            
+            if(gameId === 'gaple') initGaple();
+            else initQiuQiu();
+        }
+        function backToHub() {
+            document.getElementById('screen-game').classList.remove('active');
+            document.getElementById('screen-hub').classList.add('active');
+        }
+        function updateStatus(msg, color="#f59e0b") {
+            const st = document.getElementById('game-status');
+            st.innerText = msg;
+            st.style.color = color;
+        }
+
+        // ==========================================
+        // DOMINO GAPLE (BLOCK) LOGIC
+        // ==========================================
+        function initGaple() {
+            dominoSet = createDominoSet();
+            state = {
+                hands: [[], [], [], []], // 0: Player, 1: AI-1, 2: AI-2, 3: AI-3
+                table: [], // { top, bot } played tiles
+                leftEnd: -1,
+                rightEnd: -1,
+                turn: 0,
+                gameOver: false,
+                msg: "Pemain 1 (Anda) mainkan balok pertama!"
+            };
+
+            for(let p=0; p<4; p++) {
+                for(let i=0; i<7; i++) {
+                    state.hands[p].push(dominoSet.pop());
+                }
+            }
+            renderGaple();
+        }
+
+        function renderGaple() {
+            updateStatus(state.msg, state.gameOver ? "#10b981" : "#f59e0b");
+            if(state.gameOver) document.getElementById('btn-restart').style.display = 'inline-block';
+            
+            let container = document.getElementById('board-container');
+            let tableHtml = state.table.map(t => renderTile(t[0], t[1], false, true)).join('');
+
+            let html = `
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                    <div><div class="ai-label">Bot Kiri</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true,true)).join('')}</div></div>
+                    <div><div class="ai-label">Bot Atas</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>
+                    <div><div class="ai-label">Bot Kanan</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true,true)).join('')}</div></div>
+                </div>
+
+                <div class="center-table">
+                    ${tableHtml.length > 0 ? tableHtml : '<div style="color:rgba(255,255,255,0.2);">Meja Kosong</div>'}
+                </div>
+
+                <div>
+                    <div class="ai-label" style="color:#f59e0b;">Balok Anda (Klik untuk mainkan)</div>
+                    <div class="player-area">
+                        ${state.hands[0].map((t, idx) => renderClickableTile(t[0], t[1], idx)).join('')}
+                    </div>
+                    ${state.turn === 0 && !state.gameOver ? `<div style="text-align:center; margin-top:10px;"><button class="btn-action" onclick="passTurn()">Pass (Lewati Giliran)</button></div>` : ''}
+                </div>
+            `;
+            container.innerHTML = html;
+
+            if(!state.gameOver && state.turn !== 0) {
+                setTimeout(aiTurnGaple, 1000);
+            }
+        }
+
+        function playTile(idx) {
+            if(state.turn !== 0 || state.gameOver) return;
+            let tile = state.hands[0][idx];
+            if(tryPlaceTile(tile)) {
+                state.hands[0].splice(idx, 1);
+                checkGapleWin(0);
+                if(!state.gameOver) {
+                    state.turn = 1;
+                    state.msg = "Giliran Bot Kiri...";
+                    renderGaple();
+                }
+            } else {
+                alert("Balok tidak cocok dengan ujung meja!");
+            }
+        }
+
+        function tryPlaceTile(tile) {
+            let [t1, t2] = tile;
+            if (state.table.length === 0) {
+                state.table.push([t1, t2]);
+                state.leftEnd = t1; state.rightEnd = t2;
+                return true;
+            }
+            if (t1 === state.rightEnd) { state.table.push([t1, t2]); state.rightEnd = t2; return true; }
+            if (t2 === state.rightEnd) { state.table.push([t2, t1]); state.rightEnd = t1; return true; }
+            if (t1 === state.leftEnd) { state.table.unshift([t2, t1]); state.leftEnd = t2; return true; }
+            if (t2 === state.leftEnd) { state.table.unshift([t1, t2]); state.leftEnd = t1; return true; }
+            return false;
+        }
+
+        function passTurn() {
+            if(state.turn !== 0 || state.gameOver) return;
+            // Check if user really has no moves
+            let hasMove = state.hands[0].some(t => {
+                if(state.table.length===0) return true;
+                return t[0]===state.leftEnd || t[0]===state.rightEnd || t[1]===state.leftEnd || t[1]===state.rightEnd;
+            });
+            if(hasMove) { alert("Anda memiliki balok yang bisa dimainkan! Tidak bisa Pass."); return; }
+            
+            state.turn = 1;
+            state.msg = "Anda Pass. Giliran Bot Kiri...";
+            renderGaple();
+        }
+
+        function aiTurnGaple() {
+            if(state.gameOver) return;
+            let aiIdx = state.turn;
+            let hand = state.hands[aiIdx];
+            let played = false;
+
+            for(let i=0; i<hand.length; i++) {
+                if(tryPlaceTile(hand[i])) {
+                    hand.splice(i, 1);
+                    played = true;
+                    break;
+                }
+            }
+
+            checkGapleWin(aiIdx);
+            if(!state.gameOver) {
+                state.turn = (state.turn + 1) % 4;
+                let names = ["Anda", "Bot Kiri", "Bot Atas", "Bot Kanan"];
+                state.msg = played ? `${names[aiIdx]} meletakkan balok. Giliran ${names[state.turn]}.` : `${names[aiIdx]} PASS. Giliran ${names[state.turn]}.`;
+                renderGaple();
+            }
+        }
+
+        function checkGapleWin(playerIdx) {
+            if(state.hands[playerIdx].length === 0) {
+                state.gameOver = true;
+                let names = ["Anda", "Bot Kiri", "Bot Atas", "Bot Kanan"];
+                state.msg = `Selesai! ${names[playerIdx]} Menang (Balok Habis)!`;
+                renderGaple();
+            }
+        }
+
+        // ==========================================
+        // QIUQIU (99) LOGIC
+        // ==========================================
+        function initQiuQiu() {
+            dominoSet = createDominoSet();
+            state = {
+                player: [dominoSet.pop(), dominoSet.pop(), dominoSet.pop(), dominoSet.pop()],
+                dealer: [dominoSet.pop(), dominoSet.pop(), dominoSet.pop(), dominoSet.pop()],
+                gameOver: false,
+                msg: "Kombinasikan 4 balok menjadi 2 pasang angka tertinggi (Qiu = 9)."
+            };
+            renderQiuQiu();
+        }
+
+        function calculateQiuQiuScore(hand) {
+            // Find best pair combination
+            let bestStr = "0-0";
+            let bestVal = 0;
+            // 3 possible pairings for 4 tiles: (0,1)+(2,3) | (0,2)+(1,3) | (0,3)+(1,2)
+            let pairings = [ [[0,1],[2,3]], [[0,2],[1,3]], [[0,3],[1,2]] ];
+            for(let p of pairings) {
+                let pair1 = hand[p[0][0]] [0] + hand[p[0][0]] [1] + hand[p[0][1]] [0] + hand[p[0][1]] [1];
+                let pair2 = hand[p[1][0]] [0] + hand[p[1][0]] [1] + hand[p[1][1]] [0] + hand[p[1][1]] [1];
+                let score1 = pair1 % 10;
+                let score2 = pair2 % 10;
+                
+                // Usually highest pair matters first. E.g. 9-8 is better than 8-9. We sort descending.
+                let max = Math.max(score1, score2);
+                let min = Math.min(score1, score2);
+                let val = max * 10 + min; // e.g. 9 and 8 = 98
+                if(val > bestVal) {
+                    bestVal = val;
+                    bestStr = `${max} - ${min}`;
+                }
+            }
+            return { bestStr, bestVal };
+        }
+
+        function openCardsQiuQiu() {
+            state.gameOver = true;
+            let pScore = calculateQiuQiuScore(state.player);
+            let dScore = calculateQiuQiuScore(state.dealer);
+            
+            if(pScore.bestVal > dScore.bestVal) state.msg = `Anda Menang! (${pScore.bestStr} vs ${dScore.bestStr})`;
+            else if(pScore.bestVal < dScore.bestVal) state.msg = `Bandar Menang! (${dScore.bestStr} vs ${pScore.bestStr})`;
+            else state.msg = `Seri (Draw)! Bandar menang dalam seri.`;
+
+            document.getElementById('btn-restart').style.display = 'inline-block';
+            renderQiuQiu();
+        }
+
+        function renderQiuQiu() {
+            updateStatus(state.msg, state.gameOver ? "#10b981" : "#f59e0b");
+            let container = document.getElementById('board-container');
+            
+            let dScore = state.gameOver ? calculateQiuQiuScore(state.dealer).bestStr : "? - ?";
+            let pScore = calculateQiuQiuScore(state.player).bestStr;
+
+            let html = `
+                <div style="display:flex; flex-direction:column; align-items:center; gap: 40px; margin-top:20px;">
+                    
+                    <div>
+                        <div class="ai-label">Bandar / Dealer (Skor: ${dScore})</div>
+                        <div class="player-area" style="height: auto; padding: 20px;">
+                            ${state.dealer.map(t => renderTile(t[0], t[1], !state.gameOver)).join('')}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="ai-label" style="color:#f59e0b;">Kartu Anda (Potensi Terbaik: ${pScore})</div>
+                        <div class="player-area" style="height: auto; padding: 20px;">
+                            ${state.player.map(t => renderTile(t[0], t[1])).join('')}
+                        </div>
+                    </div>
+                    
+                    ${!state.gameOver ? `<button class="btn-action" onclick="openCardsQiuQiu()">Buka Kartu (Adu Skor)</button>` : ''}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function restartGame() {
+            if(selectedGame === 'gaple') initGaple();
+            else initQiuQiu();
+        }
+
+    </script>
+</body>
+</html>
