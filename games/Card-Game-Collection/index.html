@@ -97,6 +97,26 @@
         /* Score Box */
         .score-box { background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 6px; font-size: 14px; margin-top: 5px; display: inline-block; }
 
+        /* SOLITAIRE SPECIFIC */
+        .solitaire-board { display: flex; flex-direction: column; width: 100%; max-width: 800px; margin: 0 auto; gap: 30px; user-select: none; }
+        .solitaire-top { display: flex; justify-content: space-between; width: 100%; height: 140px; }
+        .solitaire-top-left { display: flex; gap: 20px; width: 50%; }
+        .solitaire-top-right { display: flex; gap: 15px; width: 50%; justify-content: flex-end; }
+        
+        .card-slot { width: 90px; height: 130px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; position: relative; }
+        
+        .solitaire-tableau { display: flex; justify-content: space-between; width: 100%; min-height: 400px; }
+        .tableau-col { width: 90px; position: relative; }
+        
+        /* Overriding playing card for Solitaire positioning */
+        .sol-card { position: absolute; width: 90px; height: 130px; border-radius: 8px; box-shadow: 1px 1px 4px rgba(0,0,0,0.5); background: white; display: flex; flex-direction: column; justify-content: space-between; padding: 6px; font-size: 18px; font-weight: bold; cursor: grab; }
+        .sol-card:active { cursor: grabbing; }
+        
+        .sol-card.card-hidden { background: repeating-linear-gradient(45deg, #1e293b, #1e293b 10px, #0f172a 10px, #0f172a 20px); border: 2px solid white; cursor: default; }
+        .sol-card .card-top { align-self: flex-start; line-height: 1; }
+        .sol-card .card-center { align-self: center; font-size: 28px; }
+        .sol-card .card-bottom { align-self: flex-end; line-height: 1; transform: rotate(180deg); }
+
     </style>
 </head>
 <body>
@@ -110,6 +130,11 @@
     <!-- HUB SCREEN -->
     <div id="screen-hub" class="screen active">
         <div class="hub-grid">
+            <div class="game-card" onclick="openModeSelect('solitaire')">
+                <i class="fa-solid fa-layer-group game-icon"></i>
+                <h3>Solitaire (Klondike)</h3>
+                <p>Susun kartu secara berurutan dengan drag & drop.</p>
+            </div>
             <div class="game-card" onclick="openModeSelect('blackjack')">
                 <i class="fa-solid fa-diamond game-icon"></i>
                 <h3>Blackjack (21)</h3>
@@ -177,7 +202,13 @@
         // --- UI Flow ---
         function openModeSelect(gameId) {
             selectedGame = gameId;
-            document.getElementById('modal-title').innerText = gameId === 'blackjack' ? 'Blackjack (21)' : 'High-Low';
+            if(gameId === 'solitaire') {
+                document.getElementById('modal-title').innerText = 'Solitaire (Klondike)';
+            } else if(gameId === 'blackjack') {
+                document.getElementById('modal-title').innerText = 'Blackjack (21)';
+            } else {
+                document.getElementById('modal-title').innerText = 'High-Low';
+            }
             document.getElementById('mode-modal').style.display = 'flex';
         }
         function closeModeSelect() {
@@ -188,10 +219,13 @@
             closeModeSelect();
             document.getElementById('screen-hub').classList.remove('active');
             document.getElementById('screen-game').classList.add('active');
-            document.getElementById('game-title').innerText = selectedGame === 'blackjack' ? 'Blackjack' : 'High-Low';
+            
+            let titles = { 'blackjack': 'Blackjack', 'highlow': 'High-Low', 'solitaire': 'Solitaire (Klondike)' };
+            document.getElementById('game-title').innerText = titles[selectedGame];
             
             if(selectedGame === 'blackjack') initBlackjack();
             else if(selectedGame === 'highlow') initHighLow();
+            else if(selectedGame === 'solitaire') initSolitaire();
         }
         function backToHub() {
             document.getElementById('screen-game').classList.remove('active');
@@ -374,6 +408,245 @@
                 </div>
             `;
             container.innerHTML = html;
+        }
+
+        // ==========================================
+        // SOLITAIRE (KLONDIKE) LOGIC
+        // ==========================================
+        function initSolitaire() {
+            let fullDeck = createDeck();
+            
+            state = {
+                stock: [],
+                waste: [],
+                foundations: [[], [], [], []], // Spades, Hearts, Clubs, Diamonds
+                tableaus: [[], [], [], [], [], [], []],
+                gameOver: false,
+                msg: "Pindahkan semua kartu ke 4 tumpukan atas!"
+            };
+
+            // Deal Tableaus
+            for (let i = 0; i < 7; i++) {
+                for (let j = 0; j <= i; j++) {
+                    let card = fullDeck.pop();
+                    card.faceUp = (j === i);
+                    state.tableaus[i].push(card);
+                }
+            }
+            
+            // Rest to stock
+            for(let c of fullDeck) {
+                c.faceUp = false;
+                state.stock.push(c);
+            }
+
+            renderSolitaire();
+        }
+
+        // --- Render Helpers for Solitaire ---
+        function getSolCardHTML(card, topOffset = 0, draggable = false, dragData = "") {
+            if (!card.faceUp) {
+                return `<div class="sol-card card-hidden" style="top: ${topOffset}px;"></div>`;
+            }
+            return `
+                <div class="sol-card card-${card.color}" 
+                     style="top: ${topOffset}px;" 
+                     draggable="${draggable}" 
+                     ondragstart="onDragStart(event, '${dragData}')">
+                    <div class="card-top">${card.value}${card.suit}</div>
+                    <div class="card-center">${card.suit}</div>
+                    <div class="card-bottom">${card.value}${card.suit}</div>
+                </div>
+            `;
+        }
+
+        function renderSolitaire() {
+            updateStatus(state.msg);
+            let container = document.getElementById('board-container');
+
+            // --- Top Left: Stock & Waste ---
+            let stockHtml = `<div class="card-slot" onclick="clickStock()">`;
+            if (state.stock.length > 0) {
+                stockHtml += `<div class="sol-card card-hidden"></div>`;
+            } else if (state.waste.length > 0) {
+                // Recycle icon
+                stockHtml += `<div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; color:#94a3b8; font-size:30px;"><i class="fa-solid fa-rotate-left"></i></div>`;
+            }
+            stockHtml += `</div>`;
+
+            let wasteHtml = `<div class="card-slot">`;
+            if (state.waste.length > 0) {
+                let topWaste = state.waste[state.waste.length - 1];
+                wasteHtml += getSolCardHTML(topWaste, 0, true, `waste|0`);
+            }
+            wasteHtml += `</div>`;
+
+            // --- Top Right: Foundations ---
+            let foundationsHtml = '';
+            const suitIcons = ['♠', '♥', '♣', '♦'];
+            for (let i = 0; i < 4; i++) {
+                let fPile = state.foundations[i];
+                foundationsHtml += `<div class="card-slot" ondragover="onDragOver(event)" ondrop="onDrop(event, 'foundation|${i}')">`;
+                if (fPile.length > 0) {
+                    let topF = fPile[fPile.length - 1];
+                    foundationsHtml += getSolCardHTML(topF, 0, true, `foundation|${i}`);
+                } else {
+                    foundationsHtml += `<div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; color:rgba(255,255,255,0.1); font-size:40px;">${suitIcons[i]}</div>`;
+                }
+                foundationsHtml += `</div>`;
+            }
+
+            // --- Bottom: Tableaus ---
+            let tableausHtml = '';
+            for (let i = 0; i < 7; i++) {
+                let tPile = state.tableaus[i];
+                tableausHtml += `<div class="tableau-col card-slot" ondragover="onDragOver(event)" ondrop="onDrop(event, 'tableau|${i}')">`;
+                
+                let topOffset = 0;
+                for (let j = 0; j < tPile.length; j++) {
+                    let card = tPile[j];
+                    let isDraggable = card.faceUp;
+                    tableausHtml += getSolCardHTML(card, topOffset, isDraggable, `tableau|${i}|${j}`);
+                    topOffset += card.faceUp ? 30 : 15;
+                }
+                tableausHtml += `</div>`;
+            }
+
+            let html = `
+                <div class="solitaire-board">
+                    <div class="solitaire-top">
+                        <div class="solitaire-top-left">
+                            ${stockHtml}
+                            ${wasteHtml}
+                        </div>
+                        <div class="solitaire-top-right">
+                            ${foundationsHtml}
+                        </div>
+                    </div>
+                    <div class="solitaire-tableau">
+                        ${tableausHtml}
+                    </div>
+                    
+                    ${state.gameOver ? `<div class="controls"><button class="btn-action" onclick="initSolitaire()">Main Lagi</button></div>` : ''}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function clickStock() {
+            if(state.gameOver) return;
+            if (state.stock.length > 0) {
+                let card = state.stock.pop();
+                card.faceUp = true;
+                state.waste.push(card);
+            } else if (state.waste.length > 0) {
+                // Recycle waste to stock
+                while (state.waste.length > 0) {
+                    let c = state.waste.pop();
+                    c.faceUp = false;
+                    state.stock.push(c);
+                }
+            }
+            renderSolitaire();
+        }
+
+        // --- Drag & Drop Core ---
+        let dragInfo = null; // { sourceLoc, cardIndex }
+
+        function onDragStart(e, data) {
+            dragInfo = data;
+            e.dataTransfer.setData("text/plain", data);
+            e.dataTransfer.effectAllowed = "move";
+        }
+
+        function onDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+        }
+
+        function onDrop(e, targetData) {
+            e.preventDefault();
+            if(!dragInfo) return;
+            
+            let sourceParts = dragInfo.split('|');
+            let sourceArea = sourceParts[0];
+            let sourcePileIdx = parseInt(sourceParts[1]);
+            let cardIdx = parseInt(sourceParts[2] || 0);
+
+            let targetParts = targetData.split('|');
+            let targetArea = targetParts[0];
+            let targetPileIdx = parseInt(targetParts[1]);
+
+            let cardsToMove = [];
+            
+            // Extract cards based on source
+            if (sourceArea === 'waste') {
+                cardsToMove = [state.waste[state.waste.length - 1]];
+            } else if (sourceArea === 'foundation') {
+                let fPile = state.foundations[sourcePileIdx];
+                cardsToMove = [fPile[fPile.length - 1]];
+            } else if (sourceArea === 'tableau') {
+                let tPile = state.tableaus[sourcePileIdx];
+                cardsToMove = tPile.slice(cardIdx);
+            }
+
+            // Validate Move
+            let valid = false;
+            let targetCard = null;
+
+            if (targetArea === 'foundation') {
+                if(cardsToMove.length === 1) {
+                    let fPile = state.foundations[targetPileIdx];
+                    if (fPile.length === 0) {
+                        if (cardsToMove[0].realValue === 1) valid = true; // Ace
+                    } else {
+                        targetCard = fPile[fPile.length - 1];
+                        if (cardsToMove[0].suit === targetCard.suit && cardsToMove[0].realValue === targetCard.realValue + 1) {
+                            valid = true;
+                        }
+                    }
+                }
+            } else if (targetArea === 'tableau') {
+                let tPile = state.tableaus[targetPileIdx];
+                if (tPile.length === 0) {
+                    if (cardsToMove[0].realValue === 13) valid = true; // King
+                } else {
+                    targetCard = tPile[tPile.length - 1];
+                    if (cardsToMove[0].color !== targetCard.color && cardsToMove[0].realValue === targetCard.realValue - 1) {
+                        valid = true;
+                    }
+                }
+            }
+
+            // Execute Move
+            if (valid) {
+                // Remove from source
+                if (sourceArea === 'waste') state.waste.pop();
+                else if (sourceArea === 'foundation') state.foundations[sourcePileIdx].pop();
+                else if (sourceArea === 'tableau') state.tableaus[sourcePileIdx].splice(cardIdx);
+
+                // Add to target
+                if (targetArea === 'foundation') state.foundations[targetPileIdx].push(cardsToMove[0]);
+                else if (targetArea === 'tableau') state.tableaus[targetPileIdx].push(...cardsToMove);
+
+                // Auto-flip newly exposed card in source tableau
+                if (sourceArea === 'tableau' && state.tableaus[sourcePileIdx].length > 0) {
+                    let newTop = state.tableaus[sourcePileIdx][state.tableaus[sourcePileIdx].length - 1];
+                    if (!newTop.faceUp) newTop.faceUp = true;
+                }
+
+                checkSolitaireWin();
+                renderSolitaire();
+            }
+            dragInfo = null;
+        }
+
+        function checkSolitaireWin() {
+            let totalInFoundations = state.foundations.reduce((sum, pile) => sum + pile.length, 0);
+            if(totalInFoundations === 52) {
+                state.gameOver = true;
+                state.msg = "Selamat! Anda Berhasil Menyelesaikan Solitaire!";
+            }
         }
 
     </script>
