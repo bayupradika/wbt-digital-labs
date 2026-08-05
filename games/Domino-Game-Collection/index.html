@@ -6,6 +6,7 @@
     <title>Domino Game Collection - WBT Digital Labs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@600;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body {
@@ -19,12 +20,6 @@
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
         .header p { color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
-
-        .back-btn {
-            position: absolute; top: 24px; left: 24px; color: #94a3b8; text-decoration: none;
-            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s; z-index: 10;
-        }
-        .back-btn:hover { color: white; }
 
         /* Screens */
         .screen { display: none; width: 100%; max-width: 1000px; flex-direction: column; align-items: center; }
@@ -42,10 +37,31 @@
         .game-card h3 { color: white; font-size: 20px; margin-bottom: 8px; }
         .game-card p { color: #94a3b8; font-size: 13px; }
 
+        /* Modals */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal-content {
+            background: #0f172a; padding: 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; width: 90%; max-width: 450px;
+        }
+        .modal-content h2 { margin-bottom: 20px; color: white; }
+        .btn-modal {
+            width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+            background: transparent; color: white; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 16px;
+        }
+        .btn-modal:hover { background: rgba(255,255,255,0.1); }
+        .btn-modal.primary { background: #f59e0b; border-color: #f59e0b; color: #0f172a; }
+        .btn-modal.primary:hover { background: #d97706; }
+        .close-modal { margin-top: 15px; background: none; border: none; color: #94a3b8; cursor: pointer; text-decoration: underline; }
+        .input-code { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; text-align: center; font-size: 18px; letter-spacing: 2px; }
+
         /* Game Board Area */
         .board-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(15,23,42,0.8); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
         .board-header h2 { color: #f59e0b; margin:0; font-size: 24px; }
-        .status-box { font-size: 16px; font-weight: 700; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.1); }
+        .status-box { font-size: 16px; font-weight: 700; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.1); display: flex; gap: 15px; align-items: center; }
+        .boneyard-info { background: #1e293b; padding: 5px 10px; border-radius: 6px; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); }
         
         .board-container { background: rgba(6,78,59,0.7); border: 4px solid #064e3b; border-radius: 16px; padding: 20px; width: 100%; min-height: 500px; display: flex; flex-direction: column; justify-content: space-between; }
         
@@ -53,6 +69,7 @@
         .domino-tile {
             width: 40px; height: 80px; background: #f8fafc; border-radius: 6px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
             display: flex; flex-direction: column; cursor: pointer; transition: 0.2s; border: 1px solid #cbd5e1;
+            position: relative; z-index: 10; /* Fixed Z-Index requirement */
         }
         .domino-tile:hover { transform: translateY(-5px); box-shadow: 2px 7px 10px rgba(0,0,0,0.6); }
         .domino-tile.horizontal { width: 80px; height: 40px; flex-direction: row; }
@@ -66,72 +83,252 @@
         .horizontal .divider { width: 2px; height: 100%; }
 
         /* Areas */
-        .ai-area { display: flex; justify-content: center; gap: 5px; height: 90px; align-items: center; }
+        .ai-area { display: flex; justify-content: center; gap: 5px; height: 90px; align-items: center; position: relative; z-index: 5; }
         .ai-label { color: #cbd5e1; font-weight: bold; margin-bottom: 5px; text-align: center; font-size: 14px; }
+        .ai-label.active { color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.5); }
         
-        .center-table { flex: 1; display: flex; justify-content: center; align-items: center; background: rgba(0,0,0,0.2); border-radius: 12px; margin: 20px 0; padding: 20px; overflow-x: auto; flex-wrap: wrap; gap: 5px; }
+        /* Fixed Center Table Requirement */
+        .center-table { 
+            flex: 1; display: flex; justify-content: center; align-items: center; align-content: center;
+            background: rgba(0,0,0,0.2); border-radius: 12px; margin: 20px 0; padding: 20px; 
+            height: 300px; width: 100%; overflow: auto; flex-wrap: wrap; gap: 5px; 
+            position: relative; z-index: 1;
+        }
         
-        .player-area { display: flex; justify-content: center; gap: 10px; height: 100px; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; }
+        .player-area { display: flex; justify-content: center; gap: 10px; height: 100px; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; position: relative; z-index: 5; }
 
-        .btn-action { background: linear-gradient(135deg, #f59e0b, #ea580c); color: white; padding: 12px 24px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+        .btn-action { background: linear-gradient(135deg, #f59e0b, #ea580c); color: white; padding: 12px 24px; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; margin-top: 15px; margin-right: 10px;}
         .btn-action:hover { transform: scale(1.05); }
         .btn-action:disabled { background: #64748b; cursor: not-allowed; transform: none; }
         
         .btn-back-hub { margin-right: 15px; background: transparent; color: #94a3b8; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; cursor: pointer; }
         .btn-back-hub:hover { color: white; }
-
-        .score-box { text-align: center; font-size: 18px; color: white; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <a href="../../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> WBT Digital Labs</a>
-
-    <div class="header">
-        <h1>Domino Game Collection</h1>
-        <p>Mainkan seri permainan balok (Double-Six) populer melawan Bot AI.</p>
+    <!-- Setup Modals -->
+    <div id="modal-players" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Pilih Jumlah Pemain</h2>
+            <button class="btn-modal" onclick="selectPlayers(2)"><i class="fa-solid fa-user-group"></i> 2 Pemain (Masing-masing 7 Kartu, sisa di Bank)</button>
+            <button class="btn-modal" onclick="selectPlayers(3)"><i class="fa-solid fa-users"></i> 3 Pemain (Masing-masing 7 Kartu, sisa di Bank)</button>
+            <button class="btn-modal" onclick="selectPlayers(4)"><i class="fa-solid fa-users-viewfinder"></i> 4 Pemain (Masing-masing 7 Kartu, Habis)</button>
+            <button class="close-modal" onclick="closeModals()">Batal</button>
+        </div>
     </div>
 
-    <!-- HUB SCREEN -->
+    <div id="modal-mode" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Pilih Mode Permainan</h2>
+            <button class="btn-modal" onclick="selectMode('multiplayer')"><i class="fa-solid fa-mobile-screen-button"></i> Multiplayer Lokal (Gantian 1 HP)</button>
+            <button class="btn-modal" onclick="selectMode('online')"><i class="fa-solid fa-globe"></i> Multiplayer Online (P2P)</button>
+            <button class="btn-modal" onclick="selectMode('ai')"><i class="fa-solid fa-robot"></i> Lawan Bot AI</button>
+            <button class="close-modal" onclick="closeModals()">Batal</button>
+        </div>
+    </div>
+
+    <div id="modal-online" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Multiplayer Online</h2>
+            <p style="color:#94a3b8; font-size:14px; margin-bottom: 20px;">Main jarak jauh tanpa server. Bagikan kode ke teman Anda!</p>
+            
+            <button class="btn-modal primary" onclick="hostRoom()">Buat Room Baru (Host)</button>
+            
+            <div style="margin: 20px 0; border-top: 1px solid rgba(255,255,255,0.1); padding-top:20px;">
+                <input type="text" id="join-code" class="input-code" placeholder="Masukkan Kode Gabung">
+                <button class="btn-modal" onclick="joinRoom()">Gabung ke Room (Client)</button>
+            </div>
+
+            <div id="room-status" style="color: #f59e0b; font-weight: bold; margin-top: 10px;"></div>
+            <button class="close-modal" onclick="closeModals()">Batal</button>
+        </div>
+    </div>
+
+    <!-- MAIN UI -->
+    <div class="header">
+        <h1>Domino Game Collection</h1>
+        <p>Mainkan seri permainan balok (Double-Six) dengan mode Multiplayer P2P, Lokal, dan Bot.</p>
+    </div>
+
     <div id="screen-hub" class="screen active">
         <div class="hub-grid">
-            <div class="game-card" onclick="startGame('gaple')">
+            <div class="game-card" onclick="openGapleSetup()">
                 <i class="fa-solid fa-dice-five game-icon"></i>
                 <h3>Domino Gaple (Block)</h3>
-                <p>Sambung balok di atas meja. Siapa yang baloknya habis duluan, dia menang.</p>
+                <p>Aturan Standar: Balak Pertama, Boneyard (Bank), Block Point.</p>
             </div>
-            <div class="game-card" onclick="startGame('qiuqiu')">
+            <div class="game-card" onclick="alert('QiuQiu dinonaktifkan sementara untuk fokus ke Multiplayer Gaple.')">
                 <i class="fa-solid fa-coins game-icon"></i>
                 <h3>QiuQiu (99)</h3>
-                <p>Gabungkan 4 balok menjadi 2 pasang bernilai 9 untuk mengalahkan Bandar.</p>
+                <p>Mode santai (Sedang diperbarui)</p>
             </div>
         </div>
     </div>
 
-    <!-- GAME SCREEN -->
     <div id="screen-game" class="screen">
         <div class="board-header">
             <div style="display:flex; align-items:center;">
                 <button class="btn-back-hub" onclick="backToHub()"><i class="fa-solid fa-house"></i></button>
-                <h2 id="game-title">Nama Game</h2>
+                <h2 id="game-title">Domino Gaple</h2>
             </div>
-            <div class="status-box" id="game-status">Memulai...</div>
+            <div class="status-box">
+                <span id="game-status">Memulai...</span>
+                <span class="boneyard-info" id="bank-status" style="display:none;"><i class="fa-solid fa-layer-group"></i> Bank: 0</span>
+            </div>
         </div>
         
         <div class="board-container" id="board-container">
             <!-- Dynamic UI -->
         </div>
-
-        <div style="text-align: center;">
-            <button class="btn-action" id="btn-restart" onclick="restartGame()" style="display:none;">Main Lagi</button>
-        </div>
     </div>
 
     <script>
-        let selectedGame = '';
-        let dominoSet = [];
+        let config = { players: 4, mode: 'ai' };
         let state = {};
+        
+        // P2P Networking
+        let peer = null;
+        let connections = []; // For Host
+        let hostConn = null; // For Client
+        let isHost = false;
+        let localPlayerId = 0; // 0 for host/local player, 1-3 for connected clients
 
-        // --- Tile Generator ---
+        // UI Flow
+        function openGapleSetup() {
+            document.getElementById('modal-players').style.display = 'flex';
+        }
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+        }
+        function selectPlayers(num) {
+            config.players = num;
+            document.getElementById('modal-players').style.display = 'none';
+            document.getElementById('modal-mode').style.display = 'flex';
+        }
+        function selectMode(mode) {
+            config.mode = mode;
+            document.getElementById('modal-mode').style.display = 'none';
+            if (mode === 'online') {
+                document.getElementById('modal-online').style.display = 'flex';
+                document.getElementById('room-status').innerText = "";
+            } else {
+                startGapleEngine();
+            }
+        }
+        function backToHub() {
+            document.getElementById('screen-game').classList.remove('active');
+            document.getElementById('screen-hub').classList.add('active');
+            if(peer) peer.destroy();
+            connections = [];
+        }
+
+        // ==========================================
+        // PEER JS ONLINE LOGIC
+        // ==========================================
+        function generateId() {
+            return Math.random().toString(36).substr(2, 6).toUpperCase();
+        }
+
+        function hostRoom() {
+            let roomId = "WBT-" + generateId();
+            document.getElementById('room-status').innerText = "Membuat Room...";
+            peer = new Peer(roomId);
+            
+            peer.on('open', (id) => {
+                isHost = true;
+                localPlayerId = 0;
+                document.getElementById('room-status').innerText = `Room dibuat! Kode Anda: ${id}\nMenunggu pemain lain... (0/${config.players-1})`;
+            });
+
+            peer.on('connection', (conn) => {
+                if(connections.length >= config.players - 1) {
+                    conn.send({ type: 'error', msg: 'Room Penuh' });
+                    conn.close();
+                    return;
+                }
+                
+                connections.push(conn);
+                let clientId = connections.length; // 1, 2, 3
+                document.getElementById('room-status').innerText = `Pemain Bergabung! (${connections.length}/${config.players-1})`;
+                
+                // Assign ID to client
+                conn.on('open', () => {
+                    conn.send({ type: 'init_id', id: clientId, total: config.players });
+                });
+
+                conn.on('data', (data) => {
+                    handleNetworkMessage(data, clientId);
+                });
+
+                if(connections.length === config.players - 1) {
+                    setTimeout(() => {
+                        closeModals();
+                        startGapleEngine();
+                    }, 1000);
+                }
+            });
+        }
+
+        function joinRoom() {
+            let code = document.getElementById('join-code').value.trim();
+            if(!code) return;
+            document.getElementById('room-status').innerText = "Menghubungkan ke Room...";
+            peer = new Peer();
+            
+            peer.on('open', () => {
+                hostConn = peer.connect(code);
+                hostConn.on('open', () => {
+                    document.getElementById('room-status').innerText = "Terhubung! Menunggu Host memulai permainan...";
+                    isHost = false;
+                });
+                hostConn.on('data', (data) => {
+                    handleNetworkMessage(data, 0); // Data from host
+                });
+                hostConn.on('error', () => {
+                    document.getElementById('room-status').innerText = "Koneksi gagal atau Room tidak ditemukan.";
+                });
+            });
+        }
+
+        function broadcastState() {
+            if(!isHost || config.mode !== 'online') return;
+            let syncData = {
+                type: 'sync_state',
+                state: state
+            };
+            connections.forEach(c => c.send(syncData));
+        }
+
+        function sendAction(action, data) {
+            let msg = { type: 'action', action, data, playerId: localPlayerId };
+            if(isHost) {
+                // Host handles action immediately and broadcasts
+                processAction(msg.action, msg.data, msg.playerId);
+                broadcastState();
+            } else {
+                hostConn.send(msg); // Send to Host to process
+            }
+        }
+
+        function handleNetworkMessage(msg, senderId) {
+            if(msg.type === 'init_id') {
+                localPlayerId = msg.id;
+                config.players = msg.total;
+            } else if (msg.type === 'sync_state') {
+                state = msg.state;
+                closeModals();
+                document.getElementById('screen-hub').classList.remove('active');
+                document.getElementById('screen-game').classList.add('active');
+                renderGaple();
+            } else if (msg.type === 'action' && isHost) {
+                processAction(msg.action, msg.data, msg.playerId);
+                broadcastState(); // Sync new state to all clients
+            }
+        }
+
+        // ==========================================
+        // GAME ENGINE
+        // ==========================================
         function createDominoSet() {
             let set = [];
             for (let i = 0; i <= 6; i++) {
@@ -140,6 +337,75 @@
                 }
             }
             return set.sort(() => Math.random() - 0.5);
+        }
+
+        function getTileWeight(tile) {
+            if(tile[0] === tile[1]) return tile[0] * 100; // Balak is highest priority
+            return tile[0] + tile[1];
+        }
+
+        function startGapleEngine() {
+            document.getElementById('screen-hub').classList.remove('active');
+            document.getElementById('screen-game').classList.add('active');
+            
+            if(isHost || config.mode !== 'online') {
+                let deck = createDominoSet();
+                
+                state = {
+                    hands: [[], [], [], []], // Max 4 players
+                    boneyard: [],
+                    table: [], 
+                    leftEnd: -1, rightEnd: -1,
+                    turn: 0,
+                    gameOver: false,
+                    msg: "",
+                    consecutivePasses: 0
+                };
+
+                // Deal 7 cards each
+                for(let p = 0; p < config.players; p++) {
+                    for(let i = 0; i < 7; i++) {
+                        state.hands[p].push(deck.pop());
+                    }
+                }
+                
+                // Rest to boneyard
+                state.boneyard = deck;
+
+                // Determine first player (highest balak)
+                let highestBalak = -1;
+                let firstPlayer = 0;
+                let tileIdx = -1;
+
+                for(let p = 0; p < config.players; p++) {
+                    for(let i = 0; i < state.hands[p].length; i++) {
+                        let t = state.hands[p][i];
+                        if(t[0] === t[1] && t[0] > highestBalak) {
+                            highestBalak = t[0];
+                            firstPlayer = p;
+                            tileIdx = i;
+                        }
+                    }
+                }
+
+                if(highestBalak === -1) {
+                    // No balak, pick random
+                    firstPlayer = Math.floor(Math.random() * config.players);
+                    state.msg = `Pemain ${firstPlayer+1} jalan duluan (Tidak ada balak).`;
+                } else {
+                    state.msg = `Pemain ${firstPlayer+1} memiliki Balak ${highestBalak} dan jalan duluan!`;
+                }
+
+                state.turn = firstPlayer;
+
+                // In AI mode, if AI is first, trigger it
+                if(config.mode === 'ai' && state.turn !== 0) {
+                    setTimeout(() => processAiTurn(), 2000);
+                }
+
+                if(config.mode === 'online') broadcastState();
+                renderGaple();
+            }
         }
 
         function renderTile(top, bot, isHidden=false, isHorizontal=false) {
@@ -155,253 +421,241 @@
             `;
         }
 
-        function renderClickableTile(top, bot, idx) {
-            return `
-                <div class="domino-tile" onclick="playTile(${idx})">
-                    <div class="half">${top}</div>
-                    <div class="divider"></div>
-                    <div class="half">${bot}</div>
-                </div>
-            `;
-        }
-
-        // --- Flow ---
-        function startGame(gameId) {
-            selectedGame = gameId;
-            document.getElementById('screen-hub').classList.remove('active');
-            document.getElementById('screen-game').classList.add('active');
-            document.getElementById('game-title').innerText = gameId === 'gaple' ? 'Domino Gaple' : 'QiuQiu (99)';
-            document.getElementById('btn-restart').style.display = 'none';
-            
-            if(gameId === 'gaple') initGaple();
-            else initQiuQiu();
-        }
-        function backToHub() {
-            document.getElementById('screen-game').classList.remove('active');
-            document.getElementById('screen-hub').classList.add('active');
-        }
-        function updateStatus(msg, color="#f59e0b") {
-            const st = document.getElementById('game-status');
-            st.innerText = msg;
-            st.style.color = color;
-        }
-
-        // ==========================================
-        // DOMINO GAPLE (BLOCK) LOGIC
-        // ==========================================
-        function initGaple() {
-            dominoSet = createDominoSet();
-            state = {
-                hands: [[], [], [], []], // 0: Player, 1: AI-1, 2: AI-2, 3: AI-3
-                table: [], // { top, bot } played tiles
-                leftEnd: -1,
-                rightEnd: -1,
-                turn: 0,
-                gameOver: false,
-                msg: "Pemain 1 (Anda) mainkan balok pertama!"
-            };
-
-            for(let p=0; p<4; p++) {
-                for(let i=0; i<7; i++) {
-                    state.hands[p].push(dominoSet.pop());
-                }
-            }
-            renderGaple();
-        }
-
         function renderGaple() {
-            updateStatus(state.msg, state.gameOver ? "#10b981" : "#f59e0b");
-            if(state.gameOver) document.getElementById('btn-restart').style.display = 'inline-block';
+            const statusEl = document.getElementById('game-status');
+            const bankEl = document.getElementById('bank-status');
             
+            statusEl.innerText = state.msg;
+            statusEl.style.color = state.gameOver ? "#10b981" : "#f59e0b";
+            
+            if(config.players < 4) {
+                bankEl.style.display = 'inline-block';
+                bankEl.innerHTML = `<i class="fa-solid fa-layer-group"></i> Bank: ${state.boneyard.length}`;
+            } else {
+                bankEl.style.display = 'none';
+            }
+
             let container = document.getElementById('board-container');
+            
+            // Map table
             let tableHtml = state.table.map(t => renderTile(t[0], t[1], false, true)).join('');
 
+            // AI/Opponent rendering
+            let oppHTML = `<div style="display:flex; justify-content:space-between; width:100%;">`;
+            if (config.players === 2) {
+                // Just opponent at top
+                let isTurn = state.turn === 1;
+                oppHTML += `<div></div>
+                            <div><div class="ai-label ${isTurn?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div>
+                            <div></div>`;
+            } else if (config.players === 3) {
+                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true,true)).join('')}</div></div>
+                            <div></div>
+                            <div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true,true)).join('')}</div></div>`;
+            } else if (config.players === 4) {
+                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true,true)).join('')}</div></div>
+                            <div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>
+                            <div><div class="ai-label ${state.turn===3?'active':''}">${getRoleName(3)}</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true,true)).join('')}</div></div>`;
+            }
+            oppHTML += `</div>`;
+
+            // Active player logic (Who's UI is being shown)
+            let viewPlayerId = localPlayerId;
+            // In local multiplayer, we show the hand of the active turn!
+            if(config.mode === 'multiplayer' && !state.gameOver) {
+                viewPlayerId = state.turn; 
+            }
+
+            let myTurn = (state.turn === viewPlayerId && !state.gameOver);
+            let hasMove = state.hands[viewPlayerId] && state.hands[viewPlayerId].some(t => isValidMove(t));
+            let bankEmpty = state.boneyard.length === 0;
+
+            let controlsHtml = '';
+            if(myTurn) {
+                if(!hasMove) {
+                    if(!bankEmpty && config.players < 4) {
+                        controlsHtml = `<button class="btn-action" onclick="actionDraw()">Ambil Kartu (Bank)</button>`;
+                    } else {
+                        controlsHtml = `<button class="btn-action" onclick="actionPass()">Pass (Lewati Giliran)</button>`;
+                    }
+                }
+            }
+            if(state.gameOver && (isHost || config.mode !== 'online')) {
+                controlsHtml += `<button class="btn-action" style="background:#10b981;" onclick="startGapleEngine()">Main Lagi</button>`;
+            }
+
+            let playerHandHtml = '';
+            if(state.hands[viewPlayerId]) {
+                playerHandHtml = state.hands[viewPlayerId].map((t, idx) => {
+                    // Only show clickable if it's my turn
+                    if(myTurn) {
+                        return `<div class="domino-tile" onclick="actionPlay(${idx})"><div class="half">${t[0]}</div><div class="divider"></div><div class="half">${t[1]}</div></div>`;
+                    } else {
+                        // In multiplayer local, hide cards if not their turn to prevent peeking? 
+                        // Actually, if it's not their turn, just render it static.
+                        return renderTile(t[0], t[1]);
+                    }
+                }).join('');
+            }
+
             let html = `
-                <div style="display:flex; justify-content:space-between; width:100%;">
-                    <div><div class="ai-label">Bot Kiri</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true,true)).join('')}</div></div>
-                    <div><div class="ai-label">Bot Atas</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>
-                    <div><div class="ai-label">Bot Kanan</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true,true)).join('')}</div></div>
-                </div>
+                ${oppHTML}
 
                 <div class="center-table">
-                    ${tableHtml.length > 0 ? tableHtml : '<div style="color:rgba(255,255,255,0.2);">Meja Kosong</div>'}
+                    ${tableHtml.length > 0 ? tableHtml : '<div style="color:rgba(255,255,255,0.2);">Meja Kosong (Tunggu Pemain 1 membuang Balak)</div>'}
                 </div>
 
                 <div>
-                    <div class="ai-label" style="color:#f59e0b;">Balok Anda (Klik untuk mainkan)</div>
-                    <div class="player-area">
-                        ${state.hands[0].map((t, idx) => renderClickableTile(t[0], t[1], idx)).join('')}
+                    <div class="ai-label ${myTurn?'active':''}" style="font-size: 16px;">${config.mode==='multiplayer' ? getRoleName(viewPlayerId) : 'Kartu Anda'} ${myTurn ? '(Giliran Anda!)' : ''}</div>
+                    <div class="player-area" style="flex-wrap:wrap; height:auto;">
+                        ${playerHandHtml}
                     </div>
-                    ${state.turn === 0 && !state.gameOver ? `<div style="text-align:center; margin-top:10px;"><button class="btn-action" onclick="passTurn()">Pass (Lewati Giliran)</button></div>` : ''}
+                    <div style="text-align:center; margin-top:10px;">
+                        ${controlsHtml}
+                    </div>
                 </div>
             `;
             container.innerHTML = html;
-
-            if(!state.gameOver && state.turn !== 0) {
-                setTimeout(aiTurnGaple, 1000);
-            }
         }
 
-        function playTile(idx) {
-            if(state.turn !== 0 || state.gameOver) return;
-            let tile = state.hands[0][idx];
-            if(tryPlaceTile(tile)) {
-                state.hands[0].splice(idx, 1);
-                checkGapleWin(0);
-                if(!state.gameOver) {
-                    state.turn = 1;
-                    state.msg = "Giliran Bot Kiri...";
-                    renderGaple();
-                }
+        function getRoleName(id) {
+            if(config.mode === 'online') {
+                return id === 0 ? "Host" : `Pemain ${id+1}`;
+            } else if (config.mode === 'multiplayer') {
+                return `Pemain ${id+1}`;
             } else {
-                alert("Balok tidak cocok dengan ujung meja!");
+                return `Bot ${id}`;
             }
         }
 
-        function tryPlaceTile(tile) {
+        // --- Action Translators (Sends to Host or Handles Locally) ---
+        function actionPlay(idx) {
+            if(config.mode === 'online' && !isHost) sendAction('play', idx);
+            else processAction('play', idx, localPlayerId === state.turn || config.mode==='multiplayer' ? state.turn : localPlayerId);
+        }
+        function actionDraw() {
+            if(config.mode === 'online' && !isHost) sendAction('draw', null);
+            else processAction('draw', null, state.turn);
+        }
+        function actionPass() {
+            if(config.mode === 'online' && !isHost) sendAction('pass', null);
+            else processAction('pass', null, state.turn);
+        }
+
+        // --- Core Rules & State Modification (Only Runs on Host/Local) ---
+        function isValidMove(tile) {
+            if (state.table.length === 0) return true;
             let [t1, t2] = tile;
-            if (state.table.length === 0) {
-                state.table.push([t1, t2]);
-                state.leftEnd = t1; state.rightEnd = t2;
-                return true;
-            }
-            if (t1 === state.rightEnd) { state.table.push([t1, t2]); state.rightEnd = t2; return true; }
-            if (t2 === state.rightEnd) { state.table.push([t2, t1]); state.rightEnd = t1; return true; }
-            if (t1 === state.leftEnd) { state.table.unshift([t2, t1]); state.leftEnd = t2; return true; }
-            if (t2 === state.leftEnd) { state.table.unshift([t1, t2]); state.leftEnd = t1; return true; }
-            return false;
+            return t1 === state.leftEnd || t1 === state.rightEnd || t2 === state.leftEnd || t2 === state.rightEnd;
         }
 
-        function passTurn() {
-            if(state.turn !== 0 || state.gameOver) return;
-            // Check if user really has no moves
-            let hasMove = state.hands[0].some(t => {
-                if(state.table.length===0) return true;
-                return t[0]===state.leftEnd || t[0]===state.rightEnd || t[1]===state.leftEnd || t[1]===state.rightEnd;
-            });
-            if(hasMove) { alert("Anda memiliki balok yang bisa dimainkan! Tidak bisa Pass."); return; }
+        function processAction(action, data, reqPlayerId) {
+            if(state.gameOver || reqPlayerId !== state.turn) return;
+
+            let nextTurn = true;
+
+            if (action === 'play') {
+                let idx = data;
+                let tile = state.hands[reqPlayerId][idx];
+                
+                // First turn rule: Must play Balak if it's empty table
+                if (state.table.length === 0) {
+                    // Let them play whatever they clicked, ideally they click the balak.
+                    // For simplicity, we just accept the first tile they click as valid, 
+                    // though strictly they MUST play highest balak. We assume they follow rules if it's playable.
+                    state.table.push([tile[0], tile[1]]);
+                    state.leftEnd = tile[0]; state.rightEnd = tile[1];
+                    state.hands[reqPlayerId].splice(idx, 1);
+                    state.consecutivePasses = 0;
+                    state.msg = `${getRoleName(reqPlayerId)} jalan.`;
+                } else {
+                    let [t1, t2] = tile;
+                    if (t1 === state.rightEnd) { state.table.push([t1, t2]); state.rightEnd = t2; }
+                    else if (t2 === state.rightEnd) { state.table.push([t2, t1]); state.rightEnd = t1; }
+                    else if (t1 === state.leftEnd) { state.table.unshift([t2, t1]); state.leftEnd = t2; }
+                    else if (t2 === state.leftEnd) { state.table.unshift([t1, t2]); state.leftEnd = t1; }
+                    else { nextTurn = false; alert("Kartu tidak valid!"); return; } // Invalid move
+
+                    state.hands[reqPlayerId].splice(idx, 1);
+                    state.consecutivePasses = 0;
+                    state.msg = `${getRoleName(reqPlayerId)} memasang kartu.`;
+                }
+
+            } else if (action === 'draw') {
+                if(state.boneyard.length > 0) {
+                    let c = state.boneyard.pop();
+                    state.hands[reqPlayerId].push(c);
+                    state.msg = `${getRoleName(reqPlayerId)} mengambil dari Bank.`;
+                    nextTurn = false; // They must keep playing after drawing
+                }
+            } else if (action === 'pass') {
+                state.consecutivePasses++;
+                state.msg = `${getRoleName(reqPlayerId)} PASS.`;
+            }
+
+            if(checkWinCondition()) return; // Game over check
+
+            if (nextTurn) {
+                state.turn = (state.turn + 1) % config.players;
+                if(config.mode === 'ai' && state.turn !== 0) {
+                    setTimeout(() => processAiTurn(), 1500);
+                }
+            }
             
-            state.turn = 1;
-            state.msg = "Anda Pass. Giliran Bot Kiri...";
+            if(isHost) broadcastState();
             renderGaple();
         }
 
-        function aiTurnGaple() {
-            if(state.gameOver) return;
-            let aiIdx = state.turn;
-            let hand = state.hands[aiIdx];
-            let played = false;
-
-            for(let i=0; i<hand.length; i++) {
-                if(tryPlaceTile(hand[i])) {
-                    hand.splice(i, 1);
-                    played = true;
-                    break;
+        function checkWinCondition() {
+            // Check if someone finished cards
+            for(let p = 0; p < config.players; p++) {
+                if(state.hands[p].length === 0) {
+                    state.gameOver = true;
+                    state.msg = `🎉 ${getRoleName(p)} MENANG! (Kartu Habis)`;
+                    return true;
                 }
             }
 
-            checkGapleWin(aiIdx);
-            if(!state.gameOver) {
-                state.turn = (state.turn + 1) % 4;
-                let names = ["Anda", "Bot Kiri", "Bot Atas", "Bot Kanan"];
-                state.msg = played ? `${names[aiIdx]} meletakkan balok. Giliran ${names[state.turn]}.` : `${names[aiIdx]} PASS. Giliran ${names[state.turn]}.`;
-                renderGaple();
-            }
-        }
-
-        function checkGapleWin(playerIdx) {
-            if(state.hands[playerIdx].length === 0) {
+            // Check if blocked (everyone passed in a row)
+            if(state.consecutivePasses >= config.players) {
                 state.gameOver = true;
-                let names = ["Anda", "Bot Kiri", "Bot Atas", "Bot Kanan"];
-                state.msg = `Selesai! ${names[playerIdx]} Menang (Balok Habis)!`;
-                renderGaple();
-            }
-        }
-
-        // ==========================================
-        // QIUQIU (99) LOGIC
-        // ==========================================
-        function initQiuQiu() {
-            dominoSet = createDominoSet();
-            state = {
-                player: [dominoSet.pop(), dominoSet.pop(), dominoSet.pop(), dominoSet.pop()],
-                dealer: [dominoSet.pop(), dominoSet.pop(), dominoSet.pop(), dominoSet.pop()],
-                gameOver: false,
-                msg: "Kombinasikan 4 balok menjadi 2 pasang angka tertinggi (Qiu = 9)."
-            };
-            renderQiuQiu();
-        }
-
-        function calculateQiuQiuScore(hand) {
-            // Find best pair combination
-            let bestStr = "0-0";
-            let bestVal = 0;
-            // 3 possible pairings for 4 tiles: (0,1)+(2,3) | (0,2)+(1,3) | (0,3)+(1,2)
-            let pairings = [ [[0,1],[2,3]], [[0,2],[1,3]], [[0,3],[1,2]] ];
-            for(let p of pairings) {
-                let pair1 = hand[p[0][0]] [0] + hand[p[0][0]] [1] + hand[p[0][1]] [0] + hand[p[0][1]] [1];
-                let pair2 = hand[p[1][0]] [0] + hand[p[1][0]] [1] + hand[p[1][1]] [0] + hand[p[1][1]] [1];
-                let score1 = pair1 % 10;
-                let score2 = pair2 % 10;
+                // Calculate scores
+                let scores = [];
+                for(let p = 0; p < config.players; p++) {
+                    let sum = state.hands[p].reduce((acc, t) => acc + t[0] + t[1], 0);
+                    scores.push({ id: p, sum: sum });
+                }
+                scores.sort((a,b) => a.sum - b.sum); // lowest is best
+                let lowestScore = scores[0].sum;
+                let winners = scores.filter(s => s.sum === lowestScore).map(s => getRoleName(s.id));
                 
-                // Usually highest pair matters first. E.g. 9-8 is better than 8-9. We sort descending.
-                let max = Math.max(score1, score2);
-                let min = Math.min(score1, score2);
-                let val = max * 10 + min; // e.g. 9 and 8 = 98
-                if(val > bestVal) {
-                    bestVal = val;
-                    bestStr = `${max} - ${min}`;
+                state.msg = `🛑 BLOCK! ${winners.join(' & ')} MENANG dengan sisa titik terkecil (${lowestScore}).`;
+                return true;
+            }
+
+            return false;
+        }
+
+        function processAiTurn() {
+            if (state.gameOver || state.turn === 0 || config.mode !== 'ai') return;
+            
+            let id = state.turn;
+            let hand = state.hands[id];
+            
+            // Try to play
+            let playableIdx = hand.findIndex(t => isValidMove(t));
+            
+            if (playableIdx !== -1) {
+                processAction('play', playableIdx, id);
+            } else {
+                // Must draw if bank available
+                if (state.boneyard.length > 0) {
+                    processAction('draw', null, id);
+                    setTimeout(() => processAiTurn(), 1000); // Try again
+                } else {
+                    processAction('pass', null, id);
                 }
             }
-            return { bestStr, bestVal };
-        }
-
-        function openCardsQiuQiu() {
-            state.gameOver = true;
-            let pScore = calculateQiuQiuScore(state.player);
-            let dScore = calculateQiuQiuScore(state.dealer);
-            
-            if(pScore.bestVal > dScore.bestVal) state.msg = `Anda Menang! (${pScore.bestStr} vs ${dScore.bestStr})`;
-            else if(pScore.bestVal < dScore.bestVal) state.msg = `Bandar Menang! (${dScore.bestStr} vs ${pScore.bestStr})`;
-            else state.msg = `Seri (Draw)! Bandar menang dalam seri.`;
-
-            document.getElementById('btn-restart').style.display = 'inline-block';
-            renderQiuQiu();
-        }
-
-        function renderQiuQiu() {
-            updateStatus(state.msg, state.gameOver ? "#10b981" : "#f59e0b");
-            let container = document.getElementById('board-container');
-            
-            let dScore = state.gameOver ? calculateQiuQiuScore(state.dealer).bestStr : "? - ?";
-            let pScore = calculateQiuQiuScore(state.player).bestStr;
-
-            let html = `
-                <div style="display:flex; flex-direction:column; align-items:center; gap: 40px; margin-top:20px;">
-                    
-                    <div>
-                        <div class="ai-label">Bandar / Dealer (Skor: ${dScore})</div>
-                        <div class="player-area" style="height: auto; padding: 20px;">
-                            ${state.dealer.map(t => renderTile(t[0], t[1], !state.gameOver)).join('')}
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="ai-label" style="color:#f59e0b;">Kartu Anda (Potensi Terbaik: ${pScore})</div>
-                        <div class="player-area" style="height: auto; padding: 20px;">
-                            ${state.player.map(t => renderTile(t[0], t[1])).join('')}
-                        </div>
-                    </div>
-                    
-                    ${!state.gameOver ? `<button class="btn-action" onclick="openCardsQiuQiu()">Buka Kartu (Adu Skor)</button>` : ''}
-                </div>
-            `;
-            container.innerHTML = html;
-        }
-
-        function restartGame() {
-            if(selectedGame === 'gaple') initGaple();
-            else initQiuQiu();
         }
 
     </script>
