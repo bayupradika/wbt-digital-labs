@@ -83,7 +83,9 @@
         .horizontal .divider { width: 2px; height: 100%; }
 
         /* Areas */
-        .ai-area { display: flex; justify-content: center; gap: 5px; height: 90px; align-items: center; position: relative; z-index: 5; }
+        .ai-area { display: flex; justify-content: center; align-items: center; position: relative; z-index: 5; }
+        .ai-area .domino-tile { margin-left: -20px; }
+        .ai-area .domino-tile:first-child { margin-left: 0; }
         .ai-label { color: #cbd5e1; font-weight: bold; margin-bottom: 5px; text-align: center; font-size: 14px; }
         .ai-label.active { color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.5); }
         
@@ -450,13 +452,13 @@
                             <div><div class="ai-label ${isTurn?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div>
                             <div></div>`;
             } else if (config.players === 3) {
-                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true,true)).join('')}</div></div>
+                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div>
                             <div></div>
-                            <div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true,true)).join('')}</div></div>`;
+                            <div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
             } else if (config.players === 4) {
-                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true,true)).join('')}</div></div>
+                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div>
                             <div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>
-                            <div><div class="ai-label ${state.turn===3?'active':''}">${getRoleName(3)}</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true,true)).join('')}</div></div>`;
+                            <div><div class="ai-label ${state.turn===3?'active':''}">${getRoleName(3)}</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
             }
             oppHTML += `</div>`;
 
