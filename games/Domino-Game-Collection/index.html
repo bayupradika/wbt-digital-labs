@@ -256,18 +256,19 @@
                 // Assign ID to client
                 conn.on('open', () => {
                     conn.send({ type: 'init_id', id: clientId, total: config.players });
+                    
+                    // Check if all players joined
+                    if(connections.length === config.players - 1) {
+                        setTimeout(() => {
+                            closeModals();
+                            startGapleEngine();
+                        }, 500); // Tunggu setengah detik setelah koneksi stabil
+                    }
                 });
 
                 conn.on('data', (data) => {
                     handleNetworkMessage(data, clientId);
                 });
-
-                if(connections.length === config.players - 1) {
-                    setTimeout(() => {
-                        closeModals();
-                        startGapleEngine();
-                    }, 1000);
-                }
             });
         }
 
