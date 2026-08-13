@@ -228,11 +228,11 @@
         // PEER JS ONLINE LOGIC
         // ==========================================
         function generateId() {
-            return Math.random().toString(36).substr(2, 6).toUpperCase();
+            return Math.floor(1000 + Math.random() * 9000).toString();
         }
 
         function hostRoom() {
-            let roomId = "WBT-" + generateId();
+            let roomId = generateId();
             document.getElementById('room-status').innerText = "Membuat Room...";
             peer = new Peer(roomId);
             
