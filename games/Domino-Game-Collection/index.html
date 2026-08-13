@@ -91,7 +91,7 @@
 
         /* Areas */
         .ai-area { display: flex; justify-content: center; align-items: center; position: relative; z-index: 5; }
-        .ai-area .domino-tile { margin-left: -20px; }
+        .ai-area .domino-tile { margin-left: -10px; width: 20px; height: 40px; border-radius: 4px; border-width: 1px; }
         .ai-area .domino-tile:first-child { margin-left: 0; }
         .ai-label { color: #cbd5e1; font-weight: bold; margin-bottom: 5px; text-align: center; font-size: 14px; }
         .ai-label.active { color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.5); }
@@ -186,8 +186,14 @@
             </div>
         </div>
         
-        <div class="board-container" id="board-container">
-            <!-- Dynamic UI -->
+        <div style="display:flex; flex-direction:column; width:100%; flex:1; background: rgba(6,78,59,0.7);" onclick="if(state.pendingChoice) actionCancelChoice()">
+            <div id="opp-area" style="padding-top: 15px;"></div>
+            
+            <div class="board-container" id="board-container" style="flex:1; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; background: transparent; padding:0;">
+                <!-- Dynamic UI -->
+            </div>
+            
+            <div id="player-area" style="padding-bottom: 25px;"></div>
         </div>
     </div>
 
@@ -530,7 +536,7 @@
             if(config.mode === 'multiplayer' && !state.gameOver) viewPlayerId = state.turn; 
             let myTurn = (state.turn === viewPlayerId && !state.gameOver);
             
-            if (state.pendingChoice && myTurn && config.mode !== 'ai') { 
+            if (state.pendingChoice && myTurn) { 
                 let t = state.hands[state.turn][state.pendingChoice.tileIdx];
                 let isBalak = t[0] === t[1];
                 state.pendingChoice.targets.forEach(branch => {
@@ -628,6 +634,7 @@
                 oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div><div><div class="ai-label ${state.turn===3?'active':''}">${getRoleName(3)}</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
             }
             oppHTML += `</div>`;
+            document.getElementById('opp-area').innerHTML = oppHTML;
 
             let viewPlayerId = localPlayerId;
             if(config.mode === 'multiplayer' && !state.gameOver) viewPlayerId = state.turn; 
@@ -656,14 +663,10 @@
                 }).join('');
             }
 
-            let html = `
-                ${oppHTML}
-                <div class="center-table" onclick="if(state.pendingChoice) actionCancelChoice()">
-                    ${tableHtml.length > 0 ? tableHtml : '<div style="color:rgba(255,255,255,0.2);">Meja Kosong (Tunggu Pemain 1 membuang Balak)</div>'}
-                </div>
+            let playerHtml = `
                 <div>
                     <div class="ai-label ${myTurn?'active':''}" style="font-size: 16px;">${config.mode==='multiplayer' ? getRoleName(viewPlayerId) : 'Kartu Anda'} ${myTurn ? '(Giliran Anda!)' : ''}</div>
-                    <div class="player-area" style="flex-wrap:wrap; height:auto;" onclick="if(state.pendingChoice) actionCancelChoice()">
+                    <div class="player-area" style="flex-wrap:wrap; height:auto;">
                         ${playerHandHtml}
                     </div>
                     <div style="text-align:center; margin-top:10px;">
@@ -671,7 +674,14 @@
                     </div>
                 </div>
             `;
-            container.innerHTML = html;
+            document.getElementById('player-area').innerHTML = playerHtml;
+
+            let boardHtml = `
+                <div class="center-table">
+                    ${tableHtml.length > 0 ? tableHtml : '<div style="color:rgba(255,255,255,0.2);">Meja Kosong (Tunggu Pemain 1 membuang Balak)</div>'}
+                </div>
+            `;
+            container.innerHTML = boardHtml;
         }
 
         function getRoleName(id) {
