@@ -10,11 +10,11 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body {
-            background: #070913; color: #f8fafc; min-height: 100vh;
+            background: #070913; color: #f8fafc; min-height: 100vh; margin: 0;
             background-image: radial-gradient(circle at 10% 20%, rgba(245,158,11,0.15) 0%, transparent 40%),
                               radial-gradient(circle at 90% 80%, rgba(16,185,129,0.15) 0%, transparent 40%);
-            display: flex; flex-direction: column; align-items: center; padding: 40px 24px;
-            overflow-x: hidden;
+            display: flex; flex-direction: column; align-items: center; padding: 0;
+            overflow-x: hidden; width: 100%;
         }
 
         .header { text-align: center; margin-bottom: 30px; }
@@ -24,6 +24,9 @@
         /* Screens */
         .screen { display: none; width: 100%; max-width: 1000px; flex-direction: column; align-items: center; }
         .screen.active { display: flex; }
+        
+        #screen-hub { padding: 40px 24px; }
+        #screen-game { max-width: none; width: 100%; min-height: 100vh; padding: 0; }
 
         /* Hub Menu */
         .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; width: 100%; justify-content: center; }
@@ -58,12 +61,12 @@
         .input-code { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; text-align: center; font-size: 18px; letter-spacing: 2px; }
 
         /* Game Board Area */
-        .board-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(15,23,42,0.8); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .board-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin: 0; background: rgba(15,23,42,1); padding: 15px 25px; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .board-header h2 { color: #f59e0b; margin:0; font-size: 24px; }
         .status-box { font-size: 16px; font-weight: 700; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.1); display: flex; gap: 15px; align-items: center; }
         .boneyard-info { background: #1e293b; padding: 5px 10px; border-radius: 6px; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); }
         
-        .board-container { background: rgba(6,78,59,0.7); border: 4px solid #064e3b; border-radius: 16px; padding: 20px; width: 100%; min-height: 500px; display: flex; flex-direction: column; justify-content: space-between; }
+        .board-container { background: rgba(6,78,59,0.7); border: none; border-radius: 0; padding: 20px; width: 100%; flex: 1; display: flex; flex-direction: column; justify-content: space-between; margin: 0; }
         
         /* Domino Tiles */
         .domino-tile {
@@ -147,12 +150,12 @@
     </div>
 
     <!-- MAIN UI -->
-    <div class="header">
-        <h1>Domino Game Collection</h1>
-        <p>Mainkan seri permainan balok (Double-Six) dengan mode Multiplayer P2P, Lokal, dan Bot.</p>
-    </div>
-
     <div id="screen-hub" class="screen active">
+        <div class="header">
+            <h1>Domino Game Collection</h1>
+            <p>Mainkan seri permainan balok (Double-Six) dengan mode Multiplayer P2P, Lokal, dan Bot.</p>
+        </div>
+
         <div class="hub-grid">
             <div class="game-card" onclick="openGapleSetup()">
                 <i class="fa-solid fa-dice-five game-icon"></i>
@@ -174,7 +177,7 @@
                 <h2 id="game-title">Domino Gaple</h2>
             </div>
             <div class="status-box">
-                <span id="game-status">Memulai...</span>
+                <span id="game-status" style="display:none;">Memulai...</span>
                 <span class="boneyard-info" id="bank-status" style="display:none;"><i class="fa-solid fa-layer-group"></i> Bank: 0</span>
             </div>
         </div>
