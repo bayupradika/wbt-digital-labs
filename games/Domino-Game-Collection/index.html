@@ -472,10 +472,10 @@
             
             let cDim = getDim(cRot);
             let tips = {
-                'left': { x: -cDim.w/2, y: 0, dir: 'LEFT', branchDir: 'LEFT' },
-                'right': { x: cDim.w/2, y: 0, dir: 'RIGHT', branchDir: 'RIGHT' },
-                'top': { x: 0, y: -cDim.h/2, dir: 'UP', branchDir: 'UP' },
-                'bottom': { x: 0, y: cDim.h/2, dir: 'DOWN', branchDir: 'DOWN' }
+                'left': { x: -cDim.w/2, y: 0, dir: 'LEFT', branchDir: 'LEFT', lastWasBalak: centerTile.isBalak },
+                'right': { x: cDim.w/2, y: 0, dir: 'RIGHT', branchDir: 'RIGHT', lastWasBalak: centerTile.isBalak },
+                'top': { x: 0, y: -cDim.h/2, dir: 'UP', branchDir: 'UP', lastWasBalak: centerTile.isBalak },
+                'bottom': { x: 0, y: cDim.h/2, dir: 'DOWN', branchDir: 'DOWN', lastWasBalak: centerTile.isBalak }
             };
             
             const getNextSpiralDir = (dir) => {
@@ -519,7 +519,7 @@
                 let tip = tips[t.branch];
                 
                 let straightPlace = calculatePlacement(tip.x, tip.y, tip.dir, tip.branchDir, t.isBalak);
-                if (Math.abs(straightPlace.newTipX) > maxDistX || Math.abs(straightPlace.newTipY) > maxDistY) {
+                if (!t.isBalak && !tip.lastWasBalak && (Math.abs(straightPlace.newTipX) > maxDistX || Math.abs(straightPlace.newTipY) > maxDistY)) {
                     tip.branchDir = getNextSpiralDir(tip.branchDir);
                 }
                 
@@ -529,6 +529,7 @@
                 tip.x = place.newTipX;
                 tip.y = place.newTipY;
                 tip.dir = tip.branchDir;
+                tip.lastWasBalak = t.isBalak;
             }
             
             let placeholders = [];
@@ -542,7 +543,7 @@
                 state.pendingChoice.targets.forEach(branch => {
                     let tip = { ...tips[branch] }; 
                     let straightPlace = calculatePlacement(tip.x, tip.y, tip.dir, tip.branchDir, isBalak);
-                    if (Math.abs(straightPlace.newTipX) > maxDistX || Math.abs(straightPlace.newTipY) > maxDistY) {
+                    if (!isBalak && !tip.lastWasBalak && (Math.abs(straightPlace.newTipX) > maxDistX || Math.abs(straightPlace.newTipY) > maxDistY)) {
                         tip.branchDir = getNextSpiralDir(tip.branchDir);
                     }
                     let place = calculatePlacement(tip.x, tip.y, tip.dir, tip.branchDir, isBalak);
