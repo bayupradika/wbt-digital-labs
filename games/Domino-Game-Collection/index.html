@@ -93,12 +93,12 @@
         .ai-label.active { color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.5); }
         
         /* Fixed Center Table Requirement */
-        .center-table { 
-            flex: 1; display: flex; justify-content: center; align-items: center; align-content: center;
-            background: rgba(0,0,0,0.2); border-radius: 12px; margin: 20px 0; padding: 20px; 
-            height: 300px; width: 100%; overflow: auto; flex-wrap: wrap; gap: 5px; 
-            position: relative; z-index: 1;
-        }
+        .center-table { background: transparent; position: relative; overflow: hidden; flex: 1; display: block; padding: 0; border: none; margin: 20px 0; width: 100%; border-radius: 12px; }
+        .table-zoom-wrapper { width: 100%; height: 100%; position: absolute; left: 0; top: 0; transition: transform 0.3s ease; }
+        .absolute-tile { position: absolute; left: 50%; top: 50%; transform-origin: center center; margin:0!important; }
+        .domino-tile.placeholder { background: rgba(16, 185, 129, 0.2); border: 2px dashed #10b981; cursor: pointer; box-shadow: none; animation: pulseOpacity 1.5s infinite; }
+        .domino-tile.placeholder:hover { background: rgba(16, 185, 129, 0.5); }
+        @keyframes pulseOpacity { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         
         .player-area { display: flex; justify-content: center; gap: 10px; height: 100px; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; position: relative; z-index: 5; }
 
@@ -356,16 +356,22 @@
             
             if(isHost || config.mode !== 'online') {
                 let deck = createDominoSet();
-                
                 state = {
-                    hands: [[], [], [], []], // Max 4 players
+                    hands: [[], [], [], []], 
                     boneyard: [],
                     table: [], 
-                    leftEnd: -1, rightEnd: -1,
+                    ends: {
+                        left: { active: false, val: -1, isBalak: false },
+                        right: { active: false, val: -1, isBalak: false },
+                        top: { active: false, val: -1, isBalak: false },
+                        bottom: { active: false, val: -1, isBalak: false }
+                    },
+                    isSpinnerActive: false,
                     turn: 0,
                     gameOver: false,
                     msg: "",
-                    consecutivePasses: 0
+                    consecutivePasses: 0,
+                    pendingChoice: null
                 };
 
                 // Deal 7 cards each
@@ -428,6 +434,95 @@
             `;
         }
 
+        function getDim(rot) { return rot % 180 !== 0 ? { w: 80, h: 40 } : { w: 40, h: 80 }; }
+
+        function calculateBoardLayout() {
+            if (state.table.length === 0) return { tiles: [], w: 0, h: 0, cx: 0, cy: 0, placeholders: [] };
+            
+            let GAP = 5;
+            let layouts = [];
+            let centerTile = state.table[0];
+            let cRot = centerTile.isBalak ? 0 : 90; 
+            layouts.push({ ...centerTile, x: 0, y: 0, rot: cRot });
+            
+            let lastPos = {
+                'left': { x: 0, y: 0, rot: cRot },
+                'right': { x: 0, y: 0, rot: cRot },
+                'top': { x: 0, y: 0, rot: cRot },
+                'bottom': { x: 0, y: 0, rot: cRot }
+            };
+            
+            for (let i = 1; i < state.table.length; i++) {
+                let t = state.table[i];
+                let prev = lastPos[t.branch];
+                let pDim = getDim(prev.rot);
+                
+                let rot;
+                if (t.branch === 'left') rot = t.isBalak ? 0 : 90;
+                else if (t.branch === 'right') rot = t.isBalak ? 0 : -90;
+                else if (t.branch === 'top') rot = t.isBalak ? 90 : 180;
+                else if (t.branch === 'bottom') rot = t.isBalak ? 90 : 0;
+                
+                let dim = getDim(rot);
+                let x = prev.x, y = prev.y;
+                if (t.branch === 'left') x -= (pDim.w / 2 + dim.w / 2 + GAP);
+                else if (t.branch === 'right') x += (pDim.w / 2 + dim.w / 2 + GAP);
+                else if (t.branch === 'top') y -= (pDim.h / 2 + dim.h / 2 + GAP);
+                else if (t.branch === 'bottom') y += (pDim.h / 2 + dim.h / 2 + GAP);
+                
+                layouts.push({ ...t, x, y, rot });
+                lastPos[t.branch] = { x, y, rot };
+            }
+            
+            let placeholders = [];
+            let viewPlayerId = localPlayerId;
+            if(config.mode === 'multiplayer' && !state.gameOver) viewPlayerId = state.turn; 
+            let myTurn = (state.turn === viewPlayerId && !state.gameOver);
+            
+            if (state.pendingChoice && myTurn && config.mode !== 'ai') { 
+                let t = state.hands[state.turn][state.pendingChoice.tileIdx];
+                let isBalak = t[0] === t[1];
+                state.pendingChoice.targets.forEach(branch => {
+                    let prev = lastPos[branch];
+                    let pDim = getDim(prev.rot);
+                    let rot;
+                    if (branch === 'left') rot = isBalak ? 0 : 90;
+                    else if (branch === 'right') rot = isBalak ? 0 : -90;
+                    else if (branch === 'top') rot = isBalak ? 90 : 180;
+                    else if (branch === 'bottom') rot = isBalak ? 90 : 0;
+                    
+                    let dim = getDim(rot);
+                    let x = prev.x, y = prev.y;
+                    if (branch === 'left') x -= (pDim.w / 2 + dim.w / 2 + GAP);
+                    else if (branch === 'right') x += (pDim.w / 2 + dim.w / 2 + GAP);
+                    else if (branch === 'top') y -= (pDim.h / 2 + dim.h / 2 + GAP);
+                    else if (branch === 'bottom') y += (pDim.h / 2 + dim.h / 2 + GAP);
+                    
+                    placeholders.push({ branch, x, y, rot });
+                });
+            }
+            
+            let minX = 0, maxX = 0, minY = 0, maxY = 0;
+            const processBounds = (item) => {
+                let d = getDim(item.rot);
+                minX = Math.min(minX, item.x - d.w/2);
+                maxX = Math.max(maxX, item.x + d.w/2);
+                minY = Math.min(minY, item.y - d.h/2);
+                maxY = Math.max(maxY, item.y + d.h/2);
+            };
+            layouts.forEach(processBounds);
+            placeholders.forEach(processBounds);
+            
+            return {
+                tiles: layouts,
+                w: maxX - minX,
+                h: maxY - minY,
+                cx: (minX + maxX) / 2,
+                cy: (minY + maxY) / 2,
+                placeholders: placeholders
+            };
+        }
+
         function renderGaple() {
             const statusEl = document.getElementById('game-status');
             const bankEl = document.getElementById('bank-status');
@@ -444,49 +539,67 @@
 
             let container = document.getElementById('board-container');
             
-            // Map table
-            let tableHtml = state.table.map(t => renderTile(t[0], t[1], false, true)).join('');
+            let layoutData = calculateBoardLayout();
+            let boardW = container.clientWidth - 40; 
+            let boardH = container.clientHeight - 40;
+            let scale = 1;
+            if (layoutData.w > boardW || layoutData.h > boardH) {
+                if (layoutData.w > 0 && layoutData.h > 0) {
+                    scale = Math.min(boardW / layoutData.w, boardH / layoutData.h) * 0.95;
+                }
+            }
+            
+            let tableHtml = "";
+            if (state.table.length > 0) {
+                let tilesHtml = layoutData.tiles.map(l => {
+                    let tx = l.x - layoutData.cx;
+                    let ty = l.y - layoutData.cy;
+                    return `<div class="domino-tile absolute-tile" style="transform: translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) rotate(${l.rot}deg);">
+                                <div class="half">${l.tile[0]}</div>
+                                <div class="divider"></div>
+                                <div class="half">${l.tile[1]}</div>
+                            </div>`;
+                }).join('');
+                
+                let placeholdersHtml = layoutData.placeholders.map(p => {
+                    let tx = p.x - layoutData.cx;
+                    let ty = p.y - layoutData.cy;
+                    return `<div class="domino-tile absolute-tile placeholder" onclick="actionChooseTarget('${p.branch}')" style="transform: translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) rotate(${p.rot}deg);">
+                                <div class="half" style="opacity:0">0</div><div class="divider"></div><div class="half" style="opacity:0">0</div>
+                            </div>`;
+                }).join('');
+                
+                tableHtml = `<div class="table-zoom-wrapper" style="transform: scale(${scale});">${tilesHtml}${placeholdersHtml}</div>`;
+            }
 
-            // AI/Opponent rendering
             let oppHTML = `<div style="display:flex; justify-content:space-between; width:100%;">`;
             if (config.players === 2) {
-                // Just opponent at top
                 let isTurn = state.turn === 1;
-                oppHTML += `<div></div>
-                            <div><div class="ai-label ${isTurn?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div>
-                            <div></div>`;
+                oppHTML += `<div></div><div><div class="ai-label ${isTurn?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div></div>`;
             } else if (config.players === 3) {
-                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div>
-                            <div></div>
-                            <div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
+                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div></div><div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
             } else if (config.players === 4) {
-                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div>
-                            <div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>
-                            <div><div class="ai-label ${state.turn===3?'active':''}">${getRoleName(3)}</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
+                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div><div><div class="ai-label ${state.turn===3?'active':''}">${getRoleName(3)}</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
             }
             oppHTML += `</div>`;
 
-            // Active player logic (Who's UI is being shown)
             let viewPlayerId = localPlayerId;
-            // In local multiplayer, we show the hand of the active turn!
-            if(config.mode === 'multiplayer' && !state.gameOver) {
-                viewPlayerId = state.turn; 
-            }
-
+            if(config.mode === 'multiplayer' && !state.gameOver) viewPlayerId = state.turn; 
             let myTurn = (state.turn === viewPlayerId && !state.gameOver);
-            let hasMove = state.hands[viewPlayerId] && state.hands[viewPlayerId].some(t => isValidMove(t));
+            let hasMove = state.hands[viewPlayerId] && state.hands[viewPlayerId].some(t => getValidTargets(t).length > 0);
             let bankEmpty = state.boneyard.length === 0;
 
             let controlsHtml = '';
-            if(myTurn) {
+            if(myTurn && !state.pendingChoice) {
                 if(!hasMove) {
-                    if(!bankEmpty && config.players < 4) {
-                        controlsHtml = `<button class="btn-action" onclick="actionDraw()">Ambil Kartu (Bank)</button>`;
-                    } else {
-                        controlsHtml = `<button class="btn-action" onclick="actionPass()">Pass (Lewati Giliran)</button>`;
-                    }
+                    if(!bankEmpty && config.players < 4) controlsHtml = `<button class="btn-action" onclick="actionDraw()">Ambil Kartu (Bank)</button>`;
+                    else controlsHtml = `<button class="btn-action" onclick="actionPass()">Pass (Lewati Giliran)</button>`;
                 }
+            } else if (myTurn && state.pendingChoice) {
+                controlsHtml = `<div style="color:#10b981; font-weight:bold; margin-bottom:10px;">Pilih arah letak kartu di atas!</div>
+                                <button class="btn-action" onclick="actionCancelChoice()">Batal</button>`;
             }
+            
             if(state.gameOver && (isHost || config.mode !== 'online')) {
                 controlsHtml += `<button class="btn-action" style="background:#10b981;" onclick="startGapleEngine()">Main Lagi</button>`;
             }
@@ -494,24 +607,16 @@
             let playerHandHtml = '';
             if(state.hands[viewPlayerId]) {
                 playerHandHtml = state.hands[viewPlayerId].map((t, idx) => {
-                    // Only show clickable if it's my turn
-                    if(myTurn) {
-                        return `<div class="domino-tile" onclick="actionPlay(${idx})"><div class="half">${t[0]}</div><div class="divider"></div><div class="half">${t[1]}</div></div>`;
-                    } else {
-                        // In multiplayer local, hide cards if not their turn to prevent peeking? 
-                        // Actually, if it's not their turn, just render it static.
-                        return renderTile(t[0], t[1]);
-                    }
+                    if(myTurn && !state.pendingChoice) return `<div class="domino-tile" onclick="actionPlay(${idx})"><div class="half">${t[0]}</div><div class="divider"></div><div class="half">${t[1]}</div></div>`;
+                    else return renderTile(t[0], t[1]);
                 }).join('');
             }
 
             let html = `
                 ${oppHTML}
-
                 <div class="center-table">
                     ${tableHtml.length > 0 ? tableHtml : '<div style="color:rgba(255,255,255,0.2);">Meja Kosong (Tunggu Pemain 1 membuang Balak)</div>'}
                 </div>
-
                 <div>
                     <div class="ai-label ${myTurn?'active':''}" style="font-size: 16px;">${config.mode==='multiplayer' ? getRoleName(viewPlayerId) : 'Kartu Anda'} ${myTurn ? '(Giliran Anda!)' : ''}</div>
                     <div class="player-area" style="flex-wrap:wrap; height:auto;">
@@ -526,20 +631,55 @@
         }
 
         function getRoleName(id) {
-            if(config.mode === 'online') {
-                return id === 0 ? "Host" : `Pemain ${id+1}`;
-            } else if (config.mode === 'multiplayer') {
-                return `Pemain ${id+1}`;
-            } else {
-                return `Bot ${id}`;
-            }
+            if(config.mode === 'online') return id === 0 ? "Host" : `Pemain ${id+1}`;
+            else if (config.mode === 'multiplayer') return `Pemain ${id+1}`;
+            else return `Bot ${id}`;
         }
 
-        // --- Action Translators (Sends to Host or Handles Locally) ---
+        // --- Action Translators ---
         function actionPlay(idx) {
-            if(config.mode === 'online' && !isHost) sendAction('play', idx);
-            else processAction('play', idx, localPlayerId === state.turn || config.mode==='multiplayer' ? state.turn : localPlayerId);
+            let reqPlayerId = config.mode === 'online' && !isHost ? localPlayerId : (localPlayerId === state.turn || config.mode==='multiplayer' ? state.turn : localPlayerId);
+            let tile = state.hands[reqPlayerId][idx];
+            let targets = getValidTargets(tile);
+            
+            if (targets.length === 0) return;
+            
+            if (targets.length > 1) {
+                let needsChoice = false;
+                let values = targets.map(t => state.ends[t].val);
+                let uniqueValues = [...new Set(values)];
+                if (uniqueValues.length > 1) needsChoice = true;
+                
+                if (!needsChoice) {
+                    let hasBalak = targets.some(t => state.ends[t].isBalak);
+                    if (hasBalak) needsChoice = true;
+                }
+                
+                if (needsChoice) {
+                    state.pendingChoice = { tileIdx: idx, targets: targets };
+                    renderGaple();
+                    return; 
+                }
+            }
+            
+            let finalTarget = targets[0];
+            if(config.mode === 'online' && !isHost) sendAction('play', { idx, target: finalTarget });
+            else processAction('play', { idx, target: finalTarget }, reqPlayerId);
         }
+
+        function actionCancelChoice() {
+            state.pendingChoice = null;
+            renderGaple();
+        }
+
+        function actionChooseTarget(target) {
+            let choice = state.pendingChoice;
+            state.pendingChoice = null; 
+            let reqPlayerId = config.mode === 'online' && !isHost ? localPlayerId : (localPlayerId === state.turn || config.mode==='multiplayer' ? state.turn : localPlayerId);
+            if(config.mode === 'online' && !isHost) sendAction('play', { idx: choice.tileIdx, target: target });
+            else processAction('play', { idx: choice.tileIdx, target: target }, reqPlayerId);
+        }
+
         function actionDraw() {
             if(config.mode === 'online' && !isHost) sendAction('draw', null);
             else processAction('draw', null, state.turn);
@@ -549,57 +689,91 @@
             else processAction('pass', null, state.turn);
         }
 
-        // --- Core Rules & State Modification (Only Runs on Host/Local) ---
-        function isValidMove(tile) {
+        // --- Core Rules & State Modification ---
+        function getValidTargets(tile) {
+            let [t1, t2] = tile;
             if (state.table.length === 0) {
                 if (state.requiredFirstTile !== -1) {
-                    return (tile[0] === tile[1] && tile[0] === state.requiredFirstTile);
+                    return (t1 === t2 && t1 === state.requiredFirstTile) ? ['center'] : [];
                 }
-                return true;
+                return ['center'];
             }
-            let [t1, t2] = tile;
-            return t1 === state.leftEnd || t1 === state.rightEnd || t2 === state.leftEnd || t2 === state.rightEnd;
+            
+            let targets = [];
+            let canUseTopBottom = true;
+            if (state.isSpinnerActive) {
+                let hasLeft = state.table.some(t => t.branch === 'left');
+                let hasRight = state.table.some(t => t.branch === 'right');
+                if (!hasLeft || !hasRight) canUseTopBottom = false;
+            } else {
+                canUseTopBottom = false;
+            }
+            
+            let checkEnd = (branch) => {
+                if (!state.ends[branch].active) return;
+                if ((branch === 'top' || branch === 'bottom') && !canUseTopBottom) return;
+                if (t1 === state.ends[branch].val || t2 === state.ends[branch].val) targets.push(branch);
+            };
+            
+            checkEnd('left'); checkEnd('right'); checkEnd('top'); checkEnd('bottom');
+            return targets;
         }
 
         function processAction(action, data, reqPlayerId) {
             if(state.gameOver || reqPlayerId !== state.turn) return;
-
             let nextTurn = true;
 
             if (action === 'play') {
-                let idx = data;
+                let idx = data.idx;
+                let targetBranch = data.target;
                 let tile = state.hands[reqPlayerId][idx];
                 
-                // First turn rule: Must play Balak if it's empty table
                 if (state.table.length === 0) {
                     if (state.requiredFirstTile !== -1 && (tile[0] !== tile[1] || tile[0] !== state.requiredFirstTile)) {
-                        alert(`Anda harus memulai dengan Balak ${state.requiredFirstTile}!`);
-                        return;
+                        alert(`Anda harus memulai dengan Balak ${state.requiredFirstTile}!`); return;
                     }
-                    state.table.push([tile[0], tile[1]]);
-                    state.leftEnd = tile[0]; state.rightEnd = tile[1];
+                    let isBalak = tile[0] === tile[1];
+                    state.table.push({ tile: [tile[0], tile[1]], branch: 'center', isBalak: isBalak });
+                    
+                    if (isBalak) {
+                        state.isSpinnerActive = true;
+                        state.ends.left = { active: true, val: tile[0], isBalak: true };
+                        state.ends.right = { active: true, val: tile[0], isBalak: true };
+                        state.ends.top = { active: true, val: tile[0], isBalak: true };
+                        state.ends.bottom = { active: true, val: tile[0], isBalak: true };
+                    } else {
+                        state.isSpinnerActive = false;
+                        state.ends.left = { active: true, val: tile[0], isBalak: false };
+                        state.ends.right = { active: true, val: tile[1], isBalak: false };
+                    }
                     state.hands[reqPlayerId].splice(idx, 1);
                     state.consecutivePasses = 0;
-                    state.msg = `${getRoleName(reqPlayerId)} jalan.`;
+                    state.msg = `${getRoleName(reqPlayerId)} meletakkan kartu pertama.`;
                 } else {
-                    let [t1, t2] = tile;
-                    if (t1 === state.rightEnd) { state.table.push([t1, t2]); state.rightEnd = t2; }
-                    else if (t2 === state.rightEnd) { state.table.push([t2, t1]); state.rightEnd = t1; }
-                    else if (t1 === state.leftEnd) { state.table.unshift([t2, t1]); state.leftEnd = t2; }
-                    else if (t2 === state.leftEnd) { state.table.unshift([t1, t2]); state.leftEnd = t1; }
-                    else { nextTurn = false; alert("Kartu tidak valid!"); return; } // Invalid move
-
+                    let targetEnd = state.ends[targetBranch];
+                    if (!targetEnd || !targetEnd.active) { nextTurn = false; return; }
+                    
+                    let matchVal = targetEnd.val;
+                    let isBalak = tile[0] === tile[1];
+                    let placedT1, placedT2;
+                    if (tile[0] === matchVal) { placedT1 = tile[0]; placedT2 = tile[1]; }
+                    else if (tile[1] === matchVal) { placedT1 = tile[1]; placedT2 = tile[0]; }
+                    else { nextTurn = false; return; }
+                    
+                    targetEnd.val = placedT2;
+                    targetEnd.isBalak = isBalak;
+                    state.table.push({ tile: [placedT1, placedT2], branch: targetBranch, isBalak: isBalak });
+                    
                     state.hands[reqPlayerId].splice(idx, 1);
                     state.consecutivePasses = 0;
                     state.msg = `${getRoleName(reqPlayerId)} memasang kartu.`;
                 }
-
             } else if (action === 'draw') {
                 if(state.boneyard.length > 0) {
                     let c = state.boneyard.pop();
                     state.hands[reqPlayerId].push(c);
                     state.msg = `${getRoleName(reqPlayerId)} mengambil dari Bank.`;
-                    nextTurn = false; // They must keep playing after drawing
+                    nextTurn = false; 
                 }
             } else if (action === 'pass') {
                 state.consecutivePasses++;
@@ -610,13 +784,11 @@
                 if(isHost) broadcastState();
                 renderGaple();
                 return;
-            } // Game over check
+            } 
 
             if (nextTurn) {
                 state.turn = (state.turn + 1) % config.players;
-                if(config.mode === 'ai' && state.turn !== 0) {
-                    setTimeout(() => processAiTurn(), 1500);
-                }
+                if(config.mode === 'ai' && state.turn !== 0) setTimeout(() => processAiTurn(), 1500);
             }
             
             if(isHost) broadcastState();
@@ -624,7 +796,6 @@
         }
 
         function checkWinCondition() {
-            // Check if someone finished cards
             for(let p = 0; p < config.players; p++) {
                 if(state.hands[p].length === 0) {
                     state.gameOver = true;
@@ -633,45 +804,40 @@
                 }
             }
 
-            // Check if blocked (everyone passed in a row)
             if(state.consecutivePasses >= config.players) {
                 state.gameOver = true;
-                // Calculate scores
                 let scores = [];
                 for(let p = 0; p < config.players; p++) {
                     let sum = state.hands[p].reduce((acc, t) => acc + t[0] + t[1], 0);
                     scores.push({ id: p, sum: sum });
                 }
-                scores.sort((a,b) => a.sum - b.sum); // lowest is best
+                scores.sort((a,b) => a.sum - b.sum); 
                 let lowestScore = scores[0].sum;
                 let winners = scores.filter(s => s.sum === lowestScore).map(s => getRoleName(s.id));
-                
                 state.msg = `🛑 BLOCK! ${winners.join(' & ')} MENANG dengan sisa titik terkecil (${lowestScore}).`;
                 return true;
             }
-
             return false;
         }
 
         function processAiTurn() {
             if (state.gameOver || state.turn === 0 || config.mode !== 'ai') return;
-            
             let id = state.turn;
             let hand = state.hands[id];
             
-            // Try to play
-            let playableIdx = hand.findIndex(t => isValidMove(t));
-            
-            if (playableIdx !== -1) {
-                processAction('play', playableIdx, id);
-            } else {
-                // Must draw if bank available
-                if (state.boneyard.length > 0) {
-                    processAction('draw', null, id);
-                    setTimeout(() => processAiTurn(), 1000); // Try again
-                } else {
-                    processAction('pass', null, id);
+            for (let i = 0; i < hand.length; i++) {
+                let targets = getValidTargets(hand[i]);
+                if (targets.length > 0) {
+                    processAction('play', { idx: i, target: targets[0] }, id);
+                    return;
                 }
+            }
+            
+            if (state.boneyard.length > 0) {
+                processAction('draw', null, id);
+                setTimeout(() => processAiTurn(), 1000); 
+            } else {
+                processAction('pass', null, id);
             }
         }
 
