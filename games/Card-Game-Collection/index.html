@@ -1390,7 +1390,6 @@
         // ==========================================
         // HINT & SOLVER LOGIC
         // ==========================================
-        let aiMoveCache = [];
 
         function hashStateDetailed(s) {
             let t = s.tableaus.map(pile => pile.map(c=>c.suit[0]+c.realValue).join('')).sort().join('|');
