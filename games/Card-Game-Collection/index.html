@@ -1751,6 +1751,7 @@
         function actionSolver() {
             if (solverInterval) {
                 clearInterval(solverInterval);
+                clearTimeout(solverInterval);
                 solverInterval = null;
                 updateStatus("Solver dihentikan.");
                 if (selectedGame === 'freecell') setTimeout(autoCompleteStepFreecell, 150); // Jalankan kembali autocomplete jika solver dimatikan
@@ -1760,47 +1761,65 @@
             
             if (selectedGame === 'freecell') {
                 if (isSolverThinking) return;
-                isSolverThinking = true;
-                updateStatus("AI Sedang Berpikir...");
                 
-                startAsyncBeamSearchFreecell(state, (path) => {
-                    isSolverThinking = false;
-                    if (!path) {
-                        updateStatus("Solver mentok. Tidak ada jalan keluar.");
-                        return;
-                    }
-                    aiMoveCache = path;
-                    updateStatus("AI Menemukan Rute! Mengeksekusi...");
+                function runMpcCycle() {
+                    if (state.gameOver || solverInterval === null) return;
+                    if (state.isAnimating) { solverInterval = setTimeout(runMpcCycle, 100); return; }
                     
-                    solverInterval = setInterval(() => {
-                        if (state.gameOver || aiMoveCache.length === 0) {
-                            clearInterval(solverInterval);
+                    updateStatus("AI Sedang Memperbarui Strategi...");
+                    isSolverThinking = true;
+                    
+                    startAsyncBeamSearchFreecell(state, (path) => {
+                        isSolverThinking = false;
+                        if (!path || path.length === 0 || solverInterval === null) {
+                            if (solverInterval) { clearInterval(solverInterval); clearTimeout(solverInterval); }
                             solverInterval = null;
-                            if(aiMoveCache.length === 0 && !state.gameOver) updateStatus("Langkah AI Selesai.");
+                            updateStatus("AI Terblokir (Mentok). Tidak ada rute.");
+                            setTimeout(autoCompleteStepFreecell, 150);
                             return;
                         }
-                        if (state.isAnimating) return;
                         
-                        let move = aiMoveCache.shift();
-                        let sourceParts = move.sourceData.split('|');
-                        let sourceId = '';
-                        if (sourceParts[0] === 'freecell') sourceId = `card-freecell-${sourceParts[1]}`;
-                        else sourceId = `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                        updateStatus("Mengeksekusi Strategi AI...");
+                        let partialPath = path.slice(0, 4); // Ambil maksimal 4 langkah (2 detik), lalu replanning
                         
-                        let targetId = '';
-                        if (move.target.type === 'foundation') {
-                            let fPile = state.foundations[move.target.idx];
-                            targetId = fPile.length > 0 ? `card-foundation-${move.target.idx}` : `slot-foundation-${move.target.idx}`;
-                        } else if (move.target.type === 'tableau') {
-                            let tPile = state.tableaus[move.target.idx];
-                            targetId = tPile.length > 0 ? `card-tableau-${move.target.idx}-${tPile.length-1}` : `slot-tableau-${move.target.idx}`;
-                        } else if (move.target.type === 'freecell') {
-                            targetId = `slot-freecell-${move.target.idx}`;
-                        }
-                        
-                        executeAutoMoveFreecell(move.sourceData, move.target, sourceId, targetId, move.cards, true);
-                    }, 400); // 400ms speed for smoother execution
-                });
+                        solverInterval = setInterval(() => {
+                            if (state.gameOver || solverInterval === null) {
+                                if (solverInterval) clearInterval(solverInterval);
+                                solverInterval = null;
+                                return;
+                            }
+                            if (state.isAnimating) return;
+                            
+                            if (partialPath.length === 0) {
+                                clearInterval(solverInterval);
+                                solverInterval = setTimeout(runMpcCycle, 0);
+                                return;
+                            }
+                            
+                            let move = partialPath.shift();
+                            let sourceParts = move.sourceData.split('|');
+                            let sourceId = '';
+                            if (sourceParts[0] === 'freecell') sourceId = `card-freecell-${sourceParts[1]}`;
+                            else sourceId = `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                            
+                            let targetId = '';
+                            if (move.target.type === 'foundation') {
+                                let fPile = state.foundations[move.target.idx];
+                                targetId = fPile.length > 0 ? `card-foundation-${move.target.idx}` : `slot-foundation-${move.target.idx}`;
+                            } else if (move.target.type === 'tableau') {
+                                let tPile = state.tableaus[move.target.idx];
+                                targetId = tPile.length > 0 ? `card-tableau-${move.target.idx}-${tPile.length-1}` : `slot-tableau-${move.target.idx}`;
+                            } else if (move.target.type === 'freecell') {
+                                targetId = `slot-freecell-${move.target.idx}`;
+                            }
+                            
+                            executeAutoMoveFreecell(move.sourceData, move.target, sourceId, targetId, move.cards, true);
+                        }, 500);
+                    });
+                }
+                
+                solverInterval = "starting";
+                runMpcCycle();
             } else {
                 solverInterval = setInterval(() => {
                     if (state.gameOver) {

@@ -363,7 +363,12 @@
                     set.push([i, j]);
                 }
             }
-            return set.sort(() => Math.random() - 0.5);
+            // Fisher-Yates shuffle untuk pengacakan yang adil dan merata
+            for (let i = set.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [set[i], set[j]] = [set[j], set[i]];
+            }
+            return set;
         }
 
         function getTileWeight(tile) {
@@ -432,7 +437,13 @@
                 state.requiredFirstTile = highestBalak;
                 state.turn = firstPlayer;
 
-                // In AI mode, if AI is first, trigger it
+                if (highestBalak !== -1) {
+                    // AUTO-PLAY FIRST TILE instantly to start the board
+                    processAction('play', { idx: tileIdx, target: 'center' }, firstPlayer);
+                    return; 
+                }
+
+                // In AI mode, if AI is first and no balak, trigger it
                 if(config.mode === 'ai' && state.turn !== 0) {
                     setTimeout(() => processAiTurn(), 2000);
                 }
