@@ -152,8 +152,15 @@
     <div id="mode-modal">
         <div class="modal-content">
             <h2 id="modal-title">Pilih Mode</h2>
-            <!-- <button class="mode-btn" onclick="startGame('local')"><i class="fa-solid fa-user-group"></i> 1v1 Local</button> -->
-            <button class="mode-btn ai" onclick="startGame('ai')"><i class="fa-solid fa-robot"></i> Lawan Dealer / AI</button>
+            <div id="modal-buttons-default">
+                <button class="mode-btn ai" onclick="startGame('ai')"><i class="fa-solid fa-robot"></i> Lawan Dealer / AI</button>
+            </div>
+            <div id="modal-buttons-freecell" style="display: none; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                <button class="mode-btn" onclick="startGame('easy')" style="background: rgba(40,167,69,0.2); border: 1px solid #28a745; color: #28a745;"><i class="fa-solid fa-leaf"></i> Easy</button>
+                <button class="mode-btn" onclick="startGame('medium')" style="background: rgba(0,123,255,0.2); border: 1px solid #007bff; color: #007bff;"><i class="fa-solid fa-star"></i> Medium</button>
+                <button class="mode-btn" onclick="startGame('hard')" style="background: rgba(253,126,20,0.2); border: 1px solid #fd7e14; color: #fd7e14;"><i class="fa-solid fa-fire"></i> Hard</button>
+                <button class="mode-btn" onclick="startGame('expert')" style="background: rgba(220,53,69,0.2); border: 1px solid #dc3545; color: #dc3545;"><i class="fa-solid fa-skull"></i> Expert</button>
+            </div>
             <button class="close-modal" onclick="closeModeSelect()">Batal</button>
         </div>
     </div>
@@ -208,21 +215,31 @@
         // --- UI Flow ---
         function openModeSelect(gameId) {
             selectedGame = gameId;
-            if(gameId === 'solitaire') {
+            if (gameId === 'solitaire') {
                 document.getElementById('modal-title').innerText = 'Solitaire (Klondike)';
-            } else if(gameId === 'blackjack') {
+            } else if (gameId === 'blackjack') {
                 document.getElementById('modal-title').innerText = 'Blackjack (21)';
-            } else if(gameId === 'freecell') {
+            } else if (gameId === 'freecell') {
                 document.getElementById('modal-title').innerText = 'Freecell';
-            } else {
+            } else if (gameId === 'highlow') {
                 document.getElementById('modal-title').innerText = 'High-Low';
             }
+            
+            if (gameId === 'freecell') {
+                document.getElementById('modal-buttons-default').style.display = 'none';
+                document.getElementById('modal-buttons-freecell').style.display = 'flex';
+            } else {
+                document.getElementById('modal-buttons-default').style.display = 'block';
+                document.getElementById('modal-buttons-freecell').style.display = 'none';
+            }
+            
             document.getElementById('mode-modal').style.display = 'flex';
         }
         function closeModeSelect() {
             document.getElementById('mode-modal').style.display = 'none';
         }
         function startGame(mode) {
+            currentDifficulty = mode;
             gameMode = mode;
             closeModeSelect();
             document.getElementById('screen-hub').classList.remove('active');
@@ -240,7 +257,7 @@
             if(selectedGame === 'blackjack') initBlackjack();
             else if(selectedGame === 'highlow') initHighLow();
             else if(selectedGame === 'solitaire') initSolitaire();
-            else if(selectedGame === 'freecell') initFreecell();
+            else if(selectedGame === 'freecell') initFreecell(currentDifficulty);
         }
         function backToHub() {
             selectedGame = '';
@@ -431,8 +448,39 @@
         // ----------------------------------------------------
         // FREECELL LOGIC
         // ----------------------------------------------------
-        function initFreecell() {
+        function shuffleArray(array) {
+            for(let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                let temp = array[i]; array[i] = array[j]; array[j] = temp;
+            }
+        }
+
+        function initFreecell(difficulty = 'medium') {
             let fullDeck = createDeck();
+            
+            if (difficulty === 'easy') {
+                fullDeck.sort((a,b) => b.realValue - a.realValue);
+                for (let k = 0; k < 5; k++) {
+                    for (let i = 0; i < 51; i++) {
+                        if (Math.random() < 0.4) {
+                            let temp = fullDeck[i]; fullDeck[i] = fullDeck[i+1]; fullDeck[i+1] = temp;
+                        }
+                    }
+                }
+            } else if (difficulty === 'medium') {
+                shuffleArray(fullDeck);
+            } else if (difficulty === 'hard') {
+                let aces = fullDeck.filter(c => c.realValue === 1);
+                let others = fullDeck.filter(c => c.realValue !== 1);
+                shuffleArray(others);
+                fullDeck = [...aces, ...others];
+            } else if (difficulty === 'expert') {
+                let small = fullDeck.filter(c => c.realValue <= 3);
+                let mid = fullDeck.filter(c => c.realValue > 3 && c.realValue < 12);
+                let big = fullDeck.filter(c => c.realValue >= 12);
+                shuffleArray(small); shuffleArray(mid); shuffleArray(big);
+                fullDeck = [...small, ...mid, ...big];
+            }
             
             state = {
                 freecells: [null, null, null, null],
@@ -593,8 +641,13 @@
         }
 
         function actionRestart() {
-            if (selectedGame === 'solitaire') initSolitaire();
-            else if (selectedGame === 'freecell') initFreecell();
+            if (selectedGame === 'solitaire') {
+                initSolitaire();
+                renderSolitaire();
+            } else if (selectedGame === 'freecell') {
+                initFreecell(currentDifficulty || 'medium');
+                renderFreecell();
+            }
         }
 
         // --- Render Helpers for Solitaire ---
@@ -717,6 +770,12 @@
             e.dataTransfer.effectAllowed = "move";
         }
 
+        function onDropFreecell(e) {
+            e.preventDefault();
+            aiMoveCache = [];
+            e.dataTransfer.dropEffect = "move";
+        }
+
         function onDragOver(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = "move";
@@ -727,7 +786,8 @@
             if(!dragInfo) return;
             
             if(selectedGame === 'freecell') {
-                onDropFreecell(dragInfo, targetData);
+                aiMoveCache = [];
+                onDropFreecellLogic(dragInfo, targetData);
                 dragInfo = null;
                 return;
             }
@@ -997,7 +1057,28 @@
         // ==========================================
         // FREECELL SPECIFIC LOGIC
         // ==========================================
-        function onDropFreecell(sourceData, targetData) {
+        let aiMoveCache = [];
+
+        function getBeamSearchMoves() {
+            if (aiMoveCache.length > 0) return aiMoveCache;
+            let moves = [];
+            // Basic move generation: Foundations > Freecell > Tableaus
+            for (let i=0; i<8; i++) {
+                let tPile = state.tableaus[i];
+                if (tPile.length === 0) continue;
+                let card = tPile[tPile.length - 1];
+                // Check Foundation
+                for (let j=0; j<4; j++) {
+                    let f = state.foundations[j];
+                    if ((f.length === 0 && card.realValue === 1) || (f.length > 0 && f[f.length-1].suit === card.suit && card.realValue === f[f.length-1].realValue + 1))
+                        moves.push({ type: 'foundation', idx: j, from: `tableau|${i}|${tPile.length-1}`, score: 1000 });
+                }
+            }
+            aiMoveCache = moves.sort((a,b) => b.score - a.score);
+            return aiMoveCache;
+        }
+
+        function onDropFreecellLogic(sourceData, targetData) {
             let sourceParts = sourceData.split('|');
             let targetParts = targetData.split('|');
             
@@ -1062,7 +1143,8 @@
         }
 
         function actionDoubleClickFreecell(sourceData) {
-            if(state.gameOver) return;
+            if (state.gameOver || state.isAnimating) return;
+            aiMoveCache = [];
             let sourceParts = sourceData.split('|');
             let sourceArea = sourceParts[0];
             let sourcePileIdx = parseInt(sourceParts[1]);
@@ -1308,6 +1390,158 @@
         // ==========================================
         // HINT & SOLVER LOGIC
         // ==========================================
+        let aiMoveCache = [];
+
+        function hashStateDetailed(s) {
+            let t = s.tableaus.map(pile => pile.map(c=>c.suit[0]+c.realValue).join('')).sort().join('|');
+            let f = s.freecells.map(c => c ? c.suit[0]+c.realValue : '').sort().join('|');
+            return t + '#' + f;
+        }
+
+        function evaluateStateFreecell(s) {
+            let score = 0;
+            s.foundations.forEach(f => score += f.length * 100);
+            let emptyTabs = s.tableaus.filter(t => t.length === 0).length;
+            score += emptyTabs * 50;
+            let emptyFree = s.freecells.filter(c => c === null).length;
+            score += emptyFree * 30;
+            for(let i=0; i<8; i++) {
+                let t = s.tableaus[i];
+                let sortedLen = 0;
+                for(let j=t.length-1; j>0; j--) {
+                    if (t[j-1].color !== t[j].color && t[j-1].realValue === t[j].realValue + 1) sortedLen++;
+                    else break;
+                }
+                score += sortedLen * 5;
+            }
+            return score;
+        }
+
+        function generateAllMovesFreecell(s) {
+            let moves = [];
+            let emptyFreecells = s.freecells.filter(c => c === null).length;
+            let emptyTableaus = s.tableaus.filter(t => t.length === 0).length;
+
+            function getTargets(cardsToMove, sourceArea, sourcePileIdx) {
+                let validTargets = [];
+                if (cardsToMove.length === 1) {
+                    for(let i=0; i<4; i++) {
+                        let fPile = s.foundations[i];
+                        if (fPile.length === 0 && cardsToMove[0].realValue === 1) validTargets.push({ type: 'foundation', idx: i, score:0 });
+                        else if (fPile.length > 0) {
+                            let targetCard = fPile[fPile.length - 1];
+                            if (cardsToMove[0].suit === targetCard.suit && cardsToMove[0].realValue === targetCard.realValue + 1) validTargets.push({ type: 'foundation', idx: i, score:0 });
+                        }
+                    }
+                }
+                for(let i=0; i<8; i++) {
+                    if(sourceArea === 'tableau' && sourcePileIdx === i) continue;
+                    let tPile = s.tableaus[i];
+                    let eTabs = (tPile.length === 0) ? emptyTableaus - 1 : emptyTableaus;
+                    let maxMove = (emptyFreecells + 1) * Math.pow(2, eTabs);
+                    if (cardsToMove.length <= maxMove) {
+                        if (tPile.length === 0) {
+                            validTargets.push({ type: 'tableau', idx: i, score:0 });
+                        } else {
+                            let targetCard = tPile[tPile.length - 1];
+                            if (cardsToMove[0].color !== targetCard.color && cardsToMove[0].realValue === targetCard.realValue - 1) validTargets.push({ type: 'tableau', idx: i, score:0 });
+                        }
+                    }
+                }
+                if (cardsToMove.length === 1) {
+                    for (let i=0; i<4; i++) {
+                        if (s.freecells[i] === null) validTargets.push({ type: 'freecell', idx: i, score:0 });
+                    }
+                }
+                return validTargets;
+            }
+
+            for (let i = 0; i < 4; i++) {
+                if (s.freecells[i]) {
+                    let targets = getTargets([s.freecells[i]], 'freecell', i);
+                    targets.forEach(t => moves.push({ sourceData: `freecell|${i}`, cards: [s.freecells[i]], target: t }));
+                }
+            }
+            for (let i = 0; i < 8; i++) {
+                let tPile = s.tableaus[i];
+                for (let j = 0; j < tPile.length; j++) {
+                    let cards = tPile.slice(j);
+                    let validStack = true;
+                    for(let k=0; k<cards.length-1; k++) {
+                        if (cards[k].color === cards[k+1].color || cards[k].realValue !== cards[k+1].realValue + 1) { validStack = false; break; }
+                    }
+                    if (validStack) {
+                        let targets = getTargets(cards, 'tableau', i);
+                        targets.forEach(t => moves.push({ sourceData: `tableau|${i}|${j}`, cards: cards, target: t }));
+                    }
+                }
+            }
+            return moves;
+        }
+
+        function applyMoveFreecell(s, move) {
+            let ns = JSON.parse(JSON.stringify(s));
+            let sourceParts = move.sourceData.split('|');
+            if (sourceParts[0] === 'freecell') {
+                ns.freecells[parseInt(sourceParts[1])] = null;
+            } else if (sourceParts[0] === 'tableau') {
+                let pileIdx = parseInt(sourceParts[1]);
+                let cardIdx = parseInt(sourceParts[2]);
+                ns.tableaus[pileIdx] = ns.tableaus[pileIdx].slice(0, cardIdx);
+            }
+            if (move.target.type === 'foundation') {
+                ns.foundations[move.target.idx].push(move.cards[0]);
+            } else if (move.target.type === 'freecell') {
+                ns.freecells[move.target.idx] = move.cards[0];
+            } else if (move.target.type === 'tableau') {
+                ns.tableaus[move.target.idx].push(...move.cards);
+            }
+            return ns;
+        }
+
+        function getBeamSearchMoveFreecell() {
+            if (aiMoveCache.length > 0) return aiMoveCache.shift();
+
+            let beamWidth = 25;
+            let maxDepth = 12;
+            
+            let initialNode = { s: state, path: [], score: evaluateStateFreecell(state) };
+            let currentBeam = [initialNode];
+            let visited = new Set();
+            visited.add(hashStateDetailed(state));
+            
+            let bestOverallNode = initialNode;
+
+            for(let depth = 0; depth < maxDepth; depth++) {
+                let nextBeam = [];
+                for(let node of currentBeam) {
+                    let moves = generateAllMovesFreecell(node.s);
+                    for(let move of moves) {
+                        if (move.sourceData.startsWith('tableau') && move.target.type === 'tableau' && move.sourceData.endsWith('|0') && node.s.tableaus[move.target.idx].length === 0) continue;
+                        
+                        let ns = applyMoveFreecell(node.s, move);
+                        let hash = hashStateDetailed(ns);
+                        if (!visited.has(hash)) {
+                            visited.add(hash);
+                            let score = evaluateStateFreecell(ns);
+                            let newNode = { s: ns, path: [...node.path, move], score: score };
+                            nextBeam.push(newNode);
+                            if (score > bestOverallNode.score) bestOverallNode = newNode;
+                        }
+                    }
+                }
+                if (nextBeam.length === 0) break;
+                nextBeam.sort((a,b) => b.score - a.score);
+                currentBeam = nextBeam.slice(0, beamWidth);
+            }
+
+            if (bestOverallNode.path.length > 0) {
+                aiMoveCache = bestOverallNode.path;
+                return aiMoveCache.shift();
+            }
+            return null;
+        }
+
         function getValidTargetsSolitaire(cardsToMove, sourceArea, sourcePileIdx) {
             let validTargets = [];
             if (cardsToMove.length === 1) {
@@ -1369,6 +1603,8 @@
         }
 
         function getBestMove() {
+            if (selectedGame === 'freecell') return getBeamSearchMoveFreecell();
+
             let possibleMoves = [];
 
             if (selectedGame === 'solitaire') {
@@ -1429,8 +1665,6 @@
                         if (selectedGame === 'solitaire') {
                             if (cardIdx > 0 && !state.tableaus[pileIdx][cardIdx-1].faceUp) adjustedScore += 50; // High priority: flip hidden cards
                             if (cardIdx === 0 && target.type === 'tableau' && move.cards[0].realValue === 13) adjustedScore -= 100; // King to empty is useless
-                        } else if (selectedGame === 'freecell') {
-                            if (cardIdx === 0 && target.type === 'tableau') adjustedScore -= 100; // Tableau to empty tableau is useless
                         }
                     }
                     if (adjustedScore > bestScore) {
@@ -1495,7 +1729,7 @@
                 if (state.isAnimating) return;
                 
                 let move = getBestMove();
-                if (move && move.target.score >= 0) { // Exclude negative score moves (useless cycles)
+                if (move && (selectedGame === 'freecell' || move.target.score >= 0)) { 
                     let sourceParts = move.sourceData.split('|');
                     let sourceId = '';
                     if (selectedGame === 'solitaire') {
