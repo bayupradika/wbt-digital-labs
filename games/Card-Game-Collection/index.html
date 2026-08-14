@@ -9,10 +9,10 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body {
-            background: #070913; color: #f8fafc; min-height: 100vh;
+            background: #070913; color: #f8fafc; height: 100vh; overflow: hidden;
             background-image: radial-gradient(circle at 10% 20%, rgba(239,68,68,0.15) 0%, transparent 40%),
                               radial-gradient(circle at 90% 80%, rgba(59,130,246,0.15) 0%, transparent 40%);
-            display: flex; flex-direction: column; align-items: center; padding: 40px 24px;
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
         }
 
         .header { text-align: center; margin-bottom: 30px; }
@@ -26,7 +26,7 @@
         .back-btn:hover { color: white; }
 
         /* Screens */
-        .screen { display: none; width: 100%; max-width: 900px; flex-direction: column; align-items: center; }
+        .screen { display: none; width: 100%; max-width: 1000px; flex-direction: column; align-items: center; height: 100%; }
         .screen.active { display: flex; }
 
         /* Hub Menu */
@@ -61,11 +61,11 @@
         .close-modal { margin-top: 15px; background: none; border: none; color: #94a3b8; cursor: pointer; text-decoration: underline; }
 
         /* Game Board Area */
-        .board-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(15,23,42,0.8); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+        .board-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: rgba(15,23,42,0.8); padding: 15px 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
         .board-header h2 { color: #ef4444; margin:0; font-size: 24px; }
         .status-box { font-size: 18px; font-weight: 700; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.1); }
         
-        .board-container { background: rgba(22,101,52,0.6); border: 2px solid #14532d; border-radius: 16px; padding: 40px; width: 100%; min-height: 500px; position: relative; }
+        .board-container { background: rgba(22,101,52,0.6); border: 2px solid #14532d; border-radius: 16px; padding: 20px; width: 100%; flex: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
         
         /* Playing Cards */
         .card-area { display: flex; gap: -30px; justify-content: center; min-height: 140px; margin-bottom: 30px; }
@@ -98,14 +98,14 @@
         .score-box { background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 6px; font-size: 14px; margin-top: 5px; display: inline-block; }
 
         /* SOLITAIRE SPECIFIC */
-        .solitaire-board { display: flex; flex-direction: column; width: 100%; max-width: 800px; margin: 0 auto; gap: 30px; user-select: none; }
-        .solitaire-top { display: flex; justify-content: space-between; width: 100%; height: 140px; }
+        .solitaire-board { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 800px; margin: 0 auto; gap: 20px; user-select: none; }
+        .solitaire-top { display: flex; justify-content: space-between; width: 100%; height: 140px; flex-shrink: 0; }
         .solitaire-top-left { display: flex; gap: 20px; width: 50%; }
         .solitaire-top-right { display: flex; gap: 15px; width: 50%; justify-content: flex-end; }
         
         .card-slot { width: 90px; height: 130px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; position: relative; }
         
-        .solitaire-tableau { display: flex; justify-content: space-between; width: 100%; min-height: 400px; }
+        .solitaire-tableau { display: flex; justify-content: space-between; width: 100%; flex: 1; position: relative; }
         .tableau-col { width: 90px; position: relative; }
         
         /* Overriding playing card for Solitaire positioning */
@@ -122,13 +122,13 @@
 <body>
     <a href="../../index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> WBT Digital Labs</a>
 
-    <div class="header">
-        <h1>Card Game Collection</h1>
-        <p>Rasakan sensasi permainan kartu kasino langsung dari browser Anda. Bermain secara lokal atau tantang Dealer (AI).</p>
-    </div>
-
     <!-- HUB SCREEN -->
-    <div id="screen-hub" class="screen active">
+    <div id="screen-hub" class="screen active" style="align-items: center; justify-content: center;">
+        <div class="header">
+            <h1>Card Game Collection</h1>
+            <p>Rasakan sensasi permainan kartu kasino langsung dari browser Anda. Bermain secara lokal atau tantang Dealer (AI).</p>
+        </div>
+        
         <div class="hub-grid">
             <div class="game-card" onclick="openModeSelect('solitaire')">
                 <i class="fa-solid fa-layer-group game-icon"></i>
@@ -159,11 +159,15 @@
     </div>
 
     <!-- GAME SCREEN -->
-    <div id="screen-game" class="screen">
+    <div id="screen-game" class="screen" style="align-items: stretch;">
         <div class="board-header">
             <div style="display:flex; align-items:center;">
                 <button class="btn-back-hub" onclick="backToHub()"><i class="fa-solid fa-house"></i></button>
-                <h2 id="game-title">Nama Game</h2>
+                <h2 id="game-title" style="margin-right: 20px;">Nama Game</h2>
+                
+                <!-- Extraneous controls -->
+                <button id="btn-undo" class="btn-action secondary" style="padding: 8px 16px; display: none; margin-right: 10px;" onclick="actionUndo()"><i class="fa-solid fa-rotate-left"></i> Undo</button>
+                <button id="btn-restart" class="btn-action" style="padding: 8px 16px; display: none;" onclick="initSolitaire()"><i class="fa-solid fa-rotate-right"></i> Ulang</button>
             </div>
             <div class="status-box" id="game-status">Membagi Kartu...</div>
         </div>
@@ -223,11 +227,17 @@
             let titles = { 'blackjack': 'Blackjack', 'highlow': 'High-Low', 'solitaire': 'Solitaire (Klondike)' };
             document.getElementById('game-title').innerText = titles[selectedGame];
             
+            document.getElementById('btn-undo').style.display = selectedGame === 'solitaire' ? 'inline-block' : 'none';
+            document.getElementById('btn-restart').style.display = selectedGame === 'solitaire' ? 'inline-block' : 'none';
+            
             if(selectedGame === 'blackjack') initBlackjack();
             else if(selectedGame === 'highlow') initHighLow();
             else if(selectedGame === 'solitaire') initSolitaire();
         }
         function backToHub() {
+            selectedGame = '';
+            document.getElementById('btn-undo').style.display = 'none';
+            document.getElementById('btn-restart').style.display = 'none';
             document.getElementById('screen-game').classList.remove('active');
             document.getElementById('screen-hub').classList.add('active');
         }
@@ -421,6 +431,7 @@
                 waste: [],
                 foundations: [[], [], [], []], // Spades, Hearts, Clubs, Diamonds
                 tableaus: [[], [], [], [], [], [], []],
+                history: [],
                 gameOver: false,
                 msg: "Pindahkan semua kartu ke 4 tumpukan atas!"
             };
@@ -443,16 +454,44 @@
             renderSolitaire();
         }
 
+        function saveState() {
+            if (selectedGame !== 'solitaire') return;
+            let clone = {
+                stock: JSON.parse(JSON.stringify(state.stock)),
+                waste: JSON.parse(JSON.stringify(state.waste)),
+                foundations: JSON.parse(JSON.stringify(state.foundations)),
+                tableaus: JSON.parse(JSON.stringify(state.tableaus)),
+                gameOver: state.gameOver,
+                msg: state.msg
+            };
+            state.history.push(clone);
+        }
+
+        function actionUndo() {
+            if (selectedGame !== 'solitaire' || !state.history || state.history.length === 0) return;
+            let prevState = state.history.pop();
+            state.stock = prevState.stock;
+            state.waste = prevState.waste;
+            state.foundations = prevState.foundations;
+            state.tableaus = prevState.tableaus;
+            state.gameOver = prevState.gameOver;
+            state.msg = prevState.msg;
+            renderSolitaire();
+        }
+
         // --- Render Helpers for Solitaire ---
         function getSolCardHTML(card, topOffset = 0, draggable = false, dragData = "") {
+            let htmlId = dragData ? `id="card-${dragData.replace(/\|/g, '-')}"` : '';
             if (!card.faceUp) {
-                return `<div class="sol-card card-hidden" style="top: ${topOffset}px;"></div>`;
+                return `<div class="sol-card card-hidden" style="top: ${topOffset}px;" ${htmlId}></div>`;
             }
             return `
                 <div class="sol-card card-${card.color}" 
                      style="top: ${topOffset}px;" 
                      draggable="${draggable}" 
-                     ondragstart="onDragStart(event, '${dragData}')">
+                     ondragstart="onDragStart(event, '${dragData}')"
+                     ondblclick="actionDoubleClick('${dragData}')"
+                     ${htmlId}>
                     <div class="card-top">${card.value}${card.suit}</div>
                     <div class="card-center">${card.suit}</div>
                     <div class="card-bottom">${card.value}${card.suit}</div>
@@ -486,7 +525,7 @@
             const suitIcons = ['♠', '♥', '♣', '♦'];
             for (let i = 0; i < 4; i++) {
                 let fPile = state.foundations[i];
-                foundationsHtml += `<div class="card-slot" ondragover="onDragOver(event)" ondrop="onDrop(event, 'foundation|${i}')">`;
+                foundationsHtml += `<div class="card-slot" id="slot-foundation-${i}" ondragover="onDragOver(event)" ondrop="onDrop(event, 'foundation|${i}')">`;
                 if (fPile.length > 0) {
                     let topF = fPile[fPile.length - 1];
                     foundationsHtml += getSolCardHTML(topF, 0, true, `foundation|${i}`);
@@ -500,7 +539,7 @@
             let tableausHtml = '';
             for (let i = 0; i < 7; i++) {
                 let tPile = state.tableaus[i];
-                tableausHtml += `<div class="tableau-col card-slot" ondragover="onDragOver(event)" ondrop="onDrop(event, 'tableau|${i}')">`;
+                tableausHtml += `<div class="tableau-col card-slot" id="slot-tableau-${i}" ondragover="onDragOver(event)" ondrop="onDrop(event, 'tableau|${i}')">`;
                 
                 let topOffset = 0;
                 for (let j = 0; j < tPile.length; j++) {
@@ -535,6 +574,7 @@
 
         function clickStock() {
             if(state.gameOver) return;
+            saveState();
             if (state.stock.length > 0) {
                 let card = state.stock.pop();
                 card.faceUp = true;
@@ -620,6 +660,7 @@
 
             // Execute Move
             if (valid) {
+                saveState();
                 // Remove from source
                 if (sourceArea === 'waste') state.waste.pop();
                 else if (sourceArea === 'foundation') state.foundations[sourcePileIdx].pop();
@@ -647,6 +688,135 @@
                 state.gameOver = true;
                 state.msg = "Selamat! Anda Berhasil Menyelesaikan Solitaire!";
             }
+        }
+
+        function actionDoubleClick(sourceData) {
+            if(state.gameOver) return;
+            let sourceParts = sourceData.split('|');
+            let sourceArea = sourceParts[0];
+            let sourcePileIdx = parseInt(sourceParts[1]);
+            let cardIdx = parseInt(sourceParts[2] || 0);
+
+            let cardsToMove = [];
+            if (sourceArea === 'waste') cardsToMove = [state.waste[state.waste.length - 1]];
+            else if (sourceArea === 'foundation') return; 
+            else if (sourceArea === 'tableau') {
+                let tPile = state.tableaus[sourcePileIdx];
+                cardsToMove = tPile.slice(cardIdx);
+            }
+            if(!cardsToMove || cardsToMove.length === 0) return;
+
+            let validTargets = [];
+
+            if (cardsToMove.length === 1) {
+                for(let i=0; i<4; i++) {
+                    let fPile = state.foundations[i];
+                    if (fPile.length === 0) {
+                        if (cardsToMove[0].realValue === 1) validTargets.push({ type: 'foundation', idx: i, score: 100 });
+                    } else {
+                        let targetCard = fPile[fPile.length - 1];
+                        if (cardsToMove[0].suit === targetCard.suit && cardsToMove[0].realValue === targetCard.realValue + 1) {
+                            validTargets.push({ type: 'foundation', idx: i, score: 100 });
+                        }
+                    }
+                }
+            }
+
+            for(let i=0; i<7; i++) {
+                if(sourceArea === 'tableau' && sourcePileIdx === i) continue;
+                let tPile = state.tableaus[i];
+                if (tPile.length === 0) {
+                    if (cardsToMove[0].realValue === 13) {
+                        if (sourceArea === 'tableau' && cardIdx === 0) continue;
+                        validTargets.push({ type: 'tableau', idx: i, score: 10 });
+                    }
+                } else {
+                    let targetCard = tPile[tPile.length - 1];
+                    if (cardsToMove[0].color !== targetCard.color && cardsToMove[0].realValue === targetCard.realValue - 1) {
+                        let score = 20;
+                        if (tPile.length > 1) score += 30; 
+                        let hiddenCards = tPile.filter(c => !c.faceUp).length;
+                        score += hiddenCards;
+                        validTargets.push({ type: 'tableau', idx: i, score: score });
+                    }
+                }
+            }
+
+            if (validTargets.length > 0) {
+                validTargets.sort((a,b) => b.score - a.score);
+                let bestTarget = validTargets[0];
+                
+                let sourceId = `card-${sourceData.replace(/\|/g, '-')}`;
+                let targetId = '';
+                if(bestTarget.type === 'foundation') {
+                    let fPile = state.foundations[bestTarget.idx];
+                    targetId = fPile.length > 0 ? `card-foundation-${bestTarget.idx}` : `slot-foundation-${bestTarget.idx}`;
+                } else {
+                    let tPile = state.tableaus[bestTarget.idx];
+                    targetId = tPile.length > 0 ? `card-tableau-${bestTarget.idx}-${tPile.length-1}` : `slot-tableau-${bestTarget.idx}`;
+                }
+
+                executeAutoMove(sourceData, bestTarget, sourceId, targetId, cardsToMove);
+            }
+        }
+
+        function executeAutoMove(sourceData, bestTarget, sourceId, targetId, cardsToMove) {
+            saveState();
+            let sourceEl = document.getElementById(sourceId);
+            let targetEl = document.getElementById(targetId);
+            
+            if (sourceEl && targetEl) {
+                let sRect = sourceEl.getBoundingClientRect();
+                let tRect = targetEl.getBoundingClientRect();
+                
+                let clone = sourceEl.cloneNode(true);
+                clone.id = "";
+                clone.style.position = "fixed";
+                clone.style.left = sRect.left + "px";
+                clone.style.top = sRect.top + "px";
+                clone.style.zIndex = 1000;
+                clone.style.transition = "all 0.2s ease-out";
+                clone.style.pointerEvents = "none";
+                document.body.appendChild(clone);
+                
+                sourceEl.style.opacity = '0';
+                
+                setTimeout(() => {
+                    let targetTop = tRect.top;
+                    if (bestTarget.type === 'tableau' && targetEl.classList.contains('sol-card')) targetTop += 30;
+                    clone.style.left = tRect.left + "px";
+                    clone.style.top = targetTop + "px";
+                }, 10);
+                
+                setTimeout(() => {
+                    clone.remove();
+                    finalizeMove(sourceData, bestTarget, cardsToMove);
+                }, 210);
+            } else {
+                finalizeMove(sourceData, bestTarget, cardsToMove);
+            }
+        }
+
+        function finalizeMove(sourceData, target, cardsToMove) {
+            let sourceParts = sourceData.split('|');
+            let sourceArea = sourceParts[0];
+            let sourcePileIdx = parseInt(sourceParts[1]);
+            let cardIdx = parseInt(sourceParts[2] || 0);
+
+            if (sourceArea === 'waste') state.waste.pop();
+            else if (sourceArea === 'foundation') state.foundations[sourcePileIdx].pop();
+            else if (sourceArea === 'tableau') state.tableaus[sourcePileIdx].splice(cardIdx);
+
+            if (target.type === 'foundation') state.foundations[target.idx].push(cardsToMove[0]);
+            else if (target.type === 'tableau') state.tableaus[target.idx].push(...cardsToMove);
+
+            if (sourceArea === 'tableau' && state.tableaus[sourcePileIdx].length > 0) {
+                let newTop = state.tableaus[sourcePileIdx][state.tableaus[sourcePileIdx].length - 1];
+                if (!newTop.faceUp) newTop.faceUp = true;
+            }
+
+            checkSolitaireWin();
+            renderSolitaire();
         }
 
     </script>
