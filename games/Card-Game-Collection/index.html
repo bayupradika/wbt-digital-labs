@@ -1512,8 +1512,8 @@
         let isSolverThinking = false;
 
         function startAsyncBeamSearchFreecell(initialState, callback) {
-            let beamWidth = 100;
-            let maxDepth = 150;
+            let beamWidth = 150; // Lebih lebar agar lebih pintar
+            let maxDepth = 40; // Kedalaman 40 cukup karena kita melakukan replanning tiap 4 langkah
             
             let currentBeam = [{ s: initialState, path: [], score: evaluateStateFreecell(initialState) }];
             let visited = new Set();
@@ -1522,62 +1522,67 @@
             let bestOverallNode = currentBeam[0];
             let depth = 0;
 
-            function searchDepth() {
-                if (depth >= maxDepth || currentBeam.length === 0) {
-                    callback(bestOverallNode.path.length > 0 ? bestOverallNode.path : null);
-                    return;
-                }
+            function searchChunk() {
+                let chunkStart = Date.now();
                 
-                let nextBeam = [];
-                for (let node of currentBeam) {
-                    let totalFound = node.s.foundations.reduce((sum, p) => sum + p.length, 0);
-                    if (totalFound === 52) {
-                        callback(node.path);
-                        return;
+                while (depth < maxDepth && currentBeam.length > 0) {
+                    let nextBeam = [];
+                    for (let node of currentBeam) {
+                        let totalFound = node.s.foundations.reduce((sum, p) => sum + p.length, 0);
+                        if (totalFound === 52) {
+                            callback(node.path);
+                            return;
+                        }
+                        
+                        let moves = generateAllMovesFreecell(node.s);
+                        for (let move of moves) {
+                            if (move.sourceData.startsWith('tableau') && move.target.type === 'tableau' && move.sourceData.endsWith('|0') && node.s.tableaus[move.target.idx].length === 0) continue;
+                            
+                            let ns = applyMoveFreecell(node.s, move);
+                            let hash = hashStateDetailed(ns);
+                            if (!visited.has(hash)) {
+                                visited.add(hash);
+                                // Heuristic: heavily favor foundation building and empty columns
+                                let score = evaluateStateFreecell(ns) + (ns.foundations.reduce((sum,p)=>sum+p.length,0)*100);
+                                let newNode = { s: ns, path: [...node.path, move], score: score };
+                                nextBeam.push(newNode);
+                                if (score > bestOverallNode.score) bestOverallNode = newNode;
+                            }
+                        }
                     }
                     
-                    let moves = generateAllMovesFreecell(node.s);
-                    for (let move of moves) {
-                        if (move.sourceData.startsWith('tableau') && move.target.type === 'tableau' && move.sourceData.endsWith('|0') && node.s.tableaus[move.target.idx].length === 0) continue;
-                        
-                        let ns = applyMoveFreecell(node.s, move);
-                        let hash = hashStateDetailed(ns);
-                        if (!visited.has(hash)) {
-                            visited.add(hash);
-                            // Heuristic: heavily favor foundation building and empty columns
-                            let score = evaluateStateFreecell(ns) + (ns.foundations.reduce((sum,p)=>sum+p.length,0)*100);
-                            let newNode = { s: ns, path: [...node.path, move], score: score };
-                            nextBeam.push(newNode);
-                            if (score > bestOverallNode.score) bestOverallNode = newNode;
+                    if (nextBeam.length > 0) {
+                        nextBeam.sort((a,b) => b.score - a.score);
+                        // Filter duplicates to maintain diversity in beam
+                        let uniqueScores = new Set();
+                        let diverseBeam = [];
+                        for(let n of nextBeam) {
+                            if(!uniqueScores.has(n.score)) {
+                                uniqueScores.add(n.score);
+                                diverseBeam.push(n);
+                                if (diverseBeam.length >= beamWidth) break;
+                            }
                         }
+                        // If diverse beam is too small, just pad with the rest
+                        if (diverseBeam.length < beamWidth) diverseBeam = nextBeam.slice(0, beamWidth);
+
+                        currentBeam = diverseBeam.slice(0, beamWidth);
+                        depth++;
+                        
+                        if (Date.now() - chunkStart > 25) { // Yield tiap 25ms agar UI tidak freeze tapi tetap ngebut
+                            updateStatus(`AI Berpikir Cepat... (Layer ${depth})`);
+                            setTimeout(searchChunk, 0);
+                            return;
+                        }
+                    } else {
+                        break;
                     }
                 }
                 
-                if (nextBeam.length > 0) {
-                    nextBeam.sort((a,b) => b.score - a.score);
-                    // Filter duplicates to maintain diversity in beam
-                    let uniqueScores = new Set();
-                    let diverseBeam = [];
-                    for(let n of nextBeam) {
-                        if(!uniqueScores.has(n.score)) {
-                            uniqueScores.add(n.score);
-                            diverseBeam.push(n);
-                            if (diverseBeam.length >= beamWidth) break;
-                        }
-                    }
-                    // If diverse beam is too small, just pad with the rest
-                    if (diverseBeam.length < beamWidth) diverseBeam = nextBeam.slice(0, beamWidth);
-
-                    currentBeam = diverseBeam.slice(0, beamWidth);
-                    depth++;
-                    updateStatus(`AI Sedang Berpikir... (Langkah: ${depth})`);
-                    setTimeout(searchDepth, 5); // 5ms delay to let UI render
-                } else {
-                    callback(bestOverallNode.path.length > 0 ? bestOverallNode.path : null);
-                }
+                callback(bestOverallNode.path.length > 0 ? bestOverallNode.path : null);
             }
             
-            searchDepth();
+            searchChunk();
         }
 
         function getValidTargetsSolitaire(cardsToMove, sourceArea, sourcePileIdx) {
