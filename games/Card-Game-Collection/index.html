@@ -140,6 +140,11 @@
                 <h3>High-Low</h3>
                 <p>Tebak kartu selanjutnya apakah lebih besar atau lebih kecil.</p>
             </div>
+            <div class="game-card" onclick="openModeSelect('freecell')">
+                <i class="fa-solid fa-border-all game-icon"></i>
+                <h3>Freecell</h3>
+                <p>Gunakan 4 sel kosong untuk mengatur strategi menyusun 52 kartu.</p>
+            </div>
         </div>
     </div>
 
@@ -205,6 +210,8 @@
                 document.getElementById('modal-title').innerText = 'Solitaire (Klondike)';
             } else if(gameId === 'blackjack') {
                 document.getElementById('modal-title').innerText = 'Blackjack (21)';
+            } else if(gameId === 'freecell') {
+                document.getElementById('modal-title').innerText = 'Freecell';
             } else {
                 document.getElementById('modal-title').innerText = 'High-Low';
             }
@@ -219,15 +226,17 @@
             document.getElementById('screen-hub').classList.remove('active');
             document.getElementById('screen-game').classList.add('active');
             
-            let titles = { 'blackjack': 'Blackjack', 'highlow': 'High-Low', 'solitaire': 'Solitaire (Klondike)' };
+            let titles = { 'blackjack': 'Blackjack', 'highlow': 'High-Low', 'solitaire': 'Solitaire (Klondike)', 'freecell': 'Freecell' };
             document.getElementById('game-title').innerText = titles[selectedGame];
             
-            document.getElementById('btn-undo').style.display = selectedGame === 'solitaire' ? 'inline-block' : 'none';
-            document.getElementById('btn-restart').style.display = selectedGame === 'solitaire' ? 'inline-block' : 'none';
+            let showControls = (selectedGame === 'solitaire' || selectedGame === 'freecell');
+            document.getElementById('btn-undo').style.display = showControls ? 'inline-block' : 'none';
+            document.getElementById('btn-restart').style.display = showControls ? 'inline-block' : 'none';
             
             if(selectedGame === 'blackjack') initBlackjack();
             else if(selectedGame === 'highlow') initHighLow();
             else if(selectedGame === 'solitaire') initSolitaire();
+            else if(selectedGame === 'freecell') initFreecell();
         }
         function backToHub() {
             selectedGame = '';
@@ -415,6 +424,96 @@
             container.innerHTML = html;
         }
 
+        // ----------------------------------------------------
+        // FREECELL LOGIC
+        // ----------------------------------------------------
+        function initFreecell() {
+            let fullDeck = createDeck();
+            
+            state = {
+                freecells: [null, null, null, null],
+                foundations: [[], [], [], []], // Spades, Hearts, Clubs, Diamonds
+                tableaus: [[], [], [], [], [], [], [], []],
+                history: [],
+                gameOver: false,
+                isAutoCompleting: false,
+                msg: "Pindahkan semua kartu ke 4 tumpukan atas!"
+            };
+
+            // Deal 52 cards to 8 tableaus face up
+            for (let i = 0; i < 52; i++) {
+                let card = fullDeck[i];
+                card.faceUp = true;
+                state.tableaus[i % 8].push(card);
+            }
+            
+            renderFreecell();
+        }
+        
+        function renderFreecell() {
+            let container = document.getElementById('board-container');
+            updateStatus(state.msg);
+
+            // Top Left: Freecells
+            let freecellsHtml = '';
+            for (let i = 0; i < 4; i++) {
+                freecellsHtml += `<div class="card-slot" id="slot-freecell-${i}" ondragover="onDragOver(event)" ondrop="onDrop(event, 'freecell|${i}')">`;
+                if (state.freecells[i]) {
+                    freecellsHtml += getSolCardHTML(state.freecells[i], 0, true, `freecell|${i}`);
+                }
+                freecellsHtml += `</div>`;
+            }
+
+            // Top Right: Foundations
+            let foundationsHtml = '';
+            const suitIcons = ['♠', '♥', '♣', '♦'];
+            for (let i = 0; i < 4; i++) {
+                let fPile = state.foundations[i];
+                foundationsHtml += `<div class="card-slot" id="slot-foundation-${i}" ondragover="onDragOver(event)" ondrop="onDrop(event, 'foundation|${i}')">`;
+                if (fPile.length > 0) {
+                    let topF = fPile[fPile.length - 1];
+                    foundationsHtml += getSolCardHTML(topF, 0, true, `foundation|${i}`);
+                } else {
+                    foundationsHtml += `<div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; color:rgba(255,255,255,0.1); font-size:40px;">${suitIcons[i]}</div>`;
+                }
+                foundationsHtml += `</div>`;
+            }
+
+            // Bottom: Tableaus
+            let tableausHtml = '';
+            for (let i = 0; i < 8; i++) {
+                let tPile = state.tableaus[i];
+                tableausHtml += `<div class="tableau-col card-slot" id="slot-tableau-${i}" ondragover="onDragOver(event)" ondrop="onDrop(event, 'tableau|${i}')">`;
+                
+                let topOffset = 0;
+                for (let j = 0; j < tPile.length; j++) {
+                    let card = tPile[j];
+                    // In freecell, ALL cards are faceUp, but only valid stacks can be dragged.
+                    tableausHtml += getSolCardHTML(card, topOffset, true, `tableau|${i}|${j}`);
+                    topOffset += 30; // 30px spacing
+                }
+                tableausHtml += `</div>`;
+            }
+
+            let html = `
+                <div class="solitaire-board">
+                    <div class="solitaire-top">
+                        <div class="solitaire-top-left">
+                            ${freecellsHtml}
+                        </div>
+                        <div class="solitaire-top-right">
+                            ${foundationsHtml}
+                        </div>
+                    </div>
+                    <div class="solitaire-tableau">
+                        ${tableausHtml}
+                    </div>
+                    ${state.gameOver ? `<div class="controls"><button class="btn-action" onclick="initFreecell()">Main Lagi</button></div>` : ''}
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
         // ==========================================
         // SOLITAIRE (KLONDIKE) LOGIC
         // ==========================================
@@ -451,28 +550,40 @@
         }
 
         function saveState() {
-            if (selectedGame !== 'solitaire') return;
+            if (selectedGame !== 'solitaire' && selectedGame !== 'freecell') return;
             let clone = {
-                stock: JSON.parse(JSON.stringify(state.stock)),
-                waste: JSON.parse(JSON.stringify(state.waste)),
                 foundations: JSON.parse(JSON.stringify(state.foundations)),
                 tableaus: JSON.parse(JSON.stringify(state.tableaus)),
                 gameOver: state.gameOver,
                 msg: state.msg
             };
+            if (selectedGame === 'solitaire') {
+                clone.stock = JSON.parse(JSON.stringify(state.stock));
+                clone.waste = JSON.parse(JSON.stringify(state.waste));
+            }
+            if (selectedGame === 'freecell') {
+                clone.freecells = JSON.parse(JSON.stringify(state.freecells));
+            }
             state.history.push(clone);
         }
 
         function actionUndo() {
-            if (selectedGame !== 'solitaire' || !state.history || state.history.length === 0) return;
+            if ((selectedGame !== 'solitaire' && selectedGame !== 'freecell') || !state.history || state.history.length === 0) return;
             let prevState = state.history.pop();
-            state.stock = prevState.stock;
-            state.waste = prevState.waste;
+            
             state.foundations = prevState.foundations;
             state.tableaus = prevState.tableaus;
             state.gameOver = prevState.gameOver;
             state.msg = prevState.msg;
-            renderSolitaire();
+            
+            if (selectedGame === 'solitaire') {
+                state.stock = prevState.stock;
+                state.waste = prevState.waste;
+                renderSolitaire();
+            } else if (selectedGame === 'freecell') {
+                state.freecells = prevState.freecells;
+                renderFreecell();
+            }
         }
 
         // --- Render Helpers for Solitaire ---
@@ -604,6 +715,12 @@
             e.preventDefault();
             if(!dragInfo) return;
             
+            if(selectedGame === 'freecell') {
+                onDropFreecell(dragInfo, targetData);
+                dragInfo = null;
+                return;
+            }
+
             let sourceParts = dragInfo.split('|');
             let sourceArea = sourceParts[0];
             let sourcePileIdx = parseInt(sourceParts[1]);
@@ -689,6 +806,8 @@
 
         function actionDoubleClick(sourceData) {
             if(state.gameOver) return;
+            if(selectedGame === 'freecell') return actionDoubleClickFreecell(sourceData);
+
             let sourceParts = sourceData.split('|');
             let sourceArea = sourceParts[0];
             let sourcePileIdx = parseInt(sourceParts[1]);
@@ -757,8 +876,8 @@
             }
         }
 
-        function executeAutoMove(sourceData, bestTarget, sourceId, targetId, cardsToMove) {
-            saveState();
+        function executeAutoMove(sourceData, bestTarget, sourceId, targetId, cardsToMove, isUserAction=true) {
+            if (isUserAction) saveState();
             let sourceEl = document.getElementById(sourceId);
             let targetEl = document.getElementById(targetId);
             
@@ -787,14 +906,14 @@
                 
                 setTimeout(() => {
                     clone.remove();
-                    finalizeMove(sourceData, bestTarget, cardsToMove);
+                    finalizeMove(sourceData, bestTarget, cardsToMove, isUserAction);
                 }, 210);
             } else {
-                finalizeMove(sourceData, bestTarget, cardsToMove);
+                finalizeMove(sourceData, bestTarget, cardsToMove, isUserAction);
             }
         }
 
-        function finalizeMove(sourceData, target, cardsToMove) {
+        function finalizeMove(sourceData, target, cardsToMove, isUserAction) {
             let sourceParts = sourceData.split('|');
             let sourceArea = sourceParts[0];
             let sourcePileIdx = parseInt(sourceParts[1]);
@@ -855,10 +974,303 @@
                         let sourceId = `card-tableau-${i}-${tPile.length - 1}`;
                         let targetId = fPile.length > 0 ? `card-foundation-${j}` : `slot-foundation-${j}`;
                         
-                        executeAutoMove(sourceData, target, sourceId, targetId, [card]);
+                        executeAutoMove(sourceData, target, sourceId, targetId, [card], false);
                         return; // Wait for executeAutoMove to finish and call finalizeMove
                     }
                 }
+            }
+        }
+
+        // ==========================================
+        // FREECELL SPECIFIC LOGIC
+        // ==========================================
+        function onDropFreecell(sourceData, targetData) {
+            let sourceParts = sourceData.split('|');
+            let targetParts = targetData.split('|');
+            
+            let sourceArea = sourceParts[0];
+            let sourcePileIdx = parseInt(sourceParts[1]);
+            let cardIdx = parseInt(sourceParts[2] || 0);
+            
+            let targetArea = targetParts[0];
+            let targetPileIdx = parseInt(targetParts[1]);
+
+            if (sourceArea === targetArea && sourcePileIdx === targetPileIdx) return;
+
+            let cardsToMove = [];
+            if (sourceArea === 'freecell') cardsToMove = [state.freecells[sourcePileIdx]];
+            else if (sourceArea === 'foundation') cardsToMove = [state.foundations[sourcePileIdx][state.foundations[sourcePileIdx].length - 1]];
+            else if (sourceArea === 'tableau') {
+                cardsToMove = state.tableaus[sourcePileIdx].slice(cardIdx);
+                for(let i=0; i<cardsToMove.length-1; i++) {
+                    if (cardsToMove[i].color === cardsToMove[i+1].color || cardsToMove[i].realValue !== cardsToMove[i+1].realValue + 1) return;
+                }
+            }
+            if(!cardsToMove || cardsToMove.length === 0 || !cardsToMove[0]) return;
+
+            let emptyFreecells = state.freecells.filter(c => c === null).length;
+            let emptyTableaus = state.tableaus.filter(t => t.length === 0).length;
+            if (targetArea === 'tableau' && state.tableaus[targetPileIdx].length === 0) emptyTableaus--;
+            let maxMove = (emptyFreecells + 1) * Math.pow(2, emptyTableaus);
+            if (cardsToMove.length > maxMove) {
+                alert(`Anda hanya dapat memindahkan maksimal ${maxMove} kartu sekaligus dengan jumlah sel kosong saat ini.`);
+                return;
+            }
+
+            let valid = false;
+            
+            if (targetArea === 'freecell') {
+                if (cardsToMove.length === 1 && state.freecells[targetPileIdx] === null) valid = true;
+            } 
+            else if (targetArea === 'foundation') {
+                if (cardsToMove.length === 1) {
+                    let fPile = state.foundations[targetPileIdx];
+                    if (fPile.length === 0) {
+                        if (cardsToMove[0].realValue === 1) valid = true;
+                    } else {
+                        let topF = fPile[fPile.length - 1];
+                        if (cardsToMove[0].suit === topF.suit && cardsToMove[0].realValue === topF.realValue + 1) valid = true;
+                    }
+                }
+            } 
+            else if (targetArea === 'tableau') {
+                let tPile = state.tableaus[targetPileIdx];
+                if (tPile.length === 0) valid = true;
+                else {
+                    let topT = tPile[tPile.length - 1];
+                    if (cardsToMove[0].color !== topT.color && cardsToMove[0].realValue === topT.realValue - 1) valid = true;
+                }
+            }
+
+            if (valid) {
+                saveState();
+                finalizeMoveFreecell(sourceData, {type: targetArea, idx: targetPileIdx}, cardsToMove);
+            }
+        }
+
+        function actionDoubleClickFreecell(sourceData) {
+            if(state.gameOver) return;
+            let sourceParts = sourceData.split('|');
+            let sourceArea = sourceParts[0];
+            let sourcePileIdx = parseInt(sourceParts[1]);
+            let cardIdx = parseInt(sourceParts[2] || 0);
+
+            let cardsToMove = [];
+            if (sourceArea === 'freecell') cardsToMove = [state.freecells[sourcePileIdx]];
+            else if (sourceArea === 'tableau') {
+                cardsToMove = state.tableaus[sourcePileIdx].slice(cardIdx);
+                for(let i=0; i<cardsToMove.length-1; i++) {
+                    if (cardsToMove[i].color === cardsToMove[i+1].color || cardsToMove[i].realValue !== cardsToMove[i+1].realValue + 1) return;
+                }
+            }
+            if(!cardsToMove || cardsToMove.length === 0) return;
+
+            let emptyFreecells = state.freecells.filter(c => c === null).length;
+            let emptyTableaus = state.tableaus.filter(t => t.length === 0).length;
+
+            let validTargets = [];
+
+            // 1. Check Foundations
+            if (cardsToMove.length === 1) {
+                for(let i=0; i<4; i++) {
+                    let fPile = state.foundations[i];
+                    if (fPile.length === 0 && cardsToMove[0].realValue === 1) validTargets.push({ type: 'foundation', idx: i, score: 100 });
+                    else if (fPile.length > 0) {
+                        let targetCard = fPile[fPile.length - 1];
+                        if (cardsToMove[0].suit === targetCard.suit && cardsToMove[0].realValue === targetCard.realValue + 1) {
+                            validTargets.push({ type: 'foundation', idx: i, score: 100 });
+                        }
+                    }
+                }
+            }
+
+            // 2. Check Tableaus
+            for(let i=0; i<8; i++) {
+                if(sourceArea === 'tableau' && sourcePileIdx === i) continue;
+                let tPile = state.tableaus[i];
+                let eTabs = (tPile.length === 0) ? emptyTableaus - 1 : emptyTableaus;
+                let maxMove = (emptyFreecells + 1) * Math.pow(2, eTabs);
+                
+                if (cardsToMove.length <= maxMove) {
+                    if (tPile.length === 0) {
+                        validTargets.push({ type: 'tableau', idx: i, score: 10 });
+                    } else {
+                        let targetCard = tPile[tPile.length - 1];
+                        if (cardsToMove[0].color !== targetCard.color && cardsToMove[0].realValue === targetCard.realValue - 1) {
+                            validTargets.push({ type: 'tableau', idx: i, score: 30 });
+                        }
+                    }
+                }
+            }
+            
+            // 3. Check Freecells
+            if (cardsToMove.length === 1) {
+                for (let i=0; i<4; i++) {
+                    if (state.freecells[i] === null) {
+                        validTargets.push({ type: 'freecell', idx: i, score: 5 });
+                    }
+                }
+            }
+
+            if (validTargets.length > 0) {
+                validTargets.sort((a,b) => b.score - a.score);
+                let bestTarget = validTargets[0];
+                
+                let sourceId = sourceArea === 'freecell' ? `card-freecell-${sourcePileIdx}` : `card-${sourceData.replace(/\|/g, '-')}`;
+                let targetId = '';
+                if(bestTarget.type === 'foundation') {
+                    let fPile = state.foundations[bestTarget.idx];
+                    targetId = fPile.length > 0 ? `card-foundation-${bestTarget.idx}` : `slot-foundation-${bestTarget.idx}`;
+                } else if(bestTarget.type === 'tableau') {
+                    let tPile = state.tableaus[bestTarget.idx];
+                    targetId = tPile.length > 0 ? `card-tableau-${bestTarget.idx}-${tPile.length-1}` : `slot-tableau-${bestTarget.idx}`;
+                } else {
+                    targetId = `slot-freecell-${bestTarget.idx}`;
+                }
+
+                executeAutoMoveFreecell(sourceData, bestTarget, sourceId, targetId, cardsToMove, true);
+            }
+        }
+
+        function executeAutoMoveFreecell(sourceData, bestTarget, sourceId, targetId, cardsToMove, isUserAction=true) {
+            if (isUserAction) saveState();
+            let sourceEl = document.getElementById(sourceId);
+            let targetEl = document.getElementById(targetId);
+            
+            if (sourceEl && targetEl) {
+                let sRect = sourceEl.getBoundingClientRect();
+                let tRect = targetEl.getBoundingClientRect();
+                
+                let clone = sourceEl.cloneNode(true);
+                clone.id = "";
+                clone.style.position = "fixed";
+                clone.style.left = sRect.left + "px";
+                clone.style.top = sRect.top + "px";
+                clone.style.zIndex = 1000;
+                clone.style.transition = "all 0.2s ease-out";
+                clone.style.pointerEvents = "none";
+                document.body.appendChild(clone);
+                
+                sourceEl.style.opacity = '0';
+                
+                setTimeout(() => {
+                    let targetTop = tRect.top;
+                    if (bestTarget.type === 'tableau' && targetEl.classList.contains('sol-card')) targetTop += 30;
+                    clone.style.left = tRect.left + "px";
+                    clone.style.top = targetTop + "px";
+                }, 10);
+                
+                setTimeout(() => {
+                    clone.remove();
+                    finalizeMoveFreecell(sourceData, bestTarget, cardsToMove);
+                }, 210);
+            } else {
+                finalizeMoveFreecell(sourceData, bestTarget, cardsToMove);
+            }
+        }
+
+        function finalizeMoveFreecell(sourceData, target, cardsToMove) {
+            let sourceParts = sourceData.split('|');
+            let sourceArea = sourceParts[0];
+            let sourcePileIdx = parseInt(sourceParts[1]);
+            let cardIdx = parseInt(sourceParts[2] || 0);
+
+            if (sourceArea === 'freecell') state.freecells[sourcePileIdx] = null;
+            else if (sourceArea === 'foundation') state.foundations[sourcePileIdx].pop();
+            else if (sourceArea === 'tableau') state.tableaus[sourcePileIdx].splice(cardIdx);
+
+            if (target.type === 'freecell') state.freecells[target.idx] = cardsToMove[0];
+            else if (target.type === 'foundation') state.foundations[target.idx].push(cardsToMove[0]);
+            else if (target.type === 'tableau') state.tableaus[target.idx].push(...cardsToMove);
+
+            checkFreecellWin();
+            renderFreecell();
+
+            if (!state.gameOver) {
+                setTimeout(autoCompleteStepFreecell, 150);
+            }
+        }
+
+        function checkFreecellWin() {
+            let totalInFoundations = state.foundations.reduce((sum, pile) => sum + pile.length, 0);
+            if(totalInFoundations === 52) {
+                state.gameOver = true;
+                state.isAutoCompleting = false;
+                state.msg = "Selamat! Anda Berhasil Menyelesaikan Freecell!";
+            }
+        }
+
+        function isSafeToFoundationFreecell(card) {
+            let safeRank = 0;
+            if (card.color === 'red') {
+                safeRank = Math.min(state.foundations[0].length, state.foundations[2].length) + 1; // Black foundations are indices 0, 2? wait: 0=♠, 1=♥, 2=♣, 3=♦
+            } else {
+                safeRank = Math.min(state.foundations[1].length, state.foundations[3].length) + 1; // Red foundations are indices 1, 3
+            }
+            return card.realValue <= safeRank;
+        }
+
+        function autoCompleteStepFreecell() {
+            if (state.gameOver) return;
+            
+            let candidate = null;
+            let candidateSource = '';
+            
+            for (let i = 0; i < 4; i++) {
+                if (state.freecells[i]) {
+                    let card = state.freecells[i];
+                    if (isSafeToFoundationFreecell(card)) {
+                        let fPileIdx = -1;
+                        for (let j = 0; j < 4; j++) {
+                            let fPile = state.foundations[j];
+                            if ((fPile.length === 0 && card.realValue === 1) || (fPile.length > 0 && fPile[fPile.length - 1].suit === card.suit && card.realValue === fPile[fPile.length - 1].realValue + 1)) {
+                                fPileIdx = j; break;
+                            }
+                        }
+                        if (fPileIdx !== -1) { candidate = card; candidateSource = `freecell|${i}`; break; }
+                    }
+                }
+            }
+            
+            if (!candidate) {
+                for (let i = 0; i < 8; i++) {
+                    let tPile = state.tableaus[i];
+                    if (tPile.length > 0) {
+                        let card = tPile[tPile.length - 1];
+                        if (isSafeToFoundationFreecell(card)) {
+                            let fPileIdx = -1;
+                            for (let j = 0; j < 4; j++) {
+                                let fPile = state.foundations[j];
+                                if ((fPile.length === 0 && card.realValue === 1) || (fPile.length > 0 && fPile[fPile.length - 1].suit === card.suit && card.realValue === fPile[fPile.length - 1].realValue + 1)) {
+                                    fPileIdx = j; break;
+                                }
+                            }
+                            if (fPileIdx !== -1) { candidate = card; candidateSource = `tableau|${i}|${tPile.length - 1}`; break; }
+                        }
+                    }
+                }
+            }
+
+            if (candidate) {
+                let targetFoundIdx = -1;
+                for (let i = 0; i < 4; i++) {
+                    let fPile = state.foundations[i];
+                    if (fPile.length === 0 && candidate.realValue === 1) targetFoundIdx = i;
+                    else if (fPile.length > 0 && fPile[fPile.length - 1].suit === candidate.suit && candidate.realValue === fPile[fPile.length - 1].realValue + 1) targetFoundIdx = i;
+                    if (targetFoundIdx !== -1) break;
+                }
+                
+                if (targetFoundIdx !== -1) {
+                    state.isAutoCompleting = true;
+                    let fPile = state.foundations[targetFoundIdx];
+                    let sourceParts = candidateSource.split('|');
+                    let sourceId = sourceParts[0] === 'freecell' ? `card-freecell-${sourceParts[1]}` : `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                    let targetId = fPile.length > 0 ? `card-foundation-${targetFoundIdx}` : `slot-foundation-${targetFoundIdx}`;
+                    
+                    executeAutoMoveFreecell(candidateSource, { type: 'foundation', idx: targetFoundIdx }, sourceId, targetId, [candidate], false);
+                }
+            } else {
+                state.isAutoCompleting = false;
             }
         }
 
