@@ -428,6 +428,7 @@
                 tableaus: [[], [], [], [], [], [], []],
                 history: [],
                 gameOver: false,
+                isAutoCompleting: false,
                 msg: "Pindahkan semua kartu ke 4 tumpukan atas!"
             };
 
@@ -681,6 +682,7 @@
             let totalInFoundations = state.foundations.reduce((sum, pile) => sum + pile.length, 0);
             if(totalInFoundations === 52) {
                 state.gameOver = true;
+                state.isAutoCompleting = false;
                 state.msg = "Selamat! Anda Berhasil Menyelesaikan Solitaire!";
             }
         }
@@ -812,6 +814,52 @@
 
             checkSolitaireWin();
             renderSolitaire();
+
+            if (!state.gameOver && shouldAutoComplete()) {
+                state.isAutoCompleting = true;
+                setTimeout(autoCompleteStep, 50);
+            }
+        }
+
+        function shouldAutoComplete() {
+            if (state.gameOver || state.stock.length > 0 || state.waste.length > 0) return false;
+            for (let i = 0; i < 7; i++) {
+                let tPile = state.tableaus[i];
+                if (tPile.some(c => !c.faceUp)) return false;
+            }
+            return true;
+        }
+
+        function autoCompleteStep() {
+            if (state.gameOver) return;
+            
+            for (let i = 0; i < 7; i++) {
+                let tPile = state.tableaus[i];
+                if (tPile.length === 0) continue;
+                
+                let card = tPile[tPile.length - 1];
+                
+                for (let j = 0; j < 4; j++) {
+                    let fPile = state.foundations[j];
+                    let valid = false;
+                    
+                    if (fPile.length === 0 && card.realValue === 1) valid = true;
+                    else if (fPile.length > 0) {
+                        let topF = fPile[fPile.length - 1];
+                        if (card.suit === topF.suit && card.realValue === topF.realValue + 1) valid = true;
+                    }
+                    
+                    if (valid) {
+                        let sourceData = `tableau|${i}|${tPile.length - 1}`;
+                        let target = { type: 'foundation', idx: j };
+                        let sourceId = `card-tableau-${i}-${tPile.length - 1}`;
+                        let targetId = fPile.length > 0 ? `card-foundation-${j}` : `slot-foundation-${j}`;
+                        
+                        executeAutoMove(sourceData, target, sourceId, targetId, [card]);
+                        return; // Wait for executeAutoMove to finish and call finalizeMove
+                    }
+                }
+            }
         }
 
     </script>
