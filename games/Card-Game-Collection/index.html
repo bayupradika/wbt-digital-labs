@@ -459,11 +459,16 @@
             let fullDeck = createDeck();
             
             if (difficulty === 'easy') {
-                // Easy: Put Aces, 2s, 3s at the end of the deck so they are dealt last (on top of tableaus)
-                let small = fullDeck.filter(c => c.realValue <= 3);
-                let others = fullDeck.filter(c => c.realValue > 3);
-                shuffleArray(small); shuffleArray(others);
-                fullDeck = [...others, ...small];
+                // Easy: Hanya As yang diletakkan di dekat permukaan agar pemain mendapat awalan yang baik, tapi tetap butuh strategi
+                let aces = fullDeck.filter(c => c.realValue === 1);
+                let others = fullDeck.filter(c => c.realValue > 1);
+                shuffleArray(others);
+                shuffleArray(aces);
+                fullDeck = [...others];
+                for(let i = 0; i < aces.length; i++) {
+                    // Sisipkan As di antara 10 kartu terakhir (berada di puncak 8 kolom)
+                    fullDeck.splice(fullDeck.length - Math.floor(Math.random() * 8), 0, aces[i]);
+                }
             } else if (difficulty === 'medium') {
                 shuffleArray(fullDeck);
             } else if (difficulty === 'hard') {
