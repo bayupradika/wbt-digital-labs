@@ -441,6 +441,7 @@
                 history: [],
                 gameOver: false,
                 isAutoCompleting: false,
+                isAnimating: false,
                 msg: "Pindahkan semua kartu ke 4 tumpukan atas!"
             };
 
@@ -532,6 +533,7 @@
                 history: [],
                 gameOver: false,
                 isAutoCompleting: false,
+                isAnimating: false,
                 msg: "Pindahkan semua kartu ke 4 tumpukan atas!"
             };
 
@@ -887,6 +889,7 @@
 
         function executeAutoMove(sourceData, bestTarget, sourceId, targetId, cardsToMove, isUserAction=true) {
             if (isUserAction) saveState();
+            state.isAnimating = true;
             let sourceEl = document.getElementById(sourceId);
             let targetEl = document.getElementById(targetId);
             
@@ -923,6 +926,7 @@
         }
 
         function finalizeMove(sourceData, target, cardsToMove, isUserAction) {
+            state.isAnimating = false;
             let sourceParts = sourceData.split('|');
             let sourceArea = sourceParts[0];
             let sourcePileIdx = parseInt(sourceParts[1]);
@@ -959,7 +963,7 @@
         }
 
         function autoCompleteStep() {
-            if (state.gameOver) return;
+            if (state.gameOver || state.isAnimating) return;
             
             for (let i = 0; i < 7; i++) {
                 let tPile = state.tableaus[i];
@@ -1143,6 +1147,7 @@
 
         function executeAutoMoveFreecell(sourceData, bestTarget, sourceId, targetId, cardsToMove, isUserAction=true) {
             if (isUserAction) saveState();
+            state.isAnimating = true;
             let sourceEl = document.getElementById(sourceId);
             let targetEl = document.getElementById(targetId);
             
@@ -1179,6 +1184,7 @@
         }
 
         function finalizeMoveFreecell(sourceData, target, cardsToMove) {
+            state.isAnimating = false;
             let sourceParts = sourceData.split('|');
             let sourceArea = sourceParts[0];
             let sourcePileIdx = parseInt(sourceParts[1]);
@@ -1210,6 +1216,9 @@
         }
 
         function isFreecellWinnable() {
+            for (let i = 0; i < 4; i++) {
+                if (state.freecells[i] !== null) return false;
+            }
             for (let i = 0; i < 8; i++) {
                 let tPile = state.tableaus[i];
                 for (let j = 0; j < tPile.length - 1; j++) {
@@ -1233,7 +1242,7 @@
         }
 
         function autoCompleteStepFreecell() {
-            if (state.gameOver) return;
+            if (state.gameOver || state.isAnimating) return;
             
             let candidate = null;
             let candidateSource = '';
@@ -1483,6 +1492,7 @@
             updateStatus("Solver sedang berjalan...");
             solverInterval = setInterval(() => {
                 if (state.gameOver) { clearInterval(solverInterval); return; }
+                if (state.isAnimating) return;
                 
                 let move = getBestMove();
                 if (move && move.target.score >= 0) { // Exclude negative score moves (useless cycles)
