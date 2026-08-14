@@ -167,7 +167,7 @@
                 
                 <!-- Extraneous controls -->
                 <button id="btn-undo" class="btn-action secondary" style="padding: 8px 16px; display: none; margin-right: 10px;" onclick="actionUndo()"><i class="fa-solid fa-rotate-left"></i> Undo</button>
-                <button id="btn-restart" class="btn-action" style="padding: 8px 16px; display: none;" onclick="initSolitaire()"><i class="fa-solid fa-rotate-right"></i> Ulang</button>
+                <button id="btn-restart" class="btn-action" style="padding: 8px 16px; display: none;" onclick="actionRestart()"><i class="fa-solid fa-rotate-right"></i> Ulang</button>
             </div>
             <div class="status-box" id="game-status">Membagi Kartu...</div>
         </div>
@@ -584,6 +584,11 @@
                 state.freecells = prevState.freecells;
                 renderFreecell();
             }
+        }
+
+        function actionRestart() {
+            if (selectedGame === 'solitaire') initSolitaire();
+            else if (selectedGame === 'freecell') initFreecell();
         }
 
         // --- Render Helpers for Solitaire ---
