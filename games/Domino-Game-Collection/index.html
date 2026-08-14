@@ -153,6 +153,17 @@
         </div>
     </div>
 
+    <div id="modal-game-over" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <h2 style="color: #f59e0b; margin-bottom: 15px;"><i class="fa-solid fa-trophy"></i> Permainan Selesai</h2>
+            <p id="game-over-msg" style="margin-bottom: 25px; font-size: 16px; color: #cbd5e1; line-height: 1.5;"></p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn-modal" style="flex: 1;" onclick="closeModals(); backToHub()"><i class="fa-solid fa-house"></i> Home</button>
+                <button class="btn-modal primary" style="flex: 1;" id="btn-play-again" onclick="closeModals(); startGapleEngine()">Main Lagi</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN UI -->
     <div id="screen-hub" class="screen active">
         <div class="header">
@@ -650,10 +661,6 @@
                     else controlsHtml = `<button class="btn-action" onclick="actionPass()">Pass (Lewati Giliran)</button>`;
                 }
             }
-            
-            if(state.gameOver && (isHost || config.mode !== 'online')) {
-                controlsHtml += `<button class="btn-action" style="background:#10b981;" onclick="startGapleEngine()">Main Lagi</button>`;
-            }
 
             let playerHandHtml = '';
             if(state.hands[viewPlayerId]) {
@@ -680,9 +687,26 @@
             let boardHtml = `
                 <div class="center-table">
                     ${tableHtml.length > 0 ? tableHtml : '<div style="color:rgba(255,255,255,0.2);">Meja Kosong (Tunggu Pemain 1 membuang Balak)</div>'}
+                    ${placeholdersHtml}
                 </div>
             `;
             container.innerHTML = boardHtml;
+            
+            if (state.gameOver && !document.getElementById('modal-game-over').classList.contains('active')) {
+                let msg = state.msg;
+                let btnPlayAgain = document.getElementById('btn-play-again');
+                
+                if (config.mode === 'online' && !isHost) {
+                    btnPlayAgain.style.display = 'none';
+                    msg += "<br><br><small style='color:#94a3b8;'>(Menunggu Host memulai kembali...)</small>";
+                } else {
+                    btnPlayAgain.style.display = 'block';
+                }
+                
+                document.getElementById('game-over-msg').innerHTML = msg;
+                closeModals();
+                document.getElementById('modal-game-over').classList.add('active');
+            }
         }
 
         function getRoleName(id) {
