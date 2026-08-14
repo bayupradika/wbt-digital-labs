@@ -459,16 +459,18 @@
             let fullDeck = createDeck();
             
             if (difficulty === 'easy') {
-                // Easy: Hanya As yang diletakkan di dekat permukaan agar pemain mendapat awalan yang baik, tapi tetap butuh strategi
+                // Easy: Hanya 2 As yang diletakkan di dekat permukaan, sisanya acak murni.
                 let aces = fullDeck.filter(c => c.realValue === 1);
                 let others = fullDeck.filter(c => c.realValue > 1);
                 shuffleArray(others);
                 shuffleArray(aces);
                 fullDeck = [...others];
-                for(let i = 0; i < aces.length; i++) {
-                    // Sisipkan As di antara 10 kartu terakhir (berada di puncak 8 kolom)
-                    fullDeck.splice(fullDeck.length - Math.floor(Math.random() * 8), 0, aces[i]);
-                }
+                // 2 As disebar acak di manapun
+                fullDeck.splice(Math.floor(Math.random() * fullDeck.length), 0, aces[0]);
+                fullDeck.splice(Math.floor(Math.random() * fullDeck.length), 0, aces[1]);
+                // 2 As diletakkan di 10 kartu terakhir (puncak tableau)
+                fullDeck.splice(fullDeck.length - Math.floor(Math.random() * 8), 0, aces[2]);
+                fullDeck.splice(fullDeck.length - Math.floor(Math.random() * 8), 0, aces[3]);
             } else if (difficulty === 'medium') {
                 shuffleArray(fullDeck);
             } else if (difficulty === 'hard') {
@@ -1333,7 +1335,7 @@
         }
 
         function autoCompleteStepFreecell() {
-            if (state.gameOver || state.isAnimating) return;
+            if (state.gameOver || state.isAnimating || solverInterval || isSolverThinking) return;
             
             let candidate = null;
             let candidateSource = '';
@@ -1751,6 +1753,7 @@
                 clearInterval(solverInterval);
                 solverInterval = null;
                 updateStatus("Solver dihentikan.");
+                if (selectedGame === 'freecell') setTimeout(autoCompleteStepFreecell, 150); // Jalankan kembali autocomplete jika solver dimatikan
                 return;
             }
             if (state.gameOver) return;
