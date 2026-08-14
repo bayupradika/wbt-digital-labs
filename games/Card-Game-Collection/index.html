@@ -459,14 +459,11 @@
             let fullDeck = createDeck();
             
             if (difficulty === 'easy') {
-                fullDeck.sort((a,b) => b.realValue - a.realValue);
-                for (let k = 0; k < 5; k++) {
-                    for (let i = 0; i < 51; i++) {
-                        if (Math.random() < 0.4) {
-                            let temp = fullDeck[i]; fullDeck[i] = fullDeck[i+1]; fullDeck[i+1] = temp;
-                        }
-                    }
-                }
+                // Easy: Put Aces, 2s, 3s at the end of the deck so they are dealt last (on top of tableaus)
+                let small = fullDeck.filter(c => c.realValue <= 3);
+                let others = fullDeck.filter(c => c.realValue > 3);
+                shuffleArray(small); shuffleArray(others);
+                fullDeck = [...others, ...small];
             } else if (difficulty === 'medium') {
                 shuffleArray(fullDeck);
             } else if (difficulty === 'hard') {
@@ -1290,9 +1287,12 @@
 
         function checkFreecellWin() {
             let totalInFoundations = state.foundations.reduce((sum, pile) => sum + pile.length, 0);
-            if(totalInFoundations === 52) {
+            let totalInTableaus = state.tableaus.reduce((sum, pile) => sum + pile.length, 0);
+            let totalInFreecells = state.freecells.filter(c => c !== null).length;
+            if(totalInFoundations === 52 && totalInTableaus === 0 && totalInFreecells === 0) {
                 state.gameOver = true;
                 state.isAutoCompleting = false;
+                if(solverInterval) { clearInterval(solverInterval); solverInterval = null; }
                 state.msg = "Selamat! Anda Berhasil Menyelesaikan Freecell!";
             }
         }
@@ -1313,7 +1313,11 @@
         }
 
         function isSafeToFoundationFreecell(card) {
-            if (isFreecellWinnable()) return true;
+            if (isFreecellWinnable()) {
+                // Cancel AI Solver to prevent race conditions during auto-complete
+                if(solverInterval) { clearInterval(solverInterval); solverInterval = null; }
+                return true;
+            }
             let safeRank = 0;
             if (card.color === 'red') {
                 safeRank = Math.min(state.foundations[0].length, state.foundations[2].length) + 1; // Black foundations are indices 0, 2? wait: 0=♠, 1=♥, 2=♣, 3=♦
@@ -1498,47 +1502,75 @@
             return ns;
         }
 
-        function getBeamSearchMoveFreecell() {
-            if (aiMoveCache.length > 0) return aiMoveCache.shift();
+        let isSolverThinking = false;
 
-            let beamWidth = 25;
-            let maxDepth = 12;
+        function startAsyncBeamSearchFreecell(initialState, callback) {
+            let beamWidth = 100;
+            let maxDepth = 150;
             
-            let initialNode = { s: state, path: [], score: evaluateStateFreecell(state) };
-            let currentBeam = [initialNode];
+            let currentBeam = [{ s: initialState, path: [], score: evaluateStateFreecell(initialState) }];
             let visited = new Set();
-            visited.add(hashStateDetailed(state));
+            visited.add(hashStateDetailed(initialState));
             
-            let bestOverallNode = initialNode;
+            let bestOverallNode = currentBeam[0];
+            let depth = 0;
 
-            for(let depth = 0; depth < maxDepth; depth++) {
+            function searchDepth() {
+                if (depth >= maxDepth || currentBeam.length === 0) {
+                    callback(bestOverallNode.path.length > 0 ? bestOverallNode.path : null);
+                    return;
+                }
+                
                 let nextBeam = [];
-                for(let node of currentBeam) {
+                for (let node of currentBeam) {
+                    let totalFound = node.s.foundations.reduce((sum, p) => sum + p.length, 0);
+                    if (totalFound === 52) {
+                        callback(node.path);
+                        return;
+                    }
+                    
                     let moves = generateAllMovesFreecell(node.s);
-                    for(let move of moves) {
+                    for (let move of moves) {
                         if (move.sourceData.startsWith('tableau') && move.target.type === 'tableau' && move.sourceData.endsWith('|0') && node.s.tableaus[move.target.idx].length === 0) continue;
                         
                         let ns = applyMoveFreecell(node.s, move);
                         let hash = hashStateDetailed(ns);
                         if (!visited.has(hash)) {
                             visited.add(hash);
-                            let score = evaluateStateFreecell(ns);
+                            // Heuristic: heavily favor foundation building and empty columns
+                            let score = evaluateStateFreecell(ns) + (ns.foundations.reduce((sum,p)=>sum+p.length,0)*100);
                             let newNode = { s: ns, path: [...node.path, move], score: score };
                             nextBeam.push(newNode);
                             if (score > bestOverallNode.score) bestOverallNode = newNode;
                         }
                     }
                 }
-                if (nextBeam.length === 0) break;
-                nextBeam.sort((a,b) => b.score - a.score);
-                currentBeam = nextBeam.slice(0, beamWidth);
-            }
+                
+                if (nextBeam.length > 0) {
+                    nextBeam.sort((a,b) => b.score - a.score);
+                    // Filter duplicates to maintain diversity in beam
+                    let uniqueScores = new Set();
+                    let diverseBeam = [];
+                    for(let n of nextBeam) {
+                        if(!uniqueScores.has(n.score)) {
+                            uniqueScores.add(n.score);
+                            diverseBeam.push(n);
+                            if (diverseBeam.length >= beamWidth) break;
+                        }
+                    }
+                    // If diverse beam is too small, just pad with the rest
+                    if (diverseBeam.length < beamWidth) diverseBeam = nextBeam.slice(0, beamWidth);
 
-            if (bestOverallNode.path.length > 0) {
-                aiMoveCache = bestOverallNode.path;
-                return aiMoveCache.shift();
+                    currentBeam = diverseBeam.slice(0, beamWidth);
+                    depth++;
+                    updateStatus(`AI Sedang Berpikir... (Langkah: ${depth})`);
+                    setTimeout(searchDepth, 5); // 5ms delay to let UI render
+                } else {
+                    callback(bestOverallNode.path.length > 0 ? bestOverallNode.path : null);
+                }
             }
-            return null;
+            
+            searchDepth();
         }
 
         function getValidTargetsSolitaire(cardsToMove, sourceArea, sourcePileIdx) {
@@ -1602,8 +1634,6 @@
         }
 
         function getBestMove() {
-            if (selectedGame === 'freecell') return getBeamSearchMoveFreecell();
-
             let possibleMoves = [];
 
             if (selectedGame === 'solitaire') {
@@ -1712,54 +1742,94 @@
 
         let solverInterval = null;
         function actionSolver() {
-            if (state.gameOver) {
-                if (solverInterval) clearInterval(solverInterval);
-                return;
-            }
             if (solverInterval) {
                 clearInterval(solverInterval);
                 solverInterval = null;
                 updateStatus("Solver dihentikan.");
                 return;
             }
-            updateStatus("Solver sedang berjalan...");
-            solverInterval = setInterval(() => {
-                if (state.gameOver) { clearInterval(solverInterval); return; }
-                if (state.isAnimating) return;
+            if (state.gameOver) return;
+            
+            if (selectedGame === 'freecell') {
+                if (isSolverThinking) return;
+                isSolverThinking = true;
+                updateStatus("AI Sedang Berpikir...");
                 
-                let move = getBestMove();
-                if (move && (selectedGame === 'freecell' || move.target.score >= 0)) { 
-                    let sourceParts = move.sourceData.split('|');
-                    let sourceId = '';
-                    if (selectedGame === 'solitaire') {
-                        sourceId = sourceParts[0] === 'waste' ? 'card-waste' : `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
-                    } else {
-                        sourceId = sourceParts[0] === 'freecell' ? `card-freecell-${sourceParts[1]}` : `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                startAsyncBeamSearchFreecell(state, (path) => {
+                    isSolverThinking = false;
+                    if (!path) {
+                        updateStatus("Solver mentok. Tidak ada jalan keluar.");
+                        return;
                     }
-                    let targetId = '';
-                    if (move.target.type === 'foundation') {
-                        let fPile = state.foundations[move.target.idx];
-                        targetId = fPile.length > 0 ? `card-foundation-${move.target.idx}` : `slot-foundation-${move.target.idx}`;
-                    } else if (move.target.type === 'tableau') {
-                        let tPile = state.tableaus[move.target.idx];
-                        targetId = tPile.length > 0 ? `card-tableau-${move.target.idx}-${tPile.length-1}` : `slot-tableau-${move.target.idx}`;
-                    } else if (move.target.type === 'freecell') {
-                        targetId = `slot-freecell-${move.target.idx}`;
-                    }
+                    aiMoveCache = path;
+                    updateStatus("AI Menemukan Rute! Mengeksekusi...");
                     
-                    if (selectedGame === 'solitaire') executeAutoMove(move.sourceData, move.target, sourceId, targetId, move.cards, true);
-                    else executeAutoMoveFreecell(move.sourceData, move.target, sourceId, targetId, move.cards, true);
-                } else {
-                    // Try to click stock if solitaire
-                    if (selectedGame === 'solitaire' && (state.stock.length > 0 || state.waste.length > 0)) {
-                        clickStock();
-                    } else {
+                    solverInterval = setInterval(() => {
+                        if (state.gameOver || aiMoveCache.length === 0) {
+                            clearInterval(solverInterval);
+                            solverInterval = null;
+                            if(aiMoveCache.length === 0 && !state.gameOver) updateStatus("Langkah AI Selesai.");
+                            return;
+                        }
+                        if (state.isAnimating) return;
+                        
+                        let move = aiMoveCache.shift();
+                        let sourceParts = move.sourceData.split('|');
+                        let sourceId = '';
+                        if (sourceParts[0] === 'freecell') sourceId = `card-freecell-${sourceParts[1]}`;
+                        else sourceId = `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                        
+                        let targetId = '';
+                        if (move.target.type === 'foundation') {
+                            let fPile = state.foundations[move.target.idx];
+                            targetId = fPile.length > 0 ? `card-foundation-${move.target.idx}` : `slot-foundation-${move.target.idx}`;
+                        } else if (move.target.type === 'tableau') {
+                            let tPile = state.tableaus[move.target.idx];
+                            targetId = tPile.length > 0 ? `card-tableau-${move.target.idx}-${tPile.length-1}` : `slot-tableau-${move.target.idx}`;
+                        } else if (move.target.type === 'freecell') {
+                            targetId = `slot-freecell-${move.target.idx}`;
+                        }
+                        
+                        executeAutoMoveFreecell(move.sourceData, move.target, sourceId, targetId, move.cards, true);
+                    }, 400); // 400ms speed for smoother execution
+                });
+            } else {
+                solverInterval = setInterval(() => {
+                    if (state.gameOver) {
                         clearInterval(solverInterval);
                         solverInterval = null;
-                        updateStatus("Solver mentok. Tidak ada langkah menguntungkan.");
+                        return;
                     }
-                }
-            }, 600);
+                    if (state.isAnimating) return;
+                    
+                    let move = getBestMove();
+                    if (move && move.target.score >= 0) { 
+                        let sourceParts = move.sourceData.split('|');
+                        let sourceId = '';
+                        if (sourceParts[0] === 'waste') sourceId = 'card-waste';
+                        else if (sourceParts[0] === 'tableau') sourceId = `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                        
+                        let targetId = '';
+                        if (move.target.type === 'foundation') {
+                            let fPile = state.foundations[move.target.idx];
+                            targetId = fPile.length > 0 ? `card-foundation-${move.target.idx}` : `slot-foundation-${move.target.idx}`;
+                        } else if (move.target.type === 'tableau') {
+                            let tPile = state.tableaus[move.target.idx];
+                            targetId = tPile.length > 0 ? `card-tableau-${move.target.idx}-${tPile.length-1}` : `slot-tableau-${move.target.idx}`;
+                        }
+                        
+                        executeAutoMove(move.sourceData, move.target, sourceId, targetId, move.cards, true);
+                    } else {
+                        if (state.stock.length > 0 || state.waste.length > 0) {
+                            clickStock();
+                        } else {
+                            clearInterval(solverInterval);
+                            solverInterval = null;
+                            updateStatus("Solver mentok. Tidak ada langkah menguntungkan.");
+                        }
+                    }
+                }, 500);
+            }
         }
 
     </script>
