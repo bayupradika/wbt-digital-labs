@@ -94,14 +94,14 @@
         .score-box { background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 6px; font-size: 14px; margin-top: 5px; display: inline-block; }
 
         /* SOLITAIRE SPECIFIC */
-        .solitaire-board { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 100%; margin: 0 auto; gap: 20px; user-select: none; }
-        .solitaire-top { display: flex; justify-content: space-between; width: 100%; height: 140px; flex-shrink: 0; }
-        .solitaire-top-left { display: flex; gap: 20px; width: 50%; }
+        .solitaire-board { display: flex; flex-direction: column; width: 100%; height: 100%; max-width: 950px; margin: 0 auto; gap: 20px; user-select: none; }
+        .solitaire-top { display: flex; justify-content: space-between; width: 100%; height: 140px; flex-shrink: 0; padding: 0 10px; }
+        .solitaire-top-left { display: flex; gap: 15px; width: 50%; }
         .solitaire-top-right { display: flex; gap: 15px; width: 50%; justify-content: flex-end; }
         
         .card-slot { width: 90px; height: 130px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; position: relative; }
         
-        .solitaire-tableau { display: flex; justify-content: space-between; width: 100%; flex: 1; position: relative; }
+        .solitaire-tableau { display: flex; justify-content: center; gap: 15px; width: 100%; flex: 1; position: relative; }
         .tableau-col { width: 90px; position: relative; }
         
         /* Overriding playing card for Solitaire positioning */
@@ -166,6 +166,8 @@
                 <h2 id="game-title" style="margin-right: 20px;">Nama Game</h2>
                 
                 <!-- Extraneous controls -->
+                <button id="btn-solver" class="btn-action secondary" style="padding: 8px 16px; display: none; margin-right: 10px;" onclick="actionSolver()"><i class="fa-solid fa-key"></i> Solver</button>
+                <button id="btn-hint" class="btn-action secondary" style="padding: 8px 16px; display: none; margin-right: 10px;" onclick="actionHint()"><i class="fa-solid fa-lightbulb"></i> Hint</button>
                 <button id="btn-undo" class="btn-action secondary" style="padding: 8px 16px; display: none; margin-right: 10px;" onclick="actionUndo()"><i class="fa-solid fa-rotate-left"></i> Undo</button>
                 <button id="btn-restart" class="btn-action" style="padding: 8px 16px; display: none;" onclick="actionRestart()"><i class="fa-solid fa-rotate-right"></i> Ulang</button>
             </div>
@@ -230,6 +232,8 @@
             document.getElementById('game-title').innerText = titles[selectedGame];
             
             let showControls = (selectedGame === 'solitaire' || selectedGame === 'freecell');
+            document.getElementById('btn-solver').style.display = showControls ? 'inline-block' : 'none';
+            document.getElementById('btn-hint').style.display = showControls ? 'inline-block' : 'none';
             document.getElementById('btn-undo').style.display = showControls ? 'inline-block' : 'none';
             document.getElementById('btn-restart').style.display = showControls ? 'inline-block' : 'none';
             
@@ -1205,7 +1209,20 @@
             }
         }
 
+        function isFreecellWinnable() {
+            for (let i = 0; i < 8; i++) {
+                let tPile = state.tableaus[i];
+                for (let j = 0; j < tPile.length - 1; j++) {
+                    if (tPile[j].color === tPile[j+1].color || tPile[j].realValue !== tPile[j+1].realValue + 1) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         function isSafeToFoundationFreecell(card) {
+            if (isFreecellWinnable()) return true;
             let safeRank = 0;
             if (card.color === 'red') {
                 safeRank = Math.min(state.foundations[0].length, state.foundations[2].length) + 1; // Black foundations are indices 0, 2? wait: 0=♠, 1=♥, 2=♣, 3=♦
@@ -1277,6 +1294,229 @@
             } else {
                 state.isAutoCompleting = false;
             }
+        }
+
+        // ==========================================
+        // HINT & SOLVER LOGIC
+        // ==========================================
+        function getValidTargetsSolitaire(cardsToMove, sourceArea, sourcePileIdx) {
+            let validTargets = [];
+            if (cardsToMove.length === 1) {
+                for(let i=0; i<4; i++) {
+                    let fPile = state.foundations[i];
+                    if (fPile.length === 0 && cardsToMove[0].realValue === 1) validTargets.push({ type: 'foundation', idx: i, score: 100 });
+                    else if (fPile.length > 0) {
+                        let targetCard = fPile[fPile.length - 1];
+                        if (cardsToMove[0].suit === targetCard.suit && cardsToMove[0].realValue === targetCard.realValue + 1) validTargets.push({ type: 'foundation', idx: i, score: 100 });
+                    }
+                }
+            }
+            for(let i=0; i<7; i++) {
+                if(sourceArea === 'tableau' && sourcePileIdx === i) continue;
+                let tPile = state.tableaus[i];
+                if (tPile.length === 0) {
+                    if (cardsToMove[0].realValue === 13) validTargets.push({ type: 'tableau', idx: i, score: 10 });
+                } else {
+                    let targetCard = tPile[tPile.length - 1];
+                    if (cardsToMove[0].color !== targetCard.color && cardsToMove[0].realValue === targetCard.realValue - 1) validTargets.push({ type: 'tableau', idx: i, score: 30 });
+                }
+            }
+            return validTargets;
+        }
+
+        function getValidTargetsFreecell(cardsToMove, sourceArea, sourcePileIdx, emptyFreecells, emptyTableaus) {
+            let validTargets = [];
+            if (cardsToMove.length === 1) {
+                for(let i=0; i<4; i++) {
+                    let fPile = state.foundations[i];
+                    if (fPile.length === 0 && cardsToMove[0].realValue === 1) validTargets.push({ type: 'foundation', idx: i, score: 100 });
+                    else if (fPile.length > 0) {
+                        let targetCard = fPile[fPile.length - 1];
+                        if (cardsToMove[0].suit === targetCard.suit && cardsToMove[0].realValue === targetCard.realValue + 1) validTargets.push({ type: 'foundation', idx: i, score: 100 });
+                    }
+                }
+            }
+            for(let i=0; i<8; i++) {
+                if(sourceArea === 'tableau' && sourcePileIdx === i) continue;
+                let tPile = state.tableaus[i];
+                let eTabs = (tPile.length === 0) ? emptyTableaus - 1 : emptyTableaus;
+                let maxMove = (emptyFreecells + 1) * Math.pow(2, eTabs);
+                
+                if (cardsToMove.length <= maxMove) {
+                    if (tPile.length === 0) {
+                        validTargets.push({ type: 'tableau', idx: i, score: 10 });
+                    } else {
+                        let targetCard = tPile[tPile.length - 1];
+                        if (cardsToMove[0].color !== targetCard.color && cardsToMove[0].realValue === targetCard.realValue - 1) validTargets.push({ type: 'tableau', idx: i, score: 30 });
+                    }
+                }
+            }
+            if (cardsToMove.length === 1) {
+                for (let i=0; i<4; i++) {
+                    if (state.freecells[i] === null) validTargets.push({ type: 'freecell', idx: i, score: 5 });
+                }
+            }
+            return validTargets;
+        }
+
+        function getBestMove() {
+            let possibleMoves = [];
+
+            if (selectedGame === 'solitaire') {
+                if (state.waste.length > 0) {
+                    let card = state.waste[state.waste.length - 1];
+                    let targets = getValidTargetsSolitaire([card], 'waste', 0);
+                    if (targets.length > 0) possibleMoves.push({ sourceData: 'waste', cards: [card], targets: targets });
+                }
+                for (let i = 0; i < 7; i++) {
+                    let tPile = state.tableaus[i];
+                    for (let j = 0; j < tPile.length; j++) {
+                        if (tPile[j].faceUp) {
+                            let cards = tPile.slice(j);
+                            let targets = getValidTargetsSolitaire(cards, 'tableau', i);
+                            if (targets.length > 0) possibleMoves.push({ sourceData: `tableau|${i}|${j}`, cards: cards, targets: targets });
+                        }
+                    }
+                }
+            } else if (selectedGame === 'freecell') {
+                for (let i = 0; i < 4; i++) {
+                    if (state.freecells[i]) {
+                        let card = state.freecells[i];
+                        let targets = getValidTargetsFreecell([card], 'freecell', i);
+                        if (targets.length > 0) possibleMoves.push({ sourceData: `freecell|${i}`, cards: [card], targets: targets });
+                    }
+                }
+                let emptyFreecells = state.freecells.filter(c => c === null).length;
+                let emptyTableaus = state.tableaus.filter(t => t.length === 0).length;
+
+                for (let i = 0; i < 8; i++) {
+                    let tPile = state.tableaus[i];
+                    for (let j = 0; j < tPile.length; j++) {
+                        let cards = tPile.slice(j);
+                        let validStack = true;
+                        for(let k=0; k<cards.length-1; k++) {
+                            if (cards[k].color === cards[k+1].color || cards[k].realValue !== cards[k+1].realValue + 1) { validStack = false; break; }
+                        }
+                        if (validStack) {
+                            let targets = getValidTargetsFreecell(cards, 'tableau', i, emptyFreecells, emptyTableaus);
+                            if (targets.length > 0) possibleMoves.push({ sourceData: `tableau|${i}|${j}`, cards: cards, targets: targets });
+                        }
+                    }
+                }
+            }
+
+            if (possibleMoves.length === 0) return null;
+
+            let bestMove = null;
+            let bestScore = -1;
+
+            possibleMoves.forEach(move => {
+                move.targets.forEach(target => {
+                    let adjustedScore = target.score;
+                    if (move.sourceData.startsWith('tableau')) {
+                        let parts = move.sourceData.split('|');
+                        let pileIdx = parseInt(parts[1]);
+                        let cardIdx = parseInt(parts[2]);
+                        if (selectedGame === 'solitaire') {
+                            if (cardIdx > 0 && !state.tableaus[pileIdx][cardIdx-1].faceUp) adjustedScore += 50; // High priority: flip hidden cards
+                            if (cardIdx === 0 && target.type === 'tableau' && move.cards[0].realValue === 13) adjustedScore -= 100; // King to empty is useless
+                        } else if (selectedGame === 'freecell') {
+                            if (cardIdx === 0 && target.type === 'tableau') adjustedScore -= 100; // Tableau to empty tableau is useless
+                        }
+                    }
+                    if (adjustedScore > bestScore) {
+                        bestScore = adjustedScore;
+                        bestMove = { sourceData: move.sourceData, target: target, cards: move.cards };
+                    }
+                });
+            });
+
+            return bestMove;
+        }
+
+        function actionHint() {
+            if (state.gameOver) return;
+            let move = getBestMove();
+            if (move) {
+                let sourceParts = move.sourceData.split('|');
+                let target = move.target;
+                
+                let sourceId = '';
+                if (selectedGame === 'solitaire') {
+                    sourceId = sourceParts[0] === 'waste' ? 'card-waste' : `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                } else {
+                    sourceId = sourceParts[0] === 'freecell' ? `card-freecell-${sourceParts[1]}` : `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                }
+
+                let targetId = '';
+                if (target.type === 'foundation') {
+                    let fPile = state.foundations[target.idx];
+                    targetId = fPile.length > 0 ? `card-foundation-${target.idx}` : `slot-foundation-${target.idx}`;
+                } else if (target.type === 'tableau') {
+                    let tPile = state.tableaus[target.idx];
+                    targetId = tPile.length > 0 ? `card-tableau-${target.idx}-${tPile.length-1}` : `slot-tableau-${target.idx}`;
+                } else if (target.type === 'freecell') {
+                    targetId = `slot-freecell-${target.idx}`;
+                }
+
+                let sEl = document.getElementById(sourceId);
+                let tEl = document.getElementById(targetId);
+                if (sEl) { sEl.style.boxShadow = '0 0 20px 8px yellow'; setTimeout(() => sEl.style.boxShadow = '', 2000); }
+                if (tEl) { tEl.style.boxShadow = '0 0 20px 8px yellow'; setTimeout(() => tEl.style.boxShadow = '', 2000); }
+            } else {
+                updateStatus("Hint: Tidak ada langkah yang tersedia di papan.");
+            }
+        }
+
+        let solverInterval = null;
+        function actionSolver() {
+            if (state.gameOver) {
+                if (solverInterval) clearInterval(solverInterval);
+                return;
+            }
+            if (solverInterval) {
+                clearInterval(solverInterval);
+                solverInterval = null;
+                updateStatus("Solver dihentikan.");
+                return;
+            }
+            updateStatus("Solver sedang berjalan...");
+            solverInterval = setInterval(() => {
+                if (state.gameOver) { clearInterval(solverInterval); return; }
+                
+                let move = getBestMove();
+                if (move && move.target.score >= 0) { // Exclude negative score moves (useless cycles)
+                    let sourceParts = move.sourceData.split('|');
+                    let sourceId = '';
+                    if (selectedGame === 'solitaire') {
+                        sourceId = sourceParts[0] === 'waste' ? 'card-waste' : `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                    } else {
+                        sourceId = sourceParts[0] === 'freecell' ? `card-freecell-${sourceParts[1]}` : `card-tableau-${sourceParts[1]}-${sourceParts[2]}`;
+                    }
+                    let targetId = '';
+                    if (move.target.type === 'foundation') {
+                        let fPile = state.foundations[move.target.idx];
+                        targetId = fPile.length > 0 ? `card-foundation-${move.target.idx}` : `slot-foundation-${move.target.idx}`;
+                    } else if (move.target.type === 'tableau') {
+                        let tPile = state.tableaus[move.target.idx];
+                        targetId = tPile.length > 0 ? `card-tableau-${move.target.idx}-${tPile.length-1}` : `slot-tableau-${move.target.idx}`;
+                    } else if (move.target.type === 'freecell') {
+                        targetId = `slot-freecell-${move.target.idx}`;
+                    }
+                    
+                    if (selectedGame === 'solitaire') executeAutoMove(move.sourceData, move.target, sourceId, targetId, move.cards, true);
+                    else executeAutoMoveFreecell(move.sourceData, move.target, sourceId, targetId, move.cards, true);
+                } else {
+                    // Try to click stock if solitaire
+                    if (selectedGame === 'solitaire' && (state.stock.length > 0 || state.waste.length > 0)) {
+                        clickStock();
+                    } else {
+                        clearInterval(solverInterval);
+                        solverInterval = null;
+                        updateStatus("Solver mentok. Tidak ada langkah menguntungkan.");
+                    }
+                }
+            }, 600);
         }
 
     </script>
