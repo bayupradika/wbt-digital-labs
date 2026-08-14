@@ -624,6 +624,7 @@
             }
             
             let tableHtml = "";
+            let placeholdersHtml = "";
             if (state.table.length > 0) {
                 let tilesHtml = layoutData.tiles.map(l => {
                     let tx = l.x - layoutData.cx;
@@ -635,7 +636,7 @@
                             </div>`;
                 }).join('');
                 
-                let placeholdersHtml = layoutData.placeholders.map(p => {
+                placeholdersHtml = layoutData.placeholders.map(p => {
                     let tx = p.x - layoutData.cx;
                     let ty = p.y - layoutData.cy;
                     // Note: z-index is set high via CSS, but we can enforce it here to ensure it's clickable
