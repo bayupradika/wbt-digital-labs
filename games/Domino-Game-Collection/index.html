@@ -198,7 +198,7 @@
         </div>
         
         <div style="display:flex; flex-direction:column; width:100%; flex:1; background: rgba(6,78,59,0.8);" onclick="if(state.pendingChoice) actionCancelChoice()">
-            <div id="opp-area" style="padding-top: 15px; position: relative; z-index: 50; background: rgba(0,0,0,0.2);"></div>
+            <div id="opp-area" style="position: relative; z-index: 50; background: rgba(0,0,0,0.2);"></div>
             
             <div class="board-container" id="board-container" style="flex:1; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); padding:0; z-index: 10; box-shadow: inset 0 0 30px rgba(0,0,0,0.3);">
                 <!-- Dynamic UI -->
@@ -651,11 +651,11 @@
             let oppHTML = `<div style="display:flex; justify-content:space-between; width:100%;">`;
             if (config.players === 2) {
                 let isTurn = state.turn === 1;
-                oppHTML += `<div></div><div><div class="ai-label ${isTurn?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div></div>`;
+                oppHTML += `<div></div><div style="display:flex; align-items:center; gap:10px;"><div class="ai-label ${isTurn?'active':''}" style="margin-bottom:0;">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div></div>`;
             } else if (config.players === 3) {
-                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div></div><div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
+                oppHTML += `<div style="display:flex; align-items:center; gap:10px;"><div class="ai-label ${state.turn===1?'active':''}" style="margin-bottom:0;">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div></div><div style="display:flex; align-items:center; gap:10px;"><div class="ai-label ${state.turn===2?'active':''}" style="margin-bottom:0;">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
             } else if (config.players === 4) {
-                oppHTML += `<div><div class="ai-label ${state.turn===1?'active':''}">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div><div class="ai-label ${state.turn===2?'active':''}">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div><div><div class="ai-label ${state.turn===3?'active':''}">${getRoleName(3)}</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
+                oppHTML += `<div style="display:flex; align-items:center; gap:10px;"><div class="ai-label ${state.turn===1?'active':''}" style="margin-bottom:0;">${getRoleName(1)}</div><div class="ai-area">${state.hands[1].map(()=>renderTile(0,0,true)).join('')}</div></div><div style="display:flex; align-items:center; gap:10px;"><div class="ai-label ${state.turn===2?'active':''}" style="margin-bottom:0;">${getRoleName(2)}</div><div class="ai-area">${state.hands[2].map(()=>renderTile(0,0,true)).join('')}</div></div><div style="display:flex; align-items:center; gap:10px;"><div class="ai-label ${state.turn===3?'active':''}" style="margin-bottom:0;">${getRoleName(3)}</div><div class="ai-area">${state.hands[3].map(()=>renderTile(0,0,true)).join('')}</div></div>`;
             }
             oppHTML += `</div>`;
             document.getElementById('opp-area').innerHTML = oppHTML;
