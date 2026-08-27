@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cocoki Level Editor</title>
+<style>
+body { background: #0f172a; color: white; font-family: sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; overflow: hidden; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+.main { display: flex; flex: 1; gap: 20px; overflow: hidden; align-items: stretch; justify-content: center; }
+.panel { background: #1e293b; border: 2px solid #334155; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+.left-panel, .right-panel { flex: 0 0 auto; width: 540px; }
+.mid-panel { flex: 0 0 150px; overflow-y: auto; align-items: center; }
+
+.screen-container { position: relative; width: 540px; height: 1200px; transform-origin: top left; overflow: visible; }
+#screenImg { position: absolute; top: 0; left: 0; width: 540px; border-radius: 8px; }
+
+#canvas { position: absolute; top: 0; left: 0; width: 540px; height: 1200px; background: #0f172a; border-radius: 8px; border: 2px solid #3b82f6; overflow: visible; box-sizing: border-box; }
+#tray { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 480px; height: 120px; background: rgba(255,255,255,0.1); border: 2px dashed #94a3b8; border-radius: 12px; display: flex; gap: 5px; padding: 5px; box-sizing: border-box; pointer-events: none; }
+.tray-slot { flex: 1; height: 100%; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; }
+.canvas-card { position: absolute; width: 100px; height: 110px; cursor: grab; }
+.canvas-card:active { cursor: grabbing; }
+
+.palette-card { width: 60px; height: 60px; object-fit: contain; cursor: grab; border: 2px solid transparent; margin: 5px; }
+.palette-card:active { cursor: grabbing; }
+
+.controls { width: 100%; display: flex; gap: 10px; margin-bottom: 15px; justify-content: center; z-index: 2000; position: relative;}
+button { padding: 8px 16px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; background: #3b82f6; color: white; }
+button.solve { background: #10b981; font-size: 16px; padding: 10px 20px; }
+select { padding: 8px; border-radius: 6px; background: #334155; color: white; border: none; }
+</style>
+</head>
+<body>
+<div class="header">
+    <h2>Cocoki Sandbox Editor</h2>
+    <div>
+        <button class="solve" onclick="solveBoard()">SOLVE BOARD</button>
+    </div>
+</div>
+<div class="main">
+    <!-- KIRI: Layar Live -->
+    <div class="panel left-panel">
+        <h3 style="margin-top:0;">Live Reference</h3>
+        <div class="screen-container" id="leftContainer">
+            <img id="screenImg" src="/video_feed" alt="Phone Screen" draggable="false">
+        </div>
+    </div>
+    
+    <!-- TENGAH: Palette -->
+    <div class="panel mid-panel">
+        <h3 style="margin-top:0;">Palette</h3>
+        <p style="font-size:12px; color:#94a3b8; text-align:center;">Seret (Drag) kartu dari sini ke layer di kanan.</p>
+        <div id="palette" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
+    </div>
+    
+    <!-- KANAN: Simulator -->
+    <div class="panel right-panel">
+        <div class="controls">
+            <select id="layerSelect">
+                <option value="1">Layer 1 (Paling Atas)</option>
+                <option value="2">Layer 2</option>
+                <option value="3">Layer 3</option>
+                <option value="4">Layer 4</option>
+                <option value="5">Layer 5</option>
+                <option value="6">Layer 6</option>
+                <option value="7">Layer 7</option>
+                <option value="8">Layer 8</option>
+                <option value="9">Layer 9</option>
+                <option value="10">Layer 10 (Dasar)</option>
+            </select>
+            <button onclick="clearCanvas()">Clear</button>
+        </div>
+        <div class="screen-container" id="rightContainer">
+            <div id="canvas" ondragover="event.preventDefault()" ondrop="handleDrop(event)" oncontextmenu="event.preventDefault()">
+                <!-- Cards dropped here -->
+            </div>
+            <div id="tray">
+                <div class="tray-slot"></div>
+                <div class="tray-slot"></div>
+                <div class="tray-slot"></div>
+                <div class="tray-slot"></div>
+                <div class="tray-slot"></div>
+                <div class="tray-slot"></div>
+                <div class="tray-slot"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-scale containers to fit screen height
+function adjustScale() {
+    const availableHeight = window.innerHeight - 150; // header & paddings
+    const scale = Math.min(1.0, availableHeight / 1200);
+    
+    // Scale the left and right containers
+    document.getElementById('leftContainer').style.transform = "scale(" + scale + ")";
+    document.getElementById('rightContainer').style.transform = "scale(" + scale + ")";
+    
+    // Adjust layout width and height so it doesn't take up full 540x1200 space in DOM
+    const scaledWidth = 540 * scale;
+    const scaledHeight = 1200 * scale;
+    
+    document.getElementById('leftContainer').style.width = scaledWidth + "px";
+    document.getElementById('leftContainer').style.height = scaledHeight + "px";
+    document.getElementById('rightContainer').style.width = scaledWidth + "px";
+    document.getElementById('rightContainer').style.height = scaledHeight + "px";
+    
+    document.querySelector('.left-panel').style.width = (scaledWidth + 30) + "px";
+    document.querySelector('.right-panel').style.width = (scaledWidth + 30) + "px";
+}
+window.addEventListener('resize', adjustScale);
+adjustScale();
+
+async function loadPalette() {
+    const res = await fetch('/api/templates');
+    const labels = await res.json();
+    const palette = document.getElementById('palette');
+    const unique = [...new Set(labels.map(l => l.split('_')[0]))];
+    
+    unique.forEach(label => {
+        const img = document.createElement('img');
+        const fname = labels.find(l => l.startsWith(label));
+        img.src = '/templates/' + fname + '.jpg';
+        img.className = 'palette-card';
+        img.title = label;
+        img.draggable = true;
+        
+        img.ondragstart = (e) => {
+            e.dataTransfer.setData('source', 'palette');
+            e.dataTransfer.setData('label', label);
+            e.dataTransfer.setData('fname', fname);
+            // Default offset for new cards so mouse is at center
+            e.dataTransfer.setData('offsetX', 50);
+            e.dataTransfer.setData('offsetY', 55);
+        };
+        palette.appendChild(img);
+    });
+}
+
+function getZIndex(layer) {
+    return 110 - (layer * 10);
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    const source = e.dataTransfer.getData('source');
+    
+    // Calculate unscaled drop coordinates relative to canvas
+    const canvas = document.getElementById('canvas');
+    const rect = canvas.getBoundingClientRect();
+    
+    // We need to divide by the CSS transform scale to get real pixel coordinates inside the 540x1200 canvas
+    const transformStr = document.getElementById('rightContainer').style.transform;
+    let scale = 1.0;
+    if(transformStr.includes('scale')) {
+        scale = parseFloat(transformStr.replace('scale(', '').replace(')', ''));
+    }
+    
+    const dropX = (e.clientX - rect.left) / scale;
+    const dropY = (e.clientY - rect.top) / scale;
+    
+    const offsetX = parseFloat(e.dataTransfer.getData('offsetX') || 0);
+    const offsetY = parseFloat(e.dataTransfer.getData('offsetY') || 0);
+    
+    const finalX = dropX - offsetX;
+    const finalY = dropY - offsetY;
+
+    if (source === 'palette') {
+        const label = e.dataTransfer.getData('label');
+        const fname = e.dataTransfer.getData('fname');
+        addCardToCanvas(label, fname, finalX, finalY);
+    } else if (source === 'canvas') {
+        const cardId = e.dataTransfer.getData('cardId');
+        const card = document.getElementById(cardId);
+        if(card) {
+            card.style.left = finalX + 'px';
+            card.style.top = finalY + 'px';
+            
+            // Move to currently selected layer? Or keep old? Let's move to selected layer.
+            const newLayer = parseInt(document.getElementById('layerSelect').value);
+            card.dataset.layer = newLayer;
+            card.style.zIndex = getZIndex(newLayer);
+        }
+    }
+}
+
+function addCardToCanvas(label, fname, x, y) {
+    const layer = parseInt(document.getElementById('layerSelect').value);
+    const cardId = 'card_' + Date.now() + Math.random().toString().slice(2, 6);
+    
+    const img = document.createElement('img');
+    img.src = '/templates/' + fname + '.jpg';
+    img.className = 'canvas-card';
+    img.id = cardId;
+    img.style.left = x + 'px';
+    img.style.top = y + 'px';
+    img.style.zIndex = getZIndex(layer);
+    
+    img.dataset.label = label;
+    img.dataset.layer = layer;
+    img.draggable = true;
+    
+    img.ondragstart = (e) => {
+        e.dataTransfer.setData('source', 'canvas');
+        e.dataTransfer.setData('cardId', cardId);
+        
+        const rect = img.getBoundingClientRect();
+        // Offset relative to the image bounds at scaled size
+        const transformStr = document.getElementById('rightContainer').style.transform;
+        let scale = 1.0;
+        if(transformStr.includes('scale')) {
+            scale = parseFloat(transformStr.replace('scale(', '').replace(')', ''));
+        }
+        
+        e.dataTransfer.setData('offsetX', (e.clientX - rect.left) / scale);
+        e.dataTransfer.setData('offsetY', (e.clientY - rect.top) / scale);
+    };
+    
+    // Right click delete
+    img.onmousedown = (e) => {
+        if(e.button === 2) img.remove();
+        e.stopPropagation();
+    };
+    
+    document.getElementById('canvas').appendChild(img);
+}
+
+function clearCanvas() {
+    document.getElementById('canvas').innerHTML = '';
+}
+
+async function solveBoard() {
+    const cards = Array.from(document.querySelectorAll('.canvas-card')).map(img => {
+        return {
+            label: img.dataset.label,
+            layer: parseInt(img.dataset.layer),
+            x: parseFloat(img.style.left),
+            y: parseFloat(img.style.top),
+            w: 100,
+            h: 110
+        };
+    });
+    
+    if(cards.length === 0) return alert("Papan kosong!");
+    
+    alert("Mengirim " + cards.length + " kartu ke AI untuk dipecahkan...");
+    
+    const res = await fetch('/solve_custom', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ tiles: cards })
+    });
+    const result = await res.json();
+    alert(result.message);
+}
+
+loadPalette();
+</script>
+</body>
+</html>

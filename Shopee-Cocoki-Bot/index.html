@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Shopee Cocoki AI Bot</title>
+<style>
+body { background: #0f172a; color: white; font-family: sans-serif; text-align: center; }
+.container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+img { border: 2px solid #334155; border-radius: 12px; max-height: 80vh; cursor: crosshair; }
+.controls { margin-top: 20px; display: flex; gap: 15px; justify-content: center; align-items: center; }
+button { padding: 12px 24px; font-size: 18px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; background: #10b981; color: white; transition: 0.3s; }
+button.stopped { background: #ef4444; }
+input { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #334155; }
+</style>
+</head>
+<body>
+<div class='container' style='flex-direction: row; align-items: flex-start; justify-content: center; gap: 30px; width: 100%;'>
+    <div class='left-panel' style='display:flex; flex-direction:column; align-items:center;'>
+        <h1>Shopee Cocoki AI Bot</h1>
+        <img id='screenImg' src='/video_feed' alt='Live Phone Screen' onclick='registerTemplate(event)'>
+        <div class='controls'>
+            <input type='text' id='templateName' placeholder='Nama Kartu (misal: pisang)'>
+            <button id='toggleBtn' onclick='toggleBot()'>START BOT</button>
+        </div>
+        <p style='color:#94a3b8; margin-top:10px; max-width:400px;'>Fase Pengajaran: Ketik nama kartu, lalu klik tepat di tengah kartu pada layar untuk menyimpannya.</p>
+    </div>
+    
+    <div class='right-panel' style='display:flex; flex-direction:column; align-items:center;'>
+        <h1>Simulator Lapisan Kartu</h1>
+        <div id='simulator' style='position:relative; width: 540px; height: 1200px; background:#1e293b; border: 2px solid #334155; border-radius: 12px; overflow:hidden; transform: scale(0.65); transform-origin: top center;'>
+            <!-- Cards will be injected here -->
+        </div>
+    </div>
+</div>
+<script>
+async function toggleBot() {
+    const res = await fetch('/toggle_bot', { method: 'POST' });
+    const data = await res.json();
+    const btn = document.getElementById('toggleBtn');
+    if (data.status === 'running') {
+        btn.innerText = 'STOP BOT';
+        btn.classList.add('stopped');
+    } else {
+        btn.innerText = 'START BOT';
+        btn.classList.remove('stopped');
+    }
+}
+async function registerTemplate(e) {
+    const name = document.getElementById('templateName').value;
+    if(!name) return alert('Silakan masukkan nama kartu terlebih dahulu!');
+    const img = e.target;
+    const rect = img.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const res = await fetch('/register_template', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ x: Math.round(x), y: Math.round(y), img_width: Math.round(rect.width), img_height: Math.round(rect.height), label: name })
+    });
+    const data = await res.json();
+    if(data.status === 'success') {
+        alert('Berhasil menyimpan: ' + data.file);
+        document.getElementById('templateName').value = '';
+    }
+}
+
+async function updateSimulator() {
+    try {
+        const res = await fetch('/board_state');
+        const data = await res.json();
+        const sim = document.getElementById('simulator');
+        sim.innerHTML = ''; // Clear old state
+        
+        data.tiles.forEach(t => {
+            const img = document.createElement('img');
+            img.src = '/templates/' + t.fname + '.jpg';
+            // BGR to RGB styling for layers
+            let borderColor = 'lime';
+            let zIndex = 100;
+            if (t.layer === 2) { borderColor = 'orange'; zIndex = 50; }
+            if (t.layer === 3) { borderColor = 'fuchsia'; zIndex = 25; }
+            if (t.layer > 3) { borderColor = 'red'; zIndex = 10; }
+            
+            img.style.position = 'absolute';
+            img.style.left = t.x + 'px';
+            img.style.top = t.y + 'px';
+            img.style.width = t.w + 'px';
+            img.style.height = t.h + 'px';
+            img.style.border = '4px solid ' + borderColor;
+            img.style.borderRadius = '12px';
+            img.style.boxSizing = 'border-box';
+            img.style.zIndex = zIndex;
+            
+            // Highlight brightness for Layer 1
+            if(t.layer === 1) {
+                img.style.boxShadow = '0 0 15px lime';
+            } else {
+                img.style.filter = 'brightness(0.6)';
+            }
+            
+            sim.appendChild(img);
+        });
+    } catch (e) {
+        console.error('Failed to update simulator', e);
+    }
+}
+
+// Poll state every 500ms
+setInterval(updateSimulator, 500);
+</script>
+</body>
+</html>

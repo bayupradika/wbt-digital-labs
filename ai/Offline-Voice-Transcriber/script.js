@@ -1,4 +1,4 @@
-let recognition;
+﻿let recognition;
 let isRecording = false;
 let whisperPipeline = null;
 
@@ -42,7 +42,7 @@ async function checkVoiceOfflineModel() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model Akustik AI (Whisper Neural WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Akustik seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "VoiceTranscriber_Acoustic_Model_v3.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model Akustik AI (Whisper Neural WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Akustik seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "VoiceTranscriber_Acoustic_Model_v3.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return false;
   }
   return true;
@@ -244,7 +244,7 @@ function downloadVoiceModelAndGuide() {
                 OFFLINE VOICE TRANSCRIBER STUDIO PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model Akustik AI (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model Akustik AI (Rp 3.000)!
 Dengan paket ini, transkripsi suara & file audio menjadi teks
 dapat berjalan 100% Offline tanpa internet sama sekali.
 
@@ -356,3 +356,4 @@ function translateTranscript() {
   outEl.value = `[ENGLISH TRANSLATION]\n\n"Based on acoustic analysis of the uploaded frequency data, speakers discussed progress on automated digital implementation, processing efficiency of local offline data, and strategy for integrating distributed artificial intelligence modules across enterprise operations."`;
   alert('🇬🇧 Transkripsi berhasil diterjemahkan ke Bahasa Inggris!');
 }
+

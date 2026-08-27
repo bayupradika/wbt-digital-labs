@@ -1,4 +1,4 @@
-let generatedPromptsList = [];
+﻿let generatedPromptsList = [];
 
 async function checkPromptOfflineModel() {
   const isStandaloneOrLocal = window.IS_OFFLINE_STANDALONE || window.location.protocol === 'file:';
@@ -19,7 +19,7 @@ async function checkPromptOfflineModel() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model Prompt AI (Token Synthesizer WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Prompt seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "SmartPrompt_AI_Model_v3.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model Prompt AI (Token Synthesizer WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Prompt seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "SmartPrompt_AI_Model_v3.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return false;
   }
   return true;
@@ -143,7 +143,7 @@ function downloadPromptModelAndGuide() {
                  SMART PROMPT GENERATOR STUDIO PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model Prompt AI (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model Prompt AI (Rp 3.000)!
 Dengan paket ini, racikan prompt Midjourney, LLM, Video, & Musik
 berjalan 100% Offline tanpa koneksi internet sama sekali.
 
@@ -250,3 +250,4 @@ function magicEnhancePrompt() {
   alert('✨ Magic Enhancer bekerja! Ide singkat Anda telah diperkaya dengan parameter master dan instruksi sistem tingkat tinggi.');
   generatePrompts();
 }
+

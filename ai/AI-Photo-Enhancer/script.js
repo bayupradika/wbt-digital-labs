@@ -1,4 +1,4 @@
-let origImg = new Image();
+﻿let origImg = new Image();
 origImg.crossOrigin = 'Anonymous';
 let loaded = false;
 
@@ -44,7 +44,7 @@ async function checkEnhancerOfflineModel() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model Enhancer AI (Neural Super-Resolution WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Enhancer seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "AIPhotoEnhancer_SR_Model_HD_v3.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model Enhancer AI (Neural Super-Resolution WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Enhancer seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "AIPhotoEnhancer_SR_Model_HD_v3.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return false;
   }
   return true;
@@ -139,7 +139,7 @@ function downloadEnhancerModelAndGuide() {
                      AI PHOTO ENHANCER STUDIO PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model Enhancer AI (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model Enhancer AI (Rp 3.000)!
 Dengan paket ini, restorasi foto buram & peningkatan resolusi HD
 berjalan 100% Offline tanpa internet sama sekali.
 
@@ -213,3 +213,4 @@ function downloadEnhancerApp(platform) {
   downloadFileHelper(fname, content);
   alert(`💻 Mengunduh Aplikasi Standalone ${platform.toUpperCase()} berukuran ringan (tanpa file model SR 35k).\n\nAnda dapat menaruh file model SR (.pack) di dalam folder yang sama agar terdeteksi otomatis saat offline!`);
 }
+

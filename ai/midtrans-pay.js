@@ -1,44 +1,44 @@
-// Shared Payment Gateway Router & Simulator for AI Tools Suite (Per-Tool Individual Pricing & Mayar Links)
+﻿// Shared Payment Gateway Router & Simulator for AI Tools Suite (Per-Tool Individual Pricing & Mayar Links)
 const PRODUK_MAYAR_CONFIG = {
   'Live-Wallpaper-Video-Studio': {
     nama: 'Live Wallpaper Video Studio Pro',
-    hargaOriginal: 'Rp 25.000',
-    hargaPro: 'Rp 10.000',
+    hargaOriginal: 'Rp 3.000',
+    hargaPro: 'Rp 3.000',
     linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-image-captioner-pro-unlimited-lifetime-edition',
-    fitur: ['Melepas Batas Quota Harian Jadi Unlimited (0/5 Limit Dihapus)', 'Eksport Wallpaper Resolusi Tertinggi Full HD & 4K Widescreen', 'Akses Penuh Fitur Seamless Ping-Pong Loop & Cyberpunk HUD Clock']
+    fitur: ['Melepas Batas Quota Harian Jadi Unlimited (0/3 Limit Dihapus)', 'Eksport Wallpaper Resolusi Tertinggi Full HD & 4K Widescreen', 'Akses Penuh Fitur Seamless Ping-Pong Loop & Cyberpunk HUD Clock']
   },
   'Social-Media-Video-Downloader': {
     nama: 'Social Media Video Downloader Pro',
-    hargaOriginal: 'Rp 25.000',
-    hargaPro: 'Rp 10.000',
+    hargaOriginal: 'Rp 3.000',
+    hargaPro: 'Rp 3.000',
     linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-image-captioner-pro-unlimited-lifetime-edition',
-    fitur: ['Melepas Batas Quota Harian Jadi Unlimited (0/5 Limit Dihapus)', 'Melepas Batas Durasi Video Jadi Unlimited (> 1 Jam Bebas Download)', 'Download Video Full HD 1080p & 4K Kecepatan Tinggi Tanpa Iklan']
+    fitur: ['Melepas Batas Quota Harian Jadi Unlimited (0/3 Limit Dihapus)', 'Melepas Batas Durasi Video Jadi Unlimited (> 1 Jam Bebas Download)', 'Download Video Full HD 1080p & 4K Kecepatan Tinggi Tanpa Iklan']
   },
   'Dataset-Labeling-Tool': {
     nama: 'CitraLabeling Studio Pro',
-    hargaOriginal: 'Rp 40.000',
-    hargaPro: 'Rp 20.000',
+    hargaOriginal: 'Rp 3.000',
+    hargaPro: 'Rp 3.000',
     linkMayar: 'https://mayar.id/pl/lisensi-citralabeling-pro',
     fitur: ['Hapus Batasan Kuota 1.000 File/Hari', 'Download Aplikasi Standalone Windows (.EXE)', 'Download Aplikasi Portable Android (.APK)']
   },
   'AI-Image-Captioner': {
     nama: 'AI Image Captioner Pro',
-    hargaOriginal: 'Rp 25.000',
-    hargaPro: 'Rp 10.000',
+    hargaOriginal: 'Rp 3.000',
+    hargaPro: 'Rp 3.000',
     linkMayar: 'https://wbtdigitallabs.myr.id/pl/ai-captioner-pro',
-    fitur: ['Melepas Batas Penggunaan Harian Jadi Unlimited (0/5 Limit Dihapus)', 'Dukungan Penuh Model AI Vision Kecepatan Tinggi', 'Sekali Bayar untuk Akses Selamanya (Lifetime Pro)']
+    fitur: ['Melepas Batas Penggunaan Harian Jadi Unlimited (0/3 Limit Dihapus)', 'Dukungan Penuh Model AI Vision Kecepatan Tinggi', 'Sekali Bayar untuk Akses Selamanya (Lifetime Pro)']
   },
   'Background-Eraser-AI': {
     nama: 'Background Eraser AI Pro',
-    hargaOriginal: 'Rp 50.000',
-    hargaPro: 'Rp 25.000',
+    hargaOriginal: 'Rp 3.000',
+    hargaPro: 'Rp 3.000',
     linkMayar: 'https://mayar.id/pl/bg-eraser-pro',
     fitur: ['Hapus Latar Belakang Kualitas Resolusi HD', 'Pemrosesan Bulk Tanpa Batas Jumlah Foto', 'Hasil Bersih 100% Tanpa Watermark']
   },
   'default': {
     nama: 'Akses Pro Suite Tool Khusus',
-    hargaOriginal: 'Rp 30.000',
-    hargaPro: 'Rp 15.000',
+    hargaOriginal: 'Rp 3.000',
+    hargaPro: 'Rp 3.000',
     linkMayar: 'https://mayar.id/pl/general-pro',
     fitur: ['Akses Fitur Premium Tanpa Batasan Harian', 'Kecepatan Pemrosesan Prioritas Tinggi', 'Sekali Bayar untuk Akses Selamanya (Lifetime)']
   }
@@ -70,7 +70,7 @@ const MidtransPay = {
     const key = this.getToolKey();
     const today = new Date().toDateString();
     // Otomatis reset kuota saat ini ke 0 untuk semua pengguna (Auto-Reset Quota)
-    const resetVersion = 'v5_quota_reset_5x_limit_2026_07_08';
+    const resetVersion = 'v5_quota_reset_3x_limit_2026_07_08';
     if (localStorage.getItem('ai_quota_reset_ver_' + key) !== resetVersion) {
       localStorage.setItem('ai_quota_reset_ver_' + key, resetVersion);
       localStorage.setItem('ai_date_' + key, today);
@@ -89,7 +89,7 @@ const MidtransPay = {
   incrementUsage: function() {
     if (this.isPro()) return true;
     let count = this.getUsageCount();
-    if (count >= 5) {
+    if (count >= 3) {
       this.showUpgradeModal();
       return false;
     }
@@ -226,3 +226,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
   }
 });
+

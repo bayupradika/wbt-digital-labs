@@ -1,4 +1,4 @@
-let loaded = false;
+﻿let loaded = false;
 let extractedData = null;
 let rawOcrText = "";
 let batchFilesQueue = [];
@@ -74,7 +74,7 @@ async function checkReceiptOfflineModel() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model OCR AI (Tesseract Language WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model OCR seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "ReceiptScanner_OCR_Language_Model_v2.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model OCR AI (Tesseract Language WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model OCR seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "ReceiptScanner_OCR_Language_Model_v2.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return false;
   }
   return true;
@@ -111,7 +111,7 @@ function checkDailyUMKMQuota(countNeeded = 1) {
 
   if (currentUsage + countNeeded > activeLimit) {
     const sisa = Math.max(0, activeLimit - currentUsage);
-    alert(`⚡ Kuota Harian (${activeLimit} Struk/Hari) Telah Habis!\n\nHari ini Anda telah memindai ${currentUsage} struk (Sisa kuota hari ini: ${sisa} struk).\n\nSilakan pilih Paket Upgrade Kuota di bawah:\n• Starter (50 Struk): Rp 5.000\n• Bisnis (200 Struk): Rp 10.000\n• Juragan (500 Struk): Rp 20.000\n• PRO VIP (Unlimited + APK): Rp 35.000`);
+    alert(`⚡ Kuota Harian (${activeLimit} Struk/Hari) Telah Habis!\n\nHari ini Anda telah memindai ${currentUsage} struk (Sisa kuota hari ini: ${sisa} struk).\n\nSilakan pilih Paket Upgrade Kuota di bawah:\n• Starter (50 Struk): Rp 5.000\n• Bisnis (200 Struk): RP 3.000\n• Juragan (500 Struk): Rp 20.000\n• PRO VIP (Unlimited + APK): Rp 3.000`);
     return false;
   }
 
@@ -373,7 +373,7 @@ function recoverInvoiceStructure(imgEl, rawText) {
       date: "10.01.2023 - 10:11:07",
       receipt_id: "No. Struk : 211",
       items: [
-        { name: "BERAS (4.000 KG X 12.500)", price: "Rp 50.000.000", rawNum: 50000000 },
+        { name: "BERAS (4.000 KG X 12.500)", price: "Rp 3.000.000", rawNum: 50000000 },
         { name: "MINYAK GORENG (1600 KG X 27.500)", price: "Rp 44.000.000", rawNum: 44000000 },
         { name: "GULA PASIR (1600 KG X 15.000)", price: "Rp 24.000.000", rawNum: 24000000 },
         { name: "TEH CELUP ISI 25 (800 BOX X 7.500)", price: "Rp 6.000.000", rawNum: 6000000 },
@@ -565,7 +565,7 @@ function downloadReceiptModelAndGuide() {
                  RECEIPT & INVOICE SCANNER AI PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model OCR AI (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model OCR AI (Rp 3.000)!
 Dengan paket ini, pemindaian teks struk belanja & faktur (OCR)
 dapat berjalan 100% Offline tanpa koneksi internet sama sekali.
 
@@ -639,3 +639,4 @@ function downloadReceiptApp(platform) {
   downloadFileHelper(fname, content);
   alert(`💻 Mengunduh Aplikasi Standalone ${platform.toUpperCase()} berukuran ringan (tanpa file model OCR 35k).\n\nAnda dapat menaruh file model OCR (.pack) di dalam folder yang sama agar terdeteksi otomatis saat offline!`);
 }
+

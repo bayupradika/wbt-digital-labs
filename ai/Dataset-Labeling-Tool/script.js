@@ -1,4 +1,4 @@
-const canvas = document.getElementById('canvas');
+﻿const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 let img = new Image(); img.crossOrigin = 'Anonymous';
 let loaded = false;
@@ -1335,7 +1335,7 @@ async function runAutoLabelEngine() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model Deep Learning (TensorFlow.js + COCO-SSD) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model AI seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli dan mengunduh file "CitraLabeling_AI_AutoLabel_Model_v4.pack", cukup salin/letakkan file tersebut ke dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat File Model (.pack) ].');
+    alert('🔒 Paket Bobot Model Deep Learning (TensorFlow.js + COCO-SSD) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model AI seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli dan mengunduh file "CitraLabeling_AI_AutoLabel_Model_v4.pack", cukup salin/letakkan file tersebut ke dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat File Model (.pack) ].');
     return;
   }
 
@@ -1521,7 +1521,7 @@ function downloadModelPackageAndGuide() {
                      CITRALABELING STUDIO PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model AI Offline (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model AI Offline (Rp 3.000)!
 Dengan paket ini, fitur AI Auto-Label dapat berjalan 100% Offline
 berkecepatan tinggi tanpa memerlukan koneksi internet sama sekali.
 
@@ -1630,3 +1630,4 @@ function interpolateNextFrame() {
   alert(`🚀 Anotasi berhasil disalin & diinterpolasi ke gambar berikutnya (${nextImg.name})!`);
   selectGalleryImage(currentImageIndex + 1);
 }
+

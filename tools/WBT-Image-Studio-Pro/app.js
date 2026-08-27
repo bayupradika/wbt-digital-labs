@@ -1,4 +1,4 @@
-// State Management
+﻿// State Management
 const TOOL_ID = 'wbt_image_studio';
 let isPro = localStorage.getItem(`ai_pro_${TOOL_ID}`) === 'true';
 let activeTool = null;
@@ -576,7 +576,7 @@ async function checkStudioOfflineModel() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model AI Studio (Enhancer & Super-Resolution WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model AI Studio seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "WBTImageStudio_AI_Enhancer_Model_v4.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model AI Studio (Enhancer & Super-Resolution WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model AI Studio seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "WBTImageStudio_AI_Enhancer_Model_v4.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return false;
   }
   return true;
@@ -924,7 +924,7 @@ function downloadStudioModelAndGuide() {
                  WBT IMAGE & PHOTO STUDIO PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model AI Studio (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model AI Studio (Rp 3.000)!
 Dengan paket ini, fitur perjelas foto blur (Smart Sharpening) &
 peningkatan resolusi 2x lipat berjalan 100% Offline tanpa internet.
 
@@ -1001,3 +1001,4 @@ function downloadImageStudioApp(platform) {
 document.addEventListener('DOMContentLoaded', () => {
   updateQuotaUI();
 });
+

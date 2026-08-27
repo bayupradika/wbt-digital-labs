@@ -1,10 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>PDF &amp; Office Toolkit Lite - Kelola PDF, Word, Excel, PPT &amp; CSV Offline</title>
+<link href="https://bayupradika.github.io/wbt-digital-labs/tools/PDF-Toolkit-Lite/" rel="canonical"/>
+<meta content="Kelola, gabung, dan kompres PDF 100% Offline." name="description"/>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Document Toolkit Offline",
+      "operatingSystem": "Web Browser",
+      "applicationCategory": "UtilitiesApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "3000.00",
+        "priceCurrency": "IDR"
+      }
+    }
+    </script>
 <meta content="Aplikasi web &amp; mobile ringan untuk kelola PDF, Word, Excel, PPT, CSV, dan Markdown tanpa perlu upload ke server eksternal. Privasi 100% terjaga." name="description"/>
 <link href="style.css" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
@@ -21,74 +37,31 @@
 </head>
 <body>
 <style>
-      .wbt-global-header {
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding: 12px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      }
-      .wbt-global-header-left {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-      .wbt-global-header-left img {
-        height: 38px;
-        width: auto;
-        cursor: pointer;
-        transition: transform 0.2s;
-      }
-      .wbt-global-header-left img:hover {
-        transform: scale(1.05);
-      }
-      .wbt-global-header-title {
-        color: white;
-        font-weight: 800;
-        font-size: 18px;
-        letter-spacing: 0.5px;
-      }
-      .wbt-global-header-center {
-        color: #94a3b8;
-        font-size: 14px;
-        font-weight: 500;
-        flex-grow: 1;
-        text-align: center;
-      }
-      .wbt-global-header-right {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 8px 16px;
-        border-radius: 99px;
-        font-size: 13px;
-      }
-      @media (max-width: 768px) {
-        .wbt-global-header-center { display: none; }
-      }
-    </style>
+  .wbt-global-header {
+    position: sticky; top: 20px; z-index: 9999; 
+    background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; 
+    padding: 10px 24px; max-width: 1050px; margin: 20px auto 40px;
+    display: flex; justify-content: space-between; align-items: center; 
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  }
+  .wbt-global-header-left { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .wbt-global-header-left img { height: 34px; transition: transform 0.2s; filter: drop-shadow(0 0 5px rgba(56,189,248,0.3)); }
+  .wbt-global-header-left img:hover { transform: scale(1.05); }
+  .wbt-global-header-title { color: white; font-weight: 800; font-size: 16px; font-family: 'Outfit', sans-serif; }
+  .wbt-global-header-right { display: flex; gap: 16px; align-items: center; }
+  @media (max-width: 768px) {
+    .wbt-global-header { border-radius: 16px; flex-direction: column; gap: 12px; padding: 15px; margin: 10px auto 20px; }
+    .wbt-global-header-right { flex-wrap: wrap; justify-content: center; }
+  }
+</style>
 <header class="wbt-global-header">
-<div class="wbt-global-header-left">
-<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<a class="wbt-global-header-left" href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
 <img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
-</a>
 <div class="wbt-global-header-title">Document Toolkit</div>
-</div>
-<div class="wbt-global-header-center">
-        Kelola Dokumen, PDF, Word, Excel, CSV Offline
-      </div>
-<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div class="container nav-content">
-<a class="logo" href="#">
-<div class="logo-icon"><i class="fa-solid fa-file-shield"></i></div>
-<span class="logo-text">Document<span class="text-gradient">Toolkit</span></span>
-<span class="logo-badge">Office Pro v2.0</span>
 </a>
+<div class="wbt-global-header-right">
 <ul class="nav-links">
 <li><a class="nav-link" href="#tools-section">Fitur PDF &amp; Office</a></li>
 <li><a class="nav-link" href="#pricing-section">Harga &amp; Pro</a></li>
@@ -103,11 +76,13 @@
 <i class="fa-solid fa-crown"></i> Upgrade Pro Rp20rb
         </button>
 </div>
-</div></div>
+</div>
 </header>
+
+
+
 <div class="ambient-glow"></div>
 <!-- Navigation -->
-
 <!-- Main Content -->
 <main>
 <!-- Hero Section -->
@@ -506,6 +481,29 @@
 </div>
 <!-- Toast Container -->
 <div id="toast-container"></div>
+﻿<article class="seo-content" style="margin-top: 40px; padding: 24px; background: rgba(15, 23, 42, 0.5); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; line-height: 1.6;">
+<h2 style="color: white; font-size: 24px; margin-bottom: 16px;">Document Toolkit Offline - Kelola PDF &amp; Dokumen Anda dengan Aman</h2>
+<p style="margin-bottom: 16px;">Document Toolkit dari WBT Digital Labs adalah solusi terlengkap untuk mengelola, mengompres, menggabungkan, dan mengonversi file PDF secara 100% offline. Tanpa perlu mengunggah dokumen sensitif Anda ke server pihak ketiga, <strong>seluruh file Anda tetap aman di perangkat Anda sendiri</strong>.</p>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Fitur Utama</h3>
+<ul style="margin-left: 20px; margin-bottom: 16px; list-style-type: disc;">
+<li><strong>Gabung PDF (Merge):</strong> Satukan banyak file PDF menjadi satu dokumen rapi secara instan.</li>
+<li><strong>Kompresi PDF:</strong> Kurangi ukuran file PDF hingga 80% untuk keperluan upload berkas lamaran atau tugas kuliah tanpa mengurangi kualitas tulisan.</li>
+<li><strong>Konversi Gambar ke PDF:</strong> Ubah kumpulan foto JPG/PNG menjadi satu file PDF.</li>
+<li><strong>Proteksi Keamanan:</strong> Beri password enkripsi pada PDF Anda secara offline.</li>
+</ul>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Bagaimana Cara Menggunakannya?</h3>
+<ol style="margin-left: 20px; margin-bottom: 16px;">
+<li>Pilih alat yang Anda butuhkan (misal: Kompresi PDF).</li>
+<li>Tarik dan jatuhkan (drag &amp; drop) file Anda ke area yang disediakan.</li>
+<li>Proses berlangsung di dalam memori browser Anda (super cepat).</li>
+<li>Klik tombol Download untuk menyimpan hasilnya.</li>
+</ol>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Pertanyaan yang Sering Diajukan (FAQ)</h3>
+<p><strong>Apakah alat ini gratis?</strong> Ya, tersedia mode gratis harian. Untuk penggunaan massal, Anda dapat melakukan upgrade satu kali bayar seumur hidup.</p>
+<p><strong>Apakah file saya diunggah ke internet?</strong> Tidak. Ini adalah aplikasi WebAssembly (WASM) yang memproses semua file secara lokal di RAM HP/Laptop Anda.</p>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Tool Terkait Lainnya</h3>
+<p>Mungkin Anda juga tertarik dengan <a href="/wbt-digital-labs/tools/WBT-Image-Studio-Pro/index.html" style="color: #38bdf8;">Image Studio Pro</a> atau <a href="/wbt-digital-labs/tools/Offline-Markdown-Editor/index.html" style="color: #38bdf8;">Offline Markdown Editor</a>.</p>
+</article>
 <script src="app.js"></script>
 <script src="../midtrans-pay.js"></script>`r`n</body>
 </html>

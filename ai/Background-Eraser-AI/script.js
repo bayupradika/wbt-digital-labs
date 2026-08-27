@@ -1,4 +1,4 @@
-let origImg = new Image();
+﻿let origImg = new Image();
 origImg.crossOrigin = 'Anonymous';
 let loaded = false;
 let cutoutCanvas = document.createElement('canvas');
@@ -18,7 +18,7 @@ setTimeout(updateEraserQuotaUI, 500);
 function updateEraserQuotaUI() {
   const todayKey = 'eraser_ai_daily_' + new Date().toISOString().slice(0,10);
   const used = parseInt(localStorage.getItem(todayKey) || '0', 10);
-  const activeLimitStr = localStorage.getItem('eraser_ai_tier_limit') || '100';
+  const activeLimitStr = localStorage.getItem('eraser_ai_tier_limit') || '5';
   const el = document.getElementById('quota-count');
   const badgeEl = document.getElementById('quota-badge');
 
@@ -31,14 +31,14 @@ function updateEraserQuotaUI() {
 }
 
 function checkDailyEraserQuota(countNeeded = 1) {
-  const activeLimitStr = localStorage.getItem('eraser_ai_tier_limit') || '100';
+  const activeLimitStr = localStorage.getItem('eraser_ai_tier_limit') || '5';
   if (activeLimitStr === 'unlimited' || localStorage.getItem('eraser_offline_ai_model_loaded') === 'true' || localStorage.getItem('wbt_pro_unlocked') === 'true') {
     return true;
   }
 
   const todayKey = 'eraser_ai_daily_' + new Date().toISOString().slice(0,10);
   let currentUsage = parseInt(localStorage.getItem(todayKey) || '0', 10);
-  const activeLimit = parseInt(activeLimitStr, 10) || 100;
+  const activeLimit = parseInt(activeLimitStr, 10) || 5;
 
   if (currentUsage + countNeeded > activeLimit) {
     const sisa = Math.max(0, activeLimit - currentUsage);
@@ -157,7 +157,7 @@ async function eraseBackground() {
   }
 
   if (isStandaloneOrLocal && engine === 'bodypix' && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model Neural Segmentation HD (TensorFlow BodyPix) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model AI HD seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "BackgroundEraser_AI_Model_HD_v2.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model Neural Segmentation HD (TensorFlow BodyPix) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model AI HD seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "BackgroundEraser_AI_Model_HD_v2.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return;
   }
 
@@ -503,7 +503,7 @@ function downloadEraserModelAndGuide() {
                   BACKGROUND ERASER AI PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model AI HD (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model AI HD (Rp 3.000)!
 Dengan paket ini, fitur pemotongan latar belakang bersiluet tajam
 dapat berjalan 100% Offline tanpa koneksi internet sama sekali.
 
@@ -577,3 +577,4 @@ function downloadEraserApp(platform) {
   downloadFileHelper(fname, content);
   alert(`💻 Mengunduh Aplikasi Standalone ${platform.toUpperCase()} berukuran ringan (tanpa file model neural HD 35k).\n\nAnda dapat menaruh file model HD (.pack) di dalam folder yang sama agar terdeteksi otomatis saat offline!`);
 }
+

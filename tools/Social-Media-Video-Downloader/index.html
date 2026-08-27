@@ -1,10 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>WBT Social Video Downloader Pro - Universal Media Extractor (1080p / 4K)</title>
+<link href="https://bayupradika.github.io/wbt-digital-labs/tools/Social-Media-Video-Downloader/" rel="canonical"/>
+<meta content="Download video dan audio MP3 dari YouTube, TikTok, Facebook tanpa watermark." name="description"/>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Social Media Video Downloader Pro",
+      "operatingSystem": "Web Browser",
+      "applicationCategory": "MultimediaApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "3000.00",
+        "priceCurrency": "IDR"
+      }
+    }
+    </script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -444,79 +460,45 @@
 </head>
 <body>
 <style>
-      .wbt-global-header {
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding: 12px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      }
-      .wbt-global-header-left {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-      .wbt-global-header-left img {
-        height: 38px;
-        width: auto;
-        cursor: pointer;
-        transition: transform 0.2s;
-      }
-      .wbt-global-header-left img:hover {
-        transform: scale(1.05);
-      }
-      .wbt-global-header-title {
-        color: white;
-        font-weight: 800;
-        font-size: 18px;
-        letter-spacing: 0.5px;
-      }
-      .wbt-global-header-center {
-        color: #94a3b8;
-        font-size: 14px;
-        font-weight: 500;
-        flex-grow: 1;
-        text-align: center;
-      }
-      .wbt-global-header-right {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 8px 16px;
-        border-radius: 99px;
-        font-size: 13px;
-      }
-      @media (max-width: 768px) {
-        .wbt-global-header-center { display: none; }
-      }
-    </style>
+  .wbt-global-header {
+    position: sticky; top: 20px; z-index: 9999; 
+    background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; 
+    padding: 10px 24px; max-width: 1050px; margin: 20px auto 40px;
+    display: flex; justify-content: space-between; align-items: center; 
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  }
+  .wbt-global-header-left { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .wbt-global-header-left img { height: 34px; transition: transform 0.2s; filter: drop-shadow(0 0 5px rgba(56,189,248,0.3)); }
+  .wbt-global-header-left img:hover { transform: scale(1.05); }
+  .wbt-global-header-title { color: white; font-weight: 800; font-size: 16px; font-family: 'Outfit', sans-serif; }
+  .wbt-global-header-right { display: flex; gap: 16px; align-items: center; }
+  @media (max-width: 768px) {
+    .wbt-global-header { border-radius: 16px; flex-direction: column; gap: 12px; padding: 15px; margin: 10px auto 20px; }
+    .wbt-global-header-right { flex-wrap: wrap; justify-content: center; }
+  }
+</style>
 <header class="wbt-global-header">
-<div class="wbt-global-header-left">
-<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<a class="wbt-global-header-left" href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
 <img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
-</a>
 <div class="wbt-global-header-title">Social Video Downloader Pro</div>
-</div>
-<div class="wbt-global-header-center">
-        Unduh Video FB, IG, TikTok, X, YouTube HD
-      </div>
-<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;"><div style="display: flex; gap: 12px; align-items: center;">
+</a>
+<div class="wbt-global-header-right">
+<div style="display: flex; gap: 12px; align-items: center;">
 <div class="badge-status" id="usage-badge">
 <i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: 5 / 5 Video
       </div>
 <button class="btn-upgrade" onclick="MidtransPay.showUpgradeModal()">
-<i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 10.000)
+<i class="fa-solid fa-crown"></i> Upgrade PRO (Rp 3.000)
       </button>
-</div></div>
+</div>
+</div>
 </header>
-<!-- Header & Navigation -->
 
+
+
+<!-- Header & Navigation -->
 <!-- Main Content -->
 <main class="container">
 <div class="hero-title">
@@ -613,7 +595,7 @@
 <div class="rules-banner">
 <div class="rules-item">
 <i class="fa-solid fa-shield-halved"></i>
-<span><b>Batas Gratis:</b> Maksimal 5 Video / Hari</span>
+<span><b>Batas Gratis:</b> Maksimal 3 Video / Hari</span>
 </div>
 <div class="rules-item">
 <i class="fa-solid fa-hourglass-half"></i>
@@ -621,11 +603,25 @@
 </div>
 <div class="rules-item">
 <i class="fa-solid fa-crown" style="color: #fbbf24;"></i>
-<span><b>Mode PRO (Rp 10.000):</b> Tanpa Batas Kuota &amp; Tanpa Batas Durasi!</span>
+<span><b>Mode PRO (Rp 3.000):</b> Tanpa Batas Kuota &amp; Tanpa Batas Durasi!</span>
 </div>
 </div>
 </main>
 <!-- Load Shared Payment Gateway & License Router -->
+<article class="seo-content" style="margin-top: 40px; padding: 24px; background: rgba(15, 23, 42, 0.5); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; line-height: 1.6; max-width: 1100px; margin-left: auto; margin-right: auto;">
+<h2 style="color: white; font-size: 24px; margin-bottom: 16px;">Unduh Video Sosial Media Favorit Tanpa Watermark Secara Gratis</h2>
+<p style="margin-bottom: 16px;">Apakah Anda ingin menyimpan video dari YouTube, TikTok, Instagram, Facebook, X, atau platform lainnya ke galeri HP/Laptop Anda? WBT Social Video Downloader membantu Anda mengekstrak media tersebut dengan kualitas maksimal hingga Full HD / 4K (tergantung sumber) <strong>tanpa disertai logo watermark</strong>.</p>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Fitur Super Cepat Kami</h3>
+<ul style="margin-left: 20px; margin-bottom: 16px; list-style-type: disc;">
+<li><strong>Tanpa Aplikasi Tambahan:</strong> Cukup salin dan tempel (copy-paste) link video.</li>
+<li><strong>Audio Extractor (MP3):</strong> Unduh lagu MP3 320kbps dari sebuah video musik secara terpisah.</li>
+<li><strong>Bebas Iklan Pop-up:</strong> Kami mendesain antarmuka yang sangat bersih dan rapi, bebas dari iklan perjudian atau pop-up spam yang mengganggu.</li>
+</ul>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Apakah Ada Batas Download Harian?</h3>
+<p>Pengguna gratis mendapat kuota download harian untuk menjaga stabilitas server. Apabila limit tercapai, Anda dapat meng-upgrade ke mode PRO dengan sekali bayar seumur hidup seharga mulai dari Rp 3.000 saja.</p>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Disclaimer Privasi</h3>
+<p>Alat ini hanya mengekstrak video yang diizinkan publik. Kami tidak menyimpan histori unduhan Anda.</p>
+</article>
 <script src="../../ai/midtrans-pay.js"></script>
 <script>
     // Update usage badge on load
@@ -637,8 +633,8 @@
         badge.style.color = '#fbbf24';
       } else {
         const count = MidtransPay.getUsageCount();
-        const left = Math.max(0, 5 - count);
-        badge.innerHTML = `<i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: <b>${left} / 5</b> Video`;
+        const left = Math.max(0, 3 - count);
+        badge.innerHTML = `<i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Sisa Kuota Gratis: <b>${left} / 3</b> Video`;
       }
     }
 
@@ -670,11 +666,11 @@
         return;
       }
 
-      // 1. Cek Kuota Harian (Maksimal 5 Video / Hari jika belum Pro)
+      // 1. Cek Kuota Harian (Maksimal 3 Video / Hari jika belum Pro)
       if (!MidtransPay.isPro()) {
         const count = MidtransPay.getUsageCount();
         if (count >= 5) {
-          const upgrade = confirm('⚠️ BATAS KUOTA HARIAN HABIS (5 / 5 VIDEO)!\n\nMode Gratis dibatasi maksimal mengunduh 5 video per hari.\n\nApakah Anda ingin Upgrade ke PRO (Rp 10.000 lifetime) sekarang untuk mendownload UNLIMITED tanpa batas setiap hari?');
+          const upgrade = confirm('⚠️ BATAS KUOTA HARIAN HABIS (5 / 5 VIDEO)!\n\nMode Gratis dibatasi maksimal mengunduh 5 video per hari.\n\nApakah Anda ingin Upgrade ke PRO (Rp 3.000 lifetime) sekarang untuk mendownload UNLIMITED tanpa batas setiap hari?');
           if (upgrade) {
             MidtransPay.showUpgradeModal();
           }
@@ -821,7 +817,7 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Ekstrak & Download Video Sekarang';
         
-        const upgradeDuration = confirm(`⚠️ BATAS DURASI MELEBIHI 1 JAM!\n\nVideo ini terdeteksi berdurasi panjang (~${Math.round(exactSeconds/60)} Menit / ${Math.round(exactSeconds/3600*10)/10} Jam).\n\nMode Gratis hanya mendukung pengunduhan video dengan durasi maksimal 60 Menit (1 Jam).\n\nUpgrade ke PRO (Rp 10.000 lifetime) untuk mengunduh video durasi panjang, live stream, dan podcast berjam-jam tanpa batas!`);
+        const upgradeDuration = confirm(`⚠️ BATAS DURASI MELEBIHI 1 JAM!\n\nVideo ini terdeteksi berdurasi panjang (~${Math.round(exactSeconds/60)} Menit / ${Math.round(exactSeconds/3600*10)/10} Jam).\n\nMode Gratis hanya mendukung pengunduhan video dengan durasi maksimal 60 Menit (1 Jam).\n\nUpgrade ke PRO (Rp 3.000 lifetime) untuk mengunduh video durasi panjang, live stream, dan podcast berjam-jam tanpa batas!`);
         if (upgradeDuration) {
           MidtransPay.showUpgradeModal();
         }

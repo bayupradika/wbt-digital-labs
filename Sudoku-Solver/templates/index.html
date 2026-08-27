@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sudoku Web Solver</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f0f0; }
+        .controls { margin: 15px; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button { padding: 10px 15px; margin: 0 5px; cursor: pointer; border: none; border-radius: 4px; background: #007bff; color: white; font-weight: bold; }
+        button.active { background: #28a745; }
+        button:hover { opacity: 0.8; }
+        canvas { background: black; cursor: crosshair; box-shadow: 0 2px 10px rgba(0,0,0,0.3); max-height: 80vh; }
+        #status { margin-top: 10px; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+    <h2>Sudoku Solver - ADB Web Sync</h2>
+    
+    <div class="controls">
+        <button id="btnArea1" onclick="setMode('area1')">Select Area 1 (Grid Sudoku)</button>
+        <button id="btnArea2" onclick="setMode('area2')">Select Area 2 (Baris Angka)</button>
+        <button id="btnSolve" onclick="solve()" style="background: #28a745;">Solve!</button>
+        <button id="btnStop" onclick="stopSolve()" style="background: #dc3545; display: none;">Stop!</button>
+        <div id="status">Status: Menunggu seleksi...</div>
+    </div>
+
+    <canvas id="screenCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('screenCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusEl = document.getElementById('status');
+        
+        let screenImg = new Image();
+        let scaleX = 1, scaleY = 1;
+        let originalWidth = 0, originalHeight = 0;
+        
+        let mode = null; // 'area1' or 'area2'
+        let isDrawing = false;
+        let startX = 0, startY = 0;
+        
+        // Simpan dalam format koordinat gambar asli (bukan ukuran canvas yang di-scale)
+        let area1 = null; 
+        let area2 = null;
+
+        // Current drawing rect (canvas coords)
+        let currRect = null;
+
+        function setMode(newMode) {
+            mode = newMode;
+            document.getElementById('btnArea1').classList.remove('active');
+            document.getElementById('btnArea2').classList.remove('active');
+            if (mode === 'area1') document.getElementById('btnArea1').classList.add('active');
+            if (mode === 'area2') document.getElementById('btnArea2').classList.add('active');
+            statusEl.innerText = "Mode: Menggambar " + (mode === 'area1' ? "Grid Sudoku" : "Baris Angka");
+        }
+
+        function updateScreen() {
+            if (isDrawing) return; // Jangan update gambar saat sedang nge-drag
+            
+            // Tambahkan timestamp untuk menghindari cache
+            let img = new Image();
+            img.onload = function() {
+                originalWidth = img.width;
+                originalHeight = img.height;
+                
+                // Set canvas size (scaled down for display)
+                const MAX_HEIGHT = window.innerHeight * 0.7;
+                const ratio = MAX_HEIGHT / img.height;
+                
+                canvas.width = img.width * ratio;
+                canvas.height = MAX_HEIGHT;
+                
+                scaleX = originalWidth / canvas.width;
+                scaleY = originalHeight / canvas.height;
+                
+                screenImg = img;
+                redraw();
+            }
+            img.src = '/screen?t=' + new Date().getTime();
+        }
+
+        // Update gambar setiap 2 detik
+        setInterval(updateScreen, 2000);
+        updateScreen(); // Panggilan pertama
+
+        function redraw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (screenImg.src) {
+                ctx.drawImage(screenImg, 0, 0, canvas.width, canvas.height);
+            }
+            
+            // Draw Area 1
+            if (area1) {
+                let x = area1.x / scaleX;
+                let y = area1.y / scaleY;
+                let w = area1.w / scaleX;
+                let h = area1.h / scaleY;
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, w, h);
+                
+                // Draw 9x9 grid lines
+                ctx.lineWidth = 1;
+                for (let i = 1; i < 9; i++) {
+                    ctx.beginPath(); ctx.moveTo(x + i*w/9, y); ctx.lineTo(x + i*w/9, y+h); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(x, y + i*h/9); ctx.lineTo(x+w, y + i*h/9); ctx.stroke();
+                }
+            }
+            
+            // Draw Area 2
+            if (area2) {
+                let x = area2.x / scaleX;
+                let y = area2.y / scaleY;
+                let w = area2.w / scaleX;
+                let h = area2.h / scaleY;
+                ctx.strokeStyle = 'blue';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, w, h);
+                
+                // Draw 9 columns
+                ctx.lineWidth = 1;
+                for (let i = 1; i < 9; i++) {
+                    ctx.beginPath(); ctx.moveTo(x + i*w/9, y); ctx.lineTo(x + i*w/9, y+h); ctx.stroke();
+                }
+            }
+            
+            // Draw current dragging rect
+            if (isDrawing && currRect) {
+                ctx.strokeStyle = 'yellow';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(currRect.x, currRect.y, currRect.w, currRect.h);
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (!mode) return;
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            isDrawing = true;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            currRect = {
+                x: Math.min(startX, mouseX),
+                y: Math.min(startY, mouseY),
+                w: Math.abs(mouseX - startX),
+                h: Math.abs(mouseY - startY)
+            };
+            redraw();
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            
+            if (currRect && currRect.w > 10 && currRect.h > 10) {
+                // Konversi ke koordinat asli
+                let realArea = {
+                    x: Math.round(currRect.x * scaleX),
+                    y: Math.round(currRect.y * scaleY),
+                    w: Math.round(currRect.w * scaleX),
+                    h: Math.round(currRect.h * scaleY)
+                };
+                
+                if (mode === 'area1') area1 = realArea;
+                if (mode === 'area2') area2 = realArea;
+            }
+            
+            currRect = null;
+            redraw();
+        });
+
+        function solve() {
+            if (!area1 || !area2) {
+                alert("Harap pilih Area 1 (Grid) dan Area 2 (Angka) terlebih dahulu!");
+                return;
+            }
+            
+            statusEl.innerText = "Status: Mengekstrak angka dan memecahkan puzzle... Mohon tunggu.";
+            document.getElementById('btnSolve').style.display = 'none';
+            document.getElementById('btnStop').style.display = 'inline-block';
+            
+            fetch('/solve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ area1: area1, area2: area2 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('btnSolve').style.display = 'inline-block';
+                document.getElementById('btnStop').style.display = 'none';
+                if (data.status === 'success') {
+                    statusEl.innerText = "Status: Selesai!";
+                } else {
+                    statusEl.innerText = "Status: Gagal - " + data.message;
+                    alert("Informasi: " + data.message);
+                }
+            })
+            .catch(err => {
+                document.getElementById('btnSolve').style.display = 'inline-block';
+                document.getElementById('btnStop').style.display = 'none';
+                statusEl.innerText = "Status: Error koneksi server.";
+            });
+        }
+
+        function stopSolve() {
+            statusEl.innerText = "Status: Menghentikan proses...";
+            fetch('/stop', { method: 'POST' })
+            .catch(err => console.error("Gagal menghentikan:", err));
+        }
+    </script>
+</body>
+</html>

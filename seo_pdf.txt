@@ -1,0 +1,27 @@
+﻿<article class="seo-content" style="margin-top: 40px; padding: 24px; background: rgba(15, 23, 42, 0.5); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; line-height: 1.6;">
+  <h2 style="color: white; font-size: 24px; margin-bottom: 16px;">Document Toolkit Offline - Kelola PDF & Dokumen Anda dengan Aman</h2>
+  <p style="margin-bottom: 16px;">Document Toolkit dari WBT Digital Labs adalah solusi terlengkap untuk mengelola, mengompres, menggabungkan, dan mengonversi file PDF secara 100% offline. Tanpa perlu mengunggah dokumen sensitif Anda ke server pihak ketiga, <strong>seluruh file Anda tetap aman di perangkat Anda sendiri</strong>.</p>
+  
+  <h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Fitur Utama</h3>
+  <ul style="margin-left: 20px; margin-bottom: 16px; list-style-type: disc;">
+    <li><strong>Gabung PDF (Merge):</strong> Satukan banyak file PDF menjadi satu dokumen rapi secara instan.</li>
+    <li><strong>Kompresi PDF:</strong> Kurangi ukuran file PDF hingga 80% untuk keperluan upload berkas lamaran atau tugas kuliah tanpa mengurangi kualitas tulisan.</li>
+    <li><strong>Konversi Gambar ke PDF:</strong> Ubah kumpulan foto JPG/PNG menjadi satu file PDF.</li>
+    <li><strong>Proteksi Keamanan:</strong> Beri password enkripsi pada PDF Anda secara offline.</li>
+  </ul>
+
+  <h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Bagaimana Cara Menggunakannya?</h3>
+  <ol style="margin-left: 20px; margin-bottom: 16px;">
+    <li>Pilih alat yang Anda butuhkan (misal: Kompresi PDF).</li>
+    <li>Tarik dan jatuhkan (drag & drop) file Anda ke area yang disediakan.</li>
+    <li>Proses berlangsung di dalam memori browser Anda (super cepat).</li>
+    <li>Klik tombol Download untuk menyimpan hasilnya.</li>
+  </ol>
+
+  <h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Pertanyaan yang Sering Diajukan (FAQ)</h3>
+  <p><strong>Apakah alat ini gratis?</strong> Ya, tersedia mode gratis harian. Untuk penggunaan massal, Anda dapat melakukan upgrade satu kali bayar seumur hidup.</p>
+  <p><strong>Apakah file saya diunggah ke internet?</strong> Tidak. Ini adalah aplikasi WebAssembly (WASM) yang memproses semua file secara lokal di RAM HP/Laptop Anda.</p>
+
+  <h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Tool Terkait Lainnya</h3>
+  <p>Mungkin Anda juga tertarik dengan <a href="/wbt-digital-labs/tools/WBT-Image-Studio-Pro/index.html" style="color: #38bdf8;">Image Studio Pro</a> atau <a href="/wbt-digital-labs/tools/Offline-Markdown-Editor/index.html" style="color: #38bdf8;">Offline Markdown Editor</a>.</p>
+</article>

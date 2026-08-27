@@ -1,4 +1,4 @@
-function loadSampleText() {
+﻿function loadSampleText() {
   document.getElementById('input-text').value = `Kecerdasan Buatan (AI) telah mengalami perkembangan yang sangat pesat dalam beberapa tahun terakhir. Teknologi ini tidak hanya diterapkan di bidang industri teknologi tinggi, tetapi juga telah merambah ke berbagai aspek kehidupan sehari-hari seperti kesehatan, pendidikan, dan keuangan. Di bidang kesehatan, algoritma AI mampu membantu dokter mendiagnosis penyakit dengan akurasi yang tinggi melalui analisis citra medis. Di bidang pendidikan, AI memungkinkan terciptanya platform pembelajaran personal yang menyesuaikan materi dengan kecepatan belajar masing-masing siswa. Sementara itu, di sektor bisnis, AI membantu otomatisasi layanan pelanggan melalui chatbot pintar serta memprediksi tren pasar untuk efisiensi biaya. Meskipun menawarkan banyak manfaat luar biasa, perkembangan AI juga membawa tantangan baru, seperti masalah privasi data dan perlunya regulasi etika agar teknologi ini tidak disalahgunakan. Oleh karena itu, kolaborasi antara pemerintah, ilmuwan, dan masyarakat sangat penting untuk memastikan masa depan AI yang aman dan bermanfaat bagi seluruh umat manusia.`;
 }
 
@@ -23,7 +23,7 @@ async function checkSummarizerOfflineModel() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model Summarizer AI (Neural Transformers WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Summarizer seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "AITextSummarizer_NLP_Model_v2.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model Summarizer AI (Neural Transformers WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Summarizer seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "AITextSummarizer_NLP_Model_v2.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return false;
   }
   return true;
@@ -151,7 +151,7 @@ function downloadSummarizerModelAndGuide() {
                    AI TEXT SUMMARIZER STUDIO PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model Summarizer AI (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model Summarizer AI (Rp 3.000)!
 Dengan paket ini, analisis NLP & ekstraksi Executive Summary dokumen
 berjalan 100% Offline tanpa koneksi internet sama sekali.
 
@@ -225,3 +225,4 @@ function downloadSummarizerApp(platform) {
   downloadFileHelper(fname, content);
   alert(`💻 Mengunduh Aplikasi Standalone ${platform.toUpperCase()} berukuran ringan (tanpa file model NLP 35k).\n\nAnda dapat menaruh file model NLP (.pack) di dalam folder yang sama agar terdeteksi otomatis saat offline!`);
 }
+

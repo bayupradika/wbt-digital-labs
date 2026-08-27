@@ -10,73 +10,38 @@
 </head>
 <body>
 <style>
-      .wbt-global-header {
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding: 12px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      }
-      .wbt-global-header-left {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-      .wbt-global-header-left img {
-        height: 38px;
-        width: auto;
-        cursor: pointer;
-        transition: transform 0.2s;
-      }
-      .wbt-global-header-left img:hover {
-        transform: scale(1.05);
-      }
-      .wbt-global-header-title {
-        color: white;
-        font-weight: 800;
-        font-size: 18px;
-        letter-spacing: 0.5px;
-      }
-      .wbt-global-header-center {
-        color: #94a3b8;
-        font-size: 14px;
-        font-weight: 500;
-        flex-grow: 1;
-        text-align: center;
-      }
-      .wbt-global-header-right {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 8px 16px;
-        border-radius: 99px;
-        font-size: 13px;
-      }
-      @media (max-width: 768px) {
-        .wbt-global-header-center { display: none; }
-      }
-    </style>
+  .wbt-global-header {
+    position: sticky; top: 20px; z-index: 9999; 
+    background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; 
+    padding: 10px 24px; max-width: 1050px; margin: 20px auto 40px;
+    display: flex; justify-content: space-between; align-items: center; 
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  }
+  .wbt-global-header-left { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .wbt-global-header-left img { height: 34px; transition: transform 0.2s; filter: drop-shadow(0 0 5px rgba(56,189,248,0.3)); }
+  .wbt-global-header-left img:hover { transform: scale(1.05); }
+  .wbt-global-header-title { color: white; font-weight: 800; font-size: 16px; font-family: 'Outfit', sans-serif; }
+  .wbt-global-header-right { display: flex; gap: 16px; align-items: center; }
+  @media (max-width: 768px) {
+    .wbt-global-header { border-radius: 16px; flex-direction: column; gap: 12px; padding: 15px; margin: 10px auto 20px; }
+    .wbt-global-header-right { flex-wrap: wrap; justify-content: center; }
+  }
+</style>
 <header class="wbt-global-header">
-<div class="wbt-global-header-left">
-<a href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<a class="wbt-global-header-left" href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
 <img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
-</a>
 <div class="wbt-global-header-title">AI Image Captioner</div>
+</a>
+<div class="wbt-global-header-right">
+<div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div>
 </div>
-<div class="wbt-global-header-center">
-        Analisis Gambar &amp; Buat Caption Otomatis untuk Medsos
-      </div>
-<div class="wbt-global-header-right" style="display: flex; gap: 8px; align-items: center;">
-<div class="badge" id="quota-badge" onclick="MidtransPay.showUpgradeModal()">Memuat Kuota...</div></div>
 </header>
-<div class="container">
 
+
+
+<div class="container">
 <div class="grid">
 <div class="card">
 <h2 class="card-title"><i class="fa-solid fa-image" style="color:#3b82f6;"></i> 1. Unggah Foto Anda</h2>

@@ -1,4 +1,4 @@
-const canvas = document.getElementById('canvas');
+﻿const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 let img = new Image(); img.crossOrigin = 'Anonymous';
 let loaded = false;
@@ -44,7 +44,7 @@ async function checkViewerOfflineModel() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model YOLO Viewer AI (Visualizer WebAssembly Engine) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Viewer seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "YOLOViewer_Visualizer_Engine_v2.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model YOLO Viewer AI (Visualizer WebAssembly Engine) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Viewer seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "YOLOViewer_Visualizer_Engine_v2.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return false;
   }
   return true;
@@ -163,7 +163,7 @@ function downloadViewerModelAndGuide() {
                    YOLO DATASET VIEWER STUDIO PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model YOLO Viewer AI (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model YOLO Viewer AI (Rp 3.000)!
 Dengan paket ini, pemetaan bounding box multi-format
 berjalan 100% Offline tanpa koneksi internet sama sekali.
 
@@ -253,3 +253,4 @@ function downloadViewerApp(platform) {
 
   alert(`💻 Mengunduh Aplikasi Standalone ${platform.toUpperCase()} berukuran ringan (tanpa file model Viewer 35k).\n\nAnda dapat menaruh file model Viewer (.pack) di dalam folder yang sama agar terdeteksi otomatis saat offline!`);
 }
+

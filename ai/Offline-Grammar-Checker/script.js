@@ -1,4 +1,4 @@
-let correctedTextResult = "";
+﻿let correctedTextResult = "";
 
 document.getElementById('input-text').addEventListener('input', function(e) {
   const len = e.target.value.length;
@@ -36,7 +36,7 @@ async function checkGrammarOfflineModel() {
   }
 
   if (isStandaloneOrLocal && !hasLoadedModel) {
-    alert('🔒 Paket Bobot Model Grammar AI (Language & Proofreading Engine WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Grammar seharga Rp 35.000 terlebih dahulu.\n\nJika Anda sudah membeli file "OfflineGrammar_NLP_Model_v3.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
+    alert('🔒 Paket Bobot Model Grammar AI (Language & Proofreading Engine WebAssembly) Belum Terdeteksi di Aplikasi Offline!\n\nKarena aplikasi offline ini diunduh tanpa menyertakan bobot model berukuran besar, silakan beli Paket Model Grammar seharga Rp 3.000 terlebih dahulu.\n\nJika Anda sudah membeli file "OfflineGrammar_NLP_Model_v3.pack", letakkan file tersebut di dalam folder yang sama dengan aplikasi ini agar terdeteksi otomatis, atau klik [ Muat Model (.pack) ].');
     return false;
   }
   return true;
@@ -179,7 +179,7 @@ function downloadGrammarModelAndGuide() {
                  OFFLINE GRAMMAR CHECKER STUDIO PRO
 ======================================================================
 
-Terima kasih telah membeli Paket Bobot Model Grammar AI (Rp 35.000)!
+Terima kasih telah membeli Paket Bobot Model Grammar AI (Rp 3.000)!
 Dengan paket ini, koreksi tata bahasa KBBI, Inggris, & parafrase
 berjalan 100% Offline tanpa koneksi internet sama sekali.
 
@@ -269,3 +269,4 @@ function downloadGrammarApp(platform) {
 
   alert(`💻 Mengunduh Aplikasi Standalone ${platform.toUpperCase()} berukuran ringan (tanpa file model Grammar 35k).\n\nAnda dapat menaruh file model Grammar (.pack) di dalam folder yang sama agar terdeteksi otomatis saat offline!`);
 }
+
