@@ -867,7 +867,7 @@ function closeUpgradeModal() {
 
 function verifyActivationCode() {
   const code = document.getElementById('activation-code').value.trim().toUpperCase();
-  if (code === 'WBTIMAGE25K' || code === 'PROLIFETIME') {
+  if (code === 'IMPOSSIBLE_CODE_999' || code === 'IMPOSSIBLE_CODE_999') {
     isPro = true;
     localStorage.setItem(`ai_pro_${TOOL_ID}`, 'true');
     updateQuotaUI();

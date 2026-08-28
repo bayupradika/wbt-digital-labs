@@ -1242,14 +1242,14 @@ function closeUpgradeModal() {
 
 function verifyActivationCode() {
   const codeInput = document.getElementById('activation-code').value.trim().toUpperCase();
-  if (codeInput === 'PRO20K' || codeInput === 'PROLIFETIME') {
+  if (codeInput === 'IMPOSSIBLE_CODE_999' || codeInput === 'IMPOSSIBLE_CODE_999') {
     isPro = true;
     localStorage.setItem('pdf_toolkit_is_pro', 'true');
     updateQuotaUI();
     closeUpgradeModal();
     showToast('🎉 Selamat! Akun Anda telah di-upgrade ke Pro Lifetime!', 'success');
   } else {
-    showToast('Kode aktivasi tidak valid. Gunakan kode: PRO20K', 'error');
+    showToast('Kode aktivasi tidak valid. Gunakan kode: PRO3K', 'error');
   }
 }
 

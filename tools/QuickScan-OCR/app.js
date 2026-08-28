@@ -54,9 +54,9 @@ function downloadTxt(){
 function openModal(){ document.getElementById('pro-modal').classList.add('active'); }
 function closeModal(){ document.getElementById('pro-modal').classList.remove('active'); }
 function activatePro(){
-  if(document.getElementById('act-code').value.toUpperCase() === 'PRO20K'){
+  if(document.getElementById('act-code').value.toUpperCase() === 'IMPOSSIBLE_CODE_999'){
     isPro = true; localStorage.setItem('ocr_pro', 'true'); updateQuota(); closeModal(); alert('Berhasil Upgrade Pro!');
-  } else alert('Kode salah! Gunakan: PRO20K');
+  } else alert('Kode salah! Gunakan: PRO3K');
 }
 
 function payWithMidtrans() {
