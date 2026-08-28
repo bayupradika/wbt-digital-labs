@@ -1,0 +1,538 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World History Timeline - Interaktif Geografi Politik</title>
+  <link rel="canonical" href="https://bayupradika.github.io/wbt-digital-labs/learning/World-History-Timeline/" />
+  <meta name="description" content="Eksplorasi interaktif sejarah dan geografi politik dunia dari 0 Masehi hingga masa kini di semua benua." />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;900&display=swap');
+    
+    :root {
+      --bg-main: #0b0f19;
+      --bg-surface: #111827;
+      --bg-card: #1f2937;
+      --primary: #6366f1;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --gradient-primary: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      --gradient-gold: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+    
+    .wbt-global-header {
+      position: sticky; top: 20px; z-index: 9999; 
+      background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; 
+      padding: 10px 24px; max-width: 1050px; margin: 20px auto 40px;
+      display: flex; justify-content: space-between; align-items: center; 
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+    }
+    .wbt-global-header-left { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .wbt-global-header-left img { height: 34px; filter: drop-shadow(0 0 5px rgba(56,189,248,0.3)); }
+    .wbt-global-header-title { color: white; font-weight: 800; font-size: 16px; font-family: 'Outfit', sans-serif; }
+    .wbt-global-header-right { display: flex; gap: 16px; align-items: center; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    
+    .hero { text-align: center; margin-bottom: 40px; }
+    .hero h1 { font-family: 'Outfit', sans-serif; font-size: 36px; margin-bottom: 16px; }
+    .text-gradient { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    /* Timeline Controls */
+    .timeline-controls {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .year-display {
+      font-size: 64px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      color: #fbbf24;
+      text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .era-name {
+      font-size: 18px;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 30px;
+    }
+    
+    .slider-container {
+      position: relative;
+      width: 100%;
+      padding: 20px 0;
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 28px;
+      width: 28px;
+      border-radius: 50%;
+      background: var(--gradient-gold);
+      cursor: pointer;
+      margin-top: -12px;
+      box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #374151;
+      border-radius: 10px;
+    }
+    
+    .timeline-ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Continents Grid */
+    .continents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+    .continent-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 24px;
+      transition: transform 0.3s;
+    }
+    .continent-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+    .continent-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .continent-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--gradient-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: white;
+    }
+    .continent-title {
+      font-size: 20px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+    }
+    
+    .country-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .country-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-card);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .country-item:hover {
+      border-color: rgba(255,255,255,0.1);
+      background: #2d3748;
+    }
+    .flag-icon {
+      font-size: 24px;
+    }
+    
+    @media (max-width: 768px) {
+      .wbt-global-header { border-radius: 16px; flex-direction: column; padding: 15px; }
+      .year-display { font-size: 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="wbt-global-header">
+  <a href="https://bayupradika.github.io/wbt-digital-labs/" class="wbt-global-header-left" title="Kembali ke Portal WBT">
+    <img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+    <div class="wbt-global-header-title">World History Timeline</div>
+  </a>
+  <div class="wbt-global-header-right">
+    <div style="font-size: 13px; color: #a855f7; font-weight: 800;"><i class="fa-solid fa-graduation-cap"></i> Modul Pembelajaran</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <h1>Mesin Waktu <span class="text-gradient">Geografi & Politik</span></h1>
+    <p>Eksplorasi peradaban, kekaisaran, dan negara yang berdiri di seluruh benua dari <b>0 Masehi</b> hingga masa kini.</p>
+  </div>
+
+  <div class="timeline-controls">
+    <div class="year-display" id="year-display">2026 M</div>
+    <div class="era-name" id="era-display">Masa Modern (Kontemporer)</div>
+    
+    <div class="slider-container">
+      <input type="range" min="0" max="2026" value="2026" class="slider" id="year-slider">
+      <div class="timeline-ticks">
+        <span>0 M</span>
+        <span>500 M</span>
+        <span>1000 M</span>
+        <span>1500 M</span>
+        <span>1900 M</span>
+        <span>2026 M</span>
+      </div>
+    </div>
+    <div style="margin-top: 15px; color: var(--text-muted); font-size: 13px;">
+      <i class="fa-solid fa-info-circle"></i> Geser slider di atas untuk melihat perubahan peta politik dunia. Data disederhanakan berdasarkan abad/era besar.
+    </div>
+  </div>
+
+  <div class="continents-grid" id="continents-container">
+    <!-- Diisi oleh Javascript -->
+  </div>
+</div>
+
+<script>
+  // Data Sejarah (Sederhana berdasarkan periode)
+  const historyDB = [
+    {
+      year_min: 0, year_max: 400,
+      era: "Zaman Kuno Klasik (Antiquity)",
+      continents: {
+        "Asia": [
+          { name: "Dinasti Han (Tiongkok)", flag: "🐉" },
+          { name: "Kekaisaran Parthia (Persia)", flag: "🦅" },
+          { name: "Kekaisaran Kushan (India Utara)", flag: "🐘" },
+          { name: "Kerajaan Salakanagara (Nusantara)", flag: "🌋" }
+        ],
+        "Eropa": [
+          { name: "Kekaisaran Romawi (Roman Empire)", flag: "🏛️" },
+          { name: "Suku-suku Jermanik", flag: "⚔️" },
+          { name: "Suku Celtic (Britannia)", flag: "🛡️" }
+        ],
+        "Afrika": [
+          { name: "Kerajaan Aksum (Ethiopia)", flag: "🦁" },
+          { name: "Mesir Romawi (Provinsi)", flag: "🏺" },
+          { name: "Kerajaan Kush (Nubia)", flag: "🏜️" }
+        ],
+        "Amerika": [
+          { name: "Peradaban Maya (Mesoamerika)", flag: "🛕" },
+          { name: "Peradaban Teotihuacan", flag: "🌞" },
+          { name: "Peradaban Nazca (Andes)", flag: "🦅" }
+        ]
+      }
+    },
+    {
+      year_min: 401, year_max: 1000,
+      era: "Awal Abad Pertengahan (Dark Ages)",
+      continents: {
+        "Asia": [
+          { name: "Dinasti Tang (Tiongkok)", flag: "🐉" },
+          { name: "Kekhalifahan Umayyah/Abbasiyah", flag: "🌙" },
+          { name: "Kerajaan Sriwijaya (Nusantara)", flag: "⛵" },
+          { name: "Kerajaan Mataram Kuno", flag: "🛕" }
+        ],
+        "Eropa": [
+          { name: "Kekaisaran Bizantium (Romawi Timur)", flag: "🦅" },
+          { name: "Kekaisaran Karoling (Francia)", flag: "⚜️" },
+          { name: "Kerajaan Anglo-Saxon (Inggris)", flag: "👑" },
+          { name: "Kekhanan Khazar", flag: "🐎" }
+        ],
+        "Afrika": [
+          { name: "Kekhalifahan Fatimiyah (Mesir)", flag: "🌙" },
+          { name: "Kekaisaran Ghana", flag: "💰" },
+          { name: "Kerajaan Makuria", flag: "✝️" }
+        ],
+        "Amerika": [
+          { name: "Peradaban Maya Klasik", flag: "🛕" },
+          { name: "Kekaisaran Tiwanaku (Andes)", flag: "⛰️" }
+        ]
+      }
+    },
+    {
+      year_min: 1001, year_max: 1400,
+      era: "Abad Pertengahan Tinggi (High Middle Ages)",
+      continents: {
+        "Asia": [
+          { name: "Kekaisaran Mongol", flag: "🐎" },
+          { name: "Dinasti Song (Tiongkok)", flag: "🐉" },
+          { name: "Kesultanan Delhi (India)", flag: "🕌" },
+          { name: "Kerajaan Majapahit (Nusantara)", flag: "☀️" },
+          { name: "Kerajaan Singhasari", flag: "🌋" }
+        ],
+        "Eropa": [
+          { name: "Kekaisaran Romawi Suci (HRE)", flag: "🦅" },
+          { name: "Kerajaan Prancis", flag: "⚜️" },
+          { name: "Kerajaan Inggris", flag: "🦁" },
+          { name: "Negara-Kota Italia (Venesia, Genoa)", flag: "⛵" }
+        ],
+        "Afrika": [
+          { name: "Kekaisaran Mali (Mansa Musa)", flag: "🪙" },
+          { name: "Kesultanan Mamluk (Mesir)", flag: "🐪" },
+          { name: "Kerajaan Zimbabwe", flag: "🧱" }
+        ],
+        "Amerika": [
+          { name: "Kekaisaran Inca (Awal)", flag: "🏔️" },
+          { name: "Peradaban Aztec (Awal)", flag: "🦅" },
+          { name: "Suku Cahokia (Mississippian)", flag: "🏕️" }
+        ]
+      }
+    },
+    {
+      year_min: 1401, year_max: 1700,
+      era: "Zaman Penjelajahan (Age of Discovery)",
+      continents: {
+        "Asia": [
+          { name: "Dinasti Ming & Qing (Tiongkok)", flag: "🐉" },
+          { name: "Kekaisaran Mughal (India)", flag: "🕌" },
+          { name: "Keshogunan Tokugawa (Jepang)", flag: "🌸" },
+          { name: "Kekaisaran Ottoman (Timur Tengah)", flag: "🌙" },
+          { name: "Kesultanan Mataram Islam", flag: "⚔️" },
+          { name: "Kesultanan Aceh", flag: "⛵" }
+        ],
+        "Eropa": [
+          { name: "Kekaisaran Spanyol (Habsburg)", flag: "🇪🇸" },
+          { name: "Kerajaan Portugal", flag: "🇵🇹" },
+          { name: "Republik Belanda (VOC)", flag: "🇳🇱" },
+          { name: "Kerajaan Inggris", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
+          { name: "Kekaisaran Rusia (Tsardom)", flag: "🇷🇺" }
+        ],
+        "Afrika": [
+          { name: "Kekaisaran Songhai", flag: "⚔️" },
+          { name: "Kerajaan Kongo", flag: "👑" },
+          { name: "Ethiopia (Dinasti Solomon)", flag: "🦁" }
+        ],
+        "Amerika": [
+          { name: "Viceroyalty Spanyol Kordoba/Peru", flag: "🇪🇸" },
+          { name: "Koloni Brasil (Portugal)", flag: "🇵🇹" },
+          { name: "Tiga Belas Koloni (Inggris)", flag: "🇬🇧" }
+        ]
+      }
+    },
+    {
+      year_min: 1701, year_max: 1913,
+      era: "Revolusi Industri & Kolonialisme (Imperialism)",
+      continents: {
+        "Asia": [
+          { name: "Hindia Belanda (Indonesia)", flag: "🇳🇱" },
+          { name: "British Raj (India)", flag: "🇬🇧" },
+          { name: "Dinasti Qing (Tiongkok)", flag: "🐉" },
+          { name: "Kekaisaran Jepang (Restorasi Meiji)", flag: "🇯🇵" },
+          { name: "Siam (Thailand - Merdeka)", flag: "🇹🇭" }
+        ],
+        "Eropa": [
+          { name: "Kekaisaran Britania Raya (British Empire)", flag: "🇬🇧" },
+          { name: "Kekaisaran Prancis (Napoleon/Republik)", flag: "🇫🇷" },
+          { name: "Kekaisaran Jerman (Prusia)", flag: "🇩🇪" },
+          { name: "Kekaisaran Rusia", flag: "🇷🇺" },
+          { name: "Kekaisaran Austro-Hongaria", flag: "🇦🇹" }
+        ],
+        "Afrika": [
+          { name: "Koloni Afrika Prancis", flag: "🇫🇷" },
+          { name: "Koloni Afrika Britania Raya", flag: "🇬🇧" },
+          { name: "Kongo Belgia", flag: "🇧🇪" },
+          { name: "Kekaisaran Ethiopia (Merdeka)", flag: "🇪🇹" }
+        ],
+        "Amerika": [
+          { name: "Amerika Serikat", flag: "🇺🇸" },
+          { name: "Kekaisaran/Republik Brasil", flag: "🇧🇷" },
+          { name: "Meksiko", flag: "🇲🇽" },
+          { name: "Gran Colombia / Negara Amerika Latin", flag: "🌎" }
+        ]
+      }
+    },
+    {
+      year_min: 1914, year_max: 1945,
+      era: "Era Perang Dunia (World Wars)",
+      continents: {
+        "Asia": [
+          { name: "Hindia Belanda / Pendudukan Jepang", flag: "🇯🇵" },
+          { name: "Republik Tiongkok (RoC)", flag: "🇹🇼" },
+          { name: "British Raj (India)", flag: "🇬🇧" },
+          { name: "Uni Soviet (Bagian Asia)", flag: "☭" }
+        ],
+        "Eropa": [
+          { name: "Jerman (Weimar / Nazi)", flag: "🇩🇪" },
+          { name: "Uni Soviet (USSR)", flag: "☭" },
+          { name: "Kerajaan Britania Raya", flag: "🇬🇧" },
+          { name: "Republik Prancis / Vichy", flag: "🇫🇷" },
+          { name: "Italia (Fasis)", flag: "🇮🇹" }
+        ],
+        "Afrika": [
+          { name: "Afrika Utara Prancis", flag: "🇫🇷" },
+          { name: "Mesir (Di bawah Inggris)", flag: "🇪🇬" },
+          { name: "Afrika Selatan", flag: "🇿🇦" }
+        ],
+        "Amerika": [
+          { name: "Amerika Serikat", flag: "🇺🇸" },
+          { name: "Kanada", flag: "🇨🇦" },
+          { name: "Brasil", flag: "🇧🇷" },
+          { name: "Argentina", flag: "🇦🇷" }
+        ]
+      }
+    },
+    {
+      year_min: 1946, year_max: 1990,
+      era: "Perang Dingin (Cold War)",
+      continents: {
+        "Asia": [
+          { name: "Republik Indonesia", flag: "🇮🇩" },
+          { name: "Republik Rakyat Tiongkok (RRT)", flag: "🇨🇳" },
+          { name: "Jepang", flag: "🇯🇵" },
+          { name: "India", flag: "🇮🇳" },
+          { name: "Pakistan", flag: "🇵🇰" },
+          { name: "Vietnam (Utara & Selatan)", flag: "🇻🇳" }
+        ],
+        "Eropa": [
+          { name: "Uni Soviet (Blok Timur)", flag: "☭" },
+          { name: "Jerman Barat & Jerman Timur", flag: "🇩🇪" },
+          { name: "Inggris Raya", flag: "🇬🇧" },
+          { name: "Prancis", flag: "🇫🇷" }
+        ],
+        "Afrika": [
+          { name: "Mesir", flag: "🇪🇬" },
+          { name: "Nigeria (Merdeka)", flag: "🇳🇬" },
+          { name: "Republik Demokratik Kongo (Zaire)", flag: "🇨🇩" },
+          { name: "Afrika Selatan (Apartheid)", flag: "🇿🇦" }
+        ],
+        "Amerika": [
+          { name: "Amerika Serikat (Blok Barat)", flag: "🇺🇸" },
+          { name: "Kuba", flag: "🇨🇺" },
+          { name: "Kanada", flag: "🇨🇦" },
+          { name: "Meksiko", flag: "🇲🇽" }
+        ]
+      }
+    },
+    {
+      year_min: 1991, year_max: 2026,
+      era: "Masa Modern (Kontemporer)",
+      continents: {
+        "Asia": [
+          { name: "Indonesia", flag: "🇮🇩" },
+          { name: "Tiongkok (RRT)", flag: "🇨🇳" },
+          { name: "Jepang", flag: "🇯🇵" },
+          { name: "India", flag: "🇮🇳" },
+          { name: "Korea Selatan", flag: "🇰🇷" },
+          { name: "Arab Saudi", flag: "🇸🇦" }
+        ],
+        "Eropa": [
+          { name: "Uni Eropa (EU)", flag: "🇪🇺" },
+          { name: "Federasi Rusia", flag: "🇷🇺" },
+          { name: "Jerman (Bersatu)", flag: "🇩🇪" },
+          { name: "Inggris Raya (UK)", flag: "🇬🇧" },
+          { name: "Prancis", flag: "🇫🇷" },
+          { name: "Ukraina", flag: "🇺🇦" }
+        ],
+        "Afrika": [
+          { name: "Nigeria", flag: "🇳🇬" },
+          { name: "Mesir", flag: "🇪🇬" },
+          { name: "Afrika Selatan", flag: "🇿🇦" },
+          { name: "Kenya", flag: "🇰🇪" }
+        ],
+        "Amerika": [
+          { name: "Amerika Serikat", flag: "🇺🇸" },
+          { name: "Kanada", flag: "🇨🇦" },
+          { name: "Brasil", flag: "🇧🇷" },
+          { name: "Meksiko", flag: "🇲🇽" },
+          { name: "Argentina", flag: "🇦🇷" }
+        ]
+      }
+    }
+  ];
+
+  const icons = {
+    "Asia": "fa-earth-asia",
+    "Eropa": "fa-earth-europe",
+    "Afrika": "fa-earth-africa",
+    "Amerika": "fa-earth-americas"
+  };
+
+  const slider = document.getElementById('year-slider');
+  const yearDisplay = document.getElementById('year-display');
+  const eraDisplay = document.getElementById('era-display');
+  const container = document.getElementById('continents-container');
+
+  function renderData(year) {
+    yearDisplay.innerText = year + " M";
+    
+    // Cari era yang cocok
+    let currentEra = historyDB[historyDB.length - 1]; // Default ke modern
+    for (let data of historyDB) {
+      if (year >= data.year_min && year <= data.year_max) {
+        currentEra = data;
+        break;
+      }
+    }
+
+    eraDisplay.innerText = currentEra.era;
+    
+    let html = "";
+    for (const [continent, countries] of Object.entries(currentEra.continents)) {
+      
+      let countryHtml = "";
+      for (let c of countries) {
+        countryHtml += 
+          <li class="country-item">
+            <span class="flag-icon"></span>
+            <span></span>
+          </li>
+        ;
+      }
+
+      html += 
+        <div class="continent-card">
+          <div class="continent-header">
+            <div class="continent-icon"><i class="fa-solid "></i></div>
+            <div class="continent-title"></div>
+          </div>
+          <ul class="country-list">
+            
+          </ul>
+        </div>
+      ;
+    }
+    
+    container.innerHTML = html;
+  }
+
+  // Event Listener
+  slider.addEventListener('input', (e) => {
+    renderData(parseInt(e.target.value));
+  });
+
+  // Initial Load
+  renderData(2026);
+
+</script>
+</body>
+</html>
