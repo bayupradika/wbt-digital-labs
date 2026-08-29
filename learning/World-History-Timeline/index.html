@@ -10,7 +10,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
     
-    body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #000; overflow: hidden; color: white; }
+    body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #050810; overflow: hidden; color: white; }
     
     /* Header Overlay */
     .wbt-global-header {
@@ -30,7 +30,7 @@
     /* Timeline Controls Overlay */
     .timeline-panel {
       position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 10;
-      background: rgba(15,23,42,0.9); backdrop-filter: blur(10px);
+      background: rgba(15,23,42,0.95); backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,0.2); border-radius: 24px;
       padding: 20px 40px; width: 90%; max-width: 800px;
       text-align: center; box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
@@ -42,13 +42,14 @@
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #fbbf24; cursor: pointer; margin-top: -10px; box-shadow: 0 0 10px #fbbf24; }
     input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #475569; border-radius: 2px; }
     
-    /* Info Card (Hover) */
+    /* Info Card */
     .info-card {
       position: absolute; top: 100px; right: 20px; z-index: 10;
       background: rgba(15,23,42,0.95); border: 1px solid rgba(255,255,255,0.2);
       border-radius: 16px; padding: 20px; width: 320px;
       display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       transition: all 0.3s ease;
+      pointer-events: none;
     }
     .info-card.active { display: block; }
     .info-flag { font-size: 40px; margin-bottom: 10px; }
@@ -66,7 +67,7 @@
 
 <div class="loading-screen" id="loading">
   <i class="fa-solid fa-earth-americas fa-spin" style="font-size: 60px; margin-bottom: 20px;"></i>
-  <h2>Memuat Peta Satelit 3D...</h2>
+  <h2>Memuat Data Geospasial...</h2>
 </div>
 
 <header class="wbt-global-header">
@@ -97,104 +98,94 @@
   let currentYear = 2000;
   let worldData = null;
   
-  // Database Sejarah Sederhana (Mapping kode negara modern ke entitas sejarah)
+  // Database Sejarah Sederhana
   function getCountryState(id, modernName, year) {
-    // Default fallback
     let state = {
       name: modernName || "Wilayah Tidak Diketahui",
       flag: "🏳️",
-      color: "#334155",
-      desc: "Belum ada catatan negara modern besar yang mendominasi wilayah ini pada tahun " + year + "."
+      color: "rgba(51, 65, 85, 0.6)", // transparan slate
+      desc: "Tidak ada catatan negara modern dominan pada tahun " + year + "."
     };
     
     // INDONESIA (IDN)
     if (id === 'IDN') {
       if (year >= 1945) {
         state.name = "Republik Indonesia"; state.flag = "🇮🇩"; state.color = "#dc2626";
-        state.desc = "Diproklamasikan pada 17 Agustus 1945, menyatukan ribuan pulau nusantara menjadi satu negara kesatuan berdaulat penuh.";
+        state.desc = "Diproklamasikan pada 17 Agustus 1945, menyatukan nusantara menjadi negara kesatuan.";
       } else if (year >= 1942 && year < 1945) {
         state.name = "Pendudukan Kekaisaran Jepang"; state.flag = "🇯🇵"; state.color = "#991b1b";
-        state.desc = "Wilayah nusantara diduduki oleh militer Kekaisaran Jepang selama Perang Dunia II.";
+        state.desc = "Wilayah nusantara diduduki oleh militer Jepang selama Perang Dunia II.";
       } else if (year >= 1800 && year < 1942) {
         state.name = "Hindia Belanda (VOC / Koloni)"; state.flag = "🇳🇱"; state.color = "#ea580c";
         state.desc = "Seluruh kepulauan disatukan secara administratif di bawah pemerintahan kolonial Belanda.";
       } else if (year >= 1293 && year < 1527) {
         state.name = "Kemaharajaan Majapahit"; state.flag = "☀️"; state.color = "#f59e0b";
-        state.desc = "Berpusat di Jawa, salah satu kerajaan terbesar yang menyatukan wilayah maritim Asia Tenggara.";
+        state.desc = "Kerajaan terbesar yang menyatukan wilayah maritim Asia Tenggara.";
       } else if (year >= 650 && year < 1293) {
         state.name = "Kedatuan Sriwijaya & Kerajaan Lokal"; state.flag = "⛵"; state.color = "#059669";
-        state.desc = "Wilayah nusantara masih terpisah-pisah ke dalam berbagai pulau dan kerajaan maritim kuat (seperti Sriwijaya di Sumatera).";
+        state.desc = "Kerajaan maritim kuat seperti Sriwijaya mendominasi perdagangan Sumatera & Jawa.";
       } else {
-        state.name = "Kerajaan Nusantara Kuno (Terpisah-pisah)"; state.flag = "🌋"; state.color = "#047857";
-        state.desc = "Wilayah nusantara belum bersatu. Terdiri dari pulau-pulau yang dikuasai kerajaan lokal kuno seperti Salakanagara, Kutai, dll.";
+        state.name = "Kerajaan Nusantara Kuno (Terpisah)"; state.flag = "🌋"; state.color = "#047857";
+        state.desc = "Terdiri dari pulau-pulau yang dikuasai kerajaan lokal seperti Salakanagara, Kutai, dll.";
       }
     }
-    
     // INGGRIS (GBR)
-    if (id === 'GBR') {
+    else if (id === 'GBR') {
       if (year >= 1707) { state.name = "Britania Raya (British Empire)"; state.flag = "🇬🇧"; state.color = "#1d4ed8"; }
       else if (year >= 1066) { state.name = "Kerajaan Inggris (Norman)"; state.flag = "🏴󠁧󠁢󠁥󠁮󠁧󠁿"; state.color = "#2563eb"; }
-      else if (year >= 400) { state.name = "Kerajaan Anglo-Saxon"; state.flag = "👑"; state.color = "#60a5fa"; }
-      else { state.name = "Britannia Romawi"; state.flag = "🏛️"; state.color = "#9333ea"; }
+      else { state.name = "Kerajaan Anglo-Saxon / Romawi"; state.flag = "👑"; state.color = "#60a5fa"; }
     }
-    
     // AMERIKA SERIKAT (USA)
-    if (id === 'USA') {
-      if (year >= 1776) { state.name = "Amerika Serikat"; state.flag = "🇺🇸"; state.color = "#2563eb"; state.desc = "Negara merdeka setelah Revolusi Amerika."; }
+    else if (id === 'USA') {
+      if (year >= 1776) { state.name = "Amerika Serikat"; state.flag = "🇺🇸"; state.color = "#2563eb"; }
       else if (year >= 1600) { state.name = "13 Koloni Inggris"; state.flag = "🇬🇧"; state.color = "#1e3a8a"; }
-      else { state.name = "Wilayah Suku Asli Amerika (Indian)"; state.flag = "🏕️"; state.color = "#047857"; state.desc = "Dikuasai oleh berbagai suku asli (Native Americans)."; }
+      else { state.name = "Wilayah Suku Asli Amerika (Indian)"; state.flag = "🏕️"; state.color = "#047857"; }
     }
-    
     // JEPANG (JPN)
-    if (id === 'JPN') {
+    else if (id === 'JPN') {
       if (year >= 1945) { state.name = "Jepang Modern"; state.flag = "🇯🇵"; state.color = "#dc2626"; }
       else if (year >= 1868) { state.name = "Kekaisaran Jepang (Meiji)"; state.flag = "🇯🇵"; state.color = "#991b1b"; }
-      else if (year >= 1603) { state.name = "Keshogunan Tokugawa"; state.flag = "🌸"; state.color = "#f472b6"; }
-      else { state.name = "Zaman Sengoku / Kamakura"; state.flag = "⚔️"; state.color = "#be185d"; }
+      else { state.name = "Keshogunan / Zaman Sengoku"; state.flag = "🌸"; state.color = "#f472b6"; }
     }
-    
     // TIONGKOK (CHN)
-    if (id === 'CHN') {
+    else if (id === 'CHN') {
       if (year >= 1949) { state.name = "Republik Rakyat Tiongkok"; state.flag = "🇨🇳"; state.color = "#dc2626"; }
       else if (year >= 1912) { state.name = "Republik Tiongkok"; state.flag = "🇹🇼"; state.color = "#2563eb"; }
       else if (year >= 1644) { state.name = "Dinasti Qing"; state.flag = "🐉"; state.color = "#f59e0b"; }
       else if (year >= 1368) { state.name = "Dinasti Ming"; state.flag = "🐉"; state.color = "#d97706"; }
-      else if (year >= 1271) { state.name = "Dinasti Yuan (Mongol)"; state.flag = "🐎"; state.color = "#6d28d9"; }
-      else if (year >= 618) { state.name = "Dinasti Tang/Song"; state.flag = "🐉"; state.color = "#b45309"; }
-      else { state.name = "Dinasti Han / Jin"; state.flag = "🐉"; state.color = "#92400e"; }
+      else { state.name = "Dinasti Han / Tang / Song / Yuan"; state.flag = "🐉"; state.color = "#b45309"; }
     }
-    
     // RUSIA (RUS)
-    if (id === 'RUS') {
+    else if (id === 'RUS') {
       if (year >= 1991) { state.name = "Federasi Rusia"; state.flag = "🇷🇺"; state.color = "#3b82f6"; }
       else if (year >= 1922) { state.name = "Uni Soviet (USSR)"; state.flag = "☭"; state.color = "#dc2626"; }
       else if (year >= 1721) { state.name = "Kekaisaran Rusia"; state.flag = "🇷🇺"; state.color = "#fcd34d"; }
-      else if (year >= 1547) { state.name = "Ketsaran Rusia"; state.flag = "👑"; state.color = "#fbbf24"; }
-      else if (year >= 1240) { state.name = "Kekhanan Emas (Mongol)"; state.flag = "🐎"; state.color = "#7c3aed"; }
-      else { state.name = "Kievan Rus"; state.flag = "⚔️"; state.color = "#10b981"; }
+      else { state.name = "Ketsaran Rusia / Kievan Rus"; state.flag = "👑"; state.color = "#fbbf24"; }
     }
-    
-    // ITALIA (ITA)
-    if (id === 'ITA') {
-      if (year >= 1946) { state.name = "Republik Italia"; state.flag = "🇮🇹"; state.color = "#10b981"; }
-      else if (year >= 1861) { state.name = "Kerajaan Italia"; state.flag = "🇮🇹"; state.color = "#059669"; }
-      else if (year >= 476) { state.name = "Negara Kota (Venesia, Genoa, Papal)"; state.flag = "⛵"; state.color = "#0f766e"; }
-      else { state.name = "Inti Kekaisaran Romawi"; state.flag = "🏛️"; state.color = "#9333ea"; state.desc = "Pusat pemerintahan Kekaisaran Romawi Kuno."; }
+    // MESIR (EGY)
+    else if (id === 'EGY') {
+      if (year >= 1922) { state.name = "Mesir Modern"; state.flag = "🇪🇬"; state.color = "#fcd34d"; }
+      else if (year >= 1517) { state.name = "Eyalet Mesir (Ottoman)"; state.flag = "🌙"; state.color = "#d97706"; }
+      else { state.name = "Mesir Kuno / Romawi / Fatimiyah"; state.flag = "🏺"; state.color = "#b45309"; }
     }
 
     return state;
   }
 
-  // Init Globe
+  // Init Globe (No texture image to ensure it loads instantly and borders are always visible)
   const world = Globe()
     (document.getElementById('globeViz'))
-    .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
-    .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
-    .polygonAltitude(0.01)
-    .polygonSideColor(() => 'rgba(0,0,0,0.2)')
-    .polygonStrokeColor(() => '#111')
+    .backgroundColor('#050810')
+    .showGlobe(true)
+    .showAtmosphere(true)
+    .atmosphereColor('#3a228a')
+    .atmosphereAltitude(0.15)
+    .globeColor('#0f172a') // solid dark blue/gray base
+    .polygonAltitude(0.015) // Slightly raised so it doesn't clip
+    .polygonSideColor(() => 'rgba(0,0,0,0.1)')
+    .polygonStrokeColor(() => '#cbd5e1') // White outlines so countries are always visible!
     .onPolygonHover(hoverD => {
-      world.polygonAltitude(d => d === hoverD ? 0.06 : 0.01);
+      world.polygonAltitude(d => d === hoverD ? 0.05 : 0.015);
       
       const card = document.getElementById('infoCard');
       if (hoverD) {
@@ -213,24 +204,29 @@
     worldData = countries;
     world.polygonsData(countries.features);
     updateGlobe(currentYear);
+    
+    // Auto-rotate the globe slowly for better visual effect
+    world.controls().autoRotate = true;
+    world.controls().autoRotateSpeed = 0.5;
+    
     document.getElementById('loading').style.display = 'none';
   });
 
-  // Slider Logic
+  // Force re-render of colors when slider moves
   const slider = document.getElementById('yearSlider');
   const yearVal = document.getElementById('yearVal');
   
   function updateGlobe(y) {
-    world.polygonCapColor(d => {
-      const state = getCountryState(d.id, d.properties.name, y);
-      return state.color;
-    });
+    if (!worldData) return;
+    // We update the cap color function, then we must re-feed the data to force a hard WebGL re-render
+    world.polygonCapColor(d => getCountryState(d.id, d.properties.name, y).color);
+    world.polygonsData(worldData.features);
   }
 
   slider.addEventListener('input', (e) => {
     currentYear = parseInt(e.target.value);
     yearVal.innerText = currentYear + " M";
-    if (worldData) updateGlobe(currentYear);
+    updateGlobe(currentYear);
   });
   
   // Responsive resize
