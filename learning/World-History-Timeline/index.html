@@ -63,14 +63,6 @@
       line-height: 1;
       margin-bottom: 10px;
     }
-    .era-name {
-      font-size: 18px;
-      color: var(--primary);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 30px;
-    }
     
     .slider-container {
       position: relative;
@@ -172,6 +164,11 @@
     .flag-icon {
       font-size: 24px;
     }
+    .empty-state {
+      color: var(--text-muted);
+      font-size: 13px;
+      font-style: italic;
+    }
     
     @media (max-width: 768px) {
       .wbt-global-header { border-radius: 16px; flex-direction: column; padding: 15px; }
@@ -183,7 +180,7 @@
 
 <header class="wbt-global-header">
   <a href="https://bayupradika.github.io/wbt-digital-labs/" class="wbt-global-header-left" title="Kembali ke Portal WBT">
-    <img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png"/>
+    <img alt="WBT Logo" src="/wbt-digital-labs/assets/img/wbt-logo.png" onerror="this.src='https://via.placeholder.com/34'"/>
     <div class="wbt-global-header-title">World History Timeline</div>
   </a>
   <div class="wbt-global-header-right">
@@ -194,26 +191,24 @@
 <div class="container">
   <div class="hero">
     <h1>Mesin Waktu <span class="text-gradient">Geografi & Politik</span></h1>
-    <p>Eksplorasi peradaban, kekaisaran, dan negara yang berdiri di seluruh benua dari <b>0 Masehi</b> hingga masa kini.</p>
+    <p>Eksplorasi peradaban, kekaisaran, dan negara yang berdiri di seluruh benua dengan skala waktu <b>setiap 50 Tahun</b>.</p>
   </div>
 
   <div class="timeline-controls">
-    <div class="year-display" id="year-display">2026 M</div>
-    <div class="era-name" id="era-display">Masa Modern (Kontemporer)</div>
+    <div class="year-display" id="year-display">2000 M</div>
     
     <div class="slider-container">
-      <input type="range" min="0" max="2026" value="2026" class="slider" id="year-slider">
+      <input type="range" min="0" max="2000" step="50" value="2000" class="slider" id="year-slider">
       <div class="timeline-ticks">
         <span>0 M</span>
         <span>500 M</span>
         <span>1000 M</span>
         <span>1500 M</span>
-        <span>1900 M</span>
-        <span>2026 M</span>
+        <span>2000 M</span>
       </div>
     </div>
     <div style="margin-top: 15px; color: var(--text-muted); font-size: 13px;">
-      <i class="fa-solid fa-info-circle"></i> Geser slider di atas untuk melihat perubahan peta politik dunia. Data disederhanakan berdasarkan abad/era besar.
+      <i class="fa-solid fa-info-circle"></i> Geser slider di atas untuk melihat perubahan peta politik dunia (interval 50 tahun).
     </div>
   </div>
 
@@ -223,253 +218,121 @@
 </div>
 
 <script>
-  // Data Sejarah (Sederhana berdasarkan periode)
-  const historyDB = [
-    {
-      year_min: 0, year_max: 400,
-      era: "Zaman Kuno Klasik (Antiquity)",
-      continents: {
-        "Asia": [
-          { name: "Dinasti Han (Tiongkok)", flag: "🐉" },
-          { name: "Kekaisaran Parthia (Persia)", flag: "🦅" },
-          { name: "Kekaisaran Kushan (India Utara)", flag: "🐘" },
-          { name: "Kerajaan Salakanagara (Nusantara)", flag: "🌋" }
-        ],
-        "Eropa": [
-          { name: "Kekaisaran Romawi (Roman Empire)", flag: "🏛️" },
-          { name: "Suku-suku Jermanik", flag: "⚔️" },
-          { name: "Suku Celtic (Britannia)", flag: "🛡️" }
-        ],
-        "Afrika": [
-          { name: "Kerajaan Aksum (Ethiopia)", flag: "🦁" },
-          { name: "Mesir Romawi (Provinsi)", flag: "🏺" },
-          { name: "Kerajaan Kush (Nubia)", flag: "🏜️" }
-        ],
-        "Amerika": [
-          { name: "Peradaban Maya (Mesoamerika)", flag: "🛕" },
-          { name: "Peradaban Teotihuacan", flag: "🌞" },
-          { name: "Peradaban Nazca (Andes)", flag: "🦅" }
-        ]
-      }
-    },
-    {
-      year_min: 401, year_max: 1000,
-      era: "Awal Abad Pertengahan (Dark Ages)",
-      continents: {
-        "Asia": [
-          { name: "Dinasti Tang (Tiongkok)", flag: "🐉" },
-          { name: "Kekhalifahan Umayyah/Abbasiyah", flag: "🌙" },
-          { name: "Kerajaan Sriwijaya (Nusantara)", flag: "⛵" },
-          { name: "Kerajaan Mataram Kuno", flag: "🛕" }
-        ],
-        "Eropa": [
-          { name: "Kekaisaran Bizantium (Romawi Timur)", flag: "🦅" },
-          { name: "Kekaisaran Karoling (Francia)", flag: "⚜️" },
-          { name: "Kerajaan Anglo-Saxon (Inggris)", flag: "👑" },
-          { name: "Kekhanan Khazar", flag: "🐎" }
-        ],
-        "Afrika": [
-          { name: "Kekhalifahan Fatimiyah (Mesir)", flag: "🌙" },
-          { name: "Kekaisaran Ghana", flag: "💰" },
-          { name: "Kerajaan Makuria", flag: "✝️" }
-        ],
-        "Amerika": [
-          { name: "Peradaban Maya Klasik", flag: "🛕" },
-          { name: "Kekaisaran Tiwanaku (Andes)", flag: "⛰️" }
-        ]
-      }
-    },
-    {
-      year_min: 1001, year_max: 1400,
-      era: "Abad Pertengahan Tinggi (High Middle Ages)",
-      continents: {
-        "Asia": [
-          { name: "Kekaisaran Mongol", flag: "🐎" },
-          { name: "Dinasti Song (Tiongkok)", flag: "🐉" },
-          { name: "Kesultanan Delhi (India)", flag: "🕌" },
-          { name: "Kerajaan Majapahit (Nusantara)", flag: "☀️" },
-          { name: "Kerajaan Singhasari", flag: "🌋" }
-        ],
-        "Eropa": [
-          { name: "Kekaisaran Romawi Suci (HRE)", flag: "🦅" },
-          { name: "Kerajaan Prancis", flag: "⚜️" },
-          { name: "Kerajaan Inggris", flag: "🦁" },
-          { name: "Negara-Kota Italia (Venesia, Genoa)", flag: "⛵" }
-        ],
-        "Afrika": [
-          { name: "Kekaisaran Mali (Mansa Musa)", flag: "🪙" },
-          { name: "Kesultanan Mamluk (Mesir)", flag: "🐪" },
-          { name: "Kerajaan Zimbabwe", flag: "🧱" }
-        ],
-        "Amerika": [
-          { name: "Kekaisaran Inca (Awal)", flag: "🏔️" },
-          { name: "Peradaban Aztec (Awal)", flag: "🦅" },
-          { name: "Suku Cahokia (Mississippian)", flag: "🏕️" }
-        ]
-      }
-    },
-    {
-      year_min: 1401, year_max: 1700,
-      era: "Zaman Penjelajahan (Age of Discovery)",
-      continents: {
-        "Asia": [
-          { name: "Dinasti Ming & Qing (Tiongkok)", flag: "🐉" },
-          { name: "Kekaisaran Mughal (India)", flag: "🕌" },
-          { name: "Keshogunan Tokugawa (Jepang)", flag: "🌸" },
-          { name: "Kekaisaran Ottoman (Timur Tengah)", flag: "🌙" },
-          { name: "Kesultanan Mataram Islam", flag: "⚔️" },
-          { name: "Kesultanan Aceh", flag: "⛵" }
-        ],
-        "Eropa": [
-          { name: "Kekaisaran Spanyol (Habsburg)", flag: "🇪🇸" },
-          { name: "Kerajaan Portugal", flag: "🇵🇹" },
-          { name: "Republik Belanda (VOC)", flag: "🇳🇱" },
-          { name: "Kerajaan Inggris", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿" },
-          { name: "Kekaisaran Rusia (Tsardom)", flag: "🇷🇺" }
-        ],
-        "Afrika": [
-          { name: "Kekaisaran Songhai", flag: "⚔️" },
-          { name: "Kerajaan Kongo", flag: "👑" },
-          { name: "Ethiopia (Dinasti Solomon)", flag: "🦁" }
-        ],
-        "Amerika": [
-          { name: "Viceroyalty Spanyol Kordoba/Peru", flag: "🇪🇸" },
-          { name: "Koloni Brasil (Portugal)", flag: "🇵🇹" },
-          { name: "Tiga Belas Koloni (Inggris)", flag: "🇬🇧" }
-        ]
-      }
-    },
-    {
-      year_min: 1701, year_max: 1913,
-      era: "Revolusi Industri & Kolonialisme (Imperialism)",
-      continents: {
-        "Asia": [
-          { name: "Hindia Belanda (Indonesia)", flag: "🇳🇱" },
-          { name: "British Raj (India)", flag: "🇬🇧" },
-          { name: "Dinasti Qing (Tiongkok)", flag: "🐉" },
-          { name: "Kekaisaran Jepang (Restorasi Meiji)", flag: "🇯🇵" },
-          { name: "Siam (Thailand - Merdeka)", flag: "🇹🇭" }
-        ],
-        "Eropa": [
-          { name: "Kekaisaran Britania Raya (British Empire)", flag: "🇬🇧" },
-          { name: "Kekaisaran Prancis (Napoleon/Republik)", flag: "🇫🇷" },
-          { name: "Kekaisaran Jerman (Prusia)", flag: "🇩🇪" },
-          { name: "Kekaisaran Rusia", flag: "🇷🇺" },
-          { name: "Kekaisaran Austro-Hongaria", flag: "🇦🇹" }
-        ],
-        "Afrika": [
-          { name: "Koloni Afrika Prancis", flag: "🇫🇷" },
-          { name: "Koloni Afrika Britania Raya", flag: "🇬🇧" },
-          { name: "Kongo Belgia", flag: "🇧🇪" },
-          { name: "Kekaisaran Ethiopia (Merdeka)", flag: "🇪🇹" }
-        ],
-        "Amerika": [
-          { name: "Amerika Serikat", flag: "🇺🇸" },
-          { name: "Kekaisaran/Republik Brasil", flag: "🇧🇷" },
-          { name: "Meksiko", flag: "🇲🇽" },
-          { name: "Gran Colombia / Negara Amerika Latin", flag: "🌎" }
-        ]
-      }
-    },
-    {
-      year_min: 1914, year_max: 1945,
-      era: "Era Perang Dunia (World Wars)",
-      continents: {
-        "Asia": [
-          { name: "Hindia Belanda / Pendudukan Jepang", flag: "🇯🇵" },
-          { name: "Republik Tiongkok (RoC)", flag: "🇹🇼" },
-          { name: "British Raj (India)", flag: "🇬🇧" },
-          { name: "Uni Soviet (Bagian Asia)", flag: "☭" }
-        ],
-        "Eropa": [
-          { name: "Jerman (Weimar / Nazi)", flag: "🇩🇪" },
-          { name: "Uni Soviet (USSR)", flag: "☭" },
-          { name: "Kerajaan Britania Raya", flag: "🇬🇧" },
-          { name: "Republik Prancis / Vichy", flag: "🇫🇷" },
-          { name: "Italia (Fasis)", flag: "🇮🇹" }
-        ],
-        "Afrika": [
-          { name: "Afrika Utara Prancis", flag: "🇫🇷" },
-          { name: "Mesir (Di bawah Inggris)", flag: "🇪🇬" },
-          { name: "Afrika Selatan", flag: "🇿🇦" }
-        ],
-        "Amerika": [
-          { name: "Amerika Serikat", flag: "🇺🇸" },
-          { name: "Kanada", flag: "🇨🇦" },
-          { name: "Brasil", flag: "🇧🇷" },
-          { name: "Argentina", flag: "🇦🇷" }
-        ]
-      }
-    },
-    {
-      year_min: 1946, year_max: 1990,
-      era: "Perang Dingin (Cold War)",
-      continents: {
-        "Asia": [
-          { name: "Republik Indonesia", flag: "🇮🇩" },
-          { name: "Republik Rakyat Tiongkok (RRT)", flag: "🇨🇳" },
-          { name: "Jepang", flag: "🇯🇵" },
-          { name: "India", flag: "🇮🇳" },
-          { name: "Pakistan", flag: "🇵🇰" },
-          { name: "Vietnam (Utara & Selatan)", flag: "🇻🇳" }
-        ],
-        "Eropa": [
-          { name: "Uni Soviet (Blok Timur)", flag: "☭" },
-          { name: "Jerman Barat & Jerman Timur", flag: "🇩🇪" },
-          { name: "Inggris Raya", flag: "🇬🇧" },
-          { name: "Prancis", flag: "🇫🇷" }
-        ],
-        "Afrika": [
-          { name: "Mesir", flag: "🇪🇬" },
-          { name: "Nigeria (Merdeka)", flag: "🇳🇬" },
-          { name: "Republik Demokratik Kongo (Zaire)", flag: "🇨🇩" },
-          { name: "Afrika Selatan (Apartheid)", flag: "🇿🇦" }
-        ],
-        "Amerika": [
-          { name: "Amerika Serikat (Blok Barat)", flag: "🇺🇸" },
-          { name: "Kuba", flag: "🇨🇺" },
-          { name: "Kanada", flag: "🇨🇦" },
-          { name: "Meksiko", flag: "🇲🇽" }
-        ]
-      }
-    },
-    {
-      year_min: 1991, year_max: 2026,
-      era: "Masa Modern (Kontemporer)",
-      continents: {
-        "Asia": [
-          { name: "Indonesia", flag: "🇮🇩" },
-          { name: "Tiongkok (RRT)", flag: "🇨🇳" },
-          { name: "Jepang", flag: "🇯🇵" },
-          { name: "India", flag: "🇮🇳" },
-          { name: "Korea Selatan", flag: "🇰🇷" },
-          { name: "Arab Saudi", flag: "🇸🇦" }
-        ],
-        "Eropa": [
-          { name: "Uni Eropa (EU)", flag: "🇪🇺" },
-          { name: "Federasi Rusia", flag: "🇷🇺" },
-          { name: "Jerman (Bersatu)", flag: "🇩🇪" },
-          { name: "Inggris Raya (UK)", flag: "🇬🇧" },
-          { name: "Prancis", flag: "🇫🇷" },
-          { name: "Ukraina", flag: "🇺🇦" }
-        ],
-        "Afrika": [
-          { name: "Nigeria", flag: "🇳🇬" },
-          { name: "Mesir", flag: "🇪🇬" },
-          { name: "Afrika Selatan", flag: "🇿🇦" },
-          { name: "Kenya", flag: "🇰🇪" }
-        ],
-        "Amerika": [
-          { name: "Amerika Serikat", flag: "🇺🇸" },
-          { name: "Kanada", flag: "🇨🇦" },
-          { name: "Brasil", flag: "🇧🇷" },
-          { name: "Meksiko", flag: "🇲🇽" },
-          { name: "Argentina", flag: "🇦🇷" }
-        ]
-      }
-    }
+  // Data Sejarah Dinamis berdasarkan Titik Waktu (Start & End Year)
+  const empires = [
+    // --- EROPA ---
+    { name: "Kekaisaran Romawi", flag: "🏛️", continent: "Eropa", start: 0, end: 395 },
+    { name: "Kekaisaran Romawi Barat", flag: "🏛️", continent: "Eropa", start: 395, end: 476 },
+    { name: "Kekaisaran Bizantium (Romawi Timur)", flag: "🦅", continent: "Eropa", start: 330, end: 1453 },
+    { name: "Kerajaan Franka", flag: "⚔️", continent: "Eropa", start: 481, end: 843 },
+    { name: "Kekaisaran Karoling", flag: "⚜️", continent: "Eropa", start: 800, end: 888 },
+    { name: "Kekaisaran Romawi Suci (HRE)", flag: "🦅", continent: "Eropa", start: 962, end: 1806 },
+    { name: "Inggris (Anglo-Saxon)", flag: "👑", continent: "Eropa", start: 927, end: 1066 },
+    { name: "Kerajaan Inggris", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", continent: "Eropa", start: 1066, end: 1707 },
+    { name: "Britania Raya", flag: "🇬🇧", continent: "Eropa", start: 1707, end: 2026 },
+    { name: "Kerajaan Prancis", flag: "⚜️", continent: "Eropa", start: 843, end: 1792 },
+    { name: "Kekaisaran Prancis (Napoleon)", flag: "🇫🇷", continent: "Eropa", start: 1804, end: 1815 },
+    { name: "Republik Prancis", flag: "🇫🇷", continent: "Eropa", start: 1870, end: 2026 },
+    { name: "Kekaisaran Spanyol", flag: "🇪🇸", continent: "Eropa", start: 1492, end: 1975 },
+    { name: "Spanyol Modern", flag: "🇪🇸", continent: "Eropa", start: 1975, end: 2026 },
+    { name: "Kerajaan Portugal", flag: "🇵🇹", continent: "Eropa", start: 1139, end: 1910 },
+    { name: "Portugal Modern", flag: "🇵🇹", continent: "Eropa", start: 1910, end: 2026 },
+    { name: "Republik Belanda / VOC", flag: "🇳🇱", continent: "Eropa", start: 1581, end: 1795 },
+    { name: "Belanda Modern", flag: "🇳🇱", continent: "Eropa", start: 1815, end: 2026 },
+    { name: "Kekaisaran Rusia", flag: "🇷🇺", continent: "Eropa", start: 1721, end: 1917 },
+    { name: "Uni Soviet (USSR)", flag: "☭", continent: "Eropa", start: 1922, end: 1991 },
+    { name: "Federasi Rusia", flag: "🇷🇺", continent: "Eropa", start: 1991, end: 2026 },
+    { name: "Kekaisaran Austro-Hongaria", flag: "🇦🇹", continent: "Eropa", start: 1867, end: 1918 },
+    { name: "Jerman (Prusia & Kekaisaran)", flag: "🇩🇪", continent: "Eropa", start: 1525, end: 1918 },
+    { name: "Nazi Jerman (Reich Ketiga)", flag: "🇩🇪", continent: "Eropa", start: 1933, end: 1945 },
+    { name: "Jerman Barat & Timur", flag: "🇩🇪", continent: "Eropa", start: 1949, end: 1990 },
+    { name: "Jerman Modern (Bersatu)", flag: "🇩🇪", continent: "Eropa", start: 1990, end: 2026 },
+    { name: "Republik Italia", flag: "🇮🇹", continent: "Eropa", start: 1946, end: 2026 },
+    { name: "Kekhanan Emas (Mongol/Tatar)", flag: "🐎", continent: "Eropa", start: 1240, end: 1502 },
+
+    // --- ASIA ---
+    { name: "Dinasti Han", flag: "🐉", continent: "Asia", start: 0, end: 220 },
+    { name: "Zaman Tiga Negara (Samkok)", flag: "⚔️", continent: "Asia", start: 220, end: 280 },
+    { name: "Dinasti Jin", flag: "🐉", continent: "Asia", start: 266, end: 420 },
+    { name: "Dinasti Tang", flag: "🐉", continent: "Asia", start: 618, end: 907 },
+    { name: "Dinasti Song", flag: "🐉", continent: "Asia", start: 960, end: 1279 },
+    { name: "Kekaisaran Mongol (Genghis Khan)", flag: "🐎", continent: "Asia", start: 1206, end: 1368 },
+    { name: "Dinasti Ming", flag: "🐉", continent: "Asia", start: 1368, end: 1644 },
+    { name: "Dinasti Qing", flag: "🐉", continent: "Asia", start: 1644, end: 1912 },
+    { name: "Republik Tiongkok (RoC)", flag: "🇹🇼", continent: "Asia", start: 1912, end: 1949 },
+    { name: "Republik Rakyat Tiongkok", flag: "🇨🇳", continent: "Asia", start: 1949, end: 2026 },
+    
+    { name: "Kekaisaran Parthia", flag: "🦅", continent: "Asia", start: 0, end: 224 },
+    { name: "Kekaisaran Sassanid (Persia)", flag: "🔥", continent: "Asia", start: 224, end: 651 },
+    { name: "Kekhalifahan Rasyidun & Umayyah", flag: "🌙", continent: "Asia", start: 632, end: 750 },
+    { name: "Kekhalifahan Abbasiyah", flag: "🌙", continent: "Asia", start: 750, end: 1258 },
+    { name: "Kekaisaran Ottoman (Utsmaniyah)", flag: "🌙", continent: "Asia", start: 1299, end: 1922 },
+    { name: "Arab Saudi", flag: "🇸🇦", continent: "Asia", start: 1932, end: 2026 },
+    
+    { name: "Kekaisaran Kushan", flag: "🐘", continent: "Asia", start: 30, end: 375 },
+    { name: "Kekaisaran Gupta", flag: "🛕", continent: "Asia", start: 320, end: 550 },
+    { name: "Kesultanan Delhi", flag: "🕌", continent: "Asia", start: 1206, end: 1526 },
+    { name: "Kekaisaran Mughal", flag: "🕌", continent: "Asia", start: 1526, end: 1857 },
+    { name: "British Raj (Inggris-India)", flag: "🇬🇧", continent: "Asia", start: 1858, end: 1947 },
+    { name: "Republik India", flag: "🇮🇳", continent: "Asia", start: 1947, end: 2026 },
+    { name: "Pakistan", flag: "🇵🇰", continent: "Asia", start: 1947, end: 2026 },
+    
+    { name: "Keshogunan Kamakura", flag: "⚔️", continent: "Asia", start: 1185, end: 1333 },
+    { name: "Keshogunan Tokugawa", flag: "🌸", continent: "Asia", start: 1603, end: 1868 },
+    { name: "Kekaisaran Jepang (Meiji)", flag: "🇯🇵", continent: "Asia", start: 1868, end: 1945 },
+    { name: "Jepang Modern", flag: "🇯🇵", continent: "Asia", start: 1945, end: 2026 },
+    
+    { name: "Kerajaan Salakanagara", flag: "🌋", continent: "Asia", start: 130, end: 362 },
+    { name: "Kerajaan Tarumanagara", flag: "🌋", continent: "Asia", start: 358, end: 669 },
+    { name: "Kedatuan Sriwijaya", flag: "⛵", continent: "Asia", start: 650, end: 1377 },
+    { name: "Kerajaan Mataram Kuno", flag: "🛕", continent: "Asia", start: 732, end: 1006 },
+    { name: "Kerajaan Kediri", flag: "🗡️", continent: "Asia", start: 1042, end: 1222 },
+    { name: "Kerajaan Singhasari", flag: "🌋", continent: "Asia", start: 1222, end: 1292 },
+    { name: "Kemaharajaan Majapahit", flag: "☀️", continent: "Asia", start: 1293, end: 1527 },
+    { name: "Kesultanan Demak", flag: "🕌", continent: "Asia", start: 1475, end: 1554 },
+    { name: "Kesultanan Mataram Islam", flag: "⚔️", continent: "Asia", start: 1587, end: 1755 },
+    { name: "Kesultanan Aceh", flag: "⛵", continent: "Asia", start: 1496, end: 1903 },
+    { name: "Hindia Belanda (VOC & Koloni)", flag: "🇳🇱", continent: "Asia", start: 1602, end: 1942 },
+    { name: "Pendudukan Jepang (Indonesia)", flag: "🇯🇵", continent: "Asia", start: 1942, end: 1945 },
+    { name: "Republik Indonesia", flag: "🇮🇩", continent: "Asia", start: 1945, end: 2026 },
+    { name: "Korea Selatan", flag: "🇰🇷", continent: "Asia", start: 1948, end: 2026 },
+    { name: "Korea Utara", flag: "🇰🇵", continent: "Asia", start: 1948, end: 2026 },
+
+    // --- AFRIKA ---
+    { name: "Mesir Romawi", flag: "🏺", continent: "Afrika", start: 0, end: 641 },
+    { name: "Kerajaan Aksum (Ethiopia)", flag: "🦁", continent: "Afrika", start: 100, end: 940 },
+    { name: "Kekhalifahan Fatimiyah", flag: "🌙", continent: "Afrika", start: 909, end: 1171 },
+    { name: "Kekaisaran Ghana", flag: "💰", continent: "Afrika", start: 300, end: 1200 },
+    { name: "Kekaisaran Mali", flag: "🪙", continent: "Afrika", start: 1230, end: 1670 },
+    { name: "Kekaisaran Songhai", flag: "⚔️", continent: "Afrika", start: 1464, end: 1591 },
+    { name: "Kerajaan Kongo", flag: "👑", continent: "Afrika", start: 1390, end: 1914 },
+    { name: "Kesultanan Mamluk (Mesir)", flag: "🐪", continent: "Afrika", start: 1250, end: 1517 },
+    { name: "Afrika Barat Prancis (Koloni)", flag: "🇫🇷", continent: "Afrika", start: 1895, end: 1958 },
+    { name: "Afrika Selatan (Inggris/Apartheid)", flag: "🇿🇦", continent: "Afrika", start: 1910, end: 1994 },
+    { name: "Afrika Selatan Modern", flag: "🇿🇦", continent: "Afrika", start: 1994, end: 2026 },
+    { name: "Mesir Modern", flag: "🇪🇬", continent: "Afrika", start: 1922, end: 2026 },
+    { name: "Nigeria", flag: "🇳🇬", continent: "Afrika", start: 1960, end: 2026 },
+    { name: "Kenya", flag: "🇰🇪", continent: "Afrika", start: 1963, end: 2026 },
+    { name: "Republik Demokratik Kongo", flag: "🇨🇩", continent: "Afrika", start: 1960, end: 2026 },
+
+    // --- AMERIKA ---
+    { name: "Peradaban Maya Klasik", flag: "🛕", continent: "Amerika", start: 250, end: 900 },
+    { name: "Teotihuacan", flag: "🌞", continent: "Amerika", start: 0, end: 550 },
+    { name: "Kekaisaran Inca", flag: "🏔️", continent: "Amerika", start: 1438, end: 1533 },
+    { name: "Kekaisaran Aztec", flag: "🦅", continent: "Amerika", start: 1345, end: 1521 },
+    { name: "Viceroyalty Spanyol Kordoba/Peru", flag: "🇪🇸", continent: "Amerika", start: 1535, end: 1821 },
+    { name: "Koloni Brasil (Portugal)", flag: "🇵🇹", continent: "Amerika", start: 1500, end: 1815 },
+    { name: "Tiga Belas Koloni (Inggris)", flag: "🇬🇧", continent: "Amerika", start: 1607, end: 1776 },
+    { name: "Amerika Serikat", flag: "🇺🇸", continent: "Amerika", start: 1776, end: 2026 },
+    { name: "Kekaisaran Brasil", flag: "🇧🇷", continent: "Amerika", start: 1822, end: 1889 },
+    { name: "Republik Brasil", flag: "🇧🇷", continent: "Amerika", start: 1889, end: 2026 },
+    { name: "Meksiko", flag: "🇲🇽", continent: "Amerika", start: 1821, end: 2026 },
+    { name: "Gran Colombia", flag: "🌎", continent: "Amerika", start: 1819, end: 1831 },
+    { name: "Kanada", flag: "🇨🇦", continent: "Amerika", start: 1867, end: 2026 },
+    { name: "Argentina", flag: "🇦🇷", continent: "Amerika", start: 1816, end: 2026 }
   ];
 
+  const continentsList = ["Asia", "Eropa", "Afrika", "Amerika"];
   const icons = {
     "Asia": "fa-earth-asia",
     "Eropa": "fa-earth-europe",
@@ -479,34 +342,36 @@
 
   const slider = document.getElementById('year-slider');
   const yearDisplay = document.getElementById('year-display');
-  const eraDisplay = document.getElementById('era-display');
   const container = document.getElementById('continents-container');
 
   function renderData(year) {
     yearDisplay.innerText = year + " M";
     
-    // Cari era yang cocok
-    let currentEra = historyDB[historyDB.length - 1]; // Default ke modern
-    for (let data of historyDB) {
-      if (year >= data.year_min && year <= data.year_max) {
-        currentEra = data;
-        break;
-      }
-    }
-
-    eraDisplay.innerText = currentEra.era;
+    // Temukan semua kerajaan yang hidup di tahun ini
+    const activeEmpires = empires.filter(e => year >= e.start && year <= e.end);
     
     let html = "";
-    for (const [continent, countries] of Object.entries(currentEra.continents)) {
+    for (const continent of continentsList) {
+      
+      const countriesInContinent = activeEmpires.filter(e => e.continent === continent);
       
       let countryHtml = "";
-      for (let c of countries) {
-        countryHtml += 
-          <li class="country-item">
-            <span class="flag-icon"></span>
-            <span></span>
-          </li>
-        ;
+      if (countriesInContinent.length === 0) {
+        countryHtml = <li class="country-item empty-state">Tidak ada catatan data dominan pada periode ini.</li>;
+      } else {
+        for (let c of countriesInContinent) {
+          countryHtml += 
+            <li class="country-item">
+              <span class="flag-icon"></span>
+              <div style="display:flex; flex-direction:column;">
+                <span style="font-size: 15px;"></span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">
+                  Eksis:  M -  M (Benua )
+                </span>
+              </div>
+            </li>
+          ;
+        }
       }
 
       html += 
@@ -531,7 +396,7 @@
   });
 
   // Initial Load
-  renderData(2026);
+  renderData(parseInt(slider.value));
 
 </script>
 </body>
