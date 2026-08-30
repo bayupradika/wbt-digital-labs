@@ -220,7 +220,7 @@
     if (!worldData) return;
     // We update the cap color function, then we must re-feed the data to force a hard WebGL re-render
     world.polygonCapColor(d => getCountryState(d.id, d.properties.name, y).color);
-    world.polygonsData(worldData.features);
+    // world.polygonsData removed for instant performance
   }
 
   slider.addEventListener('input', (e) => {
@@ -236,3 +236,4 @@
 </script>
 </body>
 </html>
+
