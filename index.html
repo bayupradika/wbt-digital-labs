@@ -1,6 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="id">
 <head>
+
+<script>var _0x1a2b=["bayupradika.github.io","localhost","127.0.0.1","hostname","location","protocol","file:","indexOf","innerHTML","","write","<div style='font-family:sans-serif; text-align:center; margin-top:100px; color:#fff; background:#000; padding:50px;'><h1>⚠️ Akses Ditolak (Anti-Piracy System)</h1><p>Aplikasi ini dilindungi hak cipta oleh WBT Digital Labs.</p><p>Mendeteksi kloning ilegal di luar domain resmi.</p><a href='https://bayupradika.github.io/wbt-digital-labs/' style='color:#38bdf8;'>Kembali ke situs resmi</a></div>","href","https://bayupradika.github.io/wbt-digital-labs/"];!function(){var i=[_0x1a2b[0],_0x1a2b[1],_0x1a2b[2]],a=window[_0x1a2b[4]][_0x1a2b[3]];if(window[_0x1a2b[4]][_0x1a2b[5]]!==_0x1a2b[6]){for(var b=!1,c=0;c<i.length;c++)if(-1!==a[_0x1a2b[7]](i[c])){b=!0;break}b||(document[_0x1a2b[8]]=_0x1a2b[9],document[_0x1a2b[10]](_0x1a2b[11]),window[_0x1a2b[4]][_0x1a2b[12]]=_0x1a2b[13])}}();</script>
+
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WBT Digital Labs - Portal Ekosistem Tools & Arcade Games</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -703,8 +706,71 @@
       }
     });
   </script>
+<!-- WBT Donation Floating Widget -->
+<div id="wbt-donation-widget" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(251,191,36,0.3); border-radius: 20px; padding: 20px; color: white; display: flex; flex-direction: column; gap: 12px; max-width: 300px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); transition: transform 0.3s; transform-origin: bottom right;">
+  <div style="font-size: 16px; font-weight: 800; color: #fbbf24; display:flex; justify-content:space-between; align-items:center;">
+    <span><i class="fa-solid fa-mug-hot"></i> Traktir Saya Kopi!</span>
+    <i class="fa-solid fa-xmark" style="color: #94a3b8; cursor:pointer;" onclick="document.getElementById('wbt-donation-widget').style.display='none'"></i>
+  </div>
+  <div style="font-size: 12px; color: #cbd5e1; line-height: 1.5;">
+    Jika WBT Digital Labs membantu pekerjaan Anda, pertimbangkan untuk mendukung server kami secara sukarela. (Support this free tool)
+  </div>
+  <div id="donation-buttons" style="display: flex; gap: 8px; margin-top: 5px;">
+    <button class="don-btn" data-usd="1">☕ </button>
+    <button class="don-btn" data-usd="5">☕ </button>
+    <button class="don-btn" data-usd="10">☕ </button>
+  </div>
+</div>
+
+<style>
+  .don-btn {
+    background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.4); 
+    color: #fbbf24; padding: 8px 10px; border-radius: 10px; font-size: 13px; font-weight: 800;
+    cursor: pointer; transition: all 0.2s; flex-grow: 1; font-family: 'Outfit', sans-serif;
+  }
+  .don-btn:hover { background: #fbbf24; color: #0f172a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(251,191,36,0.3); }
+  @media (max-width: 768px) {
+    #wbt-donation-widget { bottom: 20px; right: 20px; left: 20px; max-width: unset; }
+  }
+</style>
+
+<script>
+  async function setupDonation() {
+    try {
+      const geoRes = await fetch('https://ipapi.co/json/');
+      const geoData = await geoRes.json();
+      const userCurrency = geoData.currency || 'USD';
+      
+      let rate = 1;
+      if (userCurrency !== 'USD') {
+        const rateRes = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        const rateData = await rateRes.json();
+        rate = rateData.rates[userCurrency] || 1;
+      }
+      
+      const buttons = document.querySelectorAll('.don-btn');
+      buttons.forEach(btn => {
+        const usdValue = parseInt(btn.getAttribute('data-usd'));
+        const localValue = usdValue * rate;
+        
+        const formatter = new Intl.NumberFormat(geoData.languages ? geoData.languages.split(',')[0] : 'en-US', {
+          style: 'currency', currency: userCurrency, minimumFractionDigits: 0, maximumFractionDigits: 0
+        });
+        
+        btn.innerHTML = ☕  + formatter.format(localValue);
+        btn.onclick = () => {
+          alert('Mengarahkan ke halaman pembayaran senilai ' + formatter.format(localValue) + '... Terima kasih atas dukungannya!');
+        };
+      });
+    } catch (e) {
+      console.log("Currency fetch failed.");
+    }
+  }
+  setupDonation();
+</script>
 </body>
 </html>
+
 
 
 
