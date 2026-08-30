@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tata Surya Interaktif - WBT Digital Labs</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@600;800&display=swap');
+    body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #050810; color: white; height: 100vh; overflow: hidden; }
+    
+    .wbt-global-header {
+      position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100;
+      background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; 
+      padding: 10px 24px; width: 90%; max-width: 1000px;
+      display: flex; justify-content: space-between; align-items: center; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .wbt-global-header a { display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; font-weight: 800; }
+    .wbt-global-header img { height: 34px; }
+    
+    /* Solar System Container */
+    .solar-system {
+      position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center;
+      perspective: 1000px;
+    }
+    
+    .sun {
+      position: absolute; width: 80px; height: 80px; background: radial-gradient(circle, #fcd34d, #f59e0b, #d97706);
+      border-radius: 50%; box-shadow: 0 0 60px #f59e0b; cursor: pointer; z-index: 10;
+      display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: black;
+    }
+    
+    .orbit {
+      position: absolute; border: 1px dashed rgba(255,255,255,0.2); border-radius: 50%;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      animation: spin linear infinite;
+    }
+    
+    .planet {
+      position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%);
+      border-radius: 50%; cursor: pointer;
+    }
+    .planet:hover { box-shadow: 0 0 15px white; }
+    
+    @keyframes spin { 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    
+    /* Modal Info */
+    .info-panel {
+      position: absolute; right: 20px; top: 100px; width: 320px;
+      background: rgba(15,23,42,0.95); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px; padding: 24px; display: none; z-index: 200; backdrop-filter: blur(10px);
+    }
+    .info-panel.active { display: block; }
+    .info-title { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; color: #fbbf24; margin-bottom: 5px; }
+    .info-type { font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 15px; }
+    .info-desc { font-size: 14px; color: #cbd5e1; line-height: 1.6; margin-bottom: 20px; }
+    
+    .stat { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; font-size: 13px; }
+    .stat span { color: #94a3b8; }
+  </style>
+</head>
+<body>
+
+<header class="wbt-global-header">
+  <a href="https://bayupradika.github.io/wbt-digital-labs/">
+    <img alt="WBT Logo" src="../../assets/img/wbt-logo.png" onerror="this.src='https://via.placeholder.com/34'"/>
+    <div>Tata Surya Interaktif</div>
+  </a>
+  <div style="color: #a855f7; font-size: 13px; font-weight: 800;"><i class="fa-solid fa-rocket"></i> Edukasi Astronomi</div>
+</header>
+
+<div class="solar-system" id="universe">
+  <!-- Sun -->
+  <div class="sun" onclick="showInfo('sun')">Matahari</div>
+</div>
+
+<div class="info-panel" id="panel">
+  <div class="info-title" id="p-name">Bumi</div>
+  <div class="info-type" id="p-type">Planet Terestrial</div>
+  <div class="info-desc" id="p-desc">Satu-satunya planet yang diketahui memiliki kehidupan.</div>
+  <div class="stat"><span>Jarak dari Matahari:</span> <b id="p-dist">149 Juta km</b></div>
+  <div class="stat"><span>Revolusi:</span> <b id="p-rev">365 Hari</b></div>
+  <div class="stat"><span>Radius:</span> <b id="p-rad">6,371 km</b></div>
+</div>
+
+<script>
+  const data = {
+    sun: { name: "Matahari", type: "Bintang Pusat", desc: "Pusat tata surya kita. Bola gas panas raksasa yang memberikan cahaya dan kehidupan di Bumi.", dist: "0 km", rev: "-", rad: "696,340 km" },
+    mercury: { name: "Merkurius", type: "Planet Terestrial", desc: "Planet terkecil dan terdekat dengan Matahari.", dist: "57.9 Juta km", rev: "88 Hari", rad: "2,439 km", color: "#a8a29e", size: 10, orbit: 140, speed: 10 },
+    venus: { name: "Venus", type: "Planet Terestrial", desc: "Planet terpanas karena efek rumah kaca yang ekstrem.", dist: "108.2 Juta km", rev: "225 Hari", rad: "6,051 km", color: "#fcd34d", size: 16, orbit: 200, speed: 15 },
+    earth: { name: "Bumi", type: "Planet Terestrial", desc: "Planet ketiga, satu-satunya yang diketahui berpenghuni.", dist: "149.6 Juta km", rev: "365.25 Hari", rad: "6,371 km", color: "#3b82f6", size: 18, orbit: 280, speed: 20 },
+    mars: { name: "Mars", type: "Planet Terestrial", desc: "Planet merah yang memiliki gunung tertinggi di tata surya.", dist: "227.9 Juta km", rev: "687 Hari", rad: "3,389 km", color: "#ef4444", size: 12, orbit: 360, speed: 24 },
+    jupiter: { name: "Jupiter", type: "Raksasa Gas", desc: "Planet terbesar, mampu menampung 1000 Bumi di dalamnya.", dist: "778.5 Juta km", rev: "11.8 Tahun", rad: "69,911 km", color: "#d97706", size: 34, orbit: 500, speed: 45 },
+    saturn: { name: "Saturnus", type: "Raksasa Gas", desc: "Terkenal dengan sistem cincinnya yang menakjubkan.", dist: "1.4 Miliar km", rev: "29.4 Tahun", rad: "58,232 km", color: "#fde047", size: 28, orbit: 650, speed: 60 },
+    uranus: { name: "Uranus", type: "Raksasa Es", desc: "Planet es yang berputar menyamping.", dist: "2.8 Miliar km", rev: "84 Tahun", rad: "25,362 km", color: "#06b6d4", size: 22, orbit: 780, speed: 80 },
+    neptune: { name: "Neptunus", type: "Raksasa Es", desc: "Planet terjauh yang memiliki angin badai tercepat.", dist: "4.5 Miliar km", rev: "164 Tahun", rad: "24,622 km", color: "#2563eb", size: 20, orbit: 900, speed: 100 }
+  };
+
+  const universe = document.getElementById('universe');
+
+  Object.keys(data).forEach(key => {
+    if (key === 'sun') return;
+    const p = data[key];
+    
+    // Create Orbit
+    const orbit = document.createElement('div');
+    orbit.className = 'orbit';
+    orbit.style.width = p.orbit + 'px';
+    orbit.style.height = p.orbit + 'px';
+    orbit.style.animationDuration = p.speed + 's';
+    
+    // Create Planet
+    const planet = document.createElement('div');
+    planet.className = 'planet';
+    planet.style.width = p.size + 'px';
+    planet.style.height = p.size + 'px';
+    planet.style.background = p.color;
+    
+    if (key === 'saturn') {
+      planet.style.boxShadow = '0 0 0 4px rgba(255,255,255,0.3)';
+    }
+
+    // Stop propagation so clicking planet doesn't click orbit?
+    planet.onclick = (e) => {
+      e.stopPropagation();
+      showInfo(key);
+    };
+    
+    orbit.appendChild(planet);
+    universe.appendChild(orbit);
+  });
+
+  function showInfo(key) {
+    const p = data[key];
+    document.getElementById('p-name').innerText = p.name;
+    document.getElementById('p-name').style.color = p.color || '#fbbf24';
+    document.getElementById('p-type').innerText = p.type;
+    document.getElementById('p-desc').innerText = p.desc;
+    document.getElementById('p-dist').innerText = p.dist;
+    document.getElementById('p-rev').innerText = p.rev;
+    document.getElementById('p-rad').innerText = p.rad;
+    document.getElementById('panel').classList.add('active');
+  }
+</script>
+</body>
+</html>
