@@ -116,7 +116,7 @@
 </div>
 
 <script>
-  fetch('https://raw.githubusercontent.com/Bowserinator/Periodic-Table-JSON/master/PeriodicTableJSON.json')
+  fetch('elements.json')
     .then(res => res.json())
     .then(data => {
       const table = document.getElementById('ptable');
@@ -163,3 +163,4 @@
 </script>
 </body>
 </html>
+
