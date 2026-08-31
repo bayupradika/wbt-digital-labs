@@ -116,7 +116,7 @@
 </div>
 
 <script>
-  fetch('elements.json')
+  fetch('data-wbt.json')
     .then(res => res.json())
     .then(data => {
       const table = document.getElementById('ptable');
@@ -125,7 +125,7 @@
       data.elements.forEach(el => {
         try {
           const div = document.createElement('div');
-          const cat = el.category ? el.category.replace(/\s+/g, '-') : 'unknown';
+          const cat = el.category_css || 'unknown';
           div.className = 'element ' + cat;
           div.style.gridColumn = el.xpos || 1;
           div.style.gridRow = el.ypos || 1;
@@ -163,4 +163,5 @@
 </script>
 </body>
 </html>
+
 
