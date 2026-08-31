@@ -4,77 +4,79 @@
 <script>var _0x1a2b=["bayupradika.github.io","localhost","127.0.0.1","hostname","location","protocol","file:","indexOf","innerHTML","","write","<div style='font-family:sans-serif; text-align:center; margin-top:100px; color:#fff; background:#000; padding:50px;'><h1>⚠️ Akses Ditolak (Anti-Piracy System)</h1><p>Aplikasi ini dilindungi hak cipta oleh WBT Digital Labs.</p><p>Mendeteksi kloning ilegal di luar domain resmi.</p><a href='https://bayupradika.github.io/wbt-digital-labs/' style='color:#38bdf8;'>Kembali ke situs resmi</a></div>","href","https://bayupradika.github.io/wbt-digital-labs/"];!function(){var i=[_0x1a2b[0],_0x1a2b[1],_0x1a2b[2]],a=window[_0x1a2b[4]][_0x1a2b[3]];if(window[_0x1a2b[4]][_0x1a2b[5]]!==_0x1a2b[6]){for(var b=!1,c=0;c<i.length;c++)if(-1!==a[_0x1a2b[7]](i[c])){b=!0;break}b||(document[_0x1a2b[8]]=_0x1a2b[9],document[_0x1a2b[10]](_0x1a2b[11]),window[_0x1a2b[4]][_0x1a2b[12]]=_0x1a2b[13])}}();</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tabel Periodik Pintar - WBT Digital Labs</title>
+  <title>Tabel Periodik Pintar & Lab - WBT Digital Labs</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@600;800&display=swap');
-    body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #070913; color: white; min-height: 100vh; display:flex; flex-direction:column; align-items:center; width: 100vw; overflow-x: hidden;}
+    body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #070913; color: white; min-height: 100vh; display:flex; flex-direction:column; align-items:center; width: 100vw; overflow-x: hidden; padding-bottom: 120px;}
     
     .wbt-global-header {
       background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
       border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; 
       padding: 10px 24px; width: 90%; max-width: 1000px; margin: 20px auto;
       display: flex; justify-content: space-between; align-items: center; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-wrap: wrap; gap: 10px;
     }
     .wbt-global-header a { display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; font-weight: 800; }
     .wbt-global-header img { height: 34px; }
     
-    .periodic-table {
-      display: grid;
-      grid-template-columns: repeat(18, 1fr);
-      gap: 4px;
-      max-width: 1200px;
-      width: 100%;
-      margin: 40px auto;
-      padding: 20px;
-    }
+    .header-controls { display: flex; gap: 10px; align-items: center; }
+    .btn-toggle { background: #1e293b; color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 99px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 13px; }
+    .btn-toggle:hover { background: #334155; }
+    .btn-toggle.active-lab { background: #10b981; border-color: #059669; color: white; }
+    
+    .periodic-table { display: grid; grid-template-columns: repeat(18, 1fr); gap: 4px; max-width: 1200px; width: 100%; margin: 20px auto; padding: 20px; }
     
     .element {
-      background: #1e293b;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      aspect-ratio: 1;
+      background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; aspect-ratio: 1;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      cursor: pointer; position: relative; transition: all 0.2s;
+      cursor: pointer; position: relative; transition: all 0.2s; user-select: none;
     }
     .element:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+    .element.lab-mode:active { transform: scale(0.9); }
     
     .el-number { position: absolute; top: 4px; left: 4px; font-size: 10px; color: rgba(255,255,255,0.5); }
     .el-symbol { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; }
     .el-name { font-size: 9px; text-align: center; color: rgba(255,255,255,0.8); overflow: hidden; text-overflow: ellipsis; max-width: 90%; white-space: nowrap; }
     
-    /* Colors by category */
-    .diatomic-nonmetal { background: #0284c7; }
-    .noble-gas { background: #7c3aed; }
-    .alkali-metal { background: #dc2626; }
-    .alkaline-earth-metal { background: #ea580c; }
-    .metalloid { background: #059669; }
-    .polyatomic-nonmetal { background: #2563eb; }
-    .post-transition-metal { background: #0d9488; }
-    .transition-metal { background: #b45309; }
-    .lanthanide { background: #db2777; }
-    .actinide { background: #9333ea; }
-    .unknown { background: #475569; }
+    .diatomic-nonmetal { background: #0284c7; } .noble-gas { background: #7c3aed; }
+    .alkali-metal { background: #dc2626; } .alkaline-earth-metal { background: #ea580c; }
+    .metalloid { background: #059669; } .polyatomic-nonmetal { background: #2563eb; }
+    .post-transition-metal { background: #0d9488; } .transition-metal { background: #b45309; }
+    .lanthanide { background: #db2777; } .actinide { background: #9333ea; } .unknown { background: #475569; }
     
-    /* Modal */
-    #modal { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    /* Modals */
+    .modal-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal-content { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; width: 90%; max-width: 600px; position: relative; }
     .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: #94a3b8; }
     
     .modal-header { display: flex; gap: 30px; align-items: center; margin-bottom: 20px; }
     .modal-symbol-box { width: 120px; height: 120px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 800; }
-    .modal-symbol { font-size: 48px; }
-    .modal-number { font-size: 16px; opacity: 0.8; }
+    .modal-symbol { font-size: 48px; } .modal-number { font-size: 16px; opacity: 0.8; }
     
     .modal-info h2 { margin: 0 0 10px 0; font-family: 'Outfit', sans-serif; font-size: 32px; }
     .modal-category { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: rgba(255,255,255,0.1); }
-    .modal-desc { color: #cbd5e1; font-size: 15px; line-height: 1.6; }
+    .modal-desc { color: #cbd5e1; font-size: 15px; line-height: 1.6; max-height: 150px; overflow-y: auto;}
     
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
     .stat-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; }
     .stat-label { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
     .stat-val { font-size: 16px; font-weight: 700; color: #38bdf8; }
+    
+    /* Lab Panel */
+    #lab-panel {
+      position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15,23,42,0.95);
+      border-top: 1px solid #10b981; padding: 20px; box-sizing: border-box; backdrop-filter: blur(10px);
+      display: none; flex-direction: column; align-items: center; z-index: 100;
+    }
+    .lab-title { color: #10b981; font-weight: 800; margin-bottom: 15px; font-size: 16px; }
+    .beaker { display: flex; gap: 10px; min-height: 50px; align-items: center; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 99px; min-width: 200px; justify-content: center;}
+    .beaker-item { font-size: 20px; font-family: 'Outfit'; font-weight: 800; color: white; background: #2563eb; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; animation: pop 0.3s ease; }
+    .btn-react { background: linear-gradient(135deg, #10b981, #059669); border: none; padding: 12px 30px; border-radius: 99px; color: white; font-weight: 800; cursor: pointer; font-size: 16px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); transition: 0.2s;}
+    .btn-react:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(16, 185, 129, 0.4); }
+    .btn-clear { background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 8px 15px; border-radius: 99px; margin-left: 10px; cursor: pointer; font-weight: bold; }
+    
+    @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
   </style>
 </head>
 <body>
@@ -82,85 +84,227 @@
 <header class="wbt-global-header">
   <a href="https://bayupradika.github.io/wbt-digital-labs/">
     <img alt="WBT Logo" src="../../assets/img/wbt-logo.png" onerror="this.src='https://via.placeholder.com/34'"/>
-    <div>Tabel Periodik Pintar</div>
+    <div>Tabel Periodik & Lab</div>
   </a>
-  <div style="color: #a855f7; font-size: 13px; font-weight: 800;"><i class="fa-solid fa-flask"></i> Edukasi Kimia</div>
+  <div class="header-controls">
+    <button class="btn-toggle" id="btn-lang" onclick="toggleLang()">🇮🇩 Bahasa: ID</button>
+    <button class="btn-toggle" id="btn-lab" onclick="toggleLab()"><i class="fa-solid fa-flask"></i> Mode LAB: OFF</button>
+  </div>
 </header>
 
 <div class="periodic-table" id="ptable">
-  <div style="color:white; width:100%; grid-column: span 18; text-align:center;">Memuat Data Unsur Kimia...</div>
+  <div style="color:white; width:100%; grid-column: span 18; text-align:center;">Memuat Data...</div>
 </div>
 
-<div id="modal">
+<div id="lab-panel">
+  <div class="lab-title" id="lab-title-text"><i class="fa-solid fa-flask"></i> LAB: Klik unsur di tabel untuk memasukkannya ke tabung reaksi!</div>
+  <div style="display:flex; align-items:center;">
+    <div class="beaker" id="beaker"></div>
+    <button class="btn-clear" onclick="clearBeaker()">X</button>
+  </div>
+  <button class="btn-react" onclick="reactElements()" id="btn-react-text">Reaksikan Campuran!</button>
+</div>
+
+<!-- Element Info Modal -->
+<div class="modal-overlay" id="modal">
   <div class="modal-content">
     <i class="fa-solid fa-xmark close-btn" onclick="document.getElementById('modal').style.display='none'"></i>
     <div class="modal-header">
-      <div class="modal-symbol-box" id="m-box" style="background: #2563eb;">
-        <div class="modal-number" id="m-num">1</div>
-        <div class="modal-symbol" id="m-sym">H</div>
-      </div>
+      <div class="modal-symbol-box" id="m-box"><div class="modal-number" id="m-num"></div><div class="modal-symbol" id="m-sym"></div></div>
       <div class="modal-info">
-        <h2 id="m-name">Hydrogen</h2>
-        <div class="modal-category" id="m-cat">Diatomic Nonmetal</div>
+        <h2 id="m-name"></h2>
+        <div class="modal-category" id="m-cat"></div>
       </div>
     </div>
-    <div class="modal-desc" id="m-desc">Description here.</div>
-    
+    <div class="modal-desc" id="m-desc"></div>
     <div class="stats-grid">
-      <div class="stat-item"><div class="stat-label">Massa Atom</div><div class="stat-val" id="m-mass">1.008</div></div>
-      <div class="stat-item"><div class="stat-label">Titik Lebur (K)</div><div class="stat-val" id="m-melt">13.99</div></div>
-      <div class="stat-item"><div class="stat-label">Titik Didih (K)</div><div class="stat-val" id="m-boil">20.271</div></div>
-      <div class="stat-item"><div class="stat-label">Penemu</div><div class="stat-val" id="m-discoverer">Henry Cavendish</div></div>
+      <div class="stat-item"><div class="stat-label" id="l-mass">Massa Atom</div><div class="stat-val" id="m-mass"></div></div>
+      <div class="stat-item"><div class="stat-label" id="l-melt">Titik Lebur (K)</div><div class="stat-val" id="m-melt"></div></div>
+      <div class="stat-item"><div class="stat-label" id="l-boil">Titik Didih (K)</div><div class="stat-val" id="m-boil"></div></div>
+      <div class="stat-item"><div class="stat-label" id="l-disc">Penemu</div><div class="stat-val" id="m-discoverer"></div></div>
     </div>
   </div>
 </div>
 
+<!-- Reaction Result Modal -->
+<div class="modal-overlay" id="modal-rx">
+  <div class="modal-content" style="text-align:center;">
+    <i class="fa-solid fa-xmark close-btn" onclick="document.getElementById('modal-rx').style.display='none'"></i>
+    <div style="font-size: 80px; margin-bottom: 20px;" id="rx-emoji">💥</div>
+    <h1 id="rx-name" style="font-family:'Outfit'; margin: 0 0 10px 0; color: #10b981;">Zat Baru!</h1>
+    <h3 id="rx-formula" style="color: #38bdf8; margin: 0 0 20px 0; font-family:'Outfit';">H2O</h3>
+    <p id="rx-desc" style="color: #cbd5e1; line-height: 1.6;"></p>
+  </div>
+</div>
+
 <script>
-  fetch('data-wbt.json')
+  let elementsData = [];
+  let currentLang = 'id';
+  let labMode = false;
+  let beaker = [];
+
+  // Reaksi Kamus (Hardcoded)
+  const recipes = {
+    "H2O1": { name_id: "Air", name_en: "Water", desc_id: "Senyawa penting penyusun kehidupan.", desc_en: "Essential compound for all known life.", emoji: "💧", formula: "H₂O" },
+    "Cl1Na1": { name_id: "Garam Dapur (Natrium Klorida)", name_en: "Salt (Sodium Chloride)", desc_id: "Bumbu dapur yang memberikan rasa asin.", desc_en: "Common salt used for seasoning.", emoji: "🧂", formula: "NaCl" },
+    "C1O2": { name_id: "Karbon Dioksida", name_en: "Carbon Dioxide", desc_id: "Gas sisa pernapasan dan hasil pembakaran.", desc_en: "Greenhouse gas exhaled by animals.", emoji: "💨", formula: "CO₂" },
+    "C1H4": { name_id: "Metana", name_en: "Methane", desc_id: "Gas alam utama yang mudah terbakar.", desc_en: "Primary component of natural gas.", emoji: "🔥", formula: "CH₄" },
+    "H3N1": { name_id: "Amonia", name_en: "Ammonia", desc_id: "Bahan dasar pupuk dan pembersih.", desc_en: "Precursor to fertilizers and cleaning products.", emoji: "🧴", formula: "NH₃" },
+    "O2": { name_id: "Oksigen (Gas)", name_en: "Oxygen Gas", desc_id: "Gas yang kita hirup untuk hidup.", desc_en: "Gas we breathe to survive.", emoji: "🌬️", formula: "O₂" },
+    "O3": { name_id: "Ozon", name_en: "Ozone", desc_id: "Gas pelindung bumi dari radiasi sinar UV.", desc_en: "Protects earth from UV radiation.", emoji: "🌍", formula: "O₃" },
+    "C6H12O6": { name_id: "Glukosa (Gula)", name_en: "Glucose (Sugar)", desc_id: "Sumber energi utama bagi makhluk hidup.", desc_en: "Main energy source for living organisms.", emoji: "🍬", formula: "C₆H₁₂O₆" },
+    "Fe2O3": { name_id: "Karat Besi (Besi Oksida)", name_en: "Rust (Iron Oxide)", desc_id: "Hasil korosi besi oleh oksigen dan air.", desc_en: "Result of iron corrosion.", emoji: "🟤", formula: "Fe₂O₃" },
+    "Cl1H1": { name_id: "Asam Klorida", name_en: "Hydrochloric Acid", desc_id: "Asam kuat yang ada di lambung manusia.", desc_en: "Strong acid found in gastric juice.", emoji: "🧪", formula: "HCl" },
+    "C1O1": { name_id: "Karbon Monoksida", name_en: "Carbon Monoxide", desc_id: "Gas beracun hasil pembakaran tidak sempurna.", desc_en: "Toxic gas from incomplete combustion.", emoji: "☠️", formula: "CO" }
+  };
+
+  fetch('bilingual-wbt.json')
     .then(res => res.json())
     .then(data => {
-      const table = document.getElementById('ptable');
-      table.innerHTML = '';
-      
-      data.elements.forEach(el => {
-        try {
-          const div = document.createElement('div');
-          const cat = el.category_css || 'unknown';
-          div.className = 'element ' + cat;
-          div.style.gridColumn = el.xpos || 1;
-          div.style.gridRow = el.ypos || 1;
-          
-          div.innerHTML = '<div class="el-number">' + el.number + '</div>' + 
-                          '<div class="el-symbol">' + el.symbol + '</div>' + 
-                          '<div class="el-name">' + el.name + '</div>';
-          
-          div.onclick = () => {
-            document.getElementById('m-num').innerText = el.number || '';
-            document.getElementById('m-sym').innerText = el.symbol || '';
-            document.getElementById('m-name').innerText = el.name || '';
-            document.getElementById('m-cat').innerText = el.category || 'Unknown';
-            document.getElementById('m-desc').innerText = el.summary || '';
-            
-            document.getElementById('m-mass').innerText = el.atomic_mass || 'N/A';
-            document.getElementById('m-melt').innerText = el.melt || 'N/A';
-            document.getElementById('m-boil').innerText = el.boil || 'N/A';
-            document.getElementById('m-discoverer').innerText = el.discovered_by || 'Tidak diketahui';
-            
-            document.getElementById('m-box').className = 'modal-symbol-box ' + cat;
-            document.getElementById('modal').style.display = 'flex';
-          };
-          
-          table.appendChild(div);
-        } catch(e) {
-          console.error(e);
-        }
-      });
+      elementsData = data.elements;
+      renderTable();
     }).catch(err => {
-      document.getElementById('ptable').innerHTML = '<div style="color:white; width:100%; grid-column: span 18; text-align:center;">Gagal memuat data kimia. Periksa koneksi internet Anda.</div>';
+      document.getElementById('ptable').innerHTML = '<div style="color:white; width:100%; grid-column: span 18; text-align:center;">Gagal memuat data kimia bilingual.</div>';
     });
+
+  function renderTable() {
+    const table = document.getElementById('ptable');
+    table.innerHTML = '';
+    
+    elementsData.forEach(el => {
+      const div = document.createElement('div');
+      const catCss = el.category_css || 'unknown';
+      div.className = 'element ' + catCss;
+      if (labMode) div.classList.add('lab-mode');
+      
+      div.style.gridColumn = el.xpos || 1;
+      div.style.gridRow = el.ypos || 1;
+      
+      const nameText = currentLang === 'id' ? el.name_id : el.name_en;
+      
+      div.innerHTML = '<div class="el-number">' + el.number + '</div>' +
+                      '<div class="el-symbol">' + el.symbol + '</div>' +
+                      '<div class="el-name">' + nameText + '</div>';
+      
+      div.onclick = () => {
+        if (labMode) {
+          addToBeaker(el.symbol);
+        } else {
+          showModal(el, catCss);
+        }
+      };
+      
+      table.appendChild(div);
+    });
+
+    // Update UI Texts based on Language
+    document.getElementById('btn-lang').innerText = currentLang === 'id' ? '🇮🇩 Bahasa: ID' : '🇬🇧 Language: EN';
+    document.getElementById('lab-title-text').innerHTML = currentLang === 'id' ? '<i class="fa-solid fa-flask"></i> LAB: Klik unsur di tabel untuk memasukkannya ke tabung reaksi!' : '<i class="fa-solid fa-flask"></i> LAB: Click elements on the table to add them to the beaker!';
+    document.getElementById('btn-react-text').innerText = currentLang === 'id' ? 'Reaksikan Campuran!' : 'React Mixture!';
+    
+    document.getElementById('l-mass').innerText = currentLang === 'id' ? 'Massa Atom' : 'Atomic Mass';
+    document.getElementById('l-melt').innerText = currentLang === 'id' ? 'Titik Lebur (K)' : 'Melting Point (K)';
+    document.getElementById('l-boil').innerText = currentLang === 'id' ? 'Titik Didih (K)' : 'Boiling Point (K)';
+    document.getElementById('l-disc').innerText = currentLang === 'id' ? 'Penemu' : 'Discoverer';
+  }
+
+  function toggleLang() {
+    currentLang = currentLang === 'id' ? 'en' : 'id';
+    renderTable();
+  }
+
+  function toggleLab() {
+    labMode = !labMode;
+    const btn = document.getElementById('btn-lab');
+    const panel = document.getElementById('lab-panel');
+    
+    if (labMode) {
+      btn.classList.add('active-lab');
+      btn.innerHTML = '<i class="fa-solid fa-flask"></i> Mode LAB: ON';
+      panel.style.display = 'flex';
+      clearBeaker();
+    } else {
+      btn.classList.remove('active-lab');
+      btn.innerHTML = '<i class="fa-solid fa-flask"></i> Mode LAB: OFF';
+      panel.style.display = 'none';
+    }
+    renderTable(); // to apply/remove hover effects
+  }
+
+  function showModal(el, catCss) {
+    document.getElementById('m-num').innerText = el.number || '';
+    document.getElementById('m-sym').innerText = el.symbol || '';
+    document.getElementById('m-name').innerText = currentLang === 'id' ? el.name_id : el.name_en;
+    document.getElementById('m-cat').innerText = currentLang === 'id' ? el.category_id : el.category_en;
+    document.getElementById('m-desc').innerText = currentLang === 'id' ? el.summary_id : el.summary_en;
+    
+    document.getElementById('m-mass').innerText = el.atomic_mass || 'N/A';
+    document.getElementById('m-melt').innerText = el.melt || 'N/A';
+    document.getElementById('m-boil').innerText = el.boil || 'N/A';
+    document.getElementById('m-discoverer').innerText = el.discovered_by || (currentLang === 'id' ? 'Tidak diketahui' : 'Unknown');
+    
+    document.getElementById('m-box').className = 'modal-symbol-box ' + catCss;
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function addToBeaker(sym) {
+    if (beaker.length >= 24) {
+        alert(currentLang === 'id' ? "Tabung reaksi penuh!" : "Beaker is full!");
+        return;
+    }
+    beaker.push(sym);
+    renderBeaker();
+  }
+
+  function clearBeaker() {
+    beaker = [];
+    renderBeaker();
+  }
+
+  function renderBeaker() {
+    const container = document.getElementById('beaker');
+    container.innerHTML = '';
+    beaker.forEach(sym => {
+      container.innerHTML += '<div class="beaker-item">' + sym + '</div>';
+    });
+  }
+
+  function reactElements() {
+    if (beaker.length === 0) return;
+    
+    // Count elements
+    let counts = {};
+    beaker.forEach(sym => {
+      counts[sym] = (counts[sym] || 0) + 1;
+    });
+    
+    // Create signature key (sort symbols alphabetically)
+    let keys = Object.keys(counts).sort();
+    let signature = "";
+    keys.forEach(k => {
+      signature += k + counts[k];
+    });
+    
+    const res = recipes[signature];
+    
+    document.getElementById('modal-rx').style.display = 'flex';
+    
+    if (res) {
+      document.getElementById('rx-emoji').innerText = res.emoji;
+      document.getElementById('rx-name').innerText = currentLang === 'id' ? res.name_id : res.name_en;
+      document.getElementById('rx-name').style.color = '#10b981';
+      document.getElementById('rx-formula').innerText = res.formula;
+      document.getElementById('rx-desc').innerText = currentLang === 'id' ? res.desc_id : res.desc_en;
+    } else {
+      document.getElementById('rx-emoji').innerText = "💥";
+      document.getElementById('rx-name').innerText = currentLang === 'id' ? "Gagal / Tidak Diketahui" : "Unknown Reaction";
+      document.getElementById('rx-name').style.color = '#ef4444';
+      document.getElementById('rx-formula').innerText = "???";
+      document.getElementById('rx-desc').innerText = currentLang === 'id' ? "Kombinasi unsur ini tidak menghasilkan senyawa stabil yang umum, atau memicu ledakan!" : "This combination does not produce a common stable compound, or it explodes!";
+    }
+    
+    clearBeaker();
+  }
 </script>
 </body>
 </html>
-
-
-
