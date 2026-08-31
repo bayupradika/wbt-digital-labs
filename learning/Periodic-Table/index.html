@@ -130,11 +130,9 @@
           div.style.gridColumn = el.xpos || 1;
           div.style.gridRow = el.ypos || 1;
           
-          div.innerHTML = 
-            <div class="el-number"> + el.number + </div>
-            <div class="el-symbol"> + el.symbol + </div>
-            <div class="el-name"> + el.name + </div>
-          ;
+          div.innerHTML = '<div class="el-number">' + el.number + '</div>' + 
+                          '<div class="el-symbol">' + el.symbol + '</div>' + 
+                          '<div class="el-name">' + el.name + '</div>';
           
           div.onclick = () => {
             document.getElementById('m-num').innerText = el.number || '';
@@ -163,5 +161,6 @@
 </script>
 </body>
 </html>
+
 
 
