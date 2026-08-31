@@ -1,14 +1,126 @@
 ﻿<!DOCTYPE html>
 <html lang="id">
 <head>
+<script>var _0x1a2b=["bayupradika.github.io","localhost","127.0.0.1","hostname","location","protocol","file:","indexOf","innerHTML","","write","<div style='font-family:sans-serif; text-align:center; margin-top:100px; color:#fff; background:#000; padding:50px;'><h1>⚠️ Akses Ditolak (Anti-Piracy System)</h1><p>Aplikasi ini dilindungi hak cipta oleh WBT Digital Labs.</p><p>Mendeteksi kloning ilegal di luar domain resmi.</p><a href='https://bayupradika.github.io/wbt-digital-labs/' style='color:#38bdf8;'>Kembali ke situs resmi</a></div>","href","https://bayupradika.github.io/wbt-digital-labs/"];!function(){var i=[_0x1a2b[0],_0x1a2b[1],_0x1a2b[2]],a=window[_0x1a2b[4]][_0x1a2b[3]];if(window[_0x1a2b[4]][_0x1a2b[5]]!==_0x1a2b[6]){for(var b=!1,c=0;c<i.length;c++)if(-1!==a[_0x1a2b[7]](i[c])){b=!0;break}b||(document[_0x1a2b[8]]=_0x1a2b[9],document[_0x1a2b[10]](_0x1a2b[11]),window[_0x1a2b[4]][_0x1a2b[12]]=_0x1a2b[13])}}();</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabel Periodik Pintar - WBT Digital Labs</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Outfit:wght@600;800&display=swap');
+    body { margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #070913; color: white; min-height: 100vh; display:flex; flex-direction:column; align-items:center; width: 100vw; overflow-x: hidden;}
+    
+    .wbt-global-header {
+      background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; 
+      padding: 10px 24px; width: 90%; max-width: 1000px; margin: 20px auto;
+      display: flex; justify-content: space-between; align-items: center; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .wbt-global-header a { display: flex; align-items: center; gap: 12px; text-decoration: none; color: white; font-weight: 800; }
+    .wbt-global-header img { height: 34px; }
+    
+    .periodic-table {
+      display: grid;
+      grid-template-columns: repeat(18, 1fr);
+      gap: 4px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    
+    .element {
+      background: #1e293b;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      aspect-ratio: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; position: relative; transition: all 0.2s;
+    }
+    .element:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+    
+    .el-number { position: absolute; top: 4px; left: 4px; font-size: 10px; color: rgba(255,255,255,0.5); }
+    .el-symbol { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; }
+    .el-name { font-size: 9px; text-align: center; color: rgba(255,255,255,0.8); overflow: hidden; text-overflow: ellipsis; max-width: 90%; white-space: nowrap; }
+    
+    /* Colors by category */
+    .diatomic-nonmetal { background: #0284c7; }
+    .noble-gas { background: #7c3aed; }
+    .alkali-metal { background: #dc2626; }
+    .alkaline-earth-metal { background: #ea580c; }
+    .metalloid { background: #059669; }
+    .polyatomic-nonmetal { background: #2563eb; }
+    .post-transition-metal { background: #0d9488; }
+    .transition-metal { background: #b45309; }
+    .lanthanide { background: #db2777; }
+    .actinide { background: #9333ea; }
+    .unknown { background: #475569; }
+    
+    /* Modal */
+    #modal { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-content { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; width: 90%; max-width: 600px; position: relative; }
+    .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: #94a3b8; }
+    
+    .modal-header { display: flex; gap: 30px; align-items: center; margin-bottom: 20px; }
+    .modal-symbol-box { width: 120px; height: 120px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 800; }
+    .modal-symbol { font-size: 48px; }
+    .modal-number { font-size: 16px; opacity: 0.8; }
+    
+    .modal-info h2 { margin: 0 0 10px 0; font-family: 'Outfit', sans-serif; font-size: 32px; }
+    .modal-category { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: rgba(255,255,255,0.1); }
+    .modal-desc { color: #cbd5e1; font-size: 15px; line-height: 1.6; }
+    
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .stat-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; }
+    .stat-label { font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+    .stat-val { font-size: 16px; font-weight: 700; color: #38bdf8; }
+  </style>
+</head>
+<body>
+
+<header class="wbt-global-header">
+  <a href="https://bayupradika.github.io/wbt-digital-labs/">
+    <img alt="WBT Logo" src="../../assets/img/wbt-logo.png" onerror="this.src='https://via.placeholder.com/34'"/>
+    <div>Tabel Periodik Pintar</div>
+  </a>
+  <div style="color: #a855f7; font-size: 13px; font-weight: 800;"><i class="fa-solid fa-flask"></i> Edukasi Kimia</div>
+</header>
+
+<div class="periodic-table" id="ptable">
+  <div style="color:white; width:100%; grid-column: span 18; text-align:center;">Memuat Data Unsur Kimia...</div>
+</div>
+
+<div id="modal">
+  <div class="modal-content">
+    <i class="fa-solid fa-xmark close-btn" onclick="document.getElementById('modal').style.display='none'"></i>
+    <div class="modal-header">
+      <div class="modal-symbol-box" id="m-box" style="background: #2563eb;">
+        <div class="modal-number" id="m-num">1</div>
+        <div class="modal-symbol" id="m-sym">H</div>
+      </div>
+      <div class="modal-info">
+        <h2 id="m-name">Hydrogen</h2>
+        <div class="modal-category" id="m-cat">Diatomic Nonmetal</div>
+      </div>
+    </div>
+    <div class="modal-desc" id="m-desc">Description here.</div>
+    
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-label">Massa Atom</div><div class="stat-val" id="m-mass">1.008</div></div>
+      <div class="stat-item"><div class="stat-label">Titik Lebur (K)</div><div class="stat-val" id="m-melt">13.99</div></div>
+      <div class="stat-item"><div class="stat-label">Titik Didih (K)</div><div class="stat-val" id="m-boil">20.271</div></div>
+      <div class="stat-item"><div class="stat-label">Penemu</div><div class="stat-val" id="m-discoverer">Henry Cavendish</div></div>
+    </div>
+  </div>
+</div>
 
 <script>
-  // Mengambil data dari cloud langsung agar tidak kena blokir cache
   fetch('https://raw.githubusercontent.com/Bowserinator/Periodic-Table-JSON/master/PeriodicTableJSON.json')
     .then(res => res.json())
     .then(data => {
       const table = document.getElementById('ptable');
-      table.innerHTML = ''; // Clear just in case
+      table.innerHTML = '';
       
       data.elements.forEach(el => {
         try {
@@ -42,14 +154,12 @@
           
           table.appendChild(div);
         } catch(e) {
-          console.error("Error creating element", el.name, e);
+          console.error(e);
         }
       });
     }).catch(err => {
-      document.getElementById('ptable').innerHTML = '<div style="color:white; width:100%; text-align:center;">Gagal memuat data kimia. Periksa koneksi internet Anda.</div>';
+      document.getElementById('ptable').innerHTML = '<div style="color:white; width:100%; grid-column: span 18; text-align:center;">Gagal memuat data kimia. Periksa koneksi internet Anda.</div>';
     });
 </script>
 </body>
 </html>
-
-
