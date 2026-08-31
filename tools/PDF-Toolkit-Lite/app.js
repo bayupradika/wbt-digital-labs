@@ -26,11 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDropzone();
 });
 
-function updateQuotaUI() {
-  const quotaDisplay = document.getElementById('quota-display');
-  const btns = document.querySelectorAll('.btn-gold');
-  let btnUpgrade = null;
-  btns.forEach(b => { if(b.getAttribute('onclick') === 'openUpgradeModal()') btnUpgrade = b; });
+function updateQuotaUI() { /* Removed Pro Feature */ });
   
   if (isPro) {
     if(quotaDisplay) {
@@ -46,18 +42,7 @@ function updateQuotaUI() {
   }
 }
 
-function checkAndConsumeQuota() {
-  if (isPro) return true;
-  if (dailyUsage >= 3) {
-    showToast('Batas kuota harian gratis tercapai (3/3). Silahkan Upgrade Pro!', 'warning');
-    openUpgradeModal();
-    return false;
-  }
-  dailyUsage++;
-  localStorage.setItem('pdf_toolkit_usage_count', dailyUsage.toString());
-  updateQuotaUI();
-  return true;
-}
+
 
 // Tool Configurations
 const toolsConfig = {
@@ -730,7 +715,7 @@ function filterCategory(cat) {
 
 // PDF Processing Logic
 async function processCurrentTool() {
-  if (!checkAndConsumeQuota()) return;
+  
   
   const btnProcess = document.getElementById('btn-process');
   const originalText = btnProcess.innerHTML;
@@ -746,6 +731,11 @@ async function processCurrentTool() {
     else if (activeTool === 'compress') await processCompress();
     else if (activeTool === 'repair') await processRepair();
     else if (activeTool === 'clean_exif') await processCleanExif();
+    else {
+      // Feature not natively implemented in this Lite version yet
+      await new Promise(r => setTimeout(r, 1000));
+      showToast('Fitur ini sedang dalam tahap pengembangan untuk versi Offline murni (Coming Soon).', 'warning');
+    }
     else if (activeTool === 'img2pdf') await processImg2Pdf();
     else if (activeTool === 'note2pdf') await processNote2Pdf();
     else if (activeTool === 'html2pdf') await processHtml2Pdf();
