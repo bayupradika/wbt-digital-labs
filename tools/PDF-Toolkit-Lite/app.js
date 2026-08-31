@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    PDF Toolkit Lite - Client-Side Application Logic
    ========================================================================== */
 
@@ -7,7 +7,7 @@ const { PDFDocument, rgb, degrees } = PDFLib;
 // Application State
 let activeTool = null;
 let selectedFiles = [];
-let isPro = localStorage.getItem('pdf_toolkit_is_pro') === 'true';
+let isPro = localStorage.getItem('pdf_toolkit_is_pro_v2') === 'true';
 
 // Daily Quota Tracking
 const todayStr = new Date().toDateString();
@@ -28,19 +28,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function updateQuotaUI() {
   const quotaDisplay = document.getElementById('quota-display');
+  const btns = document.querySelectorAll('.btn-gold');
+  let btnUpgrade = null;
+  btns.forEach(b => { if(b.getAttribute('onclick') === 'openUpgradeModal()') btnUpgrade = b; });
+  
   if (isPro) {
-    quotaDisplay.innerHTML = `
-      <i class="fa-solid fa-crown" style="color: #fbbf24;"></i>
-      <span style="color: #fbbf24; font-weight: 800; letter-spacing: 0.5px;">PRO LIFETIME</span>
-    `;
-    quotaDisplay.style.borderColor = '#f59e0b';
-    quotaDisplay.style.background = 'rgba(245, 158, 11, 0.1)';
+    if(quotaDisplay) {
+      quotaDisplay.innerHTML = <i class="fa-solid fa-crown" style="color: #fbbf24;"></i><span style="color: #fbbf24; font-weight: 800; letter-spacing: 0.5px;">PRO LIFETIME</span>;
+      quotaDisplay.style.borderColor = '#f59e0b';
+      quotaDisplay.style.background = 'rgba(245, 158, 11, 0.1)';
+      quotaDisplay.style.display = 'flex';
+    }
+    if (btnUpgrade) btnUpgrade.style.display = 'none';
   } else {
-    const sisa = Math.max(0, 3 - dailyUsage);
-    quotaDisplay.innerHTML = `
-      <i class="fa-solid fa-bolt" style="color: var(--warning);"></i>
-      <span>Sisa Kuota: <b class="quota-count" style="color: ${sisa === 0 ? 'var(--danger)' : 'var(--warning)'};">${sisa} / 3</b></span>
-    `;
+    if(quotaDisplay) quotaDisplay.style.display = 'none';
+    if (btnUpgrade) btnUpgrade.style.display = 'inline-flex';
   }
 }
 
@@ -59,6 +61,25 @@ function checkAndConsumeQuota() {
 
 // Tool Configurations
 const toolsConfig = {
+
+    word2pdf: { title: 'Convert Word to PDF', desc: 'Ubah dokumen Word menjadi PDF statis.', icon: '<i class="fa-solid fa-file-word"></i>', accept: '.doc,.docx', multiple: false, minFiles: 1, hint: 'Pilih dokumen Word' },
+    pdf2word: { title: 'PDF to Word', desc: 'Konversi PDF ke dokumen Word yang dapat diedit.', icon: '<i class="fa-solid fa-file-export"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    ppt2pdf: { title: 'PowerPoint to PDF', desc: 'Ubah file presentasi PPT ke PDF.', icon: '<i class="fa-solid fa-file-powerpoint"></i>', accept: '.ppt,.pptx', multiple: false, minFiles: 1, hint: 'Pilih file presentasi PPT' },
+    pdf2ppt: { title: 'PDF to PowerPoint', desc: 'Ubah file PDF ke presentasi PPT.', icon: '<i class="fa-solid fa-desktop"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    excel2pdf: { title: 'Excel to PDF', desc: 'Ubah file Excel spreadsheet ke PDF statis.', icon: '<i class="fa-solid fa-file-excel"></i>', accept: '.xls,.xlsx,.csv', multiple: false, minFiles: 1, hint: 'Pilih file Excel/CSV' },
+    pdf2excel: { title: 'PDF to Excel', desc: 'Ekstrak tabel dari PDF ke Excel.', icon: '<i class="fa-solid fa-table"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    edit: { title: 'Edit PDF', desc: 'Tambahkan teks, gambar, dan anotasi ke PDF.', icon: '<i class="fa-solid fa-pen-to-square"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    jpg2pdf: { title: 'JPG to PDF', desc: 'Ubah gambar menjadi PDF.', icon: '<i class="fa-regular fa-images"></i>', accept: '.jpg,.jpeg,.png', multiple: true, minFiles: 1, hint: 'Pilih gambar JPG/PNG' },
+    pdf2jpg: { title: 'PDF to JPG', desc: 'Ekstrak halaman PDF menjadi JPG.', icon: '<i class="fa-solid fa-image"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    sign: { title: 'Sign PDF', desc: 'Tambahkan tanda tangan ke dokumen.', icon: '<i class="fa-solid fa-signature"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    watermark: { title: 'Watermark PDF', desc: 'Berikan cap khusus pada PDF.', icon: '<i class="fa-solid fa-stamp"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    rotate: { title: 'Rotate PDF', desc: 'Putar orientasi halaman.', icon: '<i class="fa-solid fa-rotate-right"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    html2pdf: { title: 'HTML to PDF', desc: 'Ubah file HTML menjadi PDF.', icon: '<i class="fa-brands fa-html5"></i>', accept: '.html', multiple: false, minFiles: 1, hint: 'Pilih file HTML' },
+    unlock: { title: 'Unlock PDF', desc: 'Buka password dokumen PDF.', icon: '<i class="fa-solid fa-lock-open"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    protect: { title: 'Protect PDF', desc: 'Amankan PDF dengan password.', icon: '<i class="fa-solid fa-lock"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    pdf2pdfa: { title: 'PDF to PDF/A', desc: 'Ubah ke PDF/A untuk pengarsipan.', icon: '<i class="fa-solid fa-file-archive"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+    pagenumbers: { title: 'Page Numbers', desc: 'Tambahkan nomor urut halaman.', icon: '<i class="fa-solid fa-list-ol"></i>', accept: '.pdf', multiple: false, minFiles: 1, hint: 'Pilih dokumen PDF' },
+
   merge: {
     title: 'Gabung PDF (Merge)',
     desc: 'Satukan beberapa file PDF menjadi urutan satu dokumen utuh.',
@@ -1244,7 +1265,7 @@ function verifyActivationCode() {
   const codeInput = document.getElementById('activation-code').value.trim().toUpperCase();
   if (codeInput === 'IMPOSSIBLE_CODE_999' || codeInput === 'IMPOSSIBLE_CODE_999') {
     isPro = true;
-    localStorage.setItem('pdf_toolkit_is_pro', 'true');
+    localStorage.setItem('pdf_toolkit_is_pro_v2', 'true');
     updateQuotaUI();
     closeUpgradeModal();
     showToast('🎉 Selamat! Akun Anda telah di-upgrade ke Pro Lifetime!', 'success');
@@ -1281,7 +1302,7 @@ function payWithMidtrans() {
     price: 20000,
     onSuccess: function() {
       isPro = true;
-      localStorage.setItem('pdf_toolkit_is_pro', 'true');
+      localStorage.setItem('pdf_toolkit_is_pro_v2', 'true');
       updateQuota();
       if(typeof closeUpgradeModal === 'function') closeUpgradeModal();
       if(typeof closeModal === 'function') closeModal();
@@ -1302,3 +1323,4 @@ function lintMarkdown() {
   if (typeof updateMdPreview === 'function') updateMdPreview();
   showToast('✨ Audit & Linter selesai! Syntax heading dan spasi berlebih telah dirapikan.', 'success');
 }
+

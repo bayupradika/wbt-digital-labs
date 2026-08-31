@@ -148,253 +148,205 @@
 <button class="cat-btn" onclick="filterCategory('convertfrom')"><i class="fa-solid fa-file-export"></i> Ekstrak PDF (3)</button>
 <button class="cat-btn" onclick="filterCategory('editsec')"><i class="fa-solid fa-shield-halved"></i> PDF Keamanan (6)</button>
 </div>
-<div class="tools-grid" id="tools-grid">
-<!-- WORD & TEXT TOOLS -->
-<div class="tool-card cat-word" onclick="selectTool('md_editor')" style="border:1px solid rgba(59,130,246,0.3);">
-<span class="tool-badge-new" style="background:#3b82f6;">WORD/DOCS</span>
-<div>
-<div class="tool-icon" style="color:#60a5fa; background:rgba(59,130,246,0.15);"><i class="fa-solid fa-file-word"></i></div>
-<h3 class="tool-title" style="color:#60a5fa;">Markdown &amp; Doc Editor Pro</h3>
-<p class="tool-desc">Tulis, format heading/tabel, dan sunting dokumen dengan pratinjau live ekspor ke PDF &amp; HTML.</p>
+<div class="tools-grid" id="tools-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">
+  
+  <!-- PRIORITIZED FEATURE -->
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('word2pdf')" style="border:1px solid rgba(59,130,246,0.6); background: rgba(59,130,246,0.05); grid-column: 1 / -1; display:flex; flex-direction:row; align-items:center; gap: 20px;">
+    <div class="tool-icon" style="color:#60a5fa; background:rgba(59,130,246,0.2); font-size: 32px; padding: 20px; border-radius: 12px;"><i class="fa-solid fa-file-word"></i></div>
+    <div style="flex-grow: 1;">
+      <h3 class="tool-title" style="color:#60a5fa; font-size: 24px;">Convert Word to PDF</h3>
+      <p class="tool-desc" style="font-size: 15px;">Ubah dokumen Word (DOCX/DOC) menjadi PDF yang rapi secara offline dengan mudah.</p>
+    </div>
+    <div class="tool-action" style="color:#60a5fa; font-size: 16px; font-weight: bold; background: #60a5fa22; padding: 10px 20px; border-radius: 99px;">Coba Sekarang <i class="fa-solid fa-arrow-right"></i></div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('merge')">
+    <div>
+      <div class="tool-icon" style="color:#ef4444;"><i class="fa-solid fa-object-group"></i></div>
+      <h3 class="tool-title">Merge PDF</h3>
+      <p class="tool-desc">Gabungkan beberapa file PDF menjadi satu file utuh.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('split')">
+    <div>
+      <div class="tool-icon" style="color:#f97316;"><i class="fa-solid fa-scissors"></i></div>
+      <h3 class="tool-title">Split PDF</h3>
+      <p class="tool-desc">Pisahkan satu PDF menjadi beberapa file terpisah.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-optimize" onclick="selectTool('compress')">
+    <div>
+      <div class="tool-icon" style="color:#10b981;"><i class="fa-solid fa-compress"></i></div>
+      <h3 class="tool-title">Compress PDF</h3>
+      <p class="tool-desc">Kecilkan ukuran file PDF tanpa mengurangi kualitas secara drastis.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2word')">
+    <div>
+      <div class="tool-icon" style="color:#3b82f6;"><i class="fa-solid fa-file-export"></i></div>
+      <h3 class="tool-title">PDF to Word</h3>
+      <p class="tool-desc">Konversi file PDF menjadi dokumen Word yang bisa diedit.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('ppt2pdf')">
+    <div>
+      <div class="tool-icon" style="color:#f97316;"><i class="fa-solid fa-file-powerpoint"></i></div>
+      <h3 class="tool-title">PowerPoint to PDF</h3>
+      <p class="tool-desc">Jadikan file presentasi PPT menjadi format PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2ppt')">
+    <div>
+      <div class="tool-icon" style="color:#f97316;"><i class="fa-solid fa-desktop"></i></div>
+      <h3 class="tool-title">PDF to PowerPoint</h3>
+      <p class="tool-desc">Ubah PDF menjadi file presentasi yang mudah diedit.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('excel2pdf')">
+    <div>
+      <div class="tool-icon" style="color:#10b981;"><i class="fa-solid fa-file-excel"></i></div>
+      <h3 class="tool-title">Excel to PDF</h3>
+      <p class="tool-desc">Ubah tabel spreadsheet menjadi file PDF statis.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2excel')">
+    <div>
+      <div class="tool-icon" style="color:#10b981;"><i class="fa-solid fa-table"></i></div>
+      <h3 class="tool-title">PDF to Excel</h3>
+      <p class="tool-desc">Ekstrak tabel dari PDF menjadi file Excel.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('edit')">
+    <div>
+      <div class="tool-icon" style="color:#8b5cf6;"><i class="fa-solid fa-pen-to-square"></i></div>
+      <h3 class="tool-title">Edit PDF</h3>
+      <p class="tool-desc">Tambahkan teks, gambar, bentuk, atau anotasi pada PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('jpg2pdf')">
+    <div>
+      <div class="tool-icon" style="color:#eab308;"><i class="fa-regular fa-images"></i></div>
+      <h3 class="tool-title">JPG to PDF</h3>
+      <p class="tool-desc">Ubah gambar JPG, PNG, dll menjadi file PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2jpg')">
+    <div>
+      <div class="tool-icon" style="color:#eab308;"><i class="fa-solid fa-image"></i></div>
+      <h3 class="tool-title">PDF to JPG</h3>
+      <p class="tool-desc">Ekstrak setiap halaman PDF menjadi gambar JPG.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('sign')">
+    <div>
+      <div class="tool-icon" style="color:#6366f1;"><i class="fa-solid fa-signature"></i></div>
+      <h3 class="tool-title">Sign PDF</h3>
+      <p class="tool-desc">Tambahkan tanda tangan digital ke dokumen Anda.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('watermark')">
+    <div>
+      <div class="tool-icon" style="color:#0ea5e9;"><i class="fa-solid fa-stamp"></i></div>
+      <h3 class="tool-title">Watermark</h3>
+      <p class="tool-desc">Cap PDF Anda dengan gambar atau teks kustom.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('rotate')">
+    <div>
+      <div class="tool-icon" style="color:#ec4899;"><i class="fa-solid fa-rotate-right"></i></div>
+      <h3 class="tool-title">Rotate PDF</h3>
+      <p class="tool-desc">Putar orientasi halaman PDF sesuai keinginan Anda.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('html2pdf')">
+    <div>
+      <div class="tool-icon" style="color:#14b8a6;"><i class="fa-brands fa-html5"></i></div>
+      <h3 class="tool-title">HTML to PDF</h3>
+      <p class="tool-desc">Ubah halaman web (HTML) menjadi dokumen PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('unlock')">
+    <div>
+      <div class="tool-icon" style="color:#22c55e;"><i class="fa-solid fa-lock-open"></i></div>
+      <h3 class="tool-title">Unlock PDF</h3>
+      <p class="tool-desc">Hapus password, enkripsi, dan permission dari PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('protect')">
+    <div>
+      <div class="tool-icon" style="color:#ef4444;"><i class="fa-solid fa-lock"></i></div>
+      <h3 class="tool-title">Protect PDF</h3>
+      <p class="tool-desc">Amankan PDF dengan password dan enkripsi berlapis.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('organize')">
+    <div>
+      <div class="tool-icon" style="color:#8b5cf6;"><i class="fa-solid fa-layer-group"></i></div>
+      <h3 class="tool-title">Organize PDF</h3>
+      <p class="tool-desc">Urutkan ulang, hapus, atau tambahkan halaman PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2pdfa')">
+    <div>
+      <div class="tool-icon" style="color:#3b82f6;"><i class="fa-solid fa-file-archive"></i></div>
+      <h3 class="tool-title">PDF to PDF/A</h3>
+      <p class="tool-desc">Ubah PDF ke standar pengarsipan ISO yang tahan lama.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-optimize" onclick="selectTool('repair')">
+    <div>
+      <div class="tool-icon" style="color:#f59e0b;"><i class="fa-solid fa-wrench"></i></div>
+      <h3 class="tool-title">Repair PDF</h3>
+      <p class="tool-desc">Perbaiki PDF yang rusak atau corrupt agar dapat dibuka kembali.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('pagenumbers')">
+    <div>
+      <div class="tool-icon" style="color:#0ea5e9;"><i class="fa-solid fa-list-ol"></i></div>
+      <h3 class="tool-title">Page Numbers</h3>
+      <p class="tool-desc">Tambahkan penomoran halaman pada dokumen PDF dengan mudah.</p>
+    </div>
+  </div>
+
+  <!-- Original Old Tools Kept for Compatibility -->
+  <div class="tool-card cat-word" onclick="selectTool('md_editor')">
+    <div>
+      <div class="tool-icon" style="color:#60a5fa;"><i class="fa-solid fa-file-code"></i></div>
+      <h3 class="tool-title">Markdown Editor Pro</h3>
+      <p class="tool-desc">Tulis dan konversi dokumen markdown ke PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-excel" onclick="selectTool('csv_viewer')">
+    <div>
+      <div class="tool-icon" style="color:#34d399;"><i class="fa-solid fa-table"></i></div>
+      <h3 class="tool-title">CSV Viewer</h3>
+      <p class="tool-desc">Lihat data tabel CSV langsung secara offline.</p>
+    </div>
+  </div>
+
 </div>
-<div class="tool-action" style="color:#60a5fa;">Buka Editor <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-word" onclick="selectTool('word_counter')" style="border:1px solid rgba(59,130,246,0.3);">
-<span class="tool-badge-new" style="background:#3b82f6;">WORD/DOCS</span>
-<div>
-<div class="tool-icon" style="color:#60a5fa; background:rgba(59,130,246,0.15);"><i class="fa-solid fa-calculator"></i></div>
-<h3 class="tool-title" style="color:#60a5fa;">Document Stats &amp; Word Counter</h3>
-<p class="tool-desc">Hitung otomatis jumlah kata, karakter, paragraf, waktu baca, &amp; kepadatan kata dokumen teks.</p>
-</div>
-<div class="tool-action" style="color:#60a5fa;">Analisis Dokumen <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-word" onclick="selectTool('word_extract')" style="border:1px solid rgba(59,130,246,0.3);">
-<span class="tool-badge-new" style="background:#3b82f6;">WORD/DOCS</span>
-<div>
-<div class="tool-icon" style="color:#60a5fa; background:rgba(59,130,246,0.15);"><i class="fa-solid fa-code"></i></div>
-<h3 class="tool-title" style="color:#60a5fa;">Word &amp; Text to HTML Extractor</h3>
-<p class="tool-desc">Konversi atau ekstrak teks dan draf dokumen menjadi kode HTML berskala produksi yang bersih.</p>
-</div>
-<div class="tool-action" style="color:#60a5fa;">Ekstrak HTML <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<!-- EXCEL & CSV TOOLS -->
-<div class="tool-card cat-excel" onclick="selectTool('csv_viewer')" style="border:1px solid rgba(16,185,129,0.3);">
-<span class="tool-badge-new" style="background:#10b981;">EXCEL/CSV</span>
-<div>
-<div class="tool-icon" style="color:#34d399; background:rgba(16,185,129,0.15);"><i class="fa-solid fa-file-excel"></i></div>
-<h3 class="tool-title" style="color:#34d399;">Spreadsheet Table Viewer</h3>
-<p class="tool-desc">Buka dan pratinjau data tabel spreadsheet Excel/CSV langsung dengan grid filter &amp; urutan offline.</p>
-</div>
-<div class="tool-action" style="color:#34d399;">Buka Tabel <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-excel" onclick="selectTool('csv_json')" style="border:1px solid rgba(16,185,129,0.3);">
-<span class="tool-badge-new" style="background:#10b981;">EXCEL/CSV</span>
-<div>
-<div class="tool-icon" style="color:#34d399; background:rgba(16,185,129,0.15);"><i class="fa-solid fa-table-list"></i></div>
-<h3 class="tool-title" style="color:#34d399;">CSV ⇄ JSON Data Converter</h3>
-<p class="tool-desc">Konversi bolak-balik antara tabel berbaris CSV dan struktur data JSON dalam sekejap mata.</p>
-</div>
-<div class="tool-action" style="color:#34d399;">Konversi Data <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-excel" onclick="selectTool('csv_pdf')" style="border:1px solid rgba(16,185,129,0.3);">
-<span class="tool-badge-new" style="background:#10b981;">EXCEL/CSV</span>
-<div>
-<div class="tool-icon" style="color:#34d399; background:rgba(16,185,129,0.15);"><i class="fa-solid fa-print"></i></div>
-<h3 class="tool-title" style="color:#34d399;">CSV Table to PDF Exporter</h3>
-<p class="tool-desc">Cetak laporan spreadsheet Anda menjadi dokumen tabel PDF berformat rapi siap presentasi.</p>
-</div>
-<div class="tool-action" style="color:#34d399;">Cetak Laporan <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<!-- POWERPOINT TOOLS -->
-<div class="tool-card cat-ppt" onclick="selectTool('ppt_notes')" style="border:1px solid rgba(249,115,22,0.3);">
-<span class="tool-badge-new" style="background:#f97316;">POWERPOINT</span>
-<div>
-<div class="tool-icon" style="color:#fb923c; background:rgba(249,115,22,0.15);"><i class="fa-solid fa-file-powerpoint"></i></div>
-<h3 class="tool-title" style="color:#fb923c;">Presentation Speaker Notes</h3>
-<p class="tool-desc">Kelola dan ekstrak naskah presentasi panggung (*speaker notes*) dari poin-poin draf slide Anda.</p>
-</div>
-<div class="tool-action" style="color:#fb923c;">Kelola Catatan <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-ppt" onclick="selectTool('ppt_outline')" style="border:1px solid rgba(249,115,22,0.3);">
-<span class="tool-badge-new" style="background:#f97316;">POWERPOINT</span>
-<div>
-<div class="tool-icon" style="color:#fb923c; background:rgba(249,115,22,0.15);"><i class="fa-solid fa-list-check"></i></div>
-<h3 class="tool-title" style="color:#fb923c;">Slide Outline Generator</h3>
-<p class="tool-desc">Susun kerangka presentasi (*outline*) terstruktur per slide sebelum dipindahkan ke PowerPoint.</p>
-</div>
-<div class="tool-action" style="color:#fb923c;">Buat Outline <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<!-- ORGANIZE TOOLS -->
-<div class="tool-card cat-organize" onclick="selectTool('merge')">
-<div>
-<div class="tool-icon"><i class="fa-solid fa-object-group"></i></div>
-<h3 class="tool-title">Gabung PDF (Merge)</h3>
-<p class="tool-desc">Satukan banyak file PDF menjadi satu dokumen tunggal yang rapi berurutan.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-organize" onclick="selectTool('split')">
-<div>
-<div class="tool-icon"><i class="fa-solid fa-scissors"></i></div>
-<h3 class="tool-title">Pisah PDF (Split)</h3>
-<p class="tool-desc">Ekstrak halaman tertentu atau pisahkan setiap halaman menjadi file PDF terpisah.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-organize" onclick="selectTool('remove_pages')">
-<div>
-<div class="tool-icon" style="color:#ef4444; background:rgba(239,68,68,0.1);"><i class="fa-solid fa-trash-can"></i></div>
-<h3 class="tool-title">Hapus Halaman</h3>
-<p class="tool-desc">Buang halaman yang tidak diinginkan dari dalam dokumen PDF dengan presisi tinggi.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-organize" onclick="selectTool('extract_pages')">
-<div>
-<div class="tool-icon" style="color:#10b981; background:rgba(16,185,129,0.1);"><i class="fa-solid fa-file-export"></i></div>
-<h3 class="tool-title">Ekstrak Halaman</h3>
-<p class="tool-desc">Pilih dan ambil beberapa halaman spesifik untuk disimpan sebagai PDF baru.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-organize" onclick="selectTool('organize')">
-<div>
-<div class="tool-icon" style="color:#8b5cf6; background:rgba(139,92,246,0.1);"><i class="fa-solid fa-sort"></i></div>
-<h3 class="tool-title">Atur Urutan Halaman</h3>
-<p class="tool-desc">Susun ulang urutan posisi nomor halaman PDF Anda dengan alur kustom.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<!-- OPTIMIZE TOOLS -->
-<div class="tool-card cat-optimize" onclick="selectTool('compress')">
-<div>
-<div class="tool-icon" style="color:#f59e0b; background:rgba(245,158,11,0.1);"><i class="fa-solid fa-minimize"></i></div>
-<h3 class="tool-title">Kompres PDF</h3>
-<p class="tool-desc">Optimalkan ukuran file PDF agar lebih ringan untuk dikirim via email atau WhatsApp.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-optimize" onclick="selectTool('repair')">
-<span class="tool-badge-new">NEW</span>
-<div>
-<div class="tool-icon" style="color:#3b82f6; background:rgba(59,130,246,0.1);"><i class="fa-solid fa-wrench"></i></div>
-<h3 class="tool-title">Perbaiki PDF Rusak</h3>
-<p class="tool-desc">Pulihkan struktur tabel indeks dan stream objek file PDF yang corrupt atau rusak.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-optimize" onclick="selectTool('clean_exif')">
-<span class="tool-badge-new">PRIVASI</span>
-<div>
-<div class="tool-icon" style="color:#06b6d4; background:rgba(6,182,212,0.1);"><i class="fa-solid fa-broom"></i></div>
-<h3 class="tool-title">Bersihkan Metadata</h3>
-<p class="tool-desc">Hapus jejak pengarang, tanggal pembuatan, dan histori aplikasi pembuat dokumen PDF.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<!-- CONVERT TO PDF -->
-<div class="tool-card cat-convert2pdf" onclick="selectTool('img2pdf')">
-<div>
-<div class="tool-icon" style="color:#ec4899; background:rgba(236,72,153,0.1);"><i class="fa-solid fa-images"></i></div>
-<h3 class="tool-title">Gambar ke PDF</h3>
-<p class="tool-desc">Ubah kumpulan foto atau dokumen JPG/PNG menjadi dokumen PDF resmi.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-convert2pdf" onclick="selectTool('note2pdf')">
-<div>
-<div class="tool-icon" style="color:#14b8a6; background:rgba(20,184,166,0.1);"><i class="fa-solid fa-file-lines"></i></div>
-<h3 class="tool-title">Teks / Catatan ke PDF</h3>
-<p class="tool-desc">Tulis atau tempel teks/markdown dan konversi langsung menjadi file PDF formal rapi.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-convert2pdf" onclick="selectTool('html2pdf')">
-<div>
-<div class="tool-icon" style="color:#f97316; background:rgba(249,115,22,0.1);"><i class="fa-solid fa-code"></i></div>
-<h3 class="tool-title">HTML Snippet ke PDF</h3>
-<p class="tool-desc">Konversi potongan kode HTML atau tabel data menjadi halaman PDF berformat.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<!-- CONVERT FROM PDF -->
-<div class="tool-card cat-convertfrom" onclick="selectTool('pdf2img')">
-<div>
-<div class="tool-icon" style="color:#a855f7; background:rgba(168,85,247,0.1);"><i class="fa-solid fa-image"></i></div>
-<h3 class="tool-title">PDF ke Gambar JPG/PNG</h3>
-<p class="tool-desc">Render atau ekstrak halaman dokumen PDF menjadi gambar kualitas tinggi.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-convertfrom" onclick="selectTool('pdf2txt')">
-<div>
-<div class="tool-icon" style="color:#6366f1; background:rgba(99,102,241,0.1);"><i class="fa-solid fa-file-word"></i></div>
-<h3 class="tool-title">PDF ke Teks / Word</h3>
-<p class="tool-desc">Ekstrak seluruh kandungan teks dari dalam dokumen PDF untuk disimpan di Word/TXT.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-convertfrom" onclick="selectTool('pdf2csv')">
-<span class="tool-badge-new">DATA</span>
-<div>
-<div class="tool-icon" style="color:#22c55e; background:rgba(34,197,94,0.1);"><i class="fa-solid fa-file-excel"></i></div>
-<h3 class="tool-title">Ekstrak Tabel ke CSV</h3>
-<p class="tool-desc">Tarik baris data terstruktur dari PDF untuk diolah lebih lanjut di Microsoft Excel.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<!-- EDIT & SECURITY -->
-<div class="tool-card cat-editsec" onclick="selectTool('rotate')">
-<div>
-<div class="tool-icon" style="color:#eab308; background:rgba(234,179,8,0.1);"><i class="fa-solid fa-rotate-right"></i></div>
-<h3 class="tool-title">Putar Halaman (Rotate)</h3>
-<p class="tool-desc">Rotasi orientasi halaman PDF yang terbalik (90°, 180°, 270°) dalam hitungan detik.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-editsec" onclick="selectTool('page_number')">
-<div>
-<div class="tool-icon" style="color:#38bdf8; background:rgba(56,189,248,0.1);"><i class="fa-solid fa-list-ol"></i></div>
-<h3 class="tool-title">Tambah Nomor Halaman</h3>
-<p class="tool-desc">Sisipkan nomor halaman otomatis di pojok bawah dokumen PDF secara seragam.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-editsec" onclick="selectTool('watermark')">
-<div>
-<div class="tool-icon" style="color:#ec4899; background:rgba(236,72,153,0.1);"><i class="fa-solid fa-stamp"></i></div>
-<h3 class="tool-title">Stempel Watermark</h3>
-<p class="tool-desc">Beri tanda air diagonal (misal: RAHASIA / CONFIDENTIAL) di atas seluruh halaman PDF.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-editsec" onclick="selectTool('protect')">
-<div>
-<div class="tool-icon" style="color:#ef4444; background:rgba(239,68,68,0.1);"><i class="fa-solid fa-lock"></i></div>
-<h3 class="tool-title">Kunci &amp; Proteksi Sandi</h3>
-<p class="tool-desc">Tambahkan sandi pengaman (password) agar PDF tidak bisa dibuka sembarangan.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-editsec" onclick="selectTool('unlock')">
-<div>
-<div class="tool-icon" style="color:#10b981; background:rgba(16,185,129,0.1);"><i class="fa-solid fa-lock-open"></i></div>
-<h3 class="tool-title">Buka Kunci Sandi PDF</h3>
-<p class="tool-desc">Hapus pembatasan sandi pemilik dan dekripsi dokumen PDF Anda dengan cepat.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-<div class="tool-card cat-editsec" onclick="selectTool('sign_studio')">
-<span class="tool-badge-new">SIGN</span>
-<div>
-<div class="tool-icon" style="color:#8b5cf6; background:rgba(139,92,246,0.1);"><i class="fa-solid fa-signature"></i></div>
-<h3 class="tool-title">Tanda Tangan Studio</h3>
-<p class="tool-desc">Sisipkan teks tanda tangan atau pengesahan dokumen pada margin bawah halaman.</p>
-</div>
-<div class="tool-action">Buka Studio <i class="fa-solid fa-arrow-right"></i></div>
-</div>
-</div>
-</section>
+  </section>
 <!-- Pricing Section -->
 <section class="pricing-section container" id="pricing-section">
 <div class="section-header">
@@ -506,3 +458,4 @@
 <script src="app.js"></script>
 <script src="../midtrans-pay.js"></script>`r`n</body>
 </html>
+
