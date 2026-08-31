@@ -68,15 +68,20 @@
       position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(15,23,42,0.95);
       border-top: 1px solid #10b981; padding: 20px; box-sizing: border-box; backdrop-filter: blur(10px);
       display: none; flex-direction: column; align-items: center; z-index: 100;
+      max-height: 40vh; overflow-y: auto;
     }
     .lab-title { color: #10b981; font-weight: 800; margin-bottom: 15px; font-size: 16px; }
-    .beaker { display: flex; gap: 10px; min-height: 50px; align-items: center; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 99px; min-width: 200px; justify-content: center;}
-    .beaker-item { font-size: 20px; font-family: 'Outfit'; font-weight: 800; color: white; background: #2563eb; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; animation: pop 0.3s ease; }
+    .beaker { display: flex; gap: 10px; min-height: 50px; align-items: center; margin-bottom: 15px; background: rgba(0,0,0,0.5); padding: 15px 20px; border-radius: 16px; min-width: 300px; justify-content: center; flex-wrap: wrap;}
+    
+    .builder-item { display: flex; align-items: center; background: #1e293b; border: 1px solid #3b82f6; border-radius: 8px; overflow: hidden; animation: pop 0.3s ease;}
+    .bi-sym { background: #2563eb; color: white; font-weight: 800; font-size: 18px; padding: 8px 12px; font-family: 'Outfit';}
+    .bi-input { width: 50px; background: transparent; border: none; color: white; font-size: 16px; font-weight: 800; text-align: center; outline: none; }
+    .bi-remove { background: #ef4444; color: white; padding: 8px 12px; cursor: pointer; font-weight: 800; }
+    .bi-remove:hover { background: #dc2626; }
+    
     .btn-react { background: linear-gradient(135deg, #10b981, #059669); border: none; padding: 12px 30px; border-radius: 99px; color: white; font-weight: 800; cursor: pointer; font-size: 16px; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); transition: 0.2s;}
     .btn-react:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(16, 185, 129, 0.4); }
-    .btn-clear { background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 8px 15px; border-radius: 99px; margin-left: 10px; cursor: pointer; font-weight: bold; }
-    
-    @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+    .btn-clear { background: transparent; border: 1px solid #ef4444; color: #ef4444; padding: 8px 15px; border-radius: 99px; cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -97,12 +102,14 @@
 </div>
 
 <div id="lab-panel">
-  <div class="lab-title" id="lab-title-text"><i class="fa-solid fa-flask"></i> LAB: Klik unsur di tabel untuk memasukkannya ke tabung reaksi!</div>
-  <div style="display:flex; align-items:center;">
+  <div class="lab-title" id="lab-title-text"><i class="fa-solid fa-flask"></i> LAB: Klik unsur di tabel untuk meracik formula kimia!</div>
+  <div style="display:flex; flex-direction: column; align-items:center; width: 100%;">
     <div class="beaker" id="beaker"></div>
-    <button class="btn-clear" onclick="clearBeaker()">X</button>
+    <div style="display:flex; gap: 10px;">
+      <button class="btn-clear" onclick="clearBeaker()">Kosongkan Tabung</button>
+      <button class="btn-react" onclick="reactElements()" id="btn-react-text">Reaksikan Campuran!</button>
+    </div>
   </div>
-  <button class="btn-react" onclick="reactElements()" id="btn-react-text">Reaksikan Campuran!</button>
 </div>
 
 <!-- Element Info Modal -->
@@ -141,9 +148,8 @@
   let elementsData = [];
   let currentLang = 'id';
   let labMode = false;
-  let beaker = [];
+  let beaker = []; // Array of {sym: 'H', count: 2}
 
-  // Reaksi Kamus (Hardcoded)
   const recipes = {
     "H2O1": { name_id: "Air", name_en: "Water", desc_id: "Senyawa penting penyusun kehidupan.", desc_en: "Essential compound for all known life.", emoji: "💧", formula: "H₂O" },
     "Cl1Na1": { name_id: "Garam Dapur (Natrium Klorida)", name_en: "Salt (Sodium Chloride)", desc_id: "Bumbu dapur yang memberikan rasa asin.", desc_en: "Common salt used for seasoning.", emoji: "🧂", formula: "NaCl" },
@@ -155,7 +161,9 @@
     "C6H12O6": { name_id: "Glukosa (Gula)", name_en: "Glucose (Sugar)", desc_id: "Sumber energi utama bagi makhluk hidup.", desc_en: "Main energy source for living organisms.", emoji: "🍬", formula: "C₆H₁₂O₆" },
     "Fe2O3": { name_id: "Karat Besi (Besi Oksida)", name_en: "Rust (Iron Oxide)", desc_id: "Hasil korosi besi oleh oksigen dan air.", desc_en: "Result of iron corrosion.", emoji: "🟤", formula: "Fe₂O₃" },
     "Cl1H1": { name_id: "Asam Klorida", name_en: "Hydrochloric Acid", desc_id: "Asam kuat yang ada di lambung manusia.", desc_en: "Strong acid found in gastric juice.", emoji: "🧪", formula: "HCl" },
-    "C1O1": { name_id: "Karbon Monoksida", name_en: "Carbon Monoxide", desc_id: "Gas beracun hasil pembakaran tidak sempurna.", desc_en: "Toxic gas from incomplete combustion.", emoji: "☠️", formula: "CO" }
+    "C1O1": { name_id: "Karbon Monoksida", name_en: "Carbon Monoxide", desc_id: "Gas beracun hasil pembakaran tidak sempurna.", desc_en: "Toxic gas from incomplete combustion.", emoji: "☠️", formula: "CO" },
+    "H2O4S1": { name_id: "Asam Sulfat", name_en: "Sulfuric Acid", desc_id: "Asam mineral kuat yang sangat korosif (Air Aki).", desc_en: "Highly corrosive strong mineral acid.", emoji: "☢️", formula: "H₂SO₄" },
+    "H2O2": { name_id: "Hidrogen Peroksida", name_en: "Hydrogen Peroxide", desc_id: "Cairan pemutih dan antiseptik kuat.", desc_en: "Bleaching agent and antiseptic.", emoji: "🧪", formula: "H₂O₂" }
   };
 
   fetch('bilingual-wbt.json')
@@ -197,9 +205,8 @@
       table.appendChild(div);
     });
 
-    // Update UI Texts based on Language
     document.getElementById('btn-lang').innerText = currentLang === 'id' ? '🇮🇩 Bahasa: ID' : '🇬🇧 Language: EN';
-    document.getElementById('lab-title-text').innerHTML = currentLang === 'id' ? '<i class="fa-solid fa-flask"></i> LAB: Klik unsur di tabel untuk memasukkannya ke tabung reaksi!' : '<i class="fa-solid fa-flask"></i> LAB: Click elements on the table to add them to the beaker!';
+    document.getElementById('lab-title-text').innerHTML = currentLang === 'id' ? '<i class="fa-solid fa-flask"></i> LAB: Klik unsur di tabel untuk meracik formula kimia!' : '<i class="fa-solid fa-flask"></i> LAB: Click elements to build a chemical formula!';
     document.getElementById('btn-react-text').innerText = currentLang === 'id' ? 'Reaksikan Campuran!' : 'React Mixture!';
     
     document.getElementById('l-mass').innerText = currentLang === 'id' ? 'Massa Atom' : 'Atomic Mass';
@@ -228,7 +235,7 @@
       btn.innerHTML = '<i class="fa-solid fa-flask"></i> Mode LAB: OFF';
       panel.style.display = 'none';
     }
-    renderTable(); // to apply/remove hover effects
+    renderTable(); 
   }
 
   function showModal(el, catCss) {
@@ -237,22 +244,33 @@
     document.getElementById('m-name').innerText = currentLang === 'id' ? el.name_id : el.name_en;
     document.getElementById('m-cat').innerText = currentLang === 'id' ? el.category_id : el.category_en;
     document.getElementById('m-desc').innerText = currentLang === 'id' ? el.summary_id : el.summary_en;
-    
     document.getElementById('m-mass').innerText = el.atomic_mass || 'N/A';
     document.getElementById('m-melt').innerText = el.melt || 'N/A';
     document.getElementById('m-boil').innerText = el.boil || 'N/A';
     document.getElementById('m-discoverer').innerText = el.discovered_by || (currentLang === 'id' ? 'Tidak diketahui' : 'Unknown');
-    
     document.getElementById('m-box').className = 'modal-symbol-box ' + catCss;
     document.getElementById('modal').style.display = 'flex';
   }
 
   function addToBeaker(sym) {
-    if (beaker.length >= 24) {
-        alert(currentLang === 'id' ? "Tabung reaksi penuh!" : "Beaker is full!");
-        return;
+    let existing = beaker.find(i => i.sym === sym);
+    if(existing) {
+      existing.count++;
+    } else {
+      beaker.push({sym: sym, count: 1});
     }
-    beaker.push(sym);
+    renderBeaker();
+  }
+  
+  function updateCount(sym, val) {
+    let num = parseInt(val);
+    if(isNaN(num) || num < 1) num = 1;
+    let existing = beaker.find(i => i.sym === sym);
+    if(existing) existing.count = num;
+  }
+  
+  function removeBeakerItem(sym) {
+    beaker = beaker.filter(i => i.sym !== sym);
     renderBeaker();
   }
 
@@ -264,46 +282,87 @@
   function renderBeaker() {
     const container = document.getElementById('beaker');
     container.innerHTML = '';
-    beaker.forEach(sym => {
-      container.innerHTML += '<div class="beaker-item">' + sym + '</div>';
+    beaker.forEach(item => {
+      container.innerHTML += '<div class="builder-item">' +
+                             '<div class="bi-sym">' + item.sym + '</div>' +
+                             '<input type="number" class="bi-input" min="1" max="99" value="' + item.count + '" onchange="updateCount(\''+item.sym+'\', this.value)">' +
+                             '<div class="bi-remove" onclick="removeBeakerItem(\''+item.sym+'\')">X</div>' +
+                             '</div>';
     });
   }
 
-  function reactElements() {
+  async function reactElements() {
     if (beaker.length === 0) return;
     
-    // Count elements
-    let counts = {};
-    beaker.forEach(sym => {
-      counts[sym] = (counts[sym] || 0) + 1;
+    // Create standard string for API: e.g. H2S1O4 -> H2SO4
+    // We sort alphabetically for the key matching, but for PubChem usually Hill system (C, H, then alphabetical).
+    // Let's just build it based on Beaker order for PubChem.
+    let formulaString = "";
+    beaker.forEach(i => {
+      formulaString += i.sym + (i.count > 1 ? i.count : "");
     });
     
-    // Create signature key (sort symbols alphabetically)
-    let keys = Object.keys(counts).sort();
+    // Create sorted signature for local hardcoded dictionary
+    let sortedBeaker = [...beaker].sort((a,b) => a.sym.localeCompare(b.sym));
     let signature = "";
-    keys.forEach(k => {
-      signature += k + counts[k];
+    sortedBeaker.forEach(i => {
+      signature += i.sym + i.count;
     });
-    
-    const res = recipes[signature];
     
     document.getElementById('modal-rx').style.display = 'flex';
+    document.getElementById('rx-emoji').innerText = "⏳";
+    document.getElementById('rx-name').innerText = currentLang === 'id' ? "Menganalisis Zat..." : "Analyzing Compound...";
+    document.getElementById('rx-name').style.color = '#fbbf24';
+    document.getElementById('rx-formula').innerText = formulaString;
+    document.getElementById('rx-desc').innerText = "";
     
+    // 1. Check Hardcoded Recipes First
+    const res = recipes[signature] || recipes[formulaString];
     if (res) {
-      document.getElementById('rx-emoji').innerText = res.emoji;
-      document.getElementById('rx-name').innerText = currentLang === 'id' ? res.name_id : res.name_en;
-      document.getElementById('rx-name').style.color = '#10b981';
-      document.getElementById('rx-formula').innerText = res.formula;
-      document.getElementById('rx-desc').innerText = currentLang === 'id' ? res.desc_id : res.desc_en;
-    } else {
-      document.getElementById('rx-emoji').innerText = "💥";
-      document.getElementById('rx-name').innerText = currentLang === 'id' ? "Gagal / Tidak Diketahui" : "Unknown Reaction";
-      document.getElementById('rx-name').style.color = '#ef4444';
-      document.getElementById('rx-formula').innerText = "???";
-      document.getElementById('rx-desc').innerText = currentLang === 'id' ? "Kombinasi unsur ini tidak menghasilkan senyawa stabil yang umum, atau memicu ledakan!" : "This combination does not produce a common stable compound, or it explodes!";
+      showResult(res.emoji, currentLang === 'id' ? res.name_id : res.name_en, res.formula, currentLang === 'id' ? res.desc_id : res.desc_en, true);
+      clearBeaker();
+      return;
     }
     
+    // 2. Fetch from PubChem API (Supports millions of compounds)
+    try {
+      const apiRes = await fetch('https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/fastformula/' + formulaString + '/property/Title/JSON');
+      if (apiRes.ok) {
+        const data = await apiRes.json();
+        if (data.PropertyTable && data.PropertyTable.Properties.length > 0) {
+          const englishTitle = data.PropertyTable.Properties[0].Title;
+          
+          // Try to translate title to ID if currentLang is ID
+          let finalTitle = englishTitle;
+          let finalDesc = currentLang === 'id' ? "Zat ini tercatat secara valid di dalam database sains global PubChem." : "This compound is a valid chemical found in the PubChem global database.";
+          
+          if (currentLang === 'id') {
+             try {
+                const trRes = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=id&dt=t&q=' + encodeURIComponent(englishTitle));
+                const trData = await trRes.json();
+                finalTitle = trData[0][0][0];
+             } catch(e) {} // fallback to english title
+          }
+          
+          showResult("🧪", finalTitle, formulaString, finalDesc, true);
+          clearBeaker();
+          return;
+        }
+      }
+      throw new Error("Not found");
+    } catch (e) {
+      // 3. Fallback: Not Found
+      showResult("💥", currentLang === 'id' ? "Gagal / Tidak Diketahui" : "Unknown Reaction", "???", currentLang === 'id' ? "Kombinasi unsur ini tidak menghasilkan senyawa stabil, tidak dikenal dunia, atau memicu ledakan!" : "This combination does not produce a known stable compound, or it explodes!", false);
+    }
     clearBeaker();
+  }
+  
+  function showResult(emoji, name, formula, desc, success) {
+      document.getElementById('rx-emoji').innerText = emoji;
+      document.getElementById('rx-name').innerText = name;
+      document.getElementById('rx-name').style.color = success ? '#10b981' : '#ef4444';
+      document.getElementById('rx-formula').innerText = formula;
+      document.getElementById('rx-desc').innerText = desc;
   }
 </script>
 </body>
