@@ -26,21 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDropzone();
 });
 
-function updateQuotaUI() { /* Removed Pro Feature */ });
-  
-  if (isPro) {
-    if(quotaDisplay) {
-      quotaDisplay.innerHTML = <i class="fa-solid fa-crown" style="color: #fbbf24;"></i><span style="color: #fbbf24; font-weight: 800; letter-spacing: 0.5px;">PRO LIFETIME</span>;
-      quotaDisplay.style.borderColor = '#f59e0b';
-      quotaDisplay.style.background = 'rgba(245, 158, 11, 0.1)';
-      quotaDisplay.style.display = 'flex';
-    }
-    if (btnUpgrade) btnUpgrade.style.display = 'none';
-  } else {
-    if(quotaDisplay) quotaDisplay.style.display = 'none';
-    if (btnUpgrade) btnUpgrade.style.display = 'inline-flex';
-  }
-}
+function updateQuotaUI() { /* Removed Pro Feature */ }
 
 
 
@@ -715,56 +701,37 @@ function filterCategory(cat) {
 
 // PDF Processing Logic
 async function processCurrentTool() {
-  
-  
-  const btnProcess = document.getElementById('btn-process');
-  const originalText = btnProcess.innerHTML;
-  btnProcess.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
-  btnProcess.disabled = true;
-
-  try {
-    if (activeTool === 'merge') await processMerge();
-    else if (activeTool === 'split') await processSplit();
-    else if (activeTool === 'remove_pages') await processRemovePages();
-    else if (activeTool === 'extract_pages') await processExtractPages();
-    else if (activeTool === 'organize') await processOrganize();
-    else if (activeTool === 'compress') await processCompress();
-    else if (activeTool === 'repair') await processRepair();
-    else if (activeTool === 'clean_exif') await processCleanExif();
-    else {
-      // Feature not natively implemented in this Lite version yet
-      await new Promise(r => setTimeout(r, 1000));
-      showToast('Fitur ini sedang dalam tahap pengembangan untuk versi Offline murni (Coming Soon).', 'warning');
-    }
-    else if (activeTool === 'img2pdf') await processImg2Pdf();
-    else if (activeTool === 'note2pdf') await processNote2Pdf();
-    else if (activeTool === 'html2pdf') await processHtml2Pdf();
-    else if (activeTool === 'pdf2img') await processPdf2Img();
-    else if (activeTool === 'pdf2txt') await processPdf2Txt();
-    else if (activeTool === 'pdf2csv') await processPdf2Csv();
-    else if (activeTool === 'rotate') await processRotate();
-    else if (activeTool === 'page_number') await processPageNumber();
-    else if (activeTool === 'watermark') await processWatermark();
-    else if (activeTool === 'protect') await processProtect();
-    else if (activeTool === 'unlock') await processUnlock();
-    else if (activeTool === 'sign_studio') await processSignStudio();
-    else if (activeTool === 'md_editor') await processMdEditor();
-    else if (activeTool === 'word_counter') await processWordCounter();
-    else if (activeTool === 'word_extract') await processWordExtract();
-    else if (activeTool === 'csv_viewer') await processCsvViewer();
-    else if (activeTool === 'csv_json') await processCsvJson();
-    else if (activeTool === 'csv_pdf') await processCsvPdf();
-    else if (activeTool === 'ppt_notes') await processPptNotes();
-    else if (activeTool === 'ppt_outline') await processPptOutline();
     
-    showToast('File berhasil diproses dan diunduh!', 'success');
-  } catch (err) {
-    console.error(err);
-    showToast('Terjadi kesalahan saat memproses file PDF.', 'error');
-  } finally {
-    btnProcess.innerHTML = originalText;
-    btnProcess.disabled = false;
-  }
+    
+    const btnProcess = document.getElementById('btn-process');
+    const originalText = btnProcess.innerHTML;
+    btnProcess.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses...';
+    btnProcess.disabled = true;
+  
+    try {
+      if (activeTool === 'merge') await processMerge();
+      else if (activeTool === 'split') await processSplit();
+      else if (activeTool === 'remove_pages') await processRemovePages();
+      else if (activeTool === 'extract_pages') await processExtractPages();
+      else if (activeTool === 'organize') await processOrganize();
+      else if (activeTool === 'compress') await processCompress();
+      else if (activeTool === 'repair') await processRepair();
+      else if (activeTool === 'clean_exif') await processCleanExif();
+      else if (activeTool === 'img2pdf') await processImg2Pdf();
+      else if (activeTool === 'note2pdf') await processNote2Pdf();
+      else if (activeTool === 'html2pdf') await processHtml2Pdf();
+      else if (activeTool === 'pdf2img') await processPdf2Img();
+      else {
+        await new Promise(r => setTimeout(r, 1000));
+        showToast('Fitur ini sedang dalam tahap pengembangan untuk versi Offline murni (Coming Soon).', 'warning');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('Gagal memproses file: ' + e.message, 'error');
+    } finally {
+      btnProcess.innerHTML = originalText;
+      btnProcess.disabled = false;
+    }
 }
 
 async function processMerge() {
