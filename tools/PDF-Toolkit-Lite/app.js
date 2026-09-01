@@ -700,7 +700,84 @@ function filterCategory(cat) {
 }
 
 // PDF Processing Logic
+
+// ==========================================
+// MOBILE APP MONETIZATION (AdMob & IAP)
+// ==========================================
+const isMobileApp = new URLSearchParams(window.location.search).get('app') === 'mobile';
+let hasPurchasedNoAds = localStorage.getItem('wbt_mobile_no_ads') === 'true';
+
+function showMobileAdAndProcess(callback) {
+  if (!isMobileApp || hasPurchasedNoAds) {
+    callback(); // Langsung proses jika di Web atau sudah beli fitur No-Ads
+    return;
+  }
+  
+  // Tampilkan Iklan Fullscreen (Simulasi AdMob Interstitial)
+  const adOverlay = document.createElement('div');
+  adOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:sans-serif;';
+  
+  adOverlay.innerHTML = 
+    <div style="position:absolute; top:20px; right:20px; font-size:12px; color:#888;">Ad / Sponsor</div>
+    <i class="fa-brands fa-google" style="font-size: 50px; color: #3b82f6; margin-bottom: 20px;"></i>
+    <h2 style="margin:0 0 10px 0;">Menampilkan Iklan...</h2>
+    <p style="color:#aaa; text-align:center; max-width:80%;">Mendukung pengembang agar aplikasi ini tetap gratis.</p>
+    
+    <div id="ad-timer" style="margin-top: 30px; padding: 15px 30px; background: #333; border-radius: 99px; font-weight:bold;">Tunggu 5 detik...</div>
+    
+    <button onclick="purchaseNoAds()" style="position:absolute; bottom: 40px; background: #fbbf24; border:none; padding: 12px 25px; border-radius: 99px; font-weight:800; color: #000; cursor:pointer;">
+      <i class="fa-solid fa-ban"></i> Hapus Iklan Selamanya (Rp 15.000)
+    </button>
+  ;
+  document.body.appendChild(adOverlay);
+  
+  let timeLeft = 5;
+  const timerEl = document.getElementById('ad-timer');
+  const interval = setInterval(() => {
+    timeLeft--;
+    if (timeLeft > 0) {
+      timerEl.innerText = Tunggu  detik...;
+    } else {
+      clearInterval(interval);
+      timerEl.innerText = 'X Tutup Iklan';
+      timerEl.style.background = '#ef4444';
+      timerEl.style.cursor = 'pointer';
+      timerEl.onclick = () => {
+        document.body.removeChild(adOverlay);
+        callback(); // Lanjut memproses PDF setelah iklan ditutup
+      };
+    }
+  }, 1000);
+}
+
+// Cek apakah baru saja kembali dari pembayaran sukses Mayar
+if (new URLSearchParams(window.location.search).get('payment') === 'success_mobile_15k') {
+  localStorage.setItem('wbt_mobile_no_ads', 'true');
+  hasPurchasedNoAds = true;
+  // Bersihkan URL tanpa refresh halaman
+  window.history.replaceState({}, document.title, window.location.pathname);
+  alert('Pembayaran Mayar Berhasil! Iklan telah dihapus secara permanen.');
+}
+
+window.purchaseNoAds = function() {
+  const confirmBuy = confirm('Beli Fitur Premium: Hapus Iklan Selamanya\nHarga: Rp 15.000\n\nAnda akan diarahkan ke halaman pembayaran Mayar.id. Lanjutkan?');
+  if (confirmBuy) {
+    // Arahkan ke link Mayar Anda. 
+    // Pastikan di dashboard Mayar, Anda menset "Success URL" kembali ke:
+    // https://bayupradika.github.io/wbt-digital-labs/tools/PDF-Toolkit-Lite/index.html?payment=success_mobile_15k
+    window.location.href = 'https://mayar.id/pay/wbt-mobile-noads';
+  }
+}
+
+
 async function processCurrentTool() {
+    if (isMobileApp && !hasPurchasedNoAds) {
+      return showMobileAdAndProcess(executeProcessing);
+    }
+    return executeProcessing();
+}
+
+async function executeProcessing() {
     
     
     const btnProcess = document.getElementById('btn-process');

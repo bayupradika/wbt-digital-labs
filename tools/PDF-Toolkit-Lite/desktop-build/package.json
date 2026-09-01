@@ -1,0 +1,19 @@
+﻿{
+  "name": "wbt-pdf-toolkit",
+  "version": "1.0.0",
+  "description": "WBT Document Toolkit - Premium Desktop Edition",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "author": "WBT Digital Labs",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "node-machine-id": "^1.1.12"
+  }
+}

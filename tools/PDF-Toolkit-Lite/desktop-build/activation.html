@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Aktivasi WBT Document Toolkit</title>
+  <style>
+    body { background: #070913; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .box { background: #1e293b; padding: 40px; border-radius: 12px; width: 450px; text-align: center; border: 1px solid #3b82f6; }
+    input { width: 90%; padding: 12px; margin: 15px 0; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 16px; text-align:center; font-weight:bold; letter-spacing: 2px;}
+    button.btn-activate { background: #10b981; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; margin-bottom: 10px; }
+    button.btn-buy { background: transparent; border: 1px solid #3b82f6; color: #38bdf8; padding: 12px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2 style="color: #38bdf8; margin-top:0;">WBT Document Toolkit PRO</h2>
+    <p style="color: #cbd5e1; font-size: 14px; margin-bottom: 30px;">Aplikasi ini membutuhkan Lisensi Resmi untuk membuka akses Offline Penuh selamanya tanpa iklan.</p>
+    
+    <button class="btn-buy" onclick="buy()">1. Beli Lisensi via Mayar (Rp 30.000)</button>
+    
+    <div style="margin: 30px 0; border-bottom: 1px solid #334155; position: relative;">
+      <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #1e293b; padding: 0 10px; font-size: 12px; color: #64748b;">SUDAH PUNYA KODE?</span>
+    </div>
+    
+    <input type="text" id="license-key" placeholder="WBT-XXXX-YYYY">
+    <button class="btn-activate" onclick="activate()">2. Aktifkan Aplikasi</button>
+  </div>
+  
+  <script>
+    const { ipcRenderer } = require('electron');
+    function activate() {
+      const key = document.getElementById('license-key').value.trim();
+      if(!key) return alert('Ketik kodenya dulu!');
+      ipcRenderer.send('activate-license', key);
+    }
+    function buy() {
+      ipcRenderer.send('open-buy-link');
+    }
+  </script>
+</body>
+</html>
