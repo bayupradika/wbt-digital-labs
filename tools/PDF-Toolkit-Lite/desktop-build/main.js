@@ -61,7 +61,7 @@ ipcMain.on('activate-license', (event, key) => {
 });
 
 ipcMain.on('open-buy-link', () => {
-  shell.openExternal('https://mayar.id/pay/wbt-desktop-pro'); // Ganti dengan link Mayar Anda
+  shell.openExternal('https://wbtdigitallabs.myr.id/pl/lisensi-premium-wbt-desktop-pro/'); // Ganti dengan link Mayar Anda
 });
 
 app.whenReady().then(createWindow);
