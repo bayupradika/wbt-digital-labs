@@ -717,7 +717,7 @@ function showMobileAdAndProcess(callback) {
   const adOverlay = document.createElement('div');
   adOverlay.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:black; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; font-family:sans-serif;';
   
-  adOverlay.innerHTML = 
+  adOverlay.innerHTML = `
     <div style="position:absolute; top:20px; right:20px; font-size:12px; color:#888;">Ad / Sponsor</div>
     <i class="fa-brands fa-google" style="font-size: 50px; color: #3b82f6; margin-bottom: 20px;"></i>
     <h2 style="margin:0 0 10px 0;">Menampilkan Iklan...</h2>
@@ -728,7 +728,7 @@ function showMobileAdAndProcess(callback) {
     <button onclick="purchaseNoAds()" style="position:absolute; bottom: 40px; background: #fbbf24; border:none; padding: 12px 25px; border-radius: 99px; font-weight:800; color: #000; cursor:pointer;">
       <i class="fa-solid fa-ban"></i> Hapus Iklan Selamanya (Rp 15.000)
     </button>
-  ;
+  `;
   document.body.appendChild(adOverlay);
   
   let timeLeft = 5;
@@ -736,7 +736,7 @@ function showMobileAdAndProcess(callback) {
   const interval = setInterval(() => {
     timeLeft--;
     if (timeLeft > 0) {
-      timerEl.innerText = Tunggu  detik...;
+      timerEl.innerText = `Tunggu ${timeLeft} detik...`;
     } else {
       clearInterval(interval);
       timerEl.innerText = 'X Tutup Iklan';
