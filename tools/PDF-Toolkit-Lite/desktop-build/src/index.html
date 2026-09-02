@@ -1,0 +1,539 @@
+﻿<!DOCTYPE html>
+
+<html lang="id">
+<head>
+
+<script>var _0x1a2b=["bayupradika.github.io","localhost","127.0.0.1","hostname","location","protocol","file:","indexOf","innerHTML","","write","<div style='font-family:sans-serif; text-align:center; margin-top:100px; color:#fff; background:#000; padding:50px;'><h1>⚠️ Akses Ditolak (Anti-Piracy System)</h1><p>Aplikasi ini dilindungi hak cipta oleh WBT Digital Labs.</p><p>Mendeteksi kloning ilegal di luar domain resmi.</p><a href='https://bayupradika.github.io/wbt-digital-labs/' style='color:#38bdf8;'>Kembali ke situs resmi</a></div>","href","https://bayupradika.github.io/wbt-digital-labs/"];!function(){var i=[_0x1a2b[0],_0x1a2b[1],_0x1a2b[2]],a=window[_0x1a2b[4]][_0x1a2b[3]];if(window[_0x1a2b[4]][_0x1a2b[5]]!==_0x1a2b[6]){for(var b=!1,c=0;c<i.length;c++)if(-1!==a[_0x1a2b[7]](i[c])){b=!0;break}b||(document[_0x1a2b[8]]=_0x1a2b[9],document[_0x1a2b[10]](_0x1a2b[11]),window[_0x1a2b[4]][_0x1a2b[12]]=_0x1a2b[13])}}();</script>
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PDF &amp; Office Toolkit Lite - Kelola PDF, Word, Excel, PPT &amp; CSV Offline</title>
+<link href="https://bayupradika.github.io/wbt-digital-labs/tools/PDF-Toolkit-Lite/" rel="canonical"/>
+<meta content="Kelola, gabung, dan kompres PDF 100% Offline." name="description"/>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Document Toolkit Offline",
+      "operatingSystem": "Web Browser",
+      "applicationCategory": "UtilitiesApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "3000.00",
+        "priceCurrency": "IDR"
+      }
+    }
+    </script>
+<meta content="Aplikasi web &amp; mobile ringan untuk kelola PDF, Word, Excel, PPT, CSV, dan Markdown tanpa perlu upload ke server eksternal. Privasi 100% terjaga." name="description"/>
+<link href="style.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+<script>
+    if (window['pdfjs-dist/build/pdf']) {
+      window.pdfjsLib = window['pdfjs-dist/build/pdf'];
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+<link href="../../assets/img/favicon.png" rel="icon" type="image/png"/>
+</head>
+<body>
+
+<!-- AdSense Placeholders (Dinonaktifkan Sementara) 
+<div class="wbt-ad-container wbt-ad-left">Iklan Kiri<br>(160x600)</div>
+<div class="wbt-ad-container wbt-ad-right">Iklan Kanan<br>(160x600)</div>
+<div class="wbt-ad-container wbt-ad-bottom">Banner Iklan Bawah (Responsive)</div>
+-->
+
+<style>
+  .wbt-global-header {
+    position: sticky; top: 20px; z-index: 9999; 
+    background: rgba(15,23,42,0.85); backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 99px; 
+    padding: 10px 24px; max-width: 1050px; margin: 20px auto 40px;
+    display: flex; justify-content: space-between; align-items: center; 
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  }
+  .wbt-global-header-left { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .wbt-global-header-left img { height: 34px; transition: transform 0.2s; filter: drop-shadow(0 0 5px rgba(56,189,248,0.3)); }
+  .wbt-global-header-left img:hover { transform: scale(1.05); }
+  .wbt-global-header-title { color: white; font-weight: 800; font-size: 16px; font-family: 'Outfit', sans-serif; }
+  .wbt-global-header-right { display: flex; gap: 16px; align-items: center; }
+  @media (max-width: 768px) {
+    .wbt-global-header { border-radius: 16px; flex-direction: column; gap: 12px; padding: 15px; margin: 10px auto 20px; }
+    .wbt-global-header-right { flex-wrap: wrap; justify-content: center; }
+  }
+
+  /* WBT Ad Slots */
+  .wbt-ad-container { position: fixed; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(30,41,59,0.5); border: 1px dashed rgba(255,255,255,0.2); color: rgba(255,255,255,0.3); font-weight: bold; text-align: center; font-size: 12px; border-radius: 8px;}
+  .wbt-ad-left { top: 150px; left: 20px; width: 160px; height: 600px; }
+  .wbt-ad-right { top: 150px; right: 20px; width: 160px; height: 600px; }
+  .wbt-ad-bottom { bottom: 0; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; border-radius: 8px 8px 0 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); z-index: 9999; border-top: 1px dashed rgba(255,255,255,0.2); border-left: 1px dashed rgba(255,255,255,0.2); border-right: 1px dashed rgba(255,255,255,0.2); }
+  
+  @media (max-width: 1200px) {
+    .wbt-ad-left, .wbt-ad-right { display: none; }
+  }
+  @media (max-width: 768px) {
+    .wbt-ad-bottom { width: 100%; height: 60px; font-size: 10px; }
+  }
+</style>
+<header class="wbt-global-header">
+<a class="wbt-global-header-left" href="https://bayupradika.github.io/wbt-digital-labs/" title="Kembali ke Portal WBT">
+<img alt="WBT Logo" src="../../assets/img/wbt-logo.png"/>
+<div class="wbt-global-header-title"></div>
+</a>
+<div class="wbt-global-header-right" style="flex-grow:1; justify-content: flex-end; display:flex;">
+  <style>
+    .nav-links { list-style: none; display: flex; gap: 25px; align-items: center; margin: 0; padding: 0; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; text-transform: uppercase; }
+    .nav-links li { position: relative; }
+    .nav-links a { color: #f8fafc; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: 0.2s; padding: 10px 0; }
+    .nav-links a:hover { color: #ef4444; } /* iLovePDF red hover */
+    
+    .dropdown-menu { 
+      display: none; position: absolute; top: 100%; left: -20px; background: white; 
+      border-radius: 8px; padding: 10px 0; min-width: 240px; flex-direction: column; z-index: 9999; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .nav-links li:hover .dropdown-menu { display: flex; }
+    .dropdown-menu a { padding: 10px 20px; color: #334155; font-weight: 600; text-transform: none; font-size: 14px; }
+    .dropdown-menu a:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
+    .dropdown-divider { height: 1px; background: #e2e8f0; margin: 5px 0; }
+  
+  /* WBT Ad Slots */
+  .wbt-ad-container { position: fixed; z-index: 10; display: flex; align-items: center; justify-content: center; background: rgba(30,41,59,0.5); border: 1px dashed rgba(255,255,255,0.2); color: rgba(255,255,255,0.3); font-weight: bold; text-align: center; font-size: 12px; border-radius: 8px;}
+  .wbt-ad-left { top: 150px; left: 20px; width: 160px; height: 600px; }
+  .wbt-ad-right { top: 150px; right: 20px; width: 160px; height: 600px; }
+  .wbt-ad-bottom { bottom: 0; left: 50%; transform: translateX(-50%); width: 728px; height: 90px; border-radius: 8px 8px 0 0; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); z-index: 9999; border-top: 1px dashed rgba(255,255,255,0.2); border-left: 1px dashed rgba(255,255,255,0.2); border-right: 1px dashed rgba(255,255,255,0.2); }
+  
+  @media (max-width: 1200px) {
+    .wbt-ad-left, .wbt-ad-right { display: none; }
+  }
+  @media (max-width: 768px) {
+    .wbt-ad-bottom { width: 100%; height: 60px; font-size: 10px; }
+  }
+</style>
+  <ul class="nav-links">
+    <li><a href="javascript:void(0)" onclick="selectTool('merge')">Merge PDF</a></li>
+    <li><a href="javascript:void(0)" onclick="selectTool('split')">Split PDF</a></li>
+    <li><a href="javascript:void(0)" onclick="selectTool('compress')">Compress PDF</a></li>
+    <li>
+      <a href="javascript:void(0)">Convert PDF <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i></a>
+      <div class="dropdown-menu">
+        <a href="javascript:void(0)" onclick="selectTool('word2pdf')"><i class="fa-solid fa-file-word" style="width:20px; color:#3b82f6;"></i> Word to PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('excel2pdf')"><i class="fa-solid fa-file-excel" style="width:20px; color:#10b981;"></i> Excel to PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('ppt2pdf')"><i class="fa-solid fa-file-powerpoint" style="width:20px; color:#f97316;"></i> PowerPoint to PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('jpg2pdf')"><i class="fa-solid fa-image" style="width:20px; color:#eab308;"></i> JPG to PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('html2pdf')"><i class="fa-brands fa-html5" style="width:20px; color:#14b8a6;"></i> HTML to PDF</a>
+      </div>
+    </li>
+    <li>
+      <a href="javascript:void(0)">ALL WBT Document Tools <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i></a>
+      <div class="dropdown-menu" style="min-width: 280px; max-height: 70vh; overflow-y: auto; right: 0; left: auto;">
+        <a href="javascript:void(0)" onclick="selectTool('merge')"><i class="fa-solid fa-object-group" style="width:20px; color:#ef4444;"></i> Merge PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('split')"><i class="fa-solid fa-scissors" style="width:20px; color:#f97316;"></i> Split PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('compress')"><i class="fa-solid fa-compress" style="width:20px; color:#10b981;"></i> Compress PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('edit')"><i class="fa-solid fa-pen-to-square" style="width:20px; color:#8b5cf6;"></i> Edit PDF</a>
+        <div class="dropdown-divider"></div>
+        <a href="javascript:void(0)" onclick="selectTool('word2pdf')"><i class="fa-solid fa-file-word" style="width:20px; color:#3b82f6;"></i> Word to PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('pdf2word')"><i class="fa-solid fa-file-export" style="width:20px; color:#3b82f6;"></i> PDF to Word</a>
+        <a href="javascript:void(0)" onclick="selectTool('excel2pdf')"><i class="fa-solid fa-file-excel" style="width:20px; color:#10b981;"></i> Excel to PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('pdf2excel')"><i class="fa-solid fa-table" style="width:20px; color:#10b981;"></i> PDF to Excel</a>
+        <div class="dropdown-divider"></div>
+        <a href="javascript:void(0)" onclick="selectTool('protect')"><i class="fa-solid fa-lock" style="width:20px; color:#ef4444;"></i> Protect PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('unlock')"><i class="fa-solid fa-lock-open" style="width:20px; color:#22c55e;"></i> Unlock PDF</a>
+        <a href="javascript:void(0)" onclick="selectTool('sign')"><i class="fa-solid fa-signature" style="width:20px; color:#6366f1;"></i> Sign PDF</a>
+      </div>
+    </li>
+  </ul>
+</div>
+  </header>
+
+
+
+<div class="ambient-glow"></div>
+<!-- Navigation -->
+<!-- Main Content -->
+<main>
+<!-- Hero Section -->
+<section class="hero container">
+<div class="hero-badge">
+      <i class="fa-solid fa-bolt"></i> Gratis, Cepat &amp; Privasi Dokumen Aman
+    </div>
+<h1>Semua Kebutuhan <span class="text-gradient">Dokumen Kantor</span> dalam Satu Portal Ringan</h1>
+<p>Kelola file <b>PDF, Word (.docx), Excel (.xlsx/.csv), Presentasi (.ppt), &amp; Markdown</b> tanpa mengunggah dokumen rahasia Anda ke server eksternal.</p>
+</section>
+<!-- Workspace Section (Hidden by default, shown when tool selected) -->
+<section class="workspace-section container" id="workspace-section">
+<div class="workspace-card">
+<div class="workspace-header">
+<div class="workspace-title-area">
+<div class="workspace-icon" id="ws-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+<div>
+<h3 id="ws-title" style="font-size: 22px;">Nama Tool</h3>
+<p id="ws-desc" style="color: var(--text-muted); font-size: 14px;">Deskripsi singkat tool yang aktif</p>
+</div>
+</div>
+<button class="btn btn-outline" onclick="closeWorkspace()">
+<i class="fa-solid fa-xmark"></i> Ganti Tool
+          </button>
+</div>
+<!-- Dropzone -->
+<div class="dropzone" id="dropzone">
+<input accept=".pdf,.png,.jpg,.jpeg" class="file-input" id="file-input" multiple="" type="file"/>
+<div class="dropzone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+<div class="dropzone-text">Klik atau Tarik File ke Sini</div>
+<div class="dropzone-subtext" id="dropzone-hint">Format didukung: PDF (Maks. 50MB)</div>
+</div>
+<!-- File List -->
+<div class="file-list" id="file-list"></div>
+<!-- Dynamic Settings Area -->
+<div class="tool-settings" id="tool-settings" style="display: none;"></div>
+<!-- Action Button -->
+<div style="margin-top: 28px; text-align: right;">
+<button class="btn btn-primary" disabled="" id="btn-process" onclick="processCurrentTool()" style="padding: 14px 32px; font-size: 16px;">
+<i class="fa-solid fa-play"></i> Proses &amp; Download PDF
+          </button>
+</div>
+</div>
+</section>
+<!-- Tools Grid Section -->
+<section class="tools-section container" id="tools-section">
+<div class="section-header">
+<h2>Pilih <span class="text-gradient">Layanan Dokumen &amp; PDF Studio</span> Anda</h2>
+<p>Alur kerja interaktif 100% lokal &amp; offline untuk file PDF, Word, Excel, PPT, CSV, dan Markdown</p>
+</div>
+<!-- Category Filter Tabs -->
+<div class="category-filter" style="display:flex; flex-wrap:wrap; justify-content:center; gap:8px;">
+<button class="cat-btn active" onclick="filterCategory('all')"><i class="fa-solid fa-layer-group"></i> Semua Fitur (28)</button>
+<button class="cat-btn" onclick="filterCategory('word')" style="border-color:#3b82f6; color:#60a5fa;"><i class="fa-solid fa-file-word"></i> Word &amp; Text (3)</button>
+<button class="cat-btn" onclick="filterCategory('excel')" style="border-color:#10b981; color:#34d399;"><i class="fa-solid fa-file-excel"></i> Excel &amp; CSV (3)</button>
+<button class="cat-btn" onclick="filterCategory('ppt')" style="border-color:#f97316; color:#fb923c;"><i class="fa-solid fa-file-powerpoint"></i> PPT &amp; Notes (2)</button>
+<button class="cat-btn" onclick="filterCategory('organize')"><i class="fa-solid fa-folder-tree"></i> PDF Struktur (5)</button>
+<button class="cat-btn" onclick="filterCategory('optimize')"><i class="fa-solid fa-bolt"></i> PDF Optimasi (3)</button>
+<button class="cat-btn" onclick="filterCategory('convert2pdf')"><i class="fa-solid fa-file-import"></i> Konversi ke PDF (3)</button>
+<button class="cat-btn" onclick="filterCategory('convertfrom')"><i class="fa-solid fa-file-export"></i> Ekstrak PDF (3)</button>
+<button class="cat-btn" onclick="filterCategory('editsec')"><i class="fa-solid fa-shield-halved"></i> PDF Keamanan (6)</button>
+</div>
+<div class="tools-grid" id="tools-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;">
+  
+  <!-- PRIORITIZED FEATURE -->
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('word2pdf')" style="border:1px solid rgba(59,130,246,0.6); background: rgba(59,130,246,0.05); grid-column: 1 / -1; display:flex; flex-direction:row; align-items:center; gap: 20px;">
+    <div class="tool-icon" style="color:#60a5fa; background:rgba(59,130,246,0.2); font-size: 32px; padding: 20px; border-radius: 12px;"><i class="fa-solid fa-file-word"></i></div>
+    <div style="flex-grow: 1;">
+      <h3 class="tool-title" style="color:#60a5fa; font-size: 24px;">Convert Word to PDF</h3>
+      <p class="tool-desc" style="font-size: 15px;">Ubah dokumen Word (DOCX/DOC) menjadi PDF yang rapi secara offline dengan mudah.</p>
+    </div>
+    <div class="tool-action" style="color:#60a5fa; font-size: 16px; font-weight: bold; background: #60a5fa22; padding: 10px 20px; border-radius: 99px;">Coba Sekarang <i class="fa-solid fa-arrow-right"></i></div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('merge')">
+    <div>
+      <div class="tool-icon" style="color:#ef4444;"><i class="fa-solid fa-object-group"></i></div>
+      <h3 class="tool-title">Merge PDF</h3>
+      <p class="tool-desc">Gabungkan beberapa file PDF menjadi satu file utuh.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('split')">
+    <div>
+      <div class="tool-icon" style="color:#f97316;"><i class="fa-solid fa-scissors"></i></div>
+      <h3 class="tool-title">Split PDF</h3>
+      <p class="tool-desc">Pisahkan satu PDF menjadi beberapa file terpisah.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-optimize" onclick="selectTool('compress')">
+    <div>
+      <div class="tool-icon" style="color:#10b981;"><i class="fa-solid fa-compress"></i></div>
+      <h3 class="tool-title">Compress PDF</h3>
+      <p class="tool-desc">Kecilkan ukuran file PDF tanpa mengurangi kualitas secara drastis.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2word')">
+    <div>
+      <div class="tool-icon" style="color:#3b82f6;"><i class="fa-solid fa-file-export"></i></div>
+      <h3 class="tool-title">PDF to Word</h3>
+      <p class="tool-desc">Konversi file PDF menjadi dokumen Word yang bisa diedit.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('ppt2pdf')">
+    <div>
+      <div class="tool-icon" style="color:#f97316;"><i class="fa-solid fa-file-powerpoint"></i></div>
+      <h3 class="tool-title">PowerPoint to PDF</h3>
+      <p class="tool-desc">Jadikan file presentasi PPT menjadi format PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2ppt')">
+    <div>
+      <div class="tool-icon" style="color:#f97316;"><i class="fa-solid fa-desktop"></i></div>
+      <h3 class="tool-title">PDF to PowerPoint</h3>
+      <p class="tool-desc">Ubah PDF menjadi file presentasi yang mudah diedit.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('excel2pdf')">
+    <div>
+      <div class="tool-icon" style="color:#10b981;"><i class="fa-solid fa-file-excel"></i></div>
+      <h3 class="tool-title">Excel to PDF</h3>
+      <p class="tool-desc">Ubah tabel spreadsheet menjadi file PDF statis.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2excel')">
+    <div>
+      <div class="tool-icon" style="color:#10b981;"><i class="fa-solid fa-table"></i></div>
+      <h3 class="tool-title">PDF to Excel</h3>
+      <p class="tool-desc">Ekstrak tabel dari PDF menjadi file Excel.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('edit')">
+    <div>
+      <div class="tool-icon" style="color:#8b5cf6;"><i class="fa-solid fa-pen-to-square"></i></div>
+      <h3 class="tool-title">Edit PDF</h3>
+      <p class="tool-desc">Tambahkan teks, gambar, bentuk, atau anotasi pada PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('jpg2pdf')">
+    <div>
+      <div class="tool-icon" style="color:#eab308;"><i class="fa-regular fa-images"></i></div>
+      <h3 class="tool-title">JPG to PDF</h3>
+      <p class="tool-desc">Ubah gambar JPG, PNG, dll menjadi file PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2jpg')">
+    <div>
+      <div class="tool-icon" style="color:#eab308;"><i class="fa-solid fa-image"></i></div>
+      <h3 class="tool-title">PDF to JPG</h3>
+      <p class="tool-desc">Ekstrak setiap halaman PDF menjadi gambar JPG.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('sign')">
+    <div>
+      <div class="tool-icon" style="color:#6366f1;"><i class="fa-solid fa-signature"></i></div>
+      <h3 class="tool-title">Sign PDF</h3>
+      <p class="tool-desc">Tambahkan tanda tangan digital ke dokumen Anda.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('watermark')">
+    <div>
+      <div class="tool-icon" style="color:#0ea5e9;"><i class="fa-solid fa-stamp"></i></div>
+      <h3 class="tool-title">Watermark</h3>
+      <p class="tool-desc">Cap PDF Anda dengan gambar atau teks kustom.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('rotate')">
+    <div>
+      <div class="tool-icon" style="color:#ec4899;"><i class="fa-solid fa-rotate-right"></i></div>
+      <h3 class="tool-title">Rotate PDF</h3>
+      <p class="tool-desc">Putar orientasi halaman PDF sesuai keinginan Anda.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convert2pdf" onclick="selectTool('html2pdf')">
+    <div>
+      <div class="tool-icon" style="color:#14b8a6;"><i class="fa-brands fa-html5"></i></div>
+      <h3 class="tool-title">HTML to PDF</h3>
+      <p class="tool-desc">Ubah halaman web (HTML) menjadi dokumen PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('unlock')">
+    <div>
+      <div class="tool-icon" style="color:#22c55e;"><i class="fa-solid fa-lock-open"></i></div>
+      <h3 class="tool-title">Unlock PDF</h3>
+      <p class="tool-desc">Hapus password, enkripsi, dan permission dari PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-editsec" onclick="selectTool('protect')">
+    <div>
+      <div class="tool-icon" style="color:#ef4444;"><i class="fa-solid fa-lock"></i></div>
+      <h3 class="tool-title">Protect PDF</h3>
+      <p class="tool-desc">Amankan PDF dengan password dan enkripsi berlapis.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('organize')">
+    <div>
+      <div class="tool-icon" style="color:#8b5cf6;"><i class="fa-solid fa-layer-group"></i></div>
+      <h3 class="tool-title">Organize PDF</h3>
+      <p class="tool-desc">Urutkan ulang, hapus, atau tambahkan halaman PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-convertfrom" onclick="selectTool('pdf2pdfa')">
+    <div>
+      <div class="tool-icon" style="color:#3b82f6;"><i class="fa-solid fa-file-archive"></i></div>
+      <h3 class="tool-title">PDF to PDF/A</h3>
+      <p class="tool-desc">Ubah PDF ke standar pengarsipan ISO yang tahan lama.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-optimize" onclick="selectTool('repair')">
+    <div>
+      <div class="tool-icon" style="color:#f59e0b;"><i class="fa-solid fa-wrench"></i></div>
+      <h3 class="tool-title">Repair PDF</h3>
+      <p class="tool-desc">Perbaiki PDF yang rusak atau corrupt agar dapat dibuka kembali.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-organize" onclick="selectTool('pagenumbers')">
+    <div>
+      <div class="tool-icon" style="color:#0ea5e9;"><i class="fa-solid fa-list-ol"></i></div>
+      <h3 class="tool-title">Page Numbers</h3>
+      <p class="tool-desc">Tambahkan penomoran halaman pada dokumen PDF dengan mudah.</p>
+    </div>
+  </div>
+
+  <!-- Original Old Tools Kept for Compatibility -->
+  <div class="tool-card cat-word" onclick="selectTool('md_editor')">
+    <div>
+      <div class="tool-icon" style="color:#60a5fa;"><i class="fa-solid fa-file-code"></i></div>
+      <h3 class="tool-title">Markdown Editor Pro</h3>
+      <p class="tool-desc">Tulis dan konversi dokumen markdown ke PDF.</p>
+    </div>
+  </div>
+
+  <div class="tool-card cat-excel" onclick="selectTool('csv_viewer')">
+    <div>
+      <div class="tool-icon" style="color:#34d399;"><i class="fa-solid fa-table"></i></div>
+      <h3 class="tool-title">CSV Viewer</h3>
+      <p class="tool-desc">Lihat data tabel CSV langsung secara offline.</p>
+    </div>
+  </div>
+
+</div>
+  </section>
+<!-- Pricing Section -->
+<section class="pricing-section container" id="pricing-section">
+  <div class="section-header">
+    <h2>Ekosistem <span class="text-gold">WBT Document</span></h2>
+    <p>Pilih platform yang paling sesuai dengan kebutuhan produktivitas Anda.</p>
+  </div>
+  <div class="pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+    
+    <!-- Web Card -->
+    <div class="pricing-card">
+      <div>
+        <h3 class="pricing-title">Versi Web (Gratis)</h3>
+        <p style="color: var(--text-muted); font-size: 14px;">Akses langsung dari browser (Online)</p>
+        <div class="pricing-price">Rp 0 <span class="pricing-period">/ selamanya</span></div>
+        <ul class="pricing-features">
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Akses ke Semua Fitur PDF</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Tanpa Batasan Kuota Penggunaan</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Privasi Aman</li>
+          <li class="pricing-feature"><i class="fa-solid fa-xmark feature-icon disabled"></i> Terdapat Iklan (AdSense)</li>
+          <li class="pricing-feature"><i class="fa-solid fa-xmark feature-icon disabled"></i> Membutuhkan Koneksi Internet Aktif</li>
+        </ul>
+      </div>
+      <button class="btn btn-outline" style="width: 100%; cursor: default;">Versi Saat Ini</button>
+    </div>
+    
+    <!-- Mobile Card -->
+    <div class="pricing-card">
+      <div>
+        <h3 class="pricing-title">Aplikasi Mobile</h3>
+        <p style="color: var(--text-muted); font-size: 14px;">Praktis untuk smartphone Android & iOS</p>
+        <div class="pricing-price">Gratis <span class="pricing-period">/ Unduh</span></div>
+        <ul class="pricing-features">
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Akses Super Cepat di Genggaman</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Proses Sebagian Besar Fitur Secara Offline</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Ringan dan Hemat RAM</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Didukung oleh Iklan Video (AdMob)</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon text-gold"></i> Opsi Hapus Iklan Selamanya (Rp 15.000)</li>
+        </ul>
+      </div>
+      <button class="btn btn-outline" style="width: 100%; border-color:#38bdf8; color:#38bdf8;" onclick="alert('Segera Hadir di Play Store!')">Download APK (Segera)</button>
+    </div>
+
+    <!-- Pro Card -->
+    <div class="pricing-card pro">
+      <div class="pricing-badge">PALING EKSKLUSIF & AMAN</div>
+      <div>
+        <h3 class="pricing-title">WBT Desktop Pro</h3>
+        <p style="color: rgba(255,255,255,0.8); font-size: 14px;">Software PC (Windows/Mac) untuk Pekerja Profesional</p>
+        <div class="pricing-price">Rp 30.000 <span class="pricing-period">/ lisensi</span></div>
+        <ul class="pricing-features">
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Performa Pemrosesan Tercepat (Memakai CPU Lokal)</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> 100% Offline Tanpa Butuh Internet Sama Sekali</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Bebas Iklan (Ad-Free) Selamanya</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon"></i> Keamanan Privasi Level Militer (File Tidak Pernah Keluar dari PC)</li>
+          <li class="pricing-feature"><i class="fa-solid fa-check feature-icon text-gold"></i> Lisensi Sekali Bayar (Seumur Hidup)</li>
+        </ul>
+      </div>
+      <a href="https://wbtdigitallabs.myr.id/pl/lisensi-premium-wbt-desktop-pro/" target="_blank" style="text-decoration:none;"><button class="btn btn-gold" style="width: 100%;">Beli Lisensi Desktop (Rp 30rb)</button></a>
+    </div>
+
+  </div>
+</section>
+<!-- Download App Section -->
+<section class="download-section" id="download-section">
+<div class="container">
+<div class="download-banner">
+<div class="download-text">
+<h3>Download Aplikasi <span class="text-gradient">PDF Toolkit Lite</span></h3>
+<p>Dapatkan aplikasi native yang sangat ringan (hanya ~4MB) untuk perangkat Android dan Windows Anda. Bekerja tanpa internet sama sekali!</p>
+</div>
+<div class="download-buttons">
+<button class="btn btn-primary" onclick="downloadApp('android')">
+<i class="fa-brands fa-android" style="font-size: 20px;"></i> APK Android (v1.2)
+            </button>
+<button class="btn btn-outline" onclick="downloadApp('windows')">
+<i class="fa-brands fa-windows" style="font-size: 20px;"></i> Windows Portable (.exe)
+            </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer>
+<div class="container">
+<p>© 2026 PDF Toolkit Lite - Projek Produk-Sell. Dibuat dengan performa tinggi untuk kenyamanan Anda.</p>
+</div>
+</footer>
+<!-- Modal Upgrade Pro -->
+
+</div>
+<!-- Toast Container -->
+<div id="toast-container"></div>
+﻿<article class="seo-content" style="margin-top: 40px; padding: 24px; background: rgba(15, 23, 42, 0.5); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; line-height: 1.6;">
+<h2 style="color: white; font-size: 24px; margin-bottom: 16px;">Document Toolkit Offline - Kelola PDF &amp; Dokumen Anda dengan Aman</h2>
+<p style="margin-bottom: 16px;">Document Toolkit dari WBT Digital Labs adalah solusi terlengkap untuk mengelola, mengompres, menggabungkan, dan mengonversi file PDF secara 100% offline. Tanpa perlu mengunggah dokumen sensitif Anda ke server pihak ketiga, <strong>seluruh file Anda tetap aman di perangkat Anda sendiri</strong>.</p>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Fitur Utama</h3>
+<ul style="margin-left: 20px; margin-bottom: 16px; list-style-type: disc;">
+<li><strong>Gabung PDF (Merge):</strong> Satukan banyak file PDF menjadi satu dokumen rapi secara instan.</li>
+<li><strong>Kompresi PDF:</strong> Kurangi ukuran file PDF hingga 80% untuk keperluan upload berkas lamaran atau tugas kuliah tanpa mengurangi kualitas tulisan.</li>
+<li><strong>Konversi Gambar ke PDF:</strong> Ubah kumpulan foto JPG/PNG menjadi satu file PDF.</li>
+<li><strong>Proteksi Keamanan:</strong> Beri password enkripsi pada PDF Anda secara offline.</li>
+</ul>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Bagaimana Cara Menggunakannya?</h3>
+<ol style="margin-left: 20px; margin-bottom: 16px;">
+<li>Pilih alat yang Anda butuhkan (misal: Kompresi PDF).</li>
+<li>Tarik dan jatuhkan (drag &amp; drop) file Anda ke area yang disediakan.</li>
+<li>Proses berlangsung di dalam memori browser Anda (super cepat).</li>
+<li>Klik tombol Download untuk menyimpan hasilnya.</li>
+</ol>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Pertanyaan yang Sering Diajukan (FAQ)</h3>
+<p><strong>Apakah alat ini gratis?</strong> Ya, tersedia mode gratis harian. Untuk penggunaan massal, Anda dapat melakukan upgrade satu kali bayar seumur hidup.</p>
+<p><strong>Apakah file saya diunggah ke internet?</strong> Tidak. Ini adalah aplikasi WebAssembly (WASM) yang memproses semua file secara lokal di RAM HP/Laptop Anda.</p>
+<h3 style="color: white; font-size: 20px; margin-top: 24px; margin-bottom: 12px;">Tool Terkait Lainnya</h3>
+<p>Mungkin Anda juga tertarik dengan <a href="../../tools/WBT-Image-Studio-Pro/index.html" style="color: #38bdf8;">Image Studio Pro</a> atau <a href="../../tools/Offline-Markdown-Editor/index.html" style="color: #38bdf8;">Offline Markdown Editor</a>.</p>
+</article>
+<script src="app.js"></script>
+<script src="../midtrans-pay.js"></script>`r`n</body>
+</html>
+
+
+
