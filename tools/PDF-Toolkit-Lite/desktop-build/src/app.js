@@ -819,6 +819,27 @@ if (isDesktopEnv) {
   
   document.addEventListener('DOMContentLoaded', updateDesktopUI);
 
+  // Override selectTool untuk proteksi Freemium Desktop
+  const originalSelectTool = selectTool;
+  selectTool = function(toolKey) {
+    if (isDesktopEnv && !isDesktopPro && toolKey !== 'merge' && toolKey !== 'split') {
+      showDesktopActivationModal();
+      return; // Stop here, do not select the tool
+    }
+    return originalSelectTool(toolKey);
+  };
+  
+  // Override executeProcessing just in case
+  const originalExecuteProcessing = executeProcessing;
+  executeProcessing = async function() {
+    if (isDesktopEnv && !isDesktopPro && activeTool !== 'merge' && activeTool !== 'split') {
+      showDesktopActivationModal();
+      return;
+    }
+    return originalExecuteProcessing();
+  };
+
+
 }
 
 function showDesktopActivationModal(callback) {
