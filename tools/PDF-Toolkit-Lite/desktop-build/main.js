@@ -15,7 +15,7 @@ function createWindow() {
   });
 
   mainWindow.setMenuBarVisibility(false);
-  mainWindow.loadFile(path.join(__dirname, '../index.html'));
+  mainWindow.loadFile(path.join(__dirname, 'src/index.html'));
   
   // Intercept links to open in external browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -29,3 +29,4 @@ app.whenReady().then(createWindow);
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
