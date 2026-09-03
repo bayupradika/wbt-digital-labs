@@ -781,8 +781,7 @@ if (isDesktopEnv) {
   const fs = require('fs');
   const path = require('path');
   const crypto = require('crypto');
-  const { app } = require('@electron/remote') || { app: null }; // Optional if needed, but we'll use localStorage for simplicity
-  
+    
   // Verifikasi Kunci
   window.verifyDesktopKey = function(key) {
     try {
