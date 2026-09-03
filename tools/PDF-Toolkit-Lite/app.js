@@ -896,7 +896,7 @@ async function processMerge() {
     copiedPages.forEach((page) => mergedPdf.addPage(page));
   }
   const pdfBytes = await mergedPdf.save();
-  downloadBlob(pdfBytes, 'Merged_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Merged_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processSplit() {
@@ -924,7 +924,7 @@ async function processSplit() {
   const copiedPages = await splitPdf.copyPages(pdf, targetIndices);
   copiedPages.forEach((page) => splitPdf.addPage(page));
   const pdfBytes = await splitPdf.save();
-  downloadBlob(pdfBytes, 'Split_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Split_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processRemovePages() {
@@ -943,7 +943,7 @@ async function processRemovePages() {
   const copiedPages = await newPdf.copyPages(pdf, targetIndices);
   copiedPages.forEach((page) => newPdf.addPage(page));
   const pdfBytes = await newPdf.save();
-  downloadBlob(pdfBytes, 'Cleaned_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Cleaned_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processExtractPages() {
@@ -957,7 +957,7 @@ async function processExtractPages() {
   const copiedPages = await newPdf.copyPages(pdf, targetIndices);
   copiedPages.forEach((page) => newPdf.addPage(page));
   const pdfBytes = await newPdf.save();
-  downloadBlob(pdfBytes, 'Extracted_Pages_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Extracted_Pages_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processOrganize() {
@@ -978,21 +978,21 @@ async function processOrganize() {
   const copiedPages = await newPdf.copyPages(pdf, targetIndices);
   copiedPages.forEach((page) => newPdf.addPage(page));
   const pdfBytes = await newPdf.save();
-  downloadBlob(pdfBytes, 'Reordered_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Reordered_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processCompress() {
   const arrayBuffer = await selectedFiles[0].arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer);
   const pdfBytes = await pdf.save({ useObjectStreams: true });
-  downloadBlob(pdfBytes, 'Compressed_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Compressed_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processRepair() {
   const arrayBuffer = await selectedFiles[0].arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
   const pdfBytes = await pdf.save({ useObjectStreams: true });
-  downloadBlob(pdfBytes, 'Repaired_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Repaired_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processCleanExif() {
@@ -1005,7 +1005,7 @@ async function processCleanExif() {
   pdf.setProducer('PDF Toolkit Lite Studio (Cleaned)');
   pdf.setCreator('PDF Toolkit Lite Privacy Shield');
   const pdfBytes = await pdf.save();
-  downloadBlob(pdfBytes, 'Metadata_Cleaned_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Metadata_Cleaned_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processImg2Pdf() {
@@ -1031,7 +1031,7 @@ async function processImg2Pdf() {
   }
   
   const pdfBytes = await pdfDoc.save();
-  downloadBlob(pdfBytes, 'Converted_Images_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Converted_Images_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processNote2Pdf() {
@@ -1040,7 +1040,7 @@ async function processNote2Pdf() {
   const page = pdfDoc.addPage([595, 842]);
   page.drawText(text, { x: 50, y: 780, size: 12, lineHeight: 18, maxWidth: 495 });
   const pdfBytes = await pdfDoc.save();
-  downloadBlob(pdfBytes, 'Notes_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Notes_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processHtml2Pdf() {
@@ -1050,7 +1050,7 @@ async function processHtml2Pdf() {
   const page = pdfDoc.addPage([595, 842]);
   page.drawText(strippedText, { x: 50, y: 780, size: 13, lineHeight: 20, maxWidth: 495 });
   const pdfBytes = await pdfDoc.save();
-  downloadBlob(pdfBytes, 'HTML_Snippet_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'HTML_Snippet_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processPdf2Img() {
@@ -1070,7 +1070,7 @@ async function processPdf2Img() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Page1_Extracted_WBT_Document_Toolkit.${format}`;
+    a.download = `Page1_Extracted_WBT_Docs.${format}`;
     a.click();
   }, `image/${format}`);
 }
@@ -1085,7 +1085,7 @@ async function processPdf2Txt() {
     const pageText = textContent.items.map(item => item.str).join(' ');
     fullText += `--- Halaman ${i} ---\r\n` + pageText + '\r\n\r\n';
   }
-  downloadBlob(new TextEncoder().encode(fullText), 'Extracted_Text_WBT_Document_Toolkit.txt', 'text/plain');
+  downloadBlob(new TextEncoder().encode(fullText), 'Extracted_Text_WBT_Docs.txt', 'text/plain');
 }
 
 async function processPdf2Csv() {
@@ -1100,7 +1100,7 @@ async function processPdf2Csv() {
       if (cleanStr.trim()) csvContent += `${i},${idx + 1},"${cleanStr}"\r\n`;
     });
   }
-  downloadBlob(new TextEncoder().encode(csvContent), 'Extracted_Data_WBT_Document_Toolkit.csv', 'text/csv');
+  downloadBlob(new TextEncoder().encode(csvContent), 'Extracted_Data_WBT_Docs.csv', 'text/csv');
 }
 
 async function processRotate() {
@@ -1113,7 +1113,7 @@ async function processRotate() {
     page.setRotation(degrees(currentRotation + angle));
   });
   const pdfBytes = await pdf.save();
-  downloadBlob(pdfBytes, 'Rotated_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Rotated_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processPageNumber() {
@@ -1131,7 +1131,7 @@ async function processPageNumber() {
     page.drawText(`Halaman ${idx + 1} dari ${pages.length}`, { x, y, size: 10 });
   });
   const pdfBytes = await pdf.save();
-  downloadBlob(pdfBytes, 'Numbered_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Numbered_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processWatermark() {
@@ -1155,7 +1155,7 @@ async function processWatermark() {
     });
   });
   const pdfBytes = await pdf.save();
-  downloadBlob(pdfBytes, 'Watermarked_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Watermarked_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processProtect() {
@@ -1164,7 +1164,7 @@ async function processProtect() {
   const pdf = await PDFDocument.load(arrayBuffer);
   pdf.setTitle(`Protected Document (Password: ${pwd})`);
   const pdfBytes = await pdf.save();
-  downloadBlob(pdfBytes, 'Protected_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Protected_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processUnlock() {
@@ -1172,7 +1172,7 @@ async function processUnlock() {
   const pdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
   pdf.setTitle('Unlocked Document');
   const pdfBytes = await pdf.save();
-  downloadBlob(pdfBytes, 'Unlocked_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Unlocked_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processSignStudio() {
@@ -1199,7 +1199,7 @@ async function processSignStudio() {
     color: rgb(0.1, 0.3, 0.7)
   });
   const pdfBytes = await pdf.save();
-  downloadBlob(pdfBytes, 'Signed_Document_WBT_Document_Toolkit.pdf', 'application/pdf');
+  downloadBlob(pdfBytes, 'Signed_Document_WBT_Docs.pdf', 'application/pdf');
 }
 
 async function processMdEditor() {
