@@ -1,5 +1,5 @@
 {
-  "name": "wbt-pdf-toolkit",
+  "name": "wbt-document-toolkit",
   "version": "1.0.0",
   "description": "WBT Document Toolkit - Premium Desktop Edition",
   "main": "main.js",
@@ -15,5 +15,9 @@
   },
   "dependencies": {
     "node-machine-id": "^1.1.12"
+  },
+  "build": {
+    "productName": "WBT Document Toolkit Pro",
+    "appId": "com.wbt.documenttoolkit"
   }
 }
