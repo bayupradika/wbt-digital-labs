@@ -803,6 +803,23 @@ if (isDesktopEnv) {
   if (savedKey && verifyDesktopKey(savedKey)) {
     isDesktopPro = true;
   }
+
+  function updateDesktopUI() {
+    const navBtn = document.getElementById('desktop-activation-nav');
+    if(navBtn) {
+      if(isDesktopPro) {
+        navBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> ACTIVATED';
+        navBtn.style.background = '#10b981'; // Green
+        navBtn.style.color = 'white';
+        navBtn.onclick = (e) => { e.preventDefault(); alert('Aplikasi Anda sudah Aktif Permanen!'); };
+      } else {
+        navBtn.onclick = (e) => { e.preventDefault(); showDesktopActivationModal(); };
+      }
+    }
+  }
+  
+  document.addEventListener('DOMContentLoaded', updateDesktopUI);
+
 }
 
 function showDesktopActivationModal(callback) {
@@ -810,19 +827,23 @@ function showDesktopActivationModal(callback) {
   modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; color:white; font-family:sans-serif; backdrop-filter: blur(5px);';
   
   modal.innerHTML = 
-    <div style="background:#1e293b; padding:40px; border-radius:12px; width:450px; text-align:center; border:1px solid #3b82f6;">
-      <h2 style="color:#38bdf8; margin-top:0;">WBT Desktop PRO Required</h2>
-      <p style="color:#cbd5e1; font-size:14px; margin-bottom:20px;">Fitur ini eksklusif untuk versi Premium. Anda sedang menggunakan versi Gratis (hanya mendukung Split & Merge).</p>
+    
+    <div style="background:#1e293b; padding:40px; border-radius:12px; width:450px; text-align:center; border:1px solid #3b82f6; position:relative;">
+      <h2 style="color:#fbbf24; margin-top:0;"><i class="fa-solid fa-crown"></i> Aktivasi WBT Docs Pro</h2>
+      <p style="color:#cbd5e1; font-size:14px; margin-bottom:20px;">Versi gratis hanya mendukung fitur Merge & Split PDF. Masukkan kode lisensi untuk membuka semua fitur.</p>
       
-      <button onclick="window.open('https://wbtdigitallabs.myr.id/pl/lisensi-premium-wbt-desktop-pro/', '_blank')" style="background:transparent; border:1px solid #3b82f6; color:#38bdf8; padding:12px; width:100%; border-radius:6px; cursor:pointer; font-weight:bold; margin-bottom:20px;">
-        Beli Lisensi (Rp 30.000)
+      <button onclick="window.open('https://wbtdigitallabs.myr.id/pl/lisensi-premium-wbt-desktop-pro/', '_blank')" style="background:transparent; border:1px solid #fbbf24; color:#fbbf24; padding:12px; width:100%; border-radius:6px; cursor:pointer; font-weight:bold; margin-bottom:20px;">
+        <i class="fa-solid fa-cart-shopping"></i> Beli Lisensi via Mayar (Rp 30.000)
       </button>
       
       <div style="border-top:1px solid #334155; padding-top:20px; position:relative;">
-        <span style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#1e293b; padding:0 10px; font-size:12px; color:#64748b;">SUDAH PUNYA KODE?</span>
+        <span style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#1e293b; padding:0 10px; font-size:12px; color:#64748b;">MASUKKAN KODE LISENSI</span>
         <input type="text" id="modal-license-key" placeholder="WBT-XXXX-YYYY" style="width:90%; padding:12px; margin-bottom:15px; background:#0f172a; border:1px solid #475569; color:white; text-align:center; letter-spacing:2px; font-weight:bold; border-radius:6px;">
-        <button id="btn-activate-modal" style="background:#10b981; color:white; border:none; padding:12px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer;">Aktifkan Aplikasi</button>
+        <button id="btn-activate-modal" style="background:#10b981; color:white; border:none; padding:12px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-check"></i> Activate Now</button>
       </div>
+      <button id="btn-close-modal" style="position:absolute; top:15px; right:15px; background:transparent; color:#94a3b8; border:none; cursor:pointer; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
       <button id="btn-close-modal" style="margin-top:15px; background:transparent; color:#94a3b8; border:none; cursor:pointer; text-decoration:underline;">Tutup</button>
     </div>
   ;
@@ -837,6 +858,7 @@ function showDesktopActivationModal(callback) {
       localStorage.setItem('wbt_desktop_license', key);
       isDesktopPro = true;
       alert('Aktivasi Berhasil! Terima kasih telah membeli WBT Document Toolkit Pro.');
+      updateDesktopUI();
       document.body.removeChild(modal);
       if(callback) callback();
     } else {
