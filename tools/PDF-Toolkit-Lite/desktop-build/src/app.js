@@ -825,9 +825,8 @@ function showDesktopActivationModal(callback) {
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; color:white; font-family:sans-serif; backdrop-filter: blur(5px);';
   
-  modal.innerHTML = 
-    
-    <div style="background:#1e293b; padding:40px; border-radius:12px; width:450px; text-align:center; border:1px solid #3b82f6; position:relative;">
+  modal.innerHTML = `
+      <div style="background:#1e293b; padding:40px; border-radius:12px; width:450px; text-align:center; border:1px solid #3b82f6; position:relative;">
       <h2 style="color:#fbbf24; margin-top:0;"><i class="fa-solid fa-crown"></i> Aktivasi WBT Docs Pro</h2>
       <p style="color:#cbd5e1; font-size:14px; margin-bottom:20px;">Versi gratis hanya mendukung fitur Merge & Split PDF. Masukkan kode lisensi untuk membuka semua fitur.</p>
       
@@ -842,11 +841,10 @@ function showDesktopActivationModal(callback) {
       </div>
       <button id="btn-close-modal" style="position:absolute; top:15px; right:15px; background:transparent; color:#94a3b8; border:none; cursor:pointer; font-size:20px;"><i class="fa-solid fa-xmark"></i></button>
     </div>
-
       <button id="btn-close-modal" style="margin-top:15px; background:transparent; color:#94a3b8; border:none; cursor:pointer; text-decoration:underline;">Tutup</button>
-    </div>
-  ;
-  document.body.appendChild(modal);
+      </div>
+    `;
+    document.body.appendChild(modal);
 
   document.getElementById('btn-close-modal').onclick = () => document.body.removeChild(modal);
   
@@ -857,7 +855,7 @@ function showDesktopActivationModal(callback) {
       localStorage.setItem('wbt_desktop_license', key);
       isDesktopPro = true;
       alert('Aktivasi Berhasil! Terima kasih telah membeli WBT Document Toolkit Pro.');
-      updateDesktopUI();
+      if(typeof updateDesktopUI === 'function') updateDesktopUI();
       document.body.removeChild(modal);
       if(callback) callback();
     } else {

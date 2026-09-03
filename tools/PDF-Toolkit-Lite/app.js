@@ -809,8 +809,8 @@ function showDesktopActivationModal(callback) {
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:999999; display:flex; align-items:center; justify-content:center; color:white; font-family:sans-serif; backdrop-filter: blur(5px);';
   
-  modal.innerHTML = 
-    <div style="background:#1e293b; padding:40px; border-radius:12px; width:450px; text-align:center; border:1px solid #3b82f6;">
+  modal.innerHTML = `
+      <div style="background:#1e293b; padding:40px; border-radius:12px; width:450px; text-align:center; border:1px solid #3b82f6;">
       <h2 style="color:#38bdf8; margin-top:0;">WBT Desktop PRO Required</h2>
       <p style="color:#cbd5e1; font-size:14px; margin-bottom:20px;">Fitur ini eksklusif untuk versi Premium. Anda sedang menggunakan versi Gratis (hanya mendukung Split & Merge).</p>
       
@@ -824,9 +824,9 @@ function showDesktopActivationModal(callback) {
         <button id="btn-activate-modal" style="background:#10b981; color:white; border:none; padding:12px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer;">Aktifkan Aplikasi</button>
       </div>
       <button id="btn-close-modal" style="margin-top:15px; background:transparent; color:#94a3b8; border:none; cursor:pointer; text-decoration:underline;">Tutup</button>
-    </div>
-  ;
-  document.body.appendChild(modal);
+      </div>
+    `;
+    document.body.appendChild(modal);
 
   document.getElementById('btn-close-modal').onclick = () => document.body.removeChild(modal);
   
