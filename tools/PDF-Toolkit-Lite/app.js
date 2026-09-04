@@ -1586,3 +1586,75 @@ function lintMarkdown() {
   showToast('✨ Audit & Linter selesai! Syntax heading dan spasi berlebih telah dirapikan.', 'success');
 }
 
+
+
+  async function processWithCloudConvert(inputFormat, outputFormat) {
+    const apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMGU4NmY5OGY4Y2E3OWMyMzA0MmI2N2ZmNmM3YmVhZGExM2FjNDZjNzY2ODY5ZDg5ZmU3OGQzMTY1ODFjYjQwMjViZTBiNGIzZDMwNTkzNGQiLCJpYXQiOjE3ODg1NjA1NjUuNTA5ODIsIm5iZiI6MTc4ODU2MDU2NS41MDk4MjEsImV4cCI6NDk0NDIzNDE2NS40OTkyMDcsInN1YiI6Ijc2ODU3MjM4Iiwic2NvcGVzIjpbInVzZXIucmVhZCIsInRhc2sucmVhZCIsInRhc2sud3JpdGUiLCJ1c2VyLndyaXRlIiwid2ViaG9vay53cml0ZSIsIndlYmhvb2sucmVhZCIsInByZXNldC53cml0ZSIsInByZXNldC5yZWFkIl19.AkrzfvCJB2mt7SEvGKoMO5dJCVEGwU3fW0Q_rBQQLxjaPy53JF4xT_Liu83Eef_rLYQFK-B3AGyg1cO61ZlzZS8eVMiZahaWfc5ND10itr6nSD9NdS99_SgfkacipwWL5Mgu21IcPNRS6zp6NEh36Namu5MdTnAGYzl4bhPb2rePWrGeFjajBJBR2E88FMIaCl5_42HUR8IK1AnLu539KntAVUR0VdNeHkpLQWtYccz0XInIA1Zt4A3NZl1ft6aSKmUZsMPmyT6PFw58zZLL6ZQMqtbt8YwWQCfPxObPeIxmhkr41Cl4ILd3orZ3-AOqTXZYeo5Qdp2wUIXCgw-i67TjPZLtkqZurgcpKzcdMrYwyovUsVNoOIZUXkd7H_4RFzNcM-zjxcIbOaAs6oW6z9OqeBlvgHMdfNmwdX_Svq6u299H9O9LHOYsoY8Dk1h_ipqV-elcQMK87gob4x8CP0CtlktbtafWMvjG54njxr47iHxGXw7zJi3dMIdrOVZvLhiS2pTYWT-20aaG9vRqLVNZovrKkmri7QQsL8Rtdpgl6fVKV55wTITNpOGlWoak2PqwdZStcASiWDMx_47PHHjcLZZd4VCTZL6XZnE7BuGDHmU9l4XpsuEtGtULcHJ8WyldgNXTOBHJwM-lNaktENw8sTpFSojTaN6sjz6fJRY';
+    const file = selectedFiles[0];
+    
+    // 1. Create Job
+    const jobReq = await fetch('https://api.cloudconvert.com/v2/jobs', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tasks: {
+          'import-it': { operation: 'import/upload' },
+          'convert-it': { operation: 'convert', input: 'import-it', output_format: outputFormat },
+          'export-it': { operation: 'export/url', input: 'convert-it' }
+        }
+      })
+    });
+    
+    if (!jobReq.ok) {
+       const err = await jobReq.json();
+       throw new Error("API Error: " + (err.message || 'Gagal menghubungi server CloudConvert.'));
+    }
+    
+    const jobData = await jobReq.json();
+    const importTask = jobData.data.tasks.find(t => t.name === 'import-it');
+    const uploadUrl = importTask.result.form.url;
+    const uploadParams = importTask.result.form.parameters;
+    
+    // 2. Upload file
+    const formData = new FormData();
+    for (const key in uploadParams) {
+      formData.append(key, uploadParams[key]);
+    }
+    formData.append('file', file);
+    
+    showToast('Mengunggah dokumen ke server konversi...', 'info');
+    const uploadReq = await fetch(uploadUrl, { method: 'POST', body: formData });
+    if (!uploadReq.ok) throw new Error("Gagal mengunggah file.");
+    
+    // 3. Poll job status
+    showToast('Memproses dokumen di Cloud (Mungkin memakan waktu beberapa menit)...', 'info');
+    let jobFinished = false;
+    let exportUrl = null;
+    
+    while (!jobFinished) {
+      await new Promise(r => setTimeout(r, 2000));
+      const pollReq = await fetch(`https://api.cloudconvert.com/v2/jobs/${jobData.data.id}`, {
+        headers: { 'Authorization': 'Bearer ' + apiKey }
+      });
+      const pollData = await pollReq.json();
+      const status = pollData.data.status;
+      
+      if (status === 'error') {
+         throw new Error("Proses konversi gagal di server.");
+      } else if (status === 'finished') {
+         jobFinished = true;
+         const exportTask = pollData.data.tasks.find(t => t.name === 'export-it');
+         exportUrl = exportTask.result.files[0].url;
+      }
+    }
+    
+    // 4. Download file
+    showToast('Mengunduh hasil...', 'info');
+    const downloadReq = await fetch(exportUrl);
+    const blob = await downloadReq.blob();
+    const filename = file.name.substring(0, file.name.lastIndexOf('.')) + '.' + outputFormat;
+    downloadBlob(blob, filename, downloadReq.headers.get('Content-Type') || 'application/octet-stream');
+  }
