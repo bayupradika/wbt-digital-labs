@@ -536,6 +536,33 @@ function selectTool(toolKey) {
   if (config.settings) {
     settingsDiv.innerHTML = config.settings;
     settingsDiv.style.display = 'flex';
+      
+      if (toolKey === 'split') {
+        const btnAdd = document.getElementById('btn-add-split');
+        const btnRemove = document.getElementById('btn-remove-split');
+        const container = document.getElementById('split-inputs-container');
+        const countSpan = document.getElementById('split-count');
+        
+        let splitCount = 1;
+        
+        btnAdd.onclick = () => {
+          splitCount++;
+          countSpan.textContent = splitCount;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'setting-input split-range-input';
+          input.placeholder = `Pisahan ${splitCount}: Kosongkan untuk pisah semua`;
+          container.appendChild(input);
+        };
+        
+        btnRemove.onclick = () => {
+          if (splitCount > 1) {
+            container.removeChild(container.lastChild);
+            splitCount--;
+            countSpan.textContent = splitCount;
+          }
+        };
+      }
   } else {
     settingsDiv.style.display = 'none';
   }
@@ -972,34 +999,65 @@ async function processMerge() {
 }
 
 async function processSplit() {
-  const arrayBuffer = await selectedFiles[0].arrayBuffer();
-  const pdf = await PDFDocument.load(arrayBuffer);
-  const totalPages = pdf.getPageCount();
-  
-  const rangeInput = document.getElementById('split-range').value.trim();
-  let targetIndices = Array.from({ length: totalPages }, (_, i) => i);
-  
-  if (rangeInput) {
-    const parts = rangeInput.split('-');
-    if (parts.length === 2) {
-      const start = Math.max(1, parseInt(parts[0])) - 1;
-      const end = Math.min(totalPages, parseInt(parts[1])) - 1;
-      targetIndices = [];
-      for (let i = start; i <= end; i++) targetIndices.push(i);
-    } else {
-      const idx = Math.max(1, Math.min(totalPages, parseInt(parts[0]))) - 1;
-      targetIndices = [idx || 0];
+    const arrayBuffer = await selectedFiles[0].arrayBuffer();
+    const pdf = await PDFDocument.load(arrayBuffer);
+    const totalPages = pdf.getPageCount();
+    
+    const inputs = document.querySelectorAll('.split-range-input');
+    let partNum = 1;
+    
+    for (let input of inputs) {
+      const rangeInput = input.value.trim();
+      let targetIndices = [];
+      
+      if (!rangeInput) {
+        for (let i = 0; i < totalPages; i++) {
+          const splitPdf = await PDFDocument.create();
+          const [copiedPage] = await splitPdf.copyPages(pdf, [i]);
+          splitPdf.addPage(copiedPage);
+          const pdfBytes = await splitPdf.save();
+          downloadBlob(pdfBytes, `Split_Part${partNum}_Page${i+1}_WBT_Docs.pdf`, 'application/pdf');
+          await new Promise(r => setTimeout(r, 400));
+        }
+        partNum++;
+        continue;
+      }
+      
+      const ranges = rangeInput.split(',');
+      for (const r of ranges) {
+        const parts = r.split('-');
+        if (parts.length === 2) {
+          const start = Math.max(1, parseInt(parts[0].trim())) - 1;
+          const end = Math.min(totalPages, parseInt(parts[1].trim())) - 1;
+          for (let i = start; i <= end; i++) {
+             if(!targetIndices.includes(i)) targetIndices.push(i);
+          }
+        } else {
+          const idx = parseInt(parts[0].trim());
+          if (!isNaN(idx)) {
+            const validIdx = Math.max(1, Math.min(totalPages, idx)) - 1;
+            if(!targetIndices.includes(validIdx)) targetIndices.push(validIdx);
+          }
+        }
+      }
+      
+      targetIndices.sort((a,b) => a - b);
+      
+      if (targetIndices.length > 0) {
+        const splitPdf = await PDFDocument.create();
+        const copiedPages = await splitPdf.copyPages(pdf, targetIndices);
+        copiedPages.forEach((page) => splitPdf.addPage(page));
+        const pdfBytes = await splitPdf.save();
+        
+        let filename = inputs.length > 1 ? `Split_Part${partNum}_WBT_Docs.pdf` : 'Split_Document_WBT_Docs.pdf';
+        downloadBlob(pdfBytes, filename, 'application/pdf');
+        await new Promise(r => setTimeout(r, 600));
+      }
+      
+      partNum++;
     }
   }
-
-  const splitPdf = await PDFDocument.create();
-  const copiedPages = await splitPdf.copyPages(pdf, targetIndices);
-  copiedPages.forEach((page) => splitPdf.addPage(page));
-  const pdfBytes = await splitPdf.save();
-  downloadBlob(pdfBytes, 'Split_Document_WBT_Docs.pdf', 'application/pdf');
-}
-
-async function processRemovePages() {
+  async function processRemovePages() {
   const arrayBuffer = await selectedFiles[0].arrayBuffer();
   const pdf = await PDFDocument.load(arrayBuffer);
   const totalPages = pdf.getPageCount();
