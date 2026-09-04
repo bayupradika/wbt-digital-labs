@@ -70,11 +70,20 @@ const toolsConfig = {
     minFiles: 1,
     hint: 'Pilih 1 file PDF yang ingin dipisahkan',
     settings: `
-      <div class="setting-group">
-        <label class="setting-label">Rentang Halaman (Contoh: 1-3, 5)</label>
-        <input type="text" id="split-range" class="setting-input" placeholder="Kosongkan untuk pisah semua halaman">
-      </div>
-    `
+        <div class="setting-group" style="width: 100%;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label class="setting-label">Rentang Halaman (Contoh: 1-3, 5)</label>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+              <button id="btn-remove-split" class="btn-action" style="padding:5px 10px; background:#ef4444; color:white; border-radius:5px; border:none; cursor:pointer;" title="Kurangi Input"><i class="fa-solid fa-minus"></i></button>
+              <span id="split-count" style="color:white; font-weight:bold; align-self:center;">1</span>
+              <button id="btn-add-split" class="btn-action" style="padding:5px 10px; background:#10b981; color:white; border-radius:5px; border:none; cursor:pointer;" title="Tambah Input"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+          <div id="split-inputs-container" style="display:flex; flex-direction:column; gap:10px;">
+            <input type="text" class="setting-input split-range-input" placeholder="Pisahan 1: Kosongkan untuk pisah semua">
+          </div>
+        </div>
+      `
   },
   remove_pages: {
     title: 'Hapus Halaman PDF',
@@ -629,8 +638,21 @@ function renderFileList() {
     const btnProcess = document.getElementById('btn-process');
     
     fileListEl.innerHTML = '';
-    
-    selectedFiles.forEach((file, index) => {
+      
+      const dropzone = document.getElementById('dropzone');
+      if (selectedFiles.length > 0) {
+        if(dropzone) dropzone.style.display = 'none';
+        
+        const addBtnContainer = document.createElement('div');
+        addBtnContainer.style.textAlign = 'right';
+        addBtnContainer.style.marginBottom = '15px';
+        addBtnContainer.innerHTML = `<button onclick="document.getElementById('file-input').click()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold;"><i class="fa-solid fa-plus"></i> Tambahkan File</button>`;
+        fileListEl.appendChild(addBtnContainer);
+      } else {
+        if(dropzone) dropzone.style.display = '';
+      }
+      
+      selectedFiles.forEach((file, index) => {
       const sizeKB = (file.size / 1024).toFixed(1);
       const item = document.createElement('div');
       item.className = 'file-item';

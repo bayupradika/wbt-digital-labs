@@ -1,6 +1,6 @@
 {
   "name": "wbt-docs",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "WBT Docs - Premium Desktop Edition",
   "main": "main.js",
   "scripts": {
